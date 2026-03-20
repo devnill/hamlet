@@ -1,11 +1,12 @@
 {
   "name": "hamlet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Visualize Claude Code agent activity as a roguelike idle game.",
   "author": {
     "name": "devnill"
   },
   "license": "MIT",
   "mcpServers": "./.claude-plugin/mcp.json",
-  "hooks": "./hooks/hooks.json"
+  "hooks": "./hooks/hooks.json",
+  "skills": "./skills"
 }
