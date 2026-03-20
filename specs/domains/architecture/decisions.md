@@ -118,3 +118,35 @@
 - **Rationale:** Zombie eviction handles stale pending_tools entries regardless of stop reason via TTL. Proactive differentiation requires defining what "interrupted" means for agent state transitions.
 - **Source:** archive/cycles/006/decision-log.md (D-R3); archive/cycles/006/gap-analysis.md (MG1)
 - **Status:** settled
+
+## D-19: os.chdir(cwd) required before find_server_url() and find_config() in all hook scripts
+- **Decision:** All hook scripts must call `os.chdir(hook_input.get("cwd", ""))` after reading stdin and before calling `find_server_url()` or `find_config()`. Both utility functions traverse from `os.getcwd()`; without chdir, traversal starts from Claude Code's launch directory. Five WI-180 hooks omitted this step and were fixed during review.
+- **Rationale:** WI-179 hooks included the chdir pattern from rework; WI-180 hooks were completed before the pattern was established. The capstone review (S1) caught the omission.
+- **Source:** archive/cycles/008/decision-log.md (decision 1), archive/cycles/008/code-quality.md (S1)
+- **Policy:** Amends P-6
+- **Status:** settled
+
+## D-20: HOOK_SCRIPTS dict must cover all registered hook types
+- **Decision:** `HOOK_SCRIPTS` in `install.py` must list all hook types and their script filenames, matching `hooks.json`. When WI-185 was implemented, the dict still listed only the original 4 hooks. Non-plugin users running `hamlet install` received only 4 of 15 hooks. Fixed during cycle 008 review.
+- **Rationale:** Non-plugin users rely entirely on `hamlet install` for hook registration. Missing entries cause silent degraded experience.
+- **Source:** archive/cycles/008/code-quality.md (M4), archive/cycles/008/gap-analysis.md (G1)
+- **Policy:** P-11
+- **Status:** settled
+
+## D-21: PreToolUse and PreCompact are blocking hooks — no async:true
+- **Decision:** Blocking hooks (PreToolUse, PreCompact) must not have `"async": true` in `hooks.json`. All other 13 hook types use `"async": true`. Setting async on a blocking hook causes a Claude Code load error.
+- **Rationale:** Claude Code specification requires blocking hooks to run synchronously so they can interrupt processing.
+- **Source:** archive/cycles/008/decision-log.md (decision 3)
+- **Status:** settled
+
+## D-22: TeammateIdle handler is log-only — no agent name lookup
+- **Decision:** The TeammateIdle daemon handler logs a summary string only and performs no state mutation. The `Agent` dataclass has no `name` field, so `getattr(agent, "name", None)` always returns None and no teammate-to-agent resolution is possible.
+- **Rationale:** No stored mapping from teammate name to Agent entity exists in the data model. Adding one would require an Agent.name field or a name-to-agent_id index.
+- **Source:** archive/cycles/008/decision-log.md (decision 4)
+- **Status:** settled
+
+## D-23: stop_failure.py nested error object accepted as P-8 asymmetry
+- **Decision:** `stop_failure.py` sends `"error": {"type": ..., "reason": ...}` as a nested object within params. This is the only hook that sends a nested non-tool value. The schema explicitly permits it (`"error": {"type": ["object", "null"]}`) and `InternalEvent` stores it as `dict[str, Any] | None`. Accepted as an asymmetry rather than a P-8 violation.
+- **Rationale:** The nested structure matches the Claude Code hook payload format. Flattening would diverge from the source data shape for no pipeline benefit.
+- **Source:** archive/cycles/008/code-quality.md (M1), archive/cycles/008/decision-log.md (decision 5)
+- **Status:** settled

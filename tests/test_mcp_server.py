@@ -69,3 +69,14 @@ class TestMCPServer:
             await server.stop()
 
             assert server.is_running() is False
+
+    @pytest.mark.asyncio
+    async def test_health_endpoint(self) -> None:
+        """Test that _handle_health returns HTTP 200 with {"status": "ok"}."""
+        server = MCPServer()
+        request = MagicMock()
+        response = await server._handle_health(request)
+        assert response.status == 200
+        import json
+        body = json.loads(response.body)
+        assert body == {"status": "ok"}

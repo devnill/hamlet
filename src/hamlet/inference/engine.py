@@ -4,9 +4,12 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from hamlet.event_processing.internal_event import HookType, InternalEvent
+
+if TYPE_CHECKING:
+    from hamlet.protocols import WorldStateProtocol
 from hamlet.inference.rules import TYPE_RULES
 from hamlet.inference.summarizer import ActivitySummarizer
 from hamlet.world_state.rules import TOOL_TO_STRUCTURE
@@ -35,21 +38,35 @@ class AgentInferenceEngine:
 
     def __init__(
         self,
-        world_state: Any,
+        world_state: "WorldStateProtocol",
         summarizer: ActivitySummarizer | None = None,
         config: SimulationConfig | None = None,
     ) -> None:
-        # world_state: WorldStateManager — typed as Any to avoid circular imports
         self._world_state = world_state
         self._summarizer = summarizer
         self._config = config if config is not None else SimulationConfig()
         self._state = InferenceState()
 
     async def process_event(self, event: InternalEvent) -> None:
-        """Route event to the appropriate hook-type handler.
+        """Route an event to the appropriate hook-type handler.
 
-        Per guiding principle 7 (graceful degradation), handler errors are
-        logged but not re-raised — inference failures are non-fatal.
+        Dispatches on ``event.hook_type``:
+
+        - **PreToolUse**: runs spawn detection, materialises any newly-inferred
+          agent into world state, increments the session's active-tool counter,
+          and records a ``PendingTool`` entry for later correlation.
+        - **PostToolUse**: updates the session's ``ToolWindow``, infers
+          ``AgentType`` from recent tool history, awards work units to structures,
+          and evicts the matching ``PendingTool`` entry.
+        - **Notification**: refreshes ``last_seen`` timestamps for session agents.
+        - **Stop**: refreshes ``last_seen`` and logs the stop reason.
+        - All other hook types: logged as a warning; no state is mutated.
+
+        Per guiding principle 7 (graceful degradation), handler exceptions are
+        caught and logged — inference failures are non-fatal.
+
+        Args:
+            event: The normalised internal event delivered by ``EventProcessor``.
         """
         try:
             if event.hook_type == HookType.PreToolUse:
@@ -329,13 +346,45 @@ class AgentInferenceEngine:
             logger.debug("Notification [session=%s]: %s", event.session_id, event.notification_message)
 
     async def _handle_stop(self, event: InternalEvent) -> None:
-        """Handle Stop events — update last_seen and mark agents as inactive."""
-        # Stop events do not have a tool_name but indicate session termination.
-        # Update the session's agent last_seen so zombie detection can work correctly.
+        """Handle Stop events — refresh last_seen timestamps and log stop reason.
+
+        When ``stop_reason`` is ``"tool"``, ``"stop"``, or ``"end_turn"``,
+        the telemetry is authoritative: mark all session agents IDLE
+        immediately rather than waiting for zombie TTL.  For ``"tool"``
+        stops, also flush all
+        ``pending_tools`` entries for the session and decrement ``active_tools``
+        accordingly so future zombie-detection counters stay consistent.
+
+        When ``stop_reason`` is ``None``, no IDLE transition is performed —
+        zombie TTL handles those cases.
+        """
         session = self._state.sessions.get(event.session_id)
         if session:
             for agent_id in session.agent_ids:
                 self._state.last_seen[agent_id] = event.received_at
+
+        if event.stop_reason in ("tool", "stop", "end_turn"):
+            if event.stop_reason == "tool":
+                # Flush all pending tools for this session — the session was
+                # interrupted mid-tool; those calls will never complete.
+                keys_to_evict = [
+                    k
+                    for k, pt in self._state.pending_tools.items()
+                    if pt.session_id == event.session_id
+                ]
+                for key in keys_to_evict:
+                    del self._state.pending_tools[key]
+                if session is not None:
+                    session.active_tools = max(0, session.active_tools - len(keys_to_evict))
+
+            # Mark all session agents IDLE — explicit telemetry beats TTL.
+            if session:
+                for agent_id in session.agent_ids:
+                    try:
+                        await self._world_state.update_agent(agent_id, state=AgentState.IDLE)
+                    except Exception:
+                        logger.exception("_handle_stop: failed to mark agent %s IDLE", agent_id)
+
         if event.stop_reason:
             logger.debug("Stop [session=%s, reason=%s]", event.session_id, event.stop_reason)
 
@@ -360,10 +409,16 @@ class AgentInferenceEngine:
             logger.exception("Failed to update activity summary for agent %s", agent_id)
 
     async def tick(self) -> None:
-        """Public tick hook called by SimulationEngine each simulation step.
+        """Perform a periodic inference maintenance pass.
 
-        Runs periodic inference maintenance tasks (zombie detection).
-        Errors are caught internally — this method never raises.
+        Called by ``SimulationEngine`` on each simulation step. Currently runs
+        zombie detection: agents whose ``last_seen`` timestamp is older than
+        ``ZOMBIE_THRESHOLD_SECONDS`` are marked ``AgentState.ZOMBIE`` in world
+        state. Stale ``PendingTool`` entries (PreToolUse with no matching
+        PostToolUse within the threshold window) are also evicted and the
+        corresponding session's ``active_tools`` counter is decremented.
+
+        Errors are caught and logged internally — this method never raises.
         """
         await self._update_zombie_states()
 

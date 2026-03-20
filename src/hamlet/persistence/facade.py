@@ -157,7 +157,19 @@ class PersistenceFacade:
             raise
 
     def enqueue_write(self, operation: WriteOperation) -> None:
-        """Enqueue a write operation to be processed by the background loop."""
+        """Enqueue a ``WriteOperation`` for the background write loop.
+
+        Uses ``put_nowait`` so it can be called from synchronous code. If the
+        queue is full the operation is silently dropped (acceptable data loss per
+        GP-7).
+
+        Args:
+            operation: The write operation to enqueue.
+
+        Raises:
+            RuntimeError: If the facade is not running or the write queue is not
+                initialised.
+        """
         if not self._running or not self._write_queue:
             raise RuntimeError("Cannot enqueue write: facade not running")
         try:
@@ -168,13 +180,35 @@ class PersistenceFacade:
             logger.debug("Write queue full, dropping operation")
 
     async def load_state(self) -> WorldStateData:
-        """Load world state from database."""
+        """Load the persisted world state from the database for warm-start.
+
+        Delegates to ``StateLoader`` to fetch all projects, villages, sessions,
+        agents, structures, and world metadata rows.
+
+        Returns:
+            A ``WorldStateData`` instance populated from the database.
+
+        Raises:
+            RuntimeError: If the facade has not been started.
+        """
         if not self._state_loader:
             raise RuntimeError("Cannot load state: facade not started")
         return await self._state_loader.load_state()
 
     async def log_event(self, event: InternalEvent) -> None:
-        """Log an event to the persistent event log. Called by EventProcessor."""
+        """Append an ``InternalEvent`` to the persistent event log.
+
+        Constructs an ``EventLogEntry`` from the event's metadata and delegates
+        to ``append_event_log``. Called by ``EventProcessor`` for every processed
+        event.
+
+        Args:
+            event: The normalised event to record.
+
+        Raises:
+            RuntimeError: If the facade has not been started (propagated from
+                ``append_event_log``).
+        """
         tool_part = f": {event.tool_name}" if event.tool_name else ""
         entry = EventLogEntry(
             id=event.id,
@@ -188,7 +222,18 @@ class PersistenceFacade:
         await self.append_event_log(entry)
 
     async def append_event_log(self, entry: EventLogEntry) -> None:
-        """Append an entry to the event log."""
+        """Append an ``EventLogEntry`` to the persistent event log.
+
+        Delegates to ``EventLogManager.append``. Exceptions are logged and
+        re-raised.
+
+        Args:
+            entry: The event log entry to persist.
+
+        Raises:
+            RuntimeError: If the facade has not been started.
+            Exception: Any exception raised by the underlying event log manager.
+        """
         if not self._event_log_manager:
             raise RuntimeError("Cannot append event log: facade not started")
         try:

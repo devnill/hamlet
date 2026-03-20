@@ -31,62 +31,15 @@ Hamlet opens a Textual TUI and starts an HTTP server on `http://localhost:8080`.
 
 ## Connecting Claude Code
 
-Hamlet receives events via HTTP hooks. Add the following to `~/.claude/settings.json`:
+Hamlet receives events via Claude Code hooks. Run the install command to configure all 15 hook types automatically:
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -c --arg ht 'PreToolUse' --arg ts \"$(date -u +%Y-%m-%dT%H:%M:%S)\" '{\"jsonrpc\":\"2.0\",\"method\":\"hamlet/event\",\"params\":(. + {\"hook_type\":$ht,\"timestamp\":$ts,\"project_id\":(.project_id // \"\"),\"project_name\":(.project_name // \"\")})}' | curl -s -X POST http://localhost:8080/hamlet/event -H 'Content-Type: application/json' -d @- 2>/dev/null || true",
-            "async": true
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -c --arg ht 'PostToolUse' --arg ts \"$(date -u +%Y-%m-%dT%H:%M:%S)\" '{\"jsonrpc\":\"2.0\",\"method\":\"hamlet/event\",\"params\":(. + {\"hook_type\":$ht,\"timestamp\":$ts,\"project_id\":(.project_id // \"\"),\"project_name\":(.project_name // \"\")})}' | curl -s -X POST http://localhost:8080/hamlet/event -H 'Content-Type: application/json' -d @- 2>/dev/null || true",
-            "async": true
-          }
-        ]
-      }
-    ],
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -c --arg ht 'Notification' --arg ts \"$(date -u +%Y-%m-%dT%H:%M:%S)\" '{\"jsonrpc\":\"2.0\",\"method\":\"hamlet/event\",\"params\":(. + {\"hook_type\":$ht,\"timestamp\":$ts,\"project_id\":(.project_id // \"\"),\"project_name\":(.project_name // \"\")})}' | curl -s -X POST http://localhost:8080/hamlet/event -H 'Content-Type: application/json' -d @- 2>/dev/null || true",
-            "async": true
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -c --arg ht 'Stop' --arg ts \"$(date -u +%Y-%m-%dT%H:%M:%S)\" '{\"jsonrpc\":\"2.0\",\"method\":\"hamlet/event\",\"params\":(. + {\"hook_type\":$ht,\"timestamp\":$ts,\"project_id\":(.project_id // \"\"),\"project_name\":(.project_name // \"\")})}' | curl -s -X POST http://localhost:8080/hamlet/event -H 'Content-Type: application/json' -d @- 2>/dev/null || true",
-            "async": true
-          }
-        ]
-      }
-    ]
-  }
-}
+```bash
+hamlet install
 ```
 
-Merge this into any existing `hooks` block — don't replace the whole file.
+If the hamlet Claude Code plugin is already installed, hooks are registered automatically — `hamlet install` will detect this and skip writing to `settings.json`.
 
-After saving, **restart Claude Code** (or open `/hooks` in the UI) to load the new hooks. Then start working normally — agents will appear in the village as you use tools.
+After installing, **restart Claude Code** to load the new hooks. Then start working normally — agents will appear in the village as you use tools.
 
 ## Verifying the Connection
 

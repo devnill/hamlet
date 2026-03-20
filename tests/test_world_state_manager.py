@@ -40,7 +40,6 @@ class TestWorldStateManager:
         """Return a WorldStateManager with mocked persistence."""
         return WorldStateManager(mock_persistence)
 
-    @pytest.mark.asyncio
     async def test_load_from_persistence_restores_state(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -126,7 +125,6 @@ class TestWorldStateManager:
         assert manager._grid.is_occupied(Position(15, 25))
         assert manager._grid.get_entity_at(Position(15, 25)) == agent_id
 
-    @pytest.mark.asyncio
     async def test_get_or_create_project_creates_new(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -155,7 +153,6 @@ class TestWorldStateManager:
             "village", project.village_id, village
         )
 
-    @pytest.mark.asyncio
     async def test_get_or_create_agent_spawns_new(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -198,7 +195,6 @@ class TestWorldStateManager:
             "agent", agent.id, agent
         )
 
-    @pytest.mark.asyncio
     async def test_update_agent_modifies_fields(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -228,7 +224,6 @@ class TestWorldStateManager:
             "agent", agent_id, agent
         )
 
-    @pytest.mark.asyncio
     async def test_update_agent_skips_invalid_fields(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -252,7 +247,6 @@ class TestWorldStateManager:
         assert agent.color == "blue"
         assert not hasattr(agent, "invalid_field")
 
-    @pytest.mark.asyncio
     async def test_update_agent_handles_missing_agent(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -263,7 +257,6 @@ class TestWorldStateManager:
         # Verify no persistence call
         mock_persistence.queue_write.assert_not_called()
 
-    @pytest.mark.asyncio
     async def test_get_agents_in_view_returns_bounded(
         self, manager: WorldStateManager
     ) -> None:
@@ -315,7 +308,6 @@ class TestWorldStateManager:
         assert agent_edge.id in result_ids
         assert agent_outside.id not in result_ids
 
-    @pytest.mark.asyncio
     async def test_get_or_create_project_returns_existing(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -335,7 +327,6 @@ class TestWorldStateManager:
         # Verify no persistence calls for existing
         mock_persistence.queue_write.assert_not_called()
 
-    @pytest.mark.asyncio
     async def test_get_or_create_agent_returns_existing(
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
@@ -364,3 +355,260 @@ class TestWorldStateManager:
 
         # Verify no new persistence calls
         mock_persistence.queue_write.assert_not_called()
+
+    # -------------------------------------------------------------------------
+    # v0.4.0 event-branch tests (WI-187)
+    # -------------------------------------------------------------------------
+
+    async def test_handle_event_session_start_creates_project_and_session(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """SessionStart event causes project and session to be created in state."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+        from datetime import UTC, datetime
+
+        event = InternalEvent(
+            id="evt-session-start",
+            sequence=1,
+            received_at=datetime.now(UTC),
+            session_id="s1",
+            project_id="p1",
+            project_name="P1",
+            hook_type=HookType.SessionStart,
+            source="cli",
+        )
+
+        await manager.handle_event(event)
+
+        projects = await manager.get_projects()
+        project_ids = {p.id for p in projects}
+        assert "p1" in project_ids, "Project 'p1' should have been created"
+
+        agents = await manager.get_all_agents()
+        assert agents == [], "No agents should have been created by SessionStart alone"
+
+    async def test_handle_event_session_end_sets_agents_idle(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """SessionEnd event marks all agents for the session as IDLE."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+        from hamlet.world_state.types import AgentState
+        from datetime import UTC, datetime
+
+        # Pre-populate a session and agent
+        await manager.get_or_create_session("s1", "p1")
+        await manager.get_or_create_agent("s1")
+
+        agents_before = await manager.get_all_agents()
+        assert len(agents_before) >= 1, "At least one agent should exist"
+
+        event = InternalEvent(
+            id="evt-session-end",
+            sequence=2,
+            received_at=datetime.now(UTC),
+            session_id="s1",
+            project_id="p1",
+            project_name="P1",
+            hook_type=HookType.SessionEnd,
+            reason="user_exit",
+        )
+
+        await manager.handle_event(event)
+
+        agents = await manager.get_all_agents()
+        session_agents = [a for a in agents if a.session_id == "s1"]
+        assert len(session_agents) >= 1, "Should still have agents for the session"
+        for agent in session_agents:
+            assert agent.state == AgentState.IDLE, (
+                f"Agent {agent.id} should be IDLE after SessionEnd, got {agent.state}"
+            )
+
+    async def test_handle_event_stop_end_turn_sets_agents_idle(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """Stop event with stop_reason='end_turn' marks all session agents IDLE."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+        from hamlet.world_state.types import AgentState
+
+        # Pre-populate a session and agent
+        await manager.get_or_create_session("s2", "p2")
+        await manager.get_or_create_agent("s2")
+
+        # Verify agent starts non-IDLE so the assertion below is meaningful
+        agents_before = await manager.get_all_agents()
+        session_agents_before = [a for a in agents_before if a.session_id == "s2"]
+        assert len(session_agents_before) >= 1, "Should have at least one agent before the event"
+        assert all(a.state != AgentState.IDLE for a in session_agents_before), (
+            "Agents should not start IDLE"
+        )
+
+        event = InternalEvent(
+            id="evt-stop-end-turn",
+            sequence=1,
+            received_at=datetime.now(UTC),
+            session_id="s2",
+            project_id="p2",
+            project_name="P2",
+            hook_type=HookType.Stop,
+            stop_reason="end_turn",
+        )
+
+        await manager.handle_event(event)
+
+        agents = await manager.get_all_agents()
+        session_agents = [a for a in agents if a.session_id == "s2"]
+        assert len(session_agents) >= 1, "Should have at least one agent for the session"
+        for agent in session_agents:
+            assert agent.state == AgentState.IDLE, (
+                f"Agent {agent.id} should be IDLE after Stop/end_turn, got {agent.state}"
+            )
+
+    async def test_handle_event_subagent_start_creates_agent(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """SubagentStart event results in an agent existing for the session."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+        from datetime import UTC, datetime
+
+        # Create project and session so there is a village to spawn into
+        await manager.get_or_create_project("p1", "P1")
+        await manager.get_or_create_session("s1", "p1")
+
+        event = InternalEvent(
+            id="evt-subagent-start",
+            sequence=3,
+            received_at=datetime.now(UTC),
+            session_id="s1",
+            project_id="p1",
+            project_name="P1",
+            hook_type=HookType.SubagentStart,
+            agent_id="a1",
+            agent_type="coder",
+        )
+
+        await manager.handle_event(event)
+
+        agents = await manager.get_all_agents()
+        assert len(agents) >= 1, "At least one agent should have been created by SubagentStart"
+        session_agents = [a for a in agents if a.session_id == "s1"]
+        assert len(session_agents) >= 1, "Agent should belong to session 's1'"
+
+    async def test_handle_event_task_completed_calls_add_work_units(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """TaskCompleted event triggers add_work_units for an agent with a village."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+        from unittest.mock import AsyncMock, patch
+        from datetime import UTC, datetime
+
+        # Create project, session, and agent with a valid village_id
+        await manager.get_or_create_project("p1", "P1")
+        await manager.get_or_create_session("s1", "p1")
+        await manager.get_or_create_agent("s1")
+
+        agents = await manager.get_all_agents()
+        assert len(agents) >= 1, "Need at least one agent with a village_id for TaskCompleted"
+
+        event = InternalEvent(
+            id="evt-task-completed",
+            sequence=4,
+            received_at=datetime.now(UTC),
+            session_id="s1",
+            project_id="p1",
+            project_name="P1",
+            hook_type=HookType.TaskCompleted,
+            task_id="t1",
+            task_subject="Build feature",
+            task_description="Implement the feature",
+            teammate_name="alice",
+        )
+
+        with patch.object(manager, "add_work_units", wraps=manager.add_work_units) as spy:
+            await manager.handle_event(event)
+            spy.assert_awaited_once()
+
+    @pytest.mark.parametrize(
+        "notification_type, expected_prefix",
+        [
+            ("warning", "Notification [type=warning]:"),
+            ("error", "Notification [type=error]:"),
+        ],
+    )
+    async def test_handle_event_notification_non_generic_type(
+        self,
+        manager: WorldStateManager,
+        mock_persistence: MagicMock,
+        notification_type: str,
+        expected_prefix: str,
+    ) -> None:
+        """Non-generic notification_type produces a differentiated summary string."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+
+        event = InternalEvent(
+            id="evt-notif-typed",
+            sequence=1,
+            received_at=datetime.now(UTC),
+            session_id="s1",
+            project_id="p1",
+            project_name="P1",
+            hook_type=HookType.Notification,
+            notification_message="disk almost full",
+            notification_type=notification_type,
+        )
+        await manager.handle_event(event)
+
+        log = await manager.get_event_log()
+        assert log, "Event log should not be empty"
+        assert log[-1].summary.startswith(expected_prefix)
+
+    async def test_handle_event_notification_generic_type_fallback(
+        self,
+        manager: WorldStateManager,
+        mock_persistence: MagicMock,
+    ) -> None:
+        """notification_type='generic' uses the plain Notification: summary."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+
+        event = InternalEvent(
+            id="evt-notif-generic",
+            sequence=1,
+            received_at=datetime.now(UTC),
+            session_id="s1",
+            project_id="p1",
+            project_name="P1",
+            hook_type=HookType.Notification,
+            notification_message="hello",
+            notification_type="generic",
+        )
+        await manager.handle_event(event)
+
+        log = await manager.get_event_log()
+        assert log, "Event log should not be empty"
+        assert log[-1].summary.startswith("Notification:")
+        assert "[type=" not in log[-1].summary
+
+    async def test_handle_event_notification_none_type_fallback(
+        self,
+        manager: WorldStateManager,
+        mock_persistence: MagicMock,
+    ) -> None:
+        """notification_type=None falls back to plain Notification: summary."""
+        from hamlet.event_processing.internal_event import HookType, InternalEvent
+
+        event = InternalEvent(
+            id="evt-notif-none",
+            sequence=1,
+            received_at=datetime.now(UTC),
+            session_id="s1",
+            project_id="p1",
+            project_name="P1",
+            hook_type=HookType.Notification,
+            notification_message="hello",
+            notification_type=None,
+        )
+        await manager.handle_event(event)
+
+        log = await manager.get_event_log()
+        assert log, "Event log should not be empty"
+        assert log[-1].summary.startswith("Notification:")
+        assert "[type=" not in log[-1].summary

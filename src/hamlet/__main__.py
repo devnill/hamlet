@@ -5,9 +5,7 @@ import asyncio
 import logging
 import signal
 import sys
-from pathlib import Path
 from types import FrameType
-from typing import Any
 
 # Configure logging before anything else
 logging.basicConfig(
@@ -33,25 +31,10 @@ async def _run_app() -> int:
     Returns:
         Exit code (0 for success, non-zero for errors).
     """
-    global _shutdown_requested
-
-    # Import components here to avoid issues if dependencies are missing
     from hamlet.config.settings import Settings
     from hamlet.tui.app import HamletApp
-    from hamlet.world_state.manager import WorldStateManager
     from hamlet.viewport.manager import ViewportManager
-    from hamlet.persistence.facade import PersistenceFacade
-    from hamlet.persistence.types import PersistenceConfig
-    from hamlet.event_processing.event_processor import EventProcessor
-    from hamlet.inference.engine import AgentInferenceEngine
-    from hamlet.inference.summarizer import ActivitySummarizer
-    from hamlet.simulation.engine import SimulationEngine
-    from hamlet.simulation.agent_updater import AgentUpdater
-    from hamlet.simulation.structure_updater import StructureUpdater
-    from hamlet.simulation.expansion import ExpansionManager
-    from hamlet.simulation.animation import AnimationManager
-    from hamlet.simulation.config import SimulationConfig
-    from hamlet.mcp_server.server import MCPServer
+    from hamlet.app_factory import build_components, shutdown_components
 
     # Register signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, _signal_handler)
@@ -61,77 +44,21 @@ async def _run_app() -> int:
     logger.debug("Loading settings...")
     settings = Settings.load()
 
-    # Component references for cleanup
-    persistence: PersistenceFacade | None = None
-    world_state: WorldStateManager | None = None
-    agent_inference: AgentInferenceEngine | None = None
-    event_processor: EventProcessor | None = None
-    simulation: SimulationEngine | None = None
-    mcp_server: MCPServer | None = None
-    viewport: ViewportManager | None = None
-    app: HamletApp | None = None
+    bundle = None
+    viewport = None
+    app = None
 
     try:
-        # 1. Initialize persistence
-        logger.debug("Initializing PersistenceFacade...")
-        persistence = PersistenceFacade(PersistenceConfig(db_path=settings.db_path))
-        await persistence.start()
-
-        # 2. Initialize world state
-        logger.debug("Initializing WorldStateManager...")
-        world_state = WorldStateManager(persistence)
-        await world_state.load_from_persistence()
-
-        # 2a. Initialize agent inference engine
-        logger.debug("Initializing AgentInferenceEngine...")
-        summarizer = ActivitySummarizer(model=settings.activity_model)
-        agent_inference = AgentInferenceEngine(world_state, summarizer=summarizer)
-
-        # 2b. Initialize simulation subsystems
-        logger.debug("Initializing simulation subsystems...")
-        sim_config = SimulationConfig(tick_rate=settings.tick_rate)
-        agent_updater = AgentUpdater(config=sim_config)
-        structure_updater = StructureUpdater(config=sim_config)
-        expansion_manager = ExpansionManager(config=sim_config)
-        animation_manager = AnimationManager()
-
-        # 3. Initialize MCP server (creates event queue)
-        logger.debug("Initializing MCPServer...")
-        mcp_server = MCPServer(world_state=world_state, port=settings.mcp_port, animation_manager=animation_manager)
-        await mcp_server.start()
-
-        # 4. Initialize event processor with queue from MCP server
-        logger.debug("Initializing EventProcessor...")
-        event_queue = mcp_server.get_event_queue()
-        event_processor = EventProcessor(
-            event_queue=event_queue,
-            world_state=world_state,
-            agent_inference=agent_inference,
-            persistence=persistence,
-        )
-        await event_processor.start()
-
-        # 5. Initialize simulation engine
-        logger.debug("Initializing SimulationEngine...")
-        simulation = SimulationEngine(
-            world_state=world_state,
-            config=sim_config,
-            agent_updater=agent_updater,
-            structure_updater=structure_updater,
-            expansion_manager=expansion_manager,
-            animation_manager=animation_manager,
-            agent_inference=agent_inference,
-        )
-        await simulation.start()
+        bundle = await build_components(settings)
 
         # 6. Initialize viewport
         logger.debug("Initializing ViewportManager...")
-        viewport = ViewportManager(world_state)
+        viewport = ViewportManager(bundle.world_state)
         await viewport.initialize()
 
         # 7. Create TUI application
         logger.debug("Starting HamletApp...")
-        app = HamletApp(world_state, viewport, event_processor)
+        app = HamletApp(bundle.world_state, viewport, bundle.event_processor)
 
         # Run the TUI application
         await app.run_async()
@@ -157,36 +84,8 @@ async def _run_app() -> int:
         print(f"\nError: {exc}", file=sys.stderr)
         return 1
     finally:
-        # Shutdown in reverse order (graceful degradation per GP-7)
-        logger.debug("Shutting down components...")
-
-        # Stop simulation (before event processor — reverse of startup order)
-        if simulation is not None:
-            try:
-                await simulation.stop()
-            except Exception as exc:
-                logger.warning("Error stopping SimulationEngine: %s", exc)
-
-        # Stop event processor
-        if event_processor is not None:
-            try:
-                await event_processor.stop()
-            except Exception as exc:
-                logger.warning("Error stopping EventProcessor: %s", exc)
-
-        # Stop MCP server
-        if mcp_server is not None:
-            try:
-                await mcp_server.stop()
-            except Exception as exc:
-                logger.warning("Error stopping MCPServer: %s", exc)
-
-        # Stop persistence
-        if persistence is not None:
-            try:
-                await persistence.stop()
-            except Exception as exc:
-                logger.warning("Error stopping PersistenceFacade: %s", exc)
+        if bundle is not None:
+            await shutdown_components(bundle)
 
     return 0
 

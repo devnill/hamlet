@@ -1,6 +1,6 @@
 # Domain Registry
 
-current_cycle: 6
+current_cycle: 8
 
 ## Domains
 
@@ -25,3 +25,4 @@ Files: domains/data-model/policies.md, decisions.md, questions.md
 - Dual color maps (cycles 005–006): TYPE_COLORS (inference/types.py) and AGENT_BASE_COLORS (animation.py) were independent authoritative maps. **Resolved in cycle 006** — AGENT_BASE_COLORS removed by WI-123; TYPE_COLORS is now the sole color authority. See visualization D-11, P-5.
 - Symbol removal without test-tree audit (cycles 005–006): Two consecutive cycles deleted or removed a symbol from src/ without checking tests/ for imports. Cycle 005: inference/colors.py deletion broke test_zombie_detection.py. Cycle 006: AGENT_BASE_COLORS removal broke test_animation.py. Both caught and fixed during review. Architecture P-10 amended in cycle 006 to broaden scope from module deletion to any symbol removal. Spans architecture (process) and visualization (affected tests).
 - tool_output schema for Bash strings (cycles 004–006): EVENT_SCHEMA constrains tool_output to object|null; Bash tool returns plain strings which are silently discarded. Pre-existing, explicitly deferred each cycle. Architecture Q-10 remains open.
+- Full hook coverage (cycle 008): 11 new hook scripts added (WI-179, WI-180), bringing total to 15 hook types. hooks.json, event schema, daemon handler, and install.py all updated. Two cross-cutting issues found and fixed during review: WI-180 hooks missing os.chdir (architecture P-6 amended), HOOK_SCRIPTS dict incomplete (architecture P-11 established). Test coverage for new hooks remains absent (architecture Q-15). Spans architecture (hook contracts, install sync) and data-model (new event handling branches).

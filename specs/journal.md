@@ -939,3 +939,206 @@ Cycles: 2 | Items executed: 5 (WI-174, 175, 176, 177, 178) | Final: critical=0, 
 ## [brrr] 2026-03-19 — Overall metrics summary
 Total agents spawned across all cycles: ~17 (4 workers, 4 incremental reviewers, 1 rework reviewer, 3 cycle-007 reviewers, 3 cycle-008 reviewers, 1 journal-keeper, 1 rework worker)
 Total wall-clock across all cycles: ~1800s estimated
+
+## [refine] 2026-03-20 — Refinement planning completed (refine-7: v0.4.0)
+Trigger: New requirements
+Principles changed: none
+New work items: WI-179 through WI-186 (8 items)
+Three-area refinement: (1) full Claude Code hook coverage — 11 new hook scripts covering all 26+ available hook types, every event feeding into visual character movement/animation for frenetic UI during busy sessions; (2) adaptive viewport — WorldView wired to call ViewportManager.resize() on mount and on Textual resize events using actual widget dimensions; (3) plugin update hygiene — `hamlet install` detects active plugin via installed_plugins.json and skips hook writing with a warning to prevent duplicate hook firing. Also fixes async:true on PreToolUse (blocking event — unsupported per docs, root cause of persistent load error). Version bump to 0.4.0 across all four locations.
+
+## [execute] 2026-03-20 — Work item 179: New hook scripts — agent/session lifecycle
+Status: complete with rework
+Rework: 1 critical finding fixed across all 6 scripts — moved find_server_url() call to after os.chdir(cwd) so both config traversal functions use the correct project working directory from hook_input["cwd"].
+Created: hooks/session_start.py, hooks/session_end.py, hooks/subagent_start.py, hooks/subagent_stop.py, hooks/teammate_idle.py, hooks/task_completed.py
+
+## [execute] 2026-03-20 — Work item 180: New hook scripts — system/observation events
+Status: complete with rework
+Rework: 1 significant finding fixed — stop_failure.py now explicitly extracts type and reason from error dict rather than forwarding raw. 1 minor finding fixed — removed redundant double-evaluation of error dict.
+Created: hooks/post_tool_use_failure.py, hooks/user_prompt_submit.py, hooks/pre_compact.py, hooks/post_compact.py, hooks/stop_failure.py
+
+## [execute] 2026-03-20 — Work item 181: Update hooks.json — 15 hooks, fix PreToolUse async
+Status: complete
+Modified: hooks/hooks.json — 15 hook types registered, async:true removed from PreToolUse and PreCompact per Claude Code docs.
+
+## [execute] 2026-03-20 — Work item 182: Extend event schema for new hook types
+Status: complete
+Modified: src/hamlet/event_processing/internal_event.py, src/hamlet/mcp_server/validation.py, src/hamlet/event_processing/event_processor.py
+HookType enum extended to 15 values; 11 new optional fields on InternalEvent; EVENT_SCHEMA updated; EventProcessor extracts all new fields.
+
+## [execute] 2026-03-20 — Work item 183: Daemon handling for new event types with visual triggers
+Status: complete with rework
+Rework: 1 critical finding fixed — TaskCompleted now filters agents by both session_id and non-empty village_id before calling add_work_units. 1 significant finding fixed — SessionStart now guards against empty project_id/session_id before entity creation. 2 minor findings fixed — TeammateIdle broken agent-by-name lookup removed (log only); SessionEnd empty session_id guard added; try/except added to all remaining log-only branches.
+Modified: src/hamlet/world_state/manager.py
+
+## [execute] 2026-03-20 — Work item 184: Adaptive viewport — wire WorldView to terminal size
+Status: complete
+Modified: src/hamlet/tui/world_view.py — added Resize import, on_mount calls viewport.resize(), on_resize handler added.
+
+## [execute] 2026-03-20 — Work item 185: Plugin update hygiene — hamlet install detects plugin
+Status: complete
+Modified: src/hamlet/cli/commands/install.py — is_plugin_active() reads installed_plugins.json; install_command() skips hook writing if plugin active.
+
+## [execute] 2026-03-20 — Work item 186: Version bump to 0.4.0
+Status: complete
+Modified: pyproject.toml, .claude-plugin/plugin.json, src/hamlet/__init__.py, src/hamlet/cli/__init__.py
+
+## [execute] 2026-03-20 — Metrics summary
+Agents spawned: 22 total (8 workers, 9 code-reviewers, 5 rework workers)
+Total wall-clock: ~1750s estimated
+Models used: sonnet
+Slowest agent: code-reviewer — WI-183 daemon handling — ~691s
+
+## [review] 2026-03-20 — Comprehensive review completed (cycle 008)
+Critical findings: 0
+Significant findings: 2 (both fixed during review: WI-180 os.chdir omission; HOOK_SCRIPTS incomplete)
+Minor findings: 4 (nested error object, infallible try/except, is_plugin_active match, notification_type discarded)
+Suggestions: 3
+Items requiring user input: 0
+Curator: ran — P-6 amended, P-11 and P-12 added, D-19 through D-23 added, Q-15 through Q-17 added
+
+## [review] 2026-03-20 — Metrics summary
+Agents spawned: 4 (code-reviewer, spec-reviewer [coordinator-written], gap-analyst [coordinator-written], journal-keeper [coordinator-written])
+Total wall-clock: ~100s
+Models used: sonnet
+Slowest agent: journal-keeper — ~99s
+
+## [refine] 2026-03-20 — Refinement planning completed (refine-9: quality cycle)
+Trigger: Post-review quality improvement (cycle 008 gap Q-15 + pre-existing open questions)
+Principles changed: none
+New work items: WI-187 through WI-198 (12 items)
+Three areas: (1) test coverage — event pipeline parametrized tests for all 15 HookType values, on_resize/is_plugin_active tests, 15 hook script unit tests; (2) documentation — CLAUDE.md, README/QUICKSTART accuracy, public API docstrings on 5 core modules; (3) code health + functional gaps — enum dispatch comment, saver.py removal, startup deduplication, health endpoint test, Bash tool_output schema widening (Q-10), notification_type extraction (Q-16), stop_reason IDLE transitions (Q-13), Protocol interfaces (Q-4). Execution: batched parallel, 4 groups.
+
+## [refine] 2026-03-20 — Metrics summary
+Agents spawned: 2 total (1 architect, 1 decomposer)
+Total wall-clock: ~706s
+Models used: claude-opus-4-6
+Slowest agent: architect — ~450s
+
+## [execute] 2026-03-20 — Work item 187: Test coverage — event pipeline round-trip for all 15 HookType values
+Status: complete
+Added parametrized test covering all 15 HookType values in test_event_processor.py and 4 WorldStateManager tests (SessionStart, SessionEnd, SubagentStart, TaskCompleted) in test_world_state_manager.py.
+
+## [execute] 2026-03-20 — Work item 188: Test coverage — on_resize, on_mount, and is_plugin_active
+Status: complete with rework
+Rework: 1 minor finding fixed — removed unused monkeypatch parameters from 4 test signatures in test_cli_install.py.
+
+## [execute] 2026-03-20 — Work item 189: Test coverage — hook script unit tests
+Status: complete with rework
+Rework: 1 significant finding fixed — removed dead run_hook() helper function that was defined but never called by any of the 15 tests.
+
+## [execute] 2026-03-20 — Work item 190: CLAUDE.md for the hamlet project
+Status: complete with rework
+Rework: 1 significant finding fixed — updated hook script pattern section to document two variants (cwd-aware v0.4.0+ hooks vs original 4 hooks).
+
+## [execute] 2026-03-20 — Work item 191: README and QUICKSTART accuracy update
+Status: complete
+
+## [execute] 2026-03-20 — Work item 192: Public API docstrings for five core modules
+Status: complete with rework
+Rework: Fixed misleading _handle_stop docstring ("mark agents as inactive" → "refresh last_seen timestamps and log stop reason"). Noted scope deviation: handle_event and process_event logic changes were accepted as correct completion of WI-183 gaps.
+
+## [execute] 2026-03-20 — Work item 194: Remove saver.py and deduplicate startup
+Status: complete with rework
+Rework: Added try/except partial cleanup guard in build_components for mid-init failures. Removed dead None guards in shutdown_components.
+
+## [execute] 2026-03-20 — Work item 195: /hamlet/health endpoint test
+Status: complete
+Health endpoint confirmed existing at server.py:156; test added to test_mcp_server.py.
+
+## [execute] 2026-03-20 — Work item 193: Enum identity dispatch comment
+Status: complete with rework
+Rework: 1 minor finding fixed (M1) — removed 7 dead try/except blocks wrapping simple string assignments in SubagentStop, TeammateIdle, PostToolUseFailure, UserPromptSubmit, PreCompact, PostCompact, StopFailure branches of handle_event().
+Added convention comment at top of handle_event body: "All branches use enum identity (event.hook_type == HookType.X), not string comparison."
+
+## [execute] 2026-03-20 — Work item 196: Bash tool_output schema widening and notification_type extraction
+Status: complete with rework
+Rework: 1 minor finding fixed (M1) — added parametrized test test_tool_output_non_string covering object ({"exit_code": 0}) and None tool_output values.
+Changes: internal_event.py tool_output widened to str | dict | None; validation.py EVENT_SCHEMA accepts ["object", "string", "null"]; event_processor.py extracts notification_type field.
+
+## [execute] 2026-03-20 — Work item 197: stop_reason behavioral differentiation
+Status: complete with rework
+Rework: 1 critical finding fixed (C1: manager.py Stop branch used direct agent.state mutation without persistence write — changed to collect agent IDs inside lock then call update_agent() outside lock, which queues a persistence write). 1 minor finding fixed (M1: removed @pytest.mark.asyncio decorators and unused pytest import from test_inference_engine.py).
+Changes: inference/engine.py _handle_stop() now evicts pending_tools and calls update_agent(IDLE) for stop_reason "tool"/"stop"; world_state/manager.py Stop branch now calls update_agent(IDLE) for each session agent; tests/test_inference_engine.py created with 3 tests.
+
+## [execute] 2026-03-20 — Work item 198: Protocol interfaces for module boundaries
+Status: complete with rework
+Rework: 3 critical findings fixed (C1: PersistenceProtocol.queue_write had wrong single-arg signature — fixed to match 3-arg real signature; C2: WorldStateProtocol.get_or_create_agent had wrong parameters — fixed to match (session_id, parent_id=None); C3: 5 WorldStateProtocol methods declared sync but are async — get_all_agents, get_all_structures, get_all_villages, get_event_log, get_projects now all have async def).
+Created: src/hamlet/protocols.py with WorldStateProtocol, InferenceEngineProtocol, PersistenceProtocol, EventQueueProtocol.
+Updated 5 consumer files to use Protocol types in TYPE_CHECKING blocks: simulation/engine.py, mcp_server/server.py, event_processing/event_processor.py, inference/engine.py, world_state/manager.py.
+
+## [review] 2026-03-20 — Comprehensive review completed (Cycle 009)
+Critical findings: 0
+Significant findings: 2
+Minor findings: 7
+Suggestions: 3
+Items requiring user input: 0
+Curator: skipped — domain layer not yet initialized
+
+SG1: notification_type extracted but never consumed (engine.py, manager.py ignore the field).
+SG2: "end_turn" stop_reason falls through both IDLE-transition guards — agents left active for 300s zombie TTL on normal session end.
+Spec-adherence: Pass (D1 dismissed as false positive — tick() already returns None; M1 CLAUDE.md saver.py gotcha fixed inline).
+Code-quality: Pass.
+
+## [review] 2026-03-20 — Metrics summary
+Agents spawned: 3 (code-reviewer, gap-analyst, spec-reviewer)
+Total wall-clock: not recorded (context compacted)
+Models used: sonnet
+Slowest agent: not recorded
+
+## [brrr] 2026-03-20 — Cycle 1 refinement
+Findings addressed: 0 critical, 2 significant
+New work items created: WI-199 (Add end_turn to stop_reason IDLE transition guards), WI-200 (notification_type downstream consumption in WorldStateManager)
+Work items reset for rework: none
+
+## [execute] 2026-03-20 — Work item 199: Add end_turn to stop_reason IDLE transition guards
+Status: complete with rework
+Rework: 1 minor finding fixed (M1: updated _handle_stop docstring to mention "end_turn" alongside "tool" and "stop").
+Changes: inference/engine.py guard expanded to ("tool", "stop", "end_turn"); world_state/manager.py Stop branch guard expanded similarly; tests/test_inference_engine.py added test_stop_end_turn_reason_marks_idle.
+
+## [execute] 2026-03-20 — Work item 200: notification_type downstream consumption in WorldStateManager
+Status: complete with rework
+Rework: 1 significant finding fixed (S1: added 4 notification_type tests to test_world_state_manager.py). 1 minor finding fixed (M1: changed summary format from "Notification [warning]:" to "Notification [type=warning]:").
+Changes: world_state/manager.py Notification branch now reads event.notification_type and produces differentiated summary strings. tests/test_world_state_manager.py added 4 notification tests.
+
+## [review] 2026-03-20 — Comprehensive review completed (Cycle 010)
+Critical findings: 0
+Significant findings: 1
+Minor findings: 3
+Suggestions: 0
+Items requiring user input: 0
+Curator: skipped — domain layer not yet initialized
+
+EC1: WorldStateManager.handle_event Stop/"end_turn" path is untested — engine-side test exists but manager-side path has no test.
+Minor M1 (pre-existing @pytest.mark.asyncio decorators) fixed inline during review pass.
+SG1 and SG2 from cycle 009 are confirmed closed at code level.
+Spec-adherence: Pass (no principle violations).
+Code-quality: Pass.
+
+## [brrr] 2026-03-20 — Cycle 2 refinement
+Findings addressed: 0 critical, 1 significant
+New work items created: WI-201 (Test WorldStateManager.handle_event Stop/end_turn IDLE transition)
+Work items reset for rework: none
+
+## [execute] 2026-03-20 — Work item 201: Test WorldStateManager.handle_event Stop/end_turn IDLE transition
+Status: complete with rework
+Rework: 2 minor findings fixed (M1: added pre-condition assertion verifying agents start non-IDLE; M2: removed redundant inline datetime import).
+Changes: tests/test_world_state_manager.py — added test_handle_event_stop_end_turn_sets_agents_idle.
+
+## [review] 2026-03-20 — Comprehensive review completed (Cycle 011)
+Critical findings: 0
+Significant findings: 0
+Minor findings: 1
+Suggestions: 0
+Items requiring user input: 0
+Curator: skipped — domain layer not yet initialized
+
+EC1 from cycle 010 confirmed closed. SG1 and SG2 from cycle 009 confirmed closed. Convergence achieved.
+
+## [brrr] 2026-03-20 — Convergence achieved after 3 cycles
+Cycles completed: 3
+Work items executed: 15 total (12 in cycle 1, 2 in cycle 2, 1 in cycle 3)
+Final state: 0 critical findings, 0 significant findings
+
+## [brrr] 2026-03-20 — Overall metrics summary
+Total agents spawned across all cycles: ~14 (workers and reviewers, metrics unavailable — context compacted)
+Total wall-clock across all cycles: not recorded (metrics.jsonl not written — context compacted mid-session)

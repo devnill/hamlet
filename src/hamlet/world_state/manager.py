@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import random
 import uuid
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from hamlet.event_processing.internal_event import HookType, InternalEvent
+
+if TYPE_CHECKING:
+    from hamlet.protocols import PersistenceProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -42,14 +46,24 @@ __all__ = ["WorldStateManager"]
 class WorldStateManager:
     """Manages the in-memory world state and synchronises it with persistence."""
 
-    def __init__(self, persistence: Any) -> None:
+    def __init__(self, persistence: "PersistenceProtocol") -> None:
         self._persistence = persistence
         self._lock = asyncio.Lock()
         self._state = WorldState()
         self._grid = PositionGrid()
 
     async def load_from_persistence(self) -> None:
-        """Load all entities from persistence and rebuild in-memory state."""
+        """Load all entities from persistence and rebuild the in-memory world state.
+
+        Fetches projects, villages, sessions, agents, and structures from the
+        persistence layer and reconstructs the corresponding in-memory objects.
+        Agent and structure positions are registered in the spatial grid; position
+        conflicts (duplicate occupants) are silently skipped — the first occupant
+        keeps the grid slot and the conflicting entity is accessible only via
+        state lookup, not spatial queries.
+
+        Acquires self._lock for the duration of the rebuild.
+        """
         async with self._lock:
             data = await self._persistence.load_state()
             # Restore projects
@@ -142,7 +156,23 @@ class WorldStateManager:
             self._state.world_metadata = dict(data.metadata)
 
     async def get_or_create_project(self, project_id: str, name: str) -> Project:
-        """Return the existing project or create a new one with an associated village."""
+        """Return the existing project or create a new one with an associated village.
+
+        If the project already exists it is returned immediately. Otherwise a new
+        ``Project`` and its companion ``Village`` are persisted and an initial set
+        of structures (LIBRARY, WORKSHOP, FORGE) is seeded near the village center.
+
+        Acquires self._lock while mutating in-memory state and queuing persistence
+        writes. Structure seeding occurs outside the lock to avoid a deadlock with
+        ``create_structure``.
+
+        Args:
+            project_id: Stable identifier for the project (e.g. the Claude project ID).
+            name: Human-readable project name used for the village label.
+
+        Returns:
+            The existing or newly created ``Project`` instance.
+        """
         village_to_seed: Village | None = None
         async with self._lock:
             if project_id in self._state.projects:
@@ -214,7 +244,21 @@ class WorldStateManager:
             logger.debug("update_viewport_center: could not queue write")
 
     async def get_or_create_session(self, session_id: str, project_id: str) -> Session:
-        """Return the existing session or create a new one for the given project."""
+        """Return the existing session or create a new one for the given project.
+
+        If a session with ``session_id`` already exists it is returned without
+        modification. Otherwise a new ``Session`` is created, stored in memory,
+        and queued for persistence.
+
+        Acquires self._lock.
+
+        Args:
+            session_id: Unique identifier for the Claude session.
+            project_id: Identifier of the project this session belongs to.
+
+        Returns:
+            The existing or newly created ``Session`` instance.
+        """
         async with self._lock:
             if session_id in self._state.sessions:
                 return self._state.sessions[session_id]
@@ -242,7 +286,19 @@ class WorldStateManager:
             return self._state.villages.get(village_id)
 
     async def get_village_by_project(self, project_id: str) -> Village | None:
-        """Return the village associated with the given project, or None."""
+        """Return the village associated with the given project, or None.
+
+        Looks up the project's ``village_id`` first; falls back to a linear scan
+        of all villages when the project is not found.
+
+        Acquires self._lock.
+
+        Args:
+            project_id: ID of the project whose village is requested.
+
+        Returns:
+            The associated ``Village`` instance, or ``None`` if not found.
+        """
         async with self._lock:
             project = self._state.projects.get(project_id)
             if project is not None:
@@ -290,7 +346,28 @@ class WorldStateManager:
     async def get_or_create_agent(
         self, session_id: str, parent_id: str | None = None
     ) -> Agent:
-        """Return the primary agent for this session, or create one."""
+        """Return the primary agent for this session, or create and register a new one.
+
+        If the session already has at least one agent, the first (primary) agent is
+        returned. Otherwise a new ``Agent`` is spawned:
+
+        - Position is chosen via ``_find_spawn_position``: the closest unoccupied
+          cell within ``MAX_SPAWN_RADIUS`` of the parent agent (or village center).
+        - The agent is registered in the spatial grid and village/session back-references.
+        - A village is created on-the-fly when none exists for the project.
+        - The new agent is queued for persistence.
+
+        Acquires self._lock. Structure seeding (when a new village is created)
+        occurs outside the lock to avoid deadlock with ``create_structure``.
+
+        Args:
+            session_id: Session the new agent belongs to.
+            parent_id: ID of the parent agent used as the spawn-position origin,
+                or ``None`` to spawn near the village center.
+
+        Returns:
+            The primary ``Agent`` for the session (existing or newly created).
+        """
         async with self._lock:
             session = self._state.sessions.get(session_id)
             project_id = session.project_id if session is not None else ""
@@ -400,7 +477,17 @@ class WorldStateManager:
         return agent
 
     async def update_agent(self, agent_id: str, **fields: Any) -> None:
-        """Update the given agent's fields and queue a persistence write."""
+        """Update the given agent's fields and queue a persistence write.
+
+        Only fields that correspond to declared ``Agent`` dataclass attributes are
+        applied; unknown keys are logged as warnings and skipped.
+
+        Acquires self._lock.
+
+        Args:
+            agent_id: ID of the agent to update.
+            **fields: Keyword arguments mapping agent attribute names to new values.
+        """
         async with self._lock:
             agent = self._state.agents.get(agent_id)
             if agent is None:
@@ -418,7 +505,17 @@ class WorldStateManager:
                 logger.debug("Could not queue agent write: %s", exc)
 
     async def get_agents_by_session(self, session_id: str) -> list[Agent]:
-        """Return all agents that belong to the given session."""
+        """Return all agents that belong to the given session.
+
+        Acquires self._lock.
+
+        Args:
+            session_id: The session whose agents are requested.
+
+        Returns:
+            List of ``Agent`` objects whose ``session_id`` matches the argument.
+            Returns an empty list if no agents are found.
+        """
         async with self._lock:
             return [
                 a for a in self._state.agents.values() if a.session_id == session_id
@@ -566,11 +663,24 @@ class WorldStateManager:
     async def add_work_units(
         self, agent_id: str, structure_type: StructureType, units: int
     ) -> None:
-        """Add work units to the agent's total and to the nearest structure of the given type.
+        """Add work units to an agent and to the nearest structure of the given type.
 
-        Advances structure stage when cumulative work_units meets the threshold.
-        Work units reset to 0 on stage advancement.
-        Material updates with stage using STRUCTURE_RULES.
+        Increments the agent's ``total_work_units`` and applies ``units`` to the
+        nearest (by Chebyshev distance) structure of ``structure_type`` in the
+        agent's village. When the structure's cumulative ``work_units`` reaches the
+        threshold defined in ``STRUCTURE_RULES``, the structure advances one stage:
+        ``work_units`` resets to 0, ``material`` and ``work_required`` are updated
+        from the rule table. Fully-built structures (stage 3) are not modified.
+
+        Both the agent and the updated structure are queued for persistence writes.
+        If no matching structure is found, only the agent's total is updated.
+
+        Acquires self._lock.
+
+        Args:
+            agent_id: ID of the agent performing the work.
+            structure_type: The type of structure to credit work units to.
+            units: Number of work units to award.
         """
         async with self._lock:
             agent = self._state.agents.get(agent_id)
@@ -665,8 +775,14 @@ class WorldStateManager:
     async def get_agents_in_view(self, bounds: Any) -> list[Agent]:
         """Return agents whose position falls within the given bounding box.
 
-        ``bounds`` is duck-typed: it must expose ``min_x``, ``min_y``,
-        ``max_x``, and ``max_y`` attributes.
+        Acquires self._lock.
+
+        Args:
+            bounds: Duck-typed viewport object that exposes ``min_x``, ``min_y``,
+                ``max_x``, and ``max_y`` integer attributes (inclusive bounds).
+
+        Returns:
+            List of ``Agent`` objects whose grid position lies within the viewport.
         """
         async with self._lock:
             return [
@@ -677,7 +793,17 @@ class WorldStateManager:
             ]
 
     async def get_structures_in_view(self, bounds: Any) -> list[Structure]:
-        """Return structures whose position falls within the given bounding box."""
+        """Return structures whose position falls within the given bounding box.
+
+        Acquires self._lock.
+
+        Args:
+            bounds: Duck-typed viewport object that exposes ``min_x``, ``min_y``,
+                ``max_x``, and ``max_y`` integer attributes (inclusive bounds).
+
+        Returns:
+            List of ``Structure`` objects whose grid position lies within the viewport.
+        """
         async with self._lock:
             return [
                 s
@@ -712,15 +838,140 @@ class WorldStateManager:
             return list(self._state.villages.values())
 
     async def handle_event(self, event: InternalEvent) -> None:
-        """Append event to in-memory event log. Called by EventProcessor."""
+        """Route an event by HookType and update world state accordingly.
+
+        Dispatches on ``event.hook_type``:
+
+        - **SessionStart**: ensures the project and session entities exist via
+          ``get_or_create_project`` and ``get_or_create_session``.
+        - **SessionEnd**: marks all agents belonging to the session as
+          ``AgentState.IDLE``. Acquires self._lock for the state mutation.
+        - **SubagentStart**: creates a new agent for the session via
+          ``get_or_create_agent``.
+        - **TaskCompleted**: awards 10 work units to a random structure type for
+          an agent belonging to the session via ``add_work_units``.
+        - All other hook types: records a summary string without mutating world
+          state entities.
+
+        In all cases the event is appended to the in-memory event log (capped at
+        100 entries). Errors in per-hook handlers are caught and logged as
+        warnings so that a single bad event never halts the pipeline.
+
+        Acquires self._lock when writing to the event log.
+
+        Args:
+            event: The normalised internal event delivered by EventProcessor.
+        """
         try:
-            async with self._lock:
-                if event.hook_type == HookType.Notification:
-                    summary = f"Notification: {event.notification_message or ''}"
-                elif event.hook_type == HookType.Stop:
-                    summary = f"Stop: {event.stop_reason or ''}"
+            # All branches use enum identity (event.hook_type == HookType.X), not string comparison.
+            # Do not change to hook_type.value == "..." — enum renames would silently fall through.
+
+            # --- Compute summary and perform lock-free state mutations ---
+            # Note: helpers like get_or_create_project/session/agent and
+            # add_work_units all acquire self._lock internally, so they must
+            # NOT be called while the lock is held below.
+
+            if event.hook_type == HookType.Notification:
+                ntype = event.notification_type or "generic"
+                if ntype != "generic":
+                    summary = f"Notification [type={ntype}]: {event.notification_message or ''}"
                 else:
-                    summary = f"{event.hook_type.value}: {event.tool_name or ''}"
+                    summary = f"Notification: {event.notification_message or ''}"
+
+            elif event.hook_type == HookType.Stop:
+                summary = f"Stop: {event.stop_reason or ''}"
+                if event.stop_reason in ("tool", "stop", "end_turn"):
+                    try:
+                        session_id = event.session_id or ""
+                        if session_id:
+                            agent_ids_to_idle: list[str] = []
+                            async with self._lock:
+                                for a_id, a in self._state.agents.items():
+                                    if a.session_id == session_id:
+                                        agent_ids_to_idle.append(a_id)
+                            for a_id in agent_ids_to_idle:
+                                await self.update_agent(a_id, state=AgentState.IDLE)
+                    except Exception as exc:
+                        logger.warning("handle_event Stop: visual effect failed: %s", exc)
+
+            elif event.hook_type == HookType.SessionStart:
+                summary = f"SessionStart: {event.source or 'startup'}"
+                try:
+                    if event.project_id and event.session_id:
+                        await self.get_or_create_project(
+                            event.project_id, event.project_name or ""
+                        )
+                        await self.get_or_create_session(
+                            event.session_id, event.project_id
+                        )
+                except Exception as exc:
+                    logger.warning("handle_event SessionStart: visual effect failed: %s", exc)
+
+            elif event.hook_type == HookType.SessionEnd:
+                summary = f"SessionEnd: {event.reason or ''}"
+                try:
+                    session_id = event.session_id or ""
+                    if session_id:
+                        async with self._lock:
+                            for agent in self._state.agents.values():
+                                if agent.session_id == session_id:
+                                    agent.state = AgentState.IDLE
+                except Exception as exc:
+                    logger.warning("handle_event SessionEnd: visual effect failed: %s", exc)
+
+            elif event.hook_type == HookType.SubagentStart:
+                summary = f"SubagentStart: {event.agent_type or 'unknown'}"
+                try:
+                    await self.get_or_create_agent(event.session_id or "")
+                except Exception as exc:
+                    logger.warning("handle_event SubagentStart: visual effect failed: %s", exc)
+
+            elif event.hook_type == HookType.SubagentStop:
+                summary = f"SubagentStop: {event.agent_type or 'unknown'}"
+
+            elif event.hook_type == HookType.TeammateIdle:
+                summary = f"TeammateIdle: {event.teammate_name or ''}"
+
+            elif event.hook_type == HookType.TaskCompleted:
+                summary = f"TaskCompleted: {event.task_subject or ''}"
+                try:
+                    session_id = event.session_id or ""
+                    agent_id: str | None = None
+                    async with self._lock:
+                        for a_id, a in self._state.agents.items():
+                            if a.session_id == session_id and a.village_id:
+                                agent_id = a_id
+                                break
+                    if agent_id is not None:
+                        structure_type = random.choice(list(StructureType))
+                        await self.add_work_units(agent_id, structure_type, 10)
+                    else:
+                        logger.debug(
+                            "handle_event TaskCompleted: no agent with valid village_id found for session %s",
+                            session_id,
+                        )
+                except Exception as exc:
+                    logger.warning("handle_event TaskCompleted: visual effect failed: %s", exc)
+
+            elif event.hook_type == HookType.PostToolUseFailure:
+                summary = f"PostToolUseFailure: {event.tool_name or ''}"
+
+            elif event.hook_type == HookType.UserPromptSubmit:
+                summary = "UserPromptSubmit"
+
+            elif event.hook_type == HookType.PreCompact:
+                summary = "PreCompact"
+
+            elif event.hook_type == HookType.PostCompact:
+                summary = "PostCompact"
+
+            elif event.hook_type == HookType.StopFailure:
+                summary = "StopFailure"
+
+            else:
+                summary = f"{event.hook_type.value}: {event.tool_name or ''}"
+
+            async with self._lock:
                 entry = EventLogEntry(
                     id=event.id,
                     timestamp=event.received_at,

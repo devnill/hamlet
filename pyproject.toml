@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hamlet"
-version = "0.3.0"
+version = "0.4.0"
 description = "Terminal-based idle game for Claude Code agent activity visualization"
 readme = "README.md"
 requires-python = ">=3.12"

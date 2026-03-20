@@ -235,3 +235,38 @@ class TestWorldView:
 
         assert isinstance(text, Text)
         assert "Loading..." in text.plain
+
+    def test_on_mount_calls_resize_with_widget_dimensions(self) -> None:
+        """on_mount calls viewport.resize with the widget's current size."""
+        viewport = Mock()
+        world_state = Mock()
+
+        world_view = WorldView(world_state, viewport)
+
+        # set_interval is a Textual internal; mock it to avoid errors
+        world_view.set_interval = Mock()
+
+        size_mock = Mock()
+        size_mock.width = 80
+        size_mock.height = 24
+
+        # size is a read-only property on Textual widgets; patch it on the class
+        with patch.object(type(world_view), "size", new_callable=lambda: property(lambda self: size_mock)):
+            world_view.on_mount()
+
+        viewport.resize.assert_called_with(80, 24)
+
+    def test_on_resize_calls_resize_with_event_dimensions(self) -> None:
+        """on_resize calls viewport.resize with the event's size dimensions."""
+        viewport = Mock()
+        world_state = Mock()
+
+        world_view = WorldView(world_state, viewport)
+
+        mock_event = MagicMock()
+        mock_event.size.width = 120
+        mock_event.size.height = 40
+
+        world_view.on_resize(mock_event)
+
+        viewport.resize.assert_called_with(120, 40)

@@ -2596,3 +2596,409 @@ items:
       - Silent pass-through behavior on malformed JSON is replaced with logged pass-through (still falls through gracefully, per GP-7)
       - All four except blocks that silently catch JSON parse errors now log before continuing
     notes: specs/plan/notes/178.md
+
+  "179":
+    title: "New hook scripts — agent/session lifecycle"
+    complexity: low
+    scope:
+      - {path: hooks/session_start.py, op: create}
+      - {path: hooks/session_end.py, op: create}
+      - {path: hooks/subagent_start.py, op: create}
+      - {path: hooks/subagent_stop.py, op: create}
+      - {path: hooks/teammate_idle.py, op: create}
+      - {path: hooks/task_completed.py, op: create}
+    depends: []
+    blocks: ["181"]
+    criteria:
+      - hooks/session_start.py exists, is executable, has #!/usr/bin/env python3 shebang, sends hook_type "SessionStart" with source field
+      - hooks/session_end.py exists, is executable, sends hook_type "SessionEnd" with reason field
+      - hooks/subagent_start.py exists, is executable, sends hook_type "SubagentStart" with agent_id and agent_type fields
+      - hooks/subagent_stop.py exists, is executable, sends hook_type "SubagentStop" with agent_id, agent_type, last_assistant_message fields
+      - hooks/teammate_idle.py exists, is executable, sends hook_type "TeammateIdle" with task_id, task_subject, teammate_name fields
+      - hooks/task_completed.py exists, is executable, sends hook_type "TaskCompleted" with task_id, task_subject, task_description, teammate_name fields
+      - All 6 scripts import from hamlet_hook_utils via sys.path.insert(0, str(Path(__file__).parent))
+      - All 6 scripts call find_config() and find_server_url(), exit 0 in finally block
+      - All 6 scripts use urllib.request with 1-second timeout and exit 0 on any exception
+    notes: plan/notes/179.md
+
+  "180":
+    title: "New hook scripts — system/observation events"
+    complexity: low
+    scope:
+      - {path: hooks/post_tool_use_failure.py, op: create}
+      - {path: hooks/user_prompt_submit.py, op: create}
+      - {path: hooks/pre_compact.py, op: create}
+      - {path: hooks/post_compact.py, op: create}
+      - {path: hooks/stop_failure.py, op: create}
+    depends: []
+    blocks: ["181"]
+    criteria:
+      - hooks/post_tool_use_failure.py exists, is executable, sends hook_type "PostToolUseFailure" with tool_name, error, is_interrupt fields
+      - hooks/user_prompt_submit.py exists, is executable, sends hook_type "UserPromptSubmit" with prompt field
+      - hooks/pre_compact.py exists, is executable, sends hook_type "PreCompact" with base fields only
+      - hooks/post_compact.py exists, is executable, sends hook_type "PostCompact" with base fields only
+      - hooks/stop_failure.py exists, is executable, sends hook_type "StopFailure" with error dict (type, reason)
+      - All 5 scripts follow the same pattern as WI-179 (hamlet_hook_utils import, find_config, find_server_url, exit 0)
+    notes: plan/notes/180.md
+
+  "181":
+    title: "Update hooks.json — register all 15 hooks, fix PreToolUse async"
+    complexity: low
+    scope:
+      - {path: hooks/hooks.json, op: modify}
+    depends: ["179", "180"]
+    blocks: []
+    criteria:
+      - hooks/hooks.json is valid JSON
+      - PreToolUse entry does NOT have "async" key (removed — unsupported on blocking hook events)
+      - PostToolUse, Notification, Stop entries retain "async" true
+      - SessionStart, SessionEnd, SubagentStart, SubagentStop, TeammateIdle, TaskCompleted, PostToolUseFailure, UserPromptSubmit, PostCompact, StopFailure entries all have async true
+      - PreCompact entry exists WITHOUT async (unsupported on PreCompact per docs)
+      - All new entries use type "command", timeout 5, path "${CLAUDE_PLUGIN_ROOT}/hooks/{script}.py"
+      - Total of 15 hook event type entries in the file
+    notes: plan/notes/181.md
+
+  "182":
+    title: "Extend event schema for new hook types"
+    complexity: medium
+    scope:
+      - {path: src/hamlet/event_processing/internal_event.py, op: modify}
+      - {path: src/hamlet/mcp_server/validation.py, op: modify}
+      - {path: src/hamlet/event_processing/event_processor.py, op: modify}
+    depends: []
+    blocks: ["183"]
+    criteria:
+      - HookType enum has 15 members including all 11 new types
+      - InternalEvent has optional fields agent_id, agent_type, source, reason, task_id, task_subject, task_description, teammate_name, error, is_interrupt, prompt_text (all defaulting to None)
+      - EVENT_SCHEMA hook_type enum list contains all 15 values
+      - EVENT_SCHEMA params properties include agent_id, agent_type, source, reason, task_id, task_subject, task_description, teammate_name, error, is_interrupt, prompt as optional fields
+      - EventProcessor.process_event() extracts new fields from raw params and passes to InternalEvent constructor
+      - python -c "from hamlet.event_processing.internal_event import HookType; assert len(HookType) == 15" exits 0
+    notes: plan/notes/182.md
+
+  "183":
+    title: "Daemon handling for new event types with visual triggers"
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+    depends: ["182"]
+    blocks: []
+    criteria:
+      - WorldStateManager.handle_event() does not raise or log error for any of the 11 new HookType values
+      - Each new event type produces an EventLogEntry with a non-empty summary string
+      - SessionStart calls get_or_create_project and get_or_create_session to ensure entities exist
+      - SessionEnd sets all agents in the session to AgentState.IDLE
+      - SubagentStart calls get_or_create_agent to spawn a new agent
+      - TaskCompleted calls add_work_units with 10 units on a structure in the session's village
+      - All new event handling is wrapped in try/except with logger.warning (GP-7)
+    notes: plan/notes/183.md
+
+  "184":
+    title: "Adaptive viewport — wire WorldView to terminal size"
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/world_view.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - WorldView.on_mount() calls self._viewport.resize(self.size.width, self.size.height) after existing timer setup
+      - WorldView has on_resize(event) method that calls self._viewport.resize(event.size.width, event.size.height)
+      - Resize is imported from textual.events
+      - Existing on_mount timer (set_interval for animation) is preserved
+      - ViewportState.size is no longer permanently 80x24 after app start
+    notes: plan/notes/184.md
+
+  "185":
+    title: "Plugin update hygiene — hamlet install detects plugin and skips hooks"
+    complexity: low
+    scope:
+      - {path: src/hamlet/cli/commands/install.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - install_command() calls is_plugin_active() before writing hooks to settings.json
+      - is_plugin_active() reads ~/.claude/plugins/installed_plugins.json and returns True if any key contains "hamlet"
+      - is_plugin_active() returns False on any exception (file not found, JSON error, etc.)
+      - If plugin active, prints warning containing "hooks are already registered via the hamlet plugin"
+      - If plugin active, does NOT call install_hooks_to_settings() or save_settings()
+      - If plugin active, still writes server_url to ~/.hamlet/config.json and runs MCP server check
+      - If plugin active, returns 0
+      - If plugin NOT active, behavior is completely unchanged from current
+    notes: plan/notes/185.md
+
+  "186":
+    title: "Version bump to 0.4.0"
+    complexity: low
+    scope:
+      - {path: pyproject.toml, op: modify}
+      - {path: .claude-plugin/plugin.json, op: modify}
+      - {path: src/hamlet/__init__.py, op: modify}
+      - {path: src/hamlet/cli/__init__.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - pyproject.toml contains version = "0.4.0"
+      - .claude-plugin/plugin.json contains "version" "0.4.0"
+      - src/hamlet/__init__.py contains __version__ = "0.4.0"
+      - src/hamlet/cli/__init__.py contains version="%(prog)s 0.4.0"
+      - grep -r "0\.3\.0" pyproject.toml .claude-plugin/plugin.json src/hamlet/__init__.py src/hamlet/cli/__init__.py returns no matches
+    notes: plan/notes/186.md
+
+  "187":
+    title: "Test coverage — event pipeline round-trip for all 15 HookType values"
+    complexity: medium
+    scope:
+      - {path: tests/test_event_processor.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: []
+    blocks: ["196"]
+    criteria:
+      - 'tests/test_event_processor.py contains a parametrized test covering all 15 HookType values via process_event()'
+      - 'Each parametrized case asserts InternalEvent.hook_type matches the expected HookType enum member'
+      - 'tests/test_world_state_manager.py contains a test for handle_event() with HookType.SessionStart that verifies get_or_create_project and get_or_create_session are called'
+      - 'tests/test_world_state_manager.py contains a test for handle_event() with HookType.SessionEnd that verifies agents in that session have state == AgentState.IDLE'
+      - 'tests/test_world_state_manager.py contains a test for handle_event() with HookType.SubagentStart that verifies get_or_create_agent is called'
+      - 'tests/test_world_state_manager.py contains a test for handle_event() with HookType.TaskCompleted that verifies add_work_units is called'
+      - 'pytest tests/test_event_processor.py tests/test_world_state_manager.py passes with no failures'
+    notes: plan/notes/187.md
+
+  "188":
+    title: "Test coverage — on_resize, on_mount, and is_plugin_active"
+    complexity: low
+    scope:
+      - {path: tests/test_tui_world_view.py, op: modify}
+      - {path: tests/test_cli_install.py, op: create}
+    depends: []
+    blocks: []
+    criteria:
+      - 'tests/test_tui_world_view.py contains a test that on_mount calls viewport.resize with the widget size dimensions'
+      - 'tests/test_tui_world_view.py contains a test that on_resize forwards event.size dimensions to viewport.resize'
+      - 'tests/test_cli_install.py exists with a test that is_plugin_active() returns True for the wrapped plugins dict format'
+      - 'tests/test_cli_install.py contains a test that is_plugin_active() returns True for the unwrapped dict format'
+      - 'tests/test_cli_install.py contains a test that is_plugin_active() returns False when the file does not exist'
+      - 'pytest tests/test_tui_world_view.py tests/test_cli_install.py passes with no failures'
+    notes: plan/notes/188.md
+
+  "189":
+    title: "Test coverage — hook script unit tests"
+    complexity: medium
+    scope:
+      - {path: tests/test_hooks.py, op: create}
+    depends: []
+    blocks: []
+    criteria:
+      - 'tests/test_hooks.py exists'
+      - 'Contains one test function per hook script (15 total): test_pre_tool_use, test_post_tool_use, test_notification, test_stop, test_session_start, test_session_end, test_subagent_start, test_subagent_stop, test_teammate_idle, test_task_completed, test_post_tool_use_failure, test_user_prompt_submit, test_pre_compact, test_post_compact, test_stop_failure'
+      - 'Each test mocks sys.stdin, urllib.request.urlopen, hamlet_hook_utils.find_server_url, and hamlet_hook_utils.find_config'
+      - 'Each test invokes main() and captures the posted payload'
+      - 'Each test asserts params.hook_type matches the expected hook type string'
+      - 'Each test catches SystemExit(0) from the hook finally block'
+      - 'pytest tests/test_hooks.py passes with no failures'
+    notes: plan/notes/189.md
+
+  "190":
+    title: "CLAUDE.md for the hamlet project"
+    complexity: low
+    scope:
+      - {path: CLAUDE.md, op: create}
+    depends: []
+    blocks: []
+    criteria:
+      - 'CLAUDE.md exists at the project root'
+      - 'Contains a Running section with daemon and TUI viewer commands'
+      - 'Contains a Testing section with the exact pytest command and note about asyncio_mode = auto'
+      - 'Contains an Architecture section describing event pipeline order, asyncio.Lock usage in WorldStateManager, and hook script pattern'
+      - 'Contains a Gotchas section noting: PreToolUse and PreCompact are synchronous (no async:true), sys.exit(0) in all hook finally blocks, no re-entrant lock acquisition in WorldStateManager'
+      - 'File is valid Markdown under 150 lines'
+    notes: plan/notes/190.md
+
+  "191":
+    title: "README and QUICKSTART accuracy update"
+    complexity: low
+    scope:
+      - {path: README.md, op: modify}
+      - {path: QUICKSTART.md, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'README.md references all 15 hook types (or notes full hook coverage) rather than only 4'
+      - 'README.md lists all current CLI commands including hamlet daemon, hamlet view, hamlet init, hamlet install, hamlet uninstall'
+      - 'README.md mentions plugin installation as an alternative to hamlet install'
+      - 'QUICKSTART.md replaces the manual hooks JSON configuration with hamlet install instructions'
+      - 'Both files state the Python 3.12+ requirement'
+      - 'cat README.md && cat QUICKSTART.md produces valid Markdown with no unclosed code blocks'
+    notes: plan/notes/191.md
+
+  "192":
+    title: "Public API docstrings for five core modules"
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: src/hamlet/inference/engine.py, op: modify}
+      - {path: src/hamlet/event_processing/event_processor.py, op: modify}
+      - {path: src/hamlet/mcp_server/server.py, op: modify}
+      - {path: src/hamlet/persistence/facade.py, op: modify}
+    depends: []
+    blocks: ["193", "197", "198"]
+    criteria:
+      - 'Every public method (not prefixed with _) in WorldStateManager has a docstring'
+      - 'Every public method in AgentInferenceEngine has a docstring'
+      - 'Every public method in EventProcessor has a docstring'
+      - 'Every public method in MCPServer has a docstring'
+      - 'Every public method in PersistenceFacade has a docstring'
+      - 'No existing docstrings are removed'
+      - 'python -c "from hamlet.world_state.manager import WorldStateManager; help(WorldStateManager)" succeeds without errors'
+      - 'pytest passes (no regressions from docstring-only changes)'
+    notes: plan/notes/192.md
+
+  "193":
+    title: "Code health — enum identity dispatch and convention comment in handle_event"
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+    depends: ["192"]
+    blocks: ["197"]
+    criteria:
+      - 'src/hamlet/world_state/manager.py contains zero occurrences of hook_type.value == within the handle_event method'
+      - 'All branches in handle_event use event.hook_type == HookType.<member> pattern'
+      - 'A comment at the top of handle_event documents the enum identity convention'
+      - 'pytest tests/test_world_state_manager.py passes with no failures'
+    notes: plan/notes/193.md
+
+  "194":
+    title: "Code health — remove orphaned saver.py and deduplicate startup sequence"
+    complexity: medium
+    scope:
+      - {path: src/hamlet/persistence/saver.py, op: delete}
+      - {path: src/hamlet/app_factory.py, op: create}
+      - {path: src/hamlet/__main__.py, op: modify}
+      - {path: src/hamlet/cli/commands/daemon.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'src/hamlet/persistence/saver.py does not exist'
+      - 'grep -r "from hamlet.persistence.saver" src/ tests/ returns no matches'
+      - 'src/hamlet/app_factory.py exists with an async build_components() function returning a bundle of initialized components'
+      - 'src/hamlet/__main__.py _run_app() calls build_components() instead of inline initialization'
+      - 'src/hamlet/cli/commands/daemon.py _run_daemon() calls build_components() instead of inline initialization'
+      - 'pytest passes (no import errors, no behavioral regressions)'
+    notes: plan/notes/194.md
+
+  "195":
+    title: "Functional gap — /hamlet/health endpoint test (Q-6)"
+    complexity: low
+    scope:
+      - {path: tests/test_mcp_server.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'tests/test_mcp_server.py contains a test_health_endpoint test'
+      - 'The test verifies that GET /hamlet/health returns HTTP 200 with body {"status": "ok"}'
+      - 'pytest tests/test_mcp_server.py::test_health_endpoint passes (or equivalent class method)'
+    notes: plan/notes/195.md
+
+  "196":
+    title: "Functional gap — Bash tool_output schema widening and notification_type extraction (Q-10, Q-16)"
+    complexity: low
+    scope:
+      - {path: src/hamlet/mcp_server/validation.py, op: modify}
+      - {path: src/hamlet/event_processing/internal_event.py, op: modify}
+      - {path: src/hamlet/event_processing/event_processor.py, op: modify}
+      - {path: tests/test_event_processor.py, op: modify}
+    depends: ["187", "192"]
+    blocks: ["197", "198"]
+    criteria:
+      - 'EVENT_SCHEMA.params.properties.tool_output.type is ["object", "string", "null"]'
+      - 'InternalEvent.tool_output type annotation is dict[str, Any] | str | None'
+      - 'InternalEvent has a notification_type: str | None = None field'
+      - 'event_processor.py process_event() extracts notification_type via raw.get("notification_type")'
+      - 'event_processor.py passes string tool_output values through unchanged'
+      - 'tests/test_event_processor.py contains a test that tool_output="some string output" survives round-trip through process_event'
+      - 'tests/test_event_processor.py contains a test that notification_type="progress" is extracted correctly'
+      - 'pytest tests/test_event_processor.py passes'
+    notes: plan/notes/196.md
+
+  "197":
+    title: "stop_reason behavioral differentiation — use telemetry to mark agents IDLE (Q-13)"
+    complexity: medium
+    scope:
+      - {path: src/hamlet/inference/engine.py, op: modify}
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: tests/test_inference_engine.py, op: modify}
+    depends: ["192", "193", "196"]
+    blocks: ["198"]
+    criteria:
+      - 'In inference/engine.py, _handle_stop() with stop_reason="tool" evicts all pending_tools entries for the session and calls update_agent(agent_id, state=AgentState.IDLE) for each agent in the session'
+      - 'In inference/engine.py, _handle_stop() with stop_reason="stop" calls update_agent(agent_id, state=AgentState.IDLE) for each agent in the session'
+      - 'In world_state/manager.py, the Stop branch marks agents IDLE when stop_reason is "tool" or "stop"'
+      - 'A test verifies that stop_reason="tool" evicts pending tools and marks agents IDLE'
+      - 'A test verifies that stop_reason="stop" marks agents IDLE'
+      - 'A test verifies that stop_reason=None does NOT mark agents IDLE (zombie TTL handles it)'
+      - 'pytest tests/test_inference_engine.py passes with no failures'
+    notes: plan/notes/197.md
+
+  "198":
+    title: "Protocol interfaces for module boundaries"
+    complexity: medium
+    scope:
+      - {path: src/hamlet/protocols.py, op: create}
+      - {path: src/hamlet/simulation/engine.py, op: modify}
+      - {path: src/hamlet/mcp_server/server.py, op: modify}
+      - {path: src/hamlet/event_processing/event_processor.py, op: modify}
+      - {path: src/hamlet/inference/engine.py, op: modify}
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+    depends: ["192", "197"]
+    blocks: []
+    criteria:
+      - 'src/hamlet/protocols.py exists and defines WorldStateProtocol, InferenceEngineProtocol, PersistenceProtocol, EventQueueProtocol'
+      - 'Each Protocol declares the public methods called by other modules with correct signatures'
+      - 'SimulationEngine.__init__ world_state parameter is typed as WorldStateProtocol (not Any)'
+      - 'MCPServer.__init__ world_state parameter is typed as WorldStateProtocol (not Any)'
+      - 'EventProcessor.__init__ world_state, agent_inference, persistence parameters are typed with respective Protocols (not Any)'
+      - 'AgentInferenceEngine.__init__ world_state parameter is typed as WorldStateProtocol (not Any)'
+      - 'WorldStateManager.__init__ persistence parameter is typed as PersistenceProtocol (not Any)'
+      - 'python -c "from hamlet.protocols import WorldStateProtocol, InferenceEngineProtocol, PersistenceProtocol, EventQueueProtocol" succeeds'
+      - 'pytest passes with no runtime import errors'
+    notes: plan/notes/198.md
+
+  "199":
+    title: "Add end_turn to stop_reason IDLE transition guards"
+    complexity: low
+    scope:
+      - {path: src/hamlet/inference/engine.py, op: modify}
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: tests/test_inference_engine.py, op: modify}
+    depends: ["197"]
+    blocks: []
+    criteria:
+      - '"end_turn" is included in the stop_reason guard in AgentInferenceEngine._handle_stop (alongside "tool" and "stop")'
+      - '"end_turn" is included in the stop_reason guard in WorldStateManager.handle_event Stop branch (alongside "tool" and "stop")'
+      - 'test_inference_engine.py contains a test for stop_reason="end_turn" asserting update_agent is called with state=AgentState.IDLE'
+      - 'pytest passes'
+    notes: plan/notes/199.md
+
+  "200":
+    title: "notification_type downstream consumption in WorldStateManager"
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+    depends: ["196"]
+    blocks: []
+    criteria:
+      - 'WorldStateManager.handle_event for HookType.Notification reads event.notification_type'
+      - 'The event-log summary string varies by notification_type value (e.g. "Notification [type=warning]: ..." vs "Notification: ...")'
+      - 'If notification_type is None or "generic", summary falls back to a default string'
+      - 'pytest passes'
+    notes: plan/notes/200.md
+
+  "201":
+    title: "Test WorldStateManager.handle_event Stop/end_turn IDLE transition"
+    complexity: trivial
+    scope:
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: ["199"]
+    blocks: []
+    criteria:
+      - 'tests/test_world_state_manager.py contains a test that delivers a Stop event with stop_reason="end_turn" to handle_event and asserts all agents in the session transition to AgentState.IDLE'
+      - 'pytest passes'
+    notes: plan/notes/201.md

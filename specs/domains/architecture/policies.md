@@ -41,6 +41,7 @@ Hook scripts must implement `find_config()` — traversing from `os.getcwd()` up
 - **Derived from:** D-4, archive/cycles/003/gap-analysis.md (G4), archive/cycles/003/spec-adherence.md (C2)
 - **Established:** cycle 003
 - **Status:** active
+- **Amended:** cycle 008 — prerequisite added: hook scripts must call `os.chdir(hook_input.get("cwd", ""))` after reading stdin and before calling `find_server_url()` or `find_config()`. Without this, traversal starts from Claude Code's launch directory, not the project directory. See D-19.
 
 ## P-7: Configurable mapping dicts must live in a single canonical module
 All configurable mapping dictionaries (`STRUCTURE_RULES`, `TOOL_TO_STRUCTURE`, `TYPE_RULES`) must be defined in their canonical module (e.g., `world_state/rules.py`) and imported elsewhere. No local copies of mappings in consuming modules.
@@ -71,3 +72,17 @@ When a symbol is deleted or removed from a source module — whether by deleting
 - **Established:** cycle 005
 - **Status:** active
 - **Amended:** cycle 006 — scope broadened from "dead-code module deletion" to "any symbol removal." WI-123 removed `AGENT_BASE_COLORS` from `animation.py` (not a module deletion) and broke `test_animation.py` at import — same pattern as cycle 005. See archive/cycles/006/gap-analysis.md (SG1), archive/cycles/006/decision-log.md (D-R2, CR1).
+
+## P-11: HOOK_SCRIPTS dict and hooks.json must remain in sync
+When a new hook script is added, `HOOK_SCRIPTS` in `install.py` must be updated to include the new hook type and its script filename. The dict must match the entries in `hooks.json`. Non-plugin users rely on `hamlet install` to register hooks via settings.json; omissions cause silent degraded experience with no error.
+
+- **Derived from:** D-20, archive/cycles/008/code-quality.md (M4), archive/cycles/008/gap-analysis.md (G1)
+- **Established:** cycle 008
+- **Status:** active
+
+## P-12: Blocking hooks must not have async:true in hooks.json
+Hook types that can interrupt Claude Code processing (PreToolUse, PreCompact) must not have `"async": true` in `hooks.json`. Setting async on a blocking hook causes a Claude Code load error. All other hook types are fire-and-forget and should use `"async": true`.
+
+- **Derived from:** D-21, archive/cycles/008/decision-log.md
+- **Established:** cycle 008
+- **Status:** active

@@ -65,3 +65,9 @@
 - **Rationale:** Hook scripts fire-and-forget with no retry. Lost PostToolUse events leave pending_tools entries permanently, inflating active_tools.
 - **Source:** archive/cycles/004/decision-log.md (D8)
 - **Status:** settled
+
+## D-11: Agent dataclass has no name field — TeammateIdle cannot resolve agents by name
+- **Decision:** The TeammateIdle daemon handler cannot look up agents by teammate name because the `Agent` dataclass has no `name` field and no name-to-agent_id index exists. The handler is log-only with no state mutation.
+- **Rationale:** No stored mapping from teammate name to Agent entity exists. Adding one requires extending the data model.
+- **Source:** archive/cycles/008/decision-log.md (decision 4)
+- **Status:** settled

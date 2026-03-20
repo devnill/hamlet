@@ -1,0 +1,44 @@
+# Review Summary — Cycle 009
+
+## Overview
+
+All 12 work items executed and pass their incremental reviews. Code quality is clean with no critical or significant defects. Architecture adherence is solid with no principle violations. Two significant gaps were identified: `notification_type` is extracted but never consumed downstream, and `"end_turn"` stop_reason does not trigger an IDLE transition despite being the normal Claude Code session-end reason.
+
+## Critical Findings
+
+None.
+
+## Significant Findings
+
+- [gap-analyst] `notification_type` extracted into `InternalEvent` (WI-196) but no downstream component reads it — `WorldStateManager` and `AgentInferenceEngine` both ignore it; Q-16 routing intent not realized — relates to: WI-196, cross-cutting
+- [gap-analyst] `"end_turn"` stop_reason falls through both IDLE-transition paths in `AgentInferenceEngine._handle_stop` and `WorldStateManager.handle_event` — agents in normally-completed sessions remain visually active for up to 300s (zombie TTL) — relates to: WI-197, cross-cutting
+
+## Minor Findings
+
+- [code-reviewer] `tests/test_hooks.py` TestStop does not assert `stop_reason` field in outgoing payload — relates to: WI-189
+- [code-reviewer] `tests/test_hooks.py` TestNotification does not assert `notification_type` in outgoing payload — relates to: WI-189, WI-196
+- [code-reviewer] `EventQueueProtocol` defined in `protocols.py` but no constructor annotation uses it — relates to: WI-198
+- [code-reviewer] Dual IDLE transition in `engine.py:363-383` and `manager.py:879-893` is idempotent but redundant — relates to: WI-197
+- [gap-analyst] Nine `handle_event` hook-type branches have no test coverage at the `handle_event` level — relates to: WI-187
+- [gap-analyst] New v0.4.0 hook types produce no visual animations per GP-1 — relates to: WI-183 (prior cycle)
+- [spec-adherence] `CLAUDE.md` saver.py gotcha said "file exists" after WI-194 deleted it — fixed in this review pass
+
+## Suggestions
+
+- Add a branch in `WorldStateManager.handle_event` for `HookType.Notification` that reads `event.notification_type` and applies differentiated summary strings per type (or explicitly defer and document)
+- Add `"end_turn"` to stop reason IDLE-transition guards in both `engine.py` and `manager.py`; add test in `test_inference_engine.py`
+- Annotate `EventProcessor.__init__` queue parameter with `EventQueueProtocol` or add docstring noting the protocol's purpose
+
+## Findings Requiring User Input
+
+None — all findings can be resolved from existing context.
+
+## Proposed Refinement Plan
+
+The review identified 2 significant findings requiring a refinement cycle:
+
+**SG2 (end_turn IDLE transition)** — Add `"end_turn"` to stop reason guards in `engine.py._handle_stop` and `manager.py.handle_event`. Add test case. Scope: 1 work item, low complexity.
+
+**SG1 (notification_type consumption)** — Add differentiated behavior in `WorldStateManager.handle_event` for `HookType.Notification` based on `event.notification_type`. Minimum: different summary strings per type. Scope: 1 work item, low complexity.
+
+Run `/ideate:refine` targeting these two gaps.

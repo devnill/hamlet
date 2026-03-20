@@ -5,9 +5,12 @@ import asyncio
 import logging
 import uuid
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .event_router import EventCallback, EventRouter
+
+if TYPE_CHECKING:
+    from hamlet.protocols import InferenceEngineProtocol, PersistenceProtocol, WorldStateProtocol
 from .internal_event import HookType, InternalEvent
 from .sequence_generator import SequenceGenerator
 
@@ -26,9 +29,9 @@ class EventProcessor(EventRouter):
     def __init__(
         self,
         event_queue: asyncio.Queue[dict[str, Any]],
-        world_state: Any | None = None,
-        agent_inference: Any | None = None,
-        persistence: Any | None = None,
+        world_state: "WorldStateProtocol | None" = None,
+        agent_inference: "InferenceEngineProtocol | None" = None,
+        persistence: "PersistenceProtocol | None" = None,
     ) -> None:
         self._queue = event_queue
         self._world_state = world_state
@@ -47,13 +50,28 @@ class EventProcessor(EventRouter):
     # ------------------------------------------------------------------
 
     async def subscribe(self, callback: EventCallback) -> None:
-        """Register a callback to receive all processed events."""
+        """Register a callback to receive all processed events.
+
+        The callback is invoked once per event after world state, inference, and
+        persistence handlers have been scheduled. Duplicate registrations are
+        silently ignored.
+
+        Args:
+            callback: Async callable that accepts a single ``InternalEvent``
+                argument.
+        """
         async with self._subscriber_lock:
             if callback not in self._subscribers:
                 self._subscribers.append(callback)
 
     async def unsubscribe(self, callback: EventCallback) -> None:
-        """Remove a previously registered callback."""
+        """Remove a previously registered callback.
+
+        A no-op if the callback is not currently registered.
+
+        Args:
+            callback: The async callable to deregister.
+        """
         async with self._subscriber_lock:
             try:
                 self._subscribers.remove(callback)
@@ -91,16 +109,25 @@ class EventProcessor(EventRouter):
     # ------------------------------------------------------------------
 
     async def process_event(self, raw: dict[str, Any]) -> InternalEvent:
-        """Validate and normalise a raw event dict into an InternalEvent.
+        """Validate and normalise a raw event dict into an ``InternalEvent``.
+
+        Checks that ``session_id``, ``project_id``, and ``hook_type`` are present
+        and non-empty, parses ``hook_type`` into a ``HookType`` enum value, assigns
+        a UUID event ID and a monotonic sequence number, then constructs and returns
+        a fully populated ``InternalEvent``. After normalisation the caller is
+        responsible for fanning the event out to world state, inference, persistence,
+        and registered subscribers (see ``_route_event``).
 
         Args:
-            raw: Dictionary from the event queue.
+            raw: Dictionary from the event queue containing at minimum
+                ``session_id``, ``project_id``, and ``hook_type`` keys.
 
         Returns:
-            A fully populated InternalEvent.
+            A fully populated ``InternalEvent`` ready for routing.
 
         Raises:
-            ValueError: If required fields are absent or empty.
+            ValueError: If any required field is absent or empty, or if
+                ``hook_type`` is not a recognised ``HookType`` value.
         """
         # Validate required fields
         for field in _REQUIRED_FIELDS:
@@ -139,8 +166,20 @@ class EventProcessor(EventRouter):
             tool_output=raw.get("tool_output"),
             success=raw.get("success"),
             duration_ms=raw.get("duration_ms"),
+            notification_type=raw.get("notification_type"),
             notification_message=raw.get("notification_message"),
             stop_reason=raw.get("stop_reason"),
+            agent_id=raw.get("agent_id"),
+            agent_type=raw.get("agent_type"),
+            source=raw.get("source"),
+            reason=raw.get("reason"),
+            task_id=raw.get("task_id"),
+            task_subject=raw.get("task_subject"),
+            task_description=raw.get("task_description"),
+            teammate_name=raw.get("teammate_name"),
+            error=raw.get("error"),
+            is_interrupt=raw.get("is_interrupt"),
+            prompt_text=raw.get("prompt"),
             raw_payload=dict(raw),
         )
 

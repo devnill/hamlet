@@ -22,6 +22,17 @@ HOOK_SCRIPTS = {
     "PostToolUse": "post_tool_use.py",
     "Notification": "notification.py",
     "Stop": "stop.py",
+    "SessionStart": "session_start.py",
+    "SessionEnd": "session_end.py",
+    "SubagentStart": "subagent_start.py",
+    "SubagentStop": "subagent_stop.py",
+    "TeammateIdle": "teammate_idle.py",
+    "TaskCompleted": "task_completed.py",
+    "PostToolUseFailure": "post_tool_use_failure.py",
+    "UserPromptSubmit": "user_prompt_submit.py",
+    "PreCompact": "pre_compact.py",
+    "PostCompact": "post_compact.py",
+    "StopFailure": "stop_failure.py",
 }
 
 
@@ -280,6 +291,22 @@ def remove_hooks_from_settings(settings: dict[str, Any]) -> dict[str, Any]:
     return settings
 
 
+def is_plugin_active() -> bool:
+    """Return True if the hamlet plugin is active via installed_plugins.json."""
+    path = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        plugins = data.get("plugins", data)  # handle both wrapped and unwrapped formats
+        for key in plugins:
+            if "hamlet" in key.lower():
+                entries = plugins[key] if isinstance(plugins[key], list) else [plugins[key]]
+                if any(e.get("installPath") for e in entries):
+                    return True
+    except Exception:
+        pass
+    return False
+
+
 def install_command(args: Namespace) -> int:
     """Install Hamlet hooks to Claude Code settings.
 
@@ -363,6 +390,11 @@ def install_command(args: Namespace) -> int:
     existing["server_url"] = f"http://localhost:{mcp_port}/hamlet/event"
     hamlet_config_path.parent.mkdir(parents=True, exist_ok=True)
     hamlet_config_path.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+
+    if is_plugin_active():
+        print("Warning: hooks are already registered via the hamlet plugin. "
+              "Skipping hook installation to prevent duplicate hook firing.")
+        return 0
 
     print()
 

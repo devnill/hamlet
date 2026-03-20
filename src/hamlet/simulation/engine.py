@@ -4,10 +4,13 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .config import SimulationConfig
 from .state import SimulationState
+
+if TYPE_CHECKING:
+    from hamlet.protocols import InferenceEngineProtocol, WorldStateProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +24,13 @@ class SimulationEngine:
 
     def __init__(
         self,
-        world_state: Any,
+        world_state: "WorldStateProtocol",
         config: SimulationConfig | None = None,
         agent_updater: Any = None,
         structure_updater: Any = None,
         expansion_manager: Any = None,
         animation_manager: Any = None,
-        agent_inference: Any = None,
+        agent_inference: "InferenceEngineProtocol | None" = None,
     ) -> None:
         # world_state: WorldStateManager (defined in world_state module, imported at runtime)
         self._world_state = world_state

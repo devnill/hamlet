@@ -32,6 +32,8 @@ Requires Python 3.12+ and Claude Code.
 
 ## Usage
 
+- `hamlet install` — inject hooks into `~/.claude/settings.json` (skips if plugin already active)
+- `hamlet uninstall` — remove hooks from `~/.claude/settings.json`
 - `hamlet daemon` — start backend server
 - `hamlet` or `hamlet view` — open TUI viewer (daemon must be running)
 - `hamlet init` — initialize hamlet for current project
@@ -67,7 +69,8 @@ Edit `~/.hamlet/config.json`:
 
 ## How It Works
 
-- Hook scripts send Claude Code events to Hamlet
+- 15 hook types (PreToolUse, PostToolUse, Notification, Stop, SessionStart, SessionEnd, SubagentStart, SubagentStop, TeammateIdle, TaskCompleted, PostToolUseFailure, UserPromptSubmit, PreCompact, PostCompact, StopFailure) send Claude Code events to Hamlet
+- Hooks are configured via `hamlet install` (writes to `~/.claude/settings.json`) or automatically via the Claude Code plugin (no manual setup needed)
 - Agent inference detects spawns and activity types
 - World simulation advances construction and animations
 - TUI renders the ASCII village at 30 FPS

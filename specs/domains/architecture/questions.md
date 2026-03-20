@@ -107,3 +107,24 @@
 - **Impact:** If a `HookType` enum value is renamed, the Notification and Stop branches silently fall through to the else branch, producing wrong summaries. Two dispatch sites use divergent idioms.
 - **Status:** open
 - **Reexamination trigger:** Next event handling or manager.py work item.
+
+## Q-15: Test coverage for 11 new HookType values and event pipeline branches
+- **Question:** None of the 11 new `HookType` values added in WI-182 are covered by any test. The 11 new `handle_event()` branches in WI-183 are not exercised. The `on_resize` handler (WI-184) and `is_plugin_active()` (WI-185) are also untested. Should a focused test coverage cycle be prioritized?
+- **Source:** archive/cycles/008/code-quality.md (S2), archive/cycles/008/gap-analysis.md (G2)
+- **Impact:** Regressions in session/agent lifecycle tracking, structure work accumulation, viewport resize, and plugin detection will not be caught by the test suite. This is the primary risk carried forward from cycle 008.
+- **Status:** open
+- **Reexamination trigger:** Next test coverage or event handling work item.
+
+## Q-16: notification_type field silently discarded
+- **Question:** `notification.py` sends `notification_type` in params and `validation.py` declares it in the schema, but `InternalEvent` has no `notification_type` field and `event_processor.py` does not extract it. The value is silently discarded on every Notification event. Should the field be added to `InternalEvent` for downstream consumption?
+- **Source:** archive/cycles/008/gap-analysis.md (G4), archive/cycles/008/code-quality.md (suggestions)
+- **Impact:** Cannot differentiate notification types (progress vs. info vs. warning) in the TUI or event log. Pre-existing from cycle 005 but not previously tracked as a question.
+- **Status:** open
+- **Reexamination trigger:** Visual differentiation of notification types or next event processing work item.
+
+## Q-17: is_plugin_active() uses substring match — false positive risk
+- **Question:** `is_plugin_active()` uses `"hamlet" in key.lower()` to match plugin keys. A user with another plugin containing "hamlet" in its identifier would get a false positive, silently suppressing hook installation. Should the match be tightened to exact key or `installPath` check?
+- **Source:** archive/cycles/008/gap-analysis.md (G3), archive/cycles/008/code-quality.md (suggestions)
+- **Impact:** Minor — requires an unusual plugin name coincidence. The silent suppression (returns 0 with a warning) makes it visible but the heuristic is weak.
+- **Status:** open
+- **Reexamination trigger:** Plugin installation issues or next install.py work item.

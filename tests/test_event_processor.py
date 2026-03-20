@@ -435,3 +435,111 @@ class TestEventProcessor:
         result = await processor.process_event(valid_raw_event)
 
         assert result.project_name == "My Project"
+
+
+# -----------------------------------------------------------------------------
+# Parametrized round-trip test: all 15 HookType values
+# -----------------------------------------------------------------------------
+
+# Optional extra fields per hook type (beyond the required session_id / project_id)
+_HOOK_TYPE_EXTRA_FIELDS: dict[str, dict[str, Any]] = {
+    "PreToolUse": {"tool_name": "Read", "tool_input": {"file_path": "/tmp/f.txt"}},
+    "PostToolUse": {"tool_name": "Write", "tool_input": {"file_path": "/tmp/f.txt"}},
+    "Notification": {"notification_message": "hello"},
+    "Stop": {"stop_reason": "end_turn"},
+    "SessionStart": {"source": "cli"},
+    "SessionEnd": {"reason": "user_exit"},
+    "SubagentStart": {"agent_id": "a1", "agent_type": "coder"},
+    "SubagentStop": {"agent_id": "a1", "agent_type": "coder"},
+    "TeammateIdle": {"task_id": "t1", "task_subject": "do stuff", "teammate_name": "bob"},
+    "TaskCompleted": {
+        "task_id": "t1",
+        "task_subject": "do stuff",
+        "task_description": "desc",
+        "teammate_name": "alice",
+    },
+    "PostToolUseFailure": {"tool_name": "Bash", "is_interrupt": True},
+    "UserPromptSubmit": {"prompt": "hello world"},
+    "PreCompact": {},
+    "PostCompact": {},
+    "StopFailure": {"error": {"code": 1, "message": "oops"}},
+}
+
+
+@pytest.mark.parametrize("hook_type_str", [m.value for m in HookType])
+async def test_process_event_all_hook_types(hook_type_str: str) -> None:
+    """process_event correctly parses every HookType string value."""
+    queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+    processor = EventProcessor(queue)
+
+    raw: dict[str, Any] = {
+        "session_id": str(uuid4()),
+        "project_id": "proj-roundtrip",
+        "hook_type": hook_type_str,
+    }
+    raw.update(_HOOK_TYPE_EXTRA_FIELDS.get(hook_type_str, {}))
+
+    event = await processor.process_event(raw)
+
+    expected_member = HookType(hook_type_str)
+    assert event.hook_type == expected_member, (
+        f"Expected hook_type {expected_member!r}, got {event.hook_type!r}"
+    )
+
+
+@pytest.mark.asyncio
+async def test_tool_output_string() -> None:
+    """process_event passes through a string tool_output without modification."""
+    queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+    processor = EventProcessor(queue)
+
+    raw: dict[str, Any] = {
+        "session_id": str(uuid4()),
+        "project_id": "proj-1",
+        "hook_type": "PostToolUse",
+        "tool_name": "Bash",
+        "tool_output": "stdout content",
+    }
+
+    event = await processor.process_event(raw)
+
+    assert event.tool_output == "stdout content"
+
+
+@pytest.mark.parametrize("tool_output_value", [{"exit_code": 0}, None])
+@pytest.mark.asyncio
+async def test_tool_output_non_string(tool_output_value: dict[str, Any] | None) -> None:
+    """process_event passes through object and None tool_output values unchanged."""
+    queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+    processor = EventProcessor(queue)
+
+    raw: dict[str, Any] = {
+        "session_id": str(uuid4()),
+        "project_id": "proj-1",
+        "hook_type": "PostToolUse",
+        "tool_name": "Bash",
+        "tool_output": tool_output_value,
+    }
+
+    event = await processor.process_event(raw)
+
+    assert event.tool_output == tool_output_value
+
+
+@pytest.mark.asyncio
+async def test_notification_type_extraction() -> None:
+    """process_event extracts notification_type from raw event dict."""
+    queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+    processor = EventProcessor(queue)
+
+    raw: dict[str, Any] = {
+        "session_id": str(uuid4()),
+        "project_id": "proj-1",
+        "hook_type": "Notification",
+        "notification_type": "progress",
+        "notification_message": "Working...",
+    }
+
+    event = await processor.process_event(raw)
+
+    assert event.notification_type == "progress"

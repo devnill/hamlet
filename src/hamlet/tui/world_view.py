@@ -5,6 +5,7 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from rich.text import Text
+from textual.events import Resize
 from textual.widgets import Static
 
 from hamlet.tui.symbols import (
@@ -35,6 +36,11 @@ class WorldView(Static):
     def on_mount(self) -> None:
         """Set up 4Hz animation frame updates and 30FPS render refresh."""
         self.set_interval(1 / 4, self._update_animation_frame)
+        self._viewport.resize(self.size.width, self.size.height)
+
+    def on_resize(self, event: Resize) -> None:
+        """Update viewport dimensions when terminal is resized."""
+        self._viewport.resize(event.size.width, event.size.height)
 
     async def _update_animation_frame(self) -> None:
         """Advance spin animation frame and refresh state from world."""

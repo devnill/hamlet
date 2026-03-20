@@ -3,9 +3,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import aiohttp.web
+
+if TYPE_CHECKING:
+    from hamlet.protocols import WorldStateProtocol
 from mcp.server import Server
 
 from .handlers import register_handlers
@@ -28,7 +31,7 @@ class MCPServer:
         _running: Flag indicating if the server is currently running.
     """
 
-    def __init__(self, world_state: Any = None, port: int = 8080, animation_manager: Any = None) -> None:
+    def __init__(self, world_state: "WorldStateProtocol | None" = None, port: int = 8080, animation_manager: Any = None) -> None:
         """Initialize the MCP server with an empty event queue."""
         self._event_queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
         self._server: Server | None = None
@@ -39,11 +42,21 @@ class MCPServer:
         self._http_runner: aiohttp.web.AppRunner | None = None
 
     async def start(self) -> None:
-        """Start the MCP server and begin listening for connections.
+        """Start the MCP server and begin listening for HTTP connections.
 
-        Starts an HTTP server on the configured port to receive hook events.
-        Per guiding principle 7, errors during startup are logged but do not
-        crash the application.
+        Initialises the underlying ``mcp.server.Server`` instance and registers
+        MCP tool handlers, then starts an aiohttp HTTP server on the configured
+        port with the following routes:
+
+        - ``POST /hamlet/event`` — receives validated hook events and enqueues them.
+        - ``GET  /hamlet/health`` — lightweight liveness check.
+        - ``GET  /hamlet/state``  — serialised world state snapshot.
+        - ``GET  /hamlet/events`` — recent event log.
+
+        Per guiding principle 7 (graceful degradation), errors during MCP
+        initialisation or HTTP binding are logged but do not crash the application.
+        A second call while the server is already running is a no-op (logged as a
+        warning).
         """
         if self._running:
             logger.warning("MCP server already running")
@@ -106,6 +119,18 @@ class MCPServer:
                 self._http_runner = None
 
     async def _handle_state(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
+        """Handle GET /hamlet/state — return serialised world state as JSON.
+
+        Delegates to ``serialize_state`` and returns the result as a JSON
+        response. Returns HTTP 500 with an error message on failure.
+
+        Args:
+            request: The incoming aiohttp request object.
+
+        Returns:
+            A JSON response containing the full serialised world state, or an
+            error dict with HTTP 500 on serialisation failure.
+        """
         try:
             data = await serialize_state(self._world_state, self._animation_manager)
             return aiohttp.web.json_response(data)
@@ -113,6 +138,18 @@ class MCPServer:
             return aiohttp.web.json_response({"error": str(e)}, status=500)
 
     async def _handle_events(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
+        """Handle GET /hamlet/events — return the recent event log as JSON.
+
+        Delegates to ``serialize_events`` and returns the result as a JSON
+        response. Returns HTTP 500 with an error message on failure.
+
+        Args:
+            request: The incoming aiohttp request object.
+
+        Returns:
+            A JSON response containing the recent event log, or an error dict
+            with HTTP 500 on serialisation failure.
+        """
         try:
             data = await serialize_events(self._world_state)
             return aiohttp.web.json_response(data)

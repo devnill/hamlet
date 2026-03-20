@@ -16,6 +16,17 @@ class HookType(Enum):
     PostToolUse = "PostToolUse"
     Notification = "Notification"
     Stop = "Stop"
+    SessionStart = "SessionStart"
+    SessionEnd = "SessionEnd"
+    SubagentStart = "SubagentStart"
+    SubagentStop = "SubagentStop"
+    TeammateIdle = "TeammateIdle"
+    TaskCompleted = "TaskCompleted"
+    PostToolUseFailure = "PostToolUseFailure"
+    UserPromptSubmit = "UserPromptSubmit"
+    PreCompact = "PreCompact"
+    PostCompact = "PostCompact"
+    StopFailure = "StopFailure"
 
 
 @dataclass
@@ -49,11 +60,23 @@ class InternalEvent:
     hook_type: HookType
     tool_name: str | None = None
     tool_input: dict[str, Any] | None = None
-    tool_output: dict[str, Any] | None = None
+    tool_output: dict[str, Any] | str | None = None
     success: bool | None = None
     duration_ms: int | None = None
+    notification_type: str | None = None
     notification_message: str | None = None
     stop_reason: str | None = None
+    agent_id: str | None = None
+    agent_type: str | None = None
+    source: str | None = None
+    reason: str | None = None
+    task_id: str | None = None
+    task_subject: str | None = None
+    task_description: str | None = None
+    teammate_name: str | None = None
+    error: dict[str, Any] | None = None
+    is_interrupt: bool | None = None
+    prompt_text: str | None = None  # maps from raw "prompt" key
     raw_payload: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
