@@ -1,0 +1,81 @@
+# Review Manifest — Cycle 002
+
+## Work Items
+
+| # | Title | File Scope | Incremental Verdict | Findings (C/S/M) | Work Item Path | Review Path |
+|---|---|---|---|---|---|---|
+| 002 | Event Schema and Validation | src/hamlet/mcp_server/validation.py | Fail | 0/2/1 | plan/notes/002.md | archive/incremental/002-event-schema-validation.md |
+| 003 | Event Notification Handler | src/hamlet/mcp_server/handlers.py, src/hamlet/mcp_server/__init__.py | Pass | 0/1/1 | plan/notes/003.md | archive/incremental/003-event-notification-handler.md |
+| 004 | MCP Tools and Resources | src/hamlet/mcp_server/handlers.py | Pass | 0/0/0 | plan/notes/004.md | archive/incremental/004-mcp-tools-and-resources.md |
+| 005 | MCPServer Integration | src/hamlet/mcp_server/server.py, src/hamlet/mcp_server/__init__.py | Fail | 0/3/1 | plan/notes/005.md | archive/incremental/005-mcp-server-integration.md |
+| 011 | InternalEvent Data Structure | src/hamlet/event_processing/__init__.py, src/hamlet/event_processing/internal_event.py | Fail | 0/2/1 | plan/notes/011.md | archive/incremental/011-internal-event-data-structure.md |
+| 012 | Sequence Generator | src/hamlet/event_processing/sequence_generator.py, src/hamlet/event_processing/__init__.py | Pass | 0/0/1 | plan/notes/012.md | archive/incremental/012-sequence-generator.md |
+| 013 | Event Router Interface | src/hamlet/event_processing/event_router.py, src/hamlet/event_processing/__init__.py | Pass | 0/0/0 | plan/notes/013.md | archive/incremental/013-event-router-interface.md |
+| 014 | Event Processor | src/hamlet/event_processing/event_processor.py, src/hamlet/event_processing/__init__.py | Pass | 1/1/0 | plan/notes/014.md | archive/incremental/014-event-processor.md |
+| 021 | Core Types and Data Structures | src/hamlet/inference/__init__.py, src/hamlet/inference/types.py | Fail | 4/1/1 | plan/notes/021.md | archive/incremental/021-inference-core-types.md |
+| 022 | Agent Inference Engine Skeleton | src/hamlet/inference/engine.py, src/hamlet/inference/__init__.py | Fail | 0/1/1 | plan/notes/022.md | archive/incremental/022-inference-engine-skeleton.md |
+| 023 | Spawn Detection Algorithm | src/hamlet/inference/engine.py, tests/test_spawn_detection.py | Fail | 1/2/1 | plan/notes/023.md | archive/incremental/023-spawn-detection.md |
+| 024 | Type Inference Rules | src/hamlet/inference/engine.py, src/hamlet/inference/rules.py, tests/test_type_inference.py | Fail | 2/2/1 | plan/notes/024.md | archive/incremental/024-type-inference-rules.md |
+| 025 | Idle and Zombie Detection | src/hamlet/inference/engine.py, src/hamlet/inference/colors.py, tests/test_zombie_detection.py | Fail | 0/2/2 | plan/notes/025.md | archive/incremental/025-idle-zombie-detection.md |
+| 031 | Define Data Model Types | src/hamlet/world_state/types.py | Pass | 0/0/2 | plan/notes/031.md | archive/incremental/031-define-data-model-types.md |
+| 032 | Create WorldState Container | src/hamlet/world_state/state.py | Pass | 0/0/1 | plan/notes/032.md | archive/incremental/032-create-worldstate-container.md |
+| 033 | Implement Position Grid Index | src/hamlet/world_state/grid.py | Pass | 0/0/1 | plan/notes/033.md | archive/incremental/033-implement-position-grid-index.md |
+| 034 | Implement WorldStateManager Foundation | src/hamlet/world_state/manager.py | Pass | 0/1/2 | plan/notes/034.md | archive/incremental/034-implement-worldstatemanager-foundation.md |
+| 035 | Implement Project, Session, and Village CRUD | src/hamlet/world_state/manager.py | Pass | 0/0/1 | plan/notes/035.md | archive/incremental/035-implement-project-session-village-crud.md |
+| 036 | Implement Agent CRUD with Position Assignment | src/hamlet/world_state/manager.py | Fail | 0/3/2 | plan/notes/036.md | archive/incremental/036-agent-crud-position.md |
+| 037 | Implement Structure and Work Unit Management | src/hamlet/world_state/manager.py | Fail | 1/1/2 | plan/notes/037.md | archive/incremental/037-structure-work-unit-management.md |
+| 041 | Implement SimulationEngine Core | src/hamlet/simulation/__init__.py, src/hamlet/simulation/engine.py, src/hamlet/simulation/config.py, src/hamlet/simulation/state.py | Fail | 1/1/2 | plan/notes/041.md | archive/incremental/041-implement-simulation-engine-core.md |
+| 042 | Implement Agent State Management | src/hamlet/simulation/agent_updater.py | Pass | 0/0/1 | plan/notes/042.md | archive/incremental/042-implement-agent-state-management.md |
+| 043 | Implement Structure Progression System | src/hamlet/simulation/structure_updater.py | Pass | 1/0/1 | plan/notes/043.md | archive/incremental/043-implement-structure-progression-system.md |
+| 044 | Implement Animation State Machine | src/hamlet/simulation/animation.py | Pass | 0/2/1 | plan/notes/044.md | archive/incremental/044-implement-animation-state-machine.md |
+| 045 | Implement Village Expansion and Road Building | src/hamlet/simulation/expansion.py | Pass | 0/0/0 | plan/notes/045.md | archive/incremental/045-village-expansion-road-building.md |
+| 046 | Integrate Simulation Components into Tick Loop | src/hamlet/simulation/engine.py | Fail | 0/2/2 | plan/notes/046.md | archive/incremental/046-simulation-tick-loop.md |
+| 051 | Coordinate Types and Translation | src/hamlet/viewport/coordinates.py | Fail | 1/1/1 | plan/notes/051.md | archive/incremental/051-coordinate-types.md |
+| 052 | Viewport State Dataclass | src/hamlet/viewport/state.py | Pass | 0/0/1 | plan/notes/052.md | archive/incremental/052-viewport-state-dataclass.md |
+| 053 | Spatial Index for Visibility Queries | src/hamlet/viewport/spatial_index.py | Pass | 0/1/0 | plan/notes/053.md | archive/incremental/053-spatial-index-visibility-queries.md |
+| 054 | ViewportManager Core Operations | src/hamlet/viewport/manager.py | Pass | 0/0/0 | plan/notes/054.md | archive/incremental/054-viewport-manager-core.md |
+| 055 | ViewportManager Auto-Follow and Visibility Queries | src/hamlet/viewport/manager.py | Fail | 1/0/1 | plan/notes/055.md | archive/incremental/055-viewport-auto-follow.md |
+| 056 | Viewport Package Exports | src/hamlet/viewport/__init__.py | Pass | 0/0/0 | plan/notes/056.md | archive/incremental/056-viewport-package-exports.md |
+| 061 | Textual Application Setup (HamletApp) | src/hamlet/tui/app.py | Pass | 0/0/3 | plan/notes/061.md | archive/incremental/061-textual-app-setup.md |
+| 062 | Symbol and Color Mappings | src/hamlet/tui/symbols.py | Pass | 0/0/2 | plan/notes/062.md | archive/incremental/062-symbol-and-color-mappings.md |
+| 063 | WorldView Widget | src/hamlet/tui/world_view.py | Pass | 0/2/1 | plan/notes/063.md | archive/incremental/063-world-view-widget.md |
+| 064 | StatusBar Widget | src/hamlet/tui/status_bar.py | Pass | 0/0/0 | plan/notes/064.md | archive/incremental/064-status-bar-widget.md |
+| 065 | EventLog Widget | src/hamlet/tui/event_log.py | Pass | 0/0/0 | plan/notes/065.md | archive/incremental/065-event-log-widget.md |
+| 066 | LegendOverlay Widget | src/hamlet/tui/legend.py | Pass | 0/0/1 | plan/notes/066.md | archive/incremental/066-legend-overlay-widget.md |
+| 067 | Input Handling and Actions | src/hamlet/tui/app.py | Fail | 2/1/1 | plan/notes/067.md | archive/incremental/067-input-handling.md |
+| 068 | Reactive State Updates | src/hamlet/tui/app.py | Fail | 2/0/0 | plan/notes/068.md | archive/incremental/068-reactive-state-updates.md |
+| 071 | Persistence Data Structures | src/hamlet/persistence/types.py | Fail | 0/1/1 | plan/notes/071.md | archive/incremental/071-persistence-data-structures.md |
+| 072 | Database Connection Management | src/hamlet/persistence/connection.py | Pass | 2/1/1 | plan/notes/072.md | archive/incremental/072-database-connection-management.md |
+| 073 | Migration System | src/hamlet/persistence/migrations.py | Pass | 0/1/1 | plan/notes/073.md | archive/incremental/073-migration-system.md |
+| 074 | Write-Behind Queue Infrastructure | src/hamlet/persistence/queue.py | Pass | 0/0/0 | plan/notes/074.md | archive/incremental/074-write-behind-queue.md |
+| 075 | Entity Save Operations | src/hamlet/persistence/saver.py | Fail | 6/2/1 | plan/notes/075.md | archive/incremental/075-entity-save-operations.md |
+| 076 | Write Execution | src/hamlet/persistence/writer.py | Fail | 2/1/1 | plan/notes/076.md | archive/incremental/076-write-execution.md |
+| 077 | Event Log Operations | src/hamlet/persistence/event_log.py | Fail | 0/1/1 | plan/notes/077.md | archive/incremental/077-event-log-operations.md |
+| 078 | State Loading | src/hamlet/persistence/loader.py | Fail | 0/2/1 | plan/notes/078.md | archive/incremental/078-state-loading.md |
+| 079 | Persistence Facade and Checkpoint | src/hamlet/persistence/__init__.py, src/hamlet/persistence/facade.py | Fail | 3/4/2 | plan/notes/079.md | archive/incremental/079-persistence-facade.md |
+| 080 | Persistence Layer Core Tests - Facade, Connection, Migrations | tests/test_persistence_facade.py, tests/test_persistence_connection.py, tests/test_persistence_migrations.py | None | — | plan/notes/080.md | — |
+| 081 | Persistence Layer Data Tests - Writer, Loader, Queue, EventLog | tests/test_persistence_writer.py, tests/test_persistence_loader.py, tests/test_persistence_queue.py, tests/test_persistence_event_log.py | None | — | plan/notes/081.md | — |
+| 082 | Event Processing Tests - Processor, Router, SequenceGenerator | tests/test_event_processor.py, tests/test_event_router.py, tests/test_sequence_generator.py | None | — | plan/notes/082.md | — |
+| 083 | Simulation Engine Core Tests - Engine, AgentUpdater, StructureUpdater | tests/test_simulation_engine.py, tests/test_agent_updater.py, tests/test_structure_updater.py | None | — | plan/notes/083.md | — |
+| 084 | Simulation Features Tests - Expansion, Animation | tests/test_expansion.py, tests/test_animation.py | None | — | plan/notes/084.md | — |
+| 085 | Viewport Tests - Manager, Coordinates, SpatialIndex, State | tests/test_viewport_manager.py, tests/test_viewport_coordinates.py, tests/test_viewport_spatial_index.py, tests/test_viewport_state.py | None | — | plan/notes/085.md | — |
+| 086 | TUI Widget Tests - StatusBar, EventLog, Legend | tests/test_tui_status_bar.py, tests/test_tui_event_log.py, tests/test_tui_legend.py | None | — | plan/notes/086.md | — |
+| 087 | TUI Integration Tests - WorldView, HamletApp | tests/test_tui_world_view.py, tests/test_tui_app.py | None | — | plan/notes/087.md | — |
+| 088 | World State Tests - Grid, Manager CRUD and Queries | tests/test_position_grid.py, tests/test_world_state_manager.py | None | — | plan/notes/088.md | — |
+| 089 | MCP Server Tests - Validation, Handlers, Server | tests/test_mcp_validation.py, tests/test_mcp_handlers.py, tests/test_mcp_server.py | None | — | plan/notes/089.md | — |
+| 090 | Hook Scripts - PreToolUse and PostToolUse | hooks/pre_tool_use.py, hooks/post_tool_use.py | None | — | plan/notes/090.md | — |
+| 091 | Hook Scripts - Notification and Stop | hooks/notification.py, hooks/stop.py | None | — | plan/notes/091.md | — |
+| 092 | Hook Installation Command | src/hamlet/cli/commands/install.py, src/hamlet/cli/__init__.py | None | — | plan/notes/092.md | — |
+| 093 | Application Entry Point | src/hamlet/__main__.py, pyproject.toml | None | — | plan/notes/093.md | — |
+| 094 | Configuration Module | src/hamlet/config/__init__.py, src/hamlet/config/settings.py, src/hamlet/config/paths.py | None | — | plan/notes/094.md | — |
+| 095 | Application Wiring and Orchestration | src/hamlet/__main__.py, src/hamlet/tui/app.py | None | — | plan/notes/095.md | — |
+| 096 | README and Documentation | README.md | None | — | plan/notes/096.md | — |
+| 097 | End-to-End Integration Tests | tests/test_e2e_hook_to_render.py, tests/test_e2e_persistence_roundtrip.py | None | — | plan/notes/097.md | — |
+| 098 | Final Polish and Error Messages | src/hamlet/cli/commands/install.py, src/hamlet/__main__.py | None | — | plan/notes/098.md | — |
+
+**Summary:**
+- **Total work items:** 68
+- **Items with incremental reviews:** 49
+- **Passing items:** 28
+- **Failing items:** 21
+- **Items without reviews:** 19 (test files, hooks, CLI, docs, polish)

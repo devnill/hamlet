@@ -1,0 +1,148 @@
+"""Tests for RemoteWorldState."""
+from __future__ import annotations
+
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+
+from hamlet.tui.remote_world_state import RemoteWorldState
+
+
+@pytest.fixture
+def mock_provider():
+    provider = MagicMock()
+    provider.fetch_state = AsyncMock(return_value={
+        "agents": [],
+        "structures": [],
+        "villages": [],
+        "projects": [],
+        "animation_frames": {"agent-1": 2}
+    })
+    # fetch_events returns a list directly (not a dict)
+    provider.fetch_events = AsyncMock(return_value=[])
+    return provider
+
+
+@pytest.fixture
+def remote_state(mock_provider):
+    return RemoteWorldState(mock_provider)
+
+
+@pytest.mark.asyncio
+async def test_get_all_agents_empty_before_refresh(remote_state):
+    agents = await remote_state.get_all_agents()
+    assert agents == []
+
+
+@pytest.mark.asyncio
+async def test_get_animation_frame_returns_default(remote_state):
+    frame = remote_state.get_animation_frame("unknown-agent")
+    assert frame == 0
+
+
+@pytest.mark.asyncio
+async def test_get_animation_frame_after_refresh(remote_state, mock_provider):
+    await remote_state.refresh()
+    frame = remote_state.get_animation_frame("agent-1")
+    assert frame == 2
+
+
+@pytest.mark.asyncio
+async def test_get_event_log_uses_oldest_first(remote_state, mock_provider):
+    # fetch_events returns a list directly
+    mock_provider.fetch_events = AsyncMock(return_value=[
+        {"id": "e1", "timestamp": None, "session_id": "", "project_id": "",
+         "hook_type": "", "tool_name": None, "summary": ""},
+        {"id": "e2", "timestamp": None, "session_id": "", "project_id": "",
+         "hook_type": "", "tool_name": None, "summary": ""},
+        {"id": "e3", "timestamp": None, "session_id": "", "project_id": "",
+         "hook_type": "", "tool_name": None, "summary": ""},
+    ])
+    await remote_state.refresh()
+    log = await remote_state.get_event_log(limit=2)
+    assert len(log) == 2
+    assert log[0].id == "e1"  # oldest first (insertion order)
+    assert log[1].id == "e2"
+
+
+@pytest.mark.asyncio
+async def test_refresh_retains_stale_on_exception(remote_state, mock_provider):
+    # Set initial state
+    await remote_state.refresh()
+    initial_frame = remote_state.get_animation_frame("agent-1")
+    assert initial_frame == 2
+
+    # Make next refresh fail
+    mock_provider.fetch_state = AsyncMock(side_effect=Exception("network error"))
+    await remote_state.refresh()
+
+    # Stale data retained
+    frame_after_failure = remote_state.get_animation_frame("agent-1")
+    assert frame_after_failure == initial_frame
+
+
+@pytest.mark.asyncio
+async def test_get_all_agents_after_refresh(mock_provider):
+    mock_provider.fetch_state = AsyncMock(return_value={
+        "agents": [
+            {
+                "id": "a1",
+                "session_id": "s1",
+                "project_id": "p1",
+                "village_id": "v1",
+                "inferred_type": "general",
+                "color": "white",
+                "position": {"x": 1, "y": 2},
+                "last_seen": None,
+                "state": "active",
+                "parent_id": None,
+                "current_activity": None,
+                "total_work_units": 0,
+                "created_at": None,
+                "updated_at": None,
+            }
+        ],
+        "structures": [],
+        "villages": [],
+        "projects": [],
+        "animation_frames": {},
+    })
+    state = RemoteWorldState(mock_provider)
+    await state.refresh()
+    agents = await state.get_all_agents()
+    assert len(agents) == 1
+    assert agents[0].id == "a1"
+
+
+@pytest.mark.asyncio
+async def test_get_event_log_respects_limit(remote_state, mock_provider):
+    events = [
+        {"id": f"e{i}", "timestamp": None, "session_id": "", "project_id": "",
+         "hook_type": "", "tool_name": None, "summary": ""}
+        for i in range(10)
+    ]
+    mock_provider.fetch_events = AsyncMock(return_value=events)
+    await remote_state.refresh()
+    log = await remote_state.get_event_log(limit=5)
+    assert len(log) == 5
+    assert log[0].id == "e0"
+
+
+@pytest.mark.asyncio
+async def test_events_fetch_failure_retains_stale_events(remote_state, mock_provider):
+    events = [
+        {"id": "e1", "timestamp": None, "session_id": "", "project_id": "",
+         "hook_type": "", "tool_name": None, "summary": ""}
+    ]
+    mock_provider.fetch_events = AsyncMock(return_value=events)
+    await remote_state.refresh()
+    log = await remote_state.get_event_log()
+    assert len(log) == 1
+
+    # Second refresh: events fetch fails
+    mock_provider.fetch_events = AsyncMock(side_effect=Exception("timeout"))
+    await remote_state.refresh()
+
+    # Stale events retained
+    log_after = await remote_state.get_event_log()
+    assert len(log_after) == 1
+    assert log_after[0].id == "e1"
