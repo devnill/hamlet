@@ -127,13 +127,13 @@ class StateLoader:
             "id", "project_id", "name",
             "center_x", "center_y",
             "bounds_min_x", "bounds_min_y", "bounds_max_x", "bounds_max_y",
-            "created_at", "updated_at",
+            "has_expanded", "created_at", "updated_at",
         ]
         try:
             await self._db.execute(
                 "SELECT id, project_id, name, center_x, center_y,"
                 " bounds_min_x, bounds_min_y, bounds_max_x, bounds_max_y,"
-                " created_at, updated_at FROM villages"
+                " has_expanded, created_at, updated_at FROM villages"
             )
             rows = await self._db.fetchall()
         except Exception as exc:
@@ -143,6 +143,7 @@ class StateLoader:
         result: list[dict] = []
         for row in rows:
             d = dict(zip(cols, row))
+            d["has_expanded"] = bool(d.get("has_expanded", 0))
             d["created_at"] = _parse_dt(d.get("created_at"))
             d["updated_at"] = _parse_dt(d.get("updated_at"))
             result.append(d)

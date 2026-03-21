@@ -16,7 +16,6 @@ from hamlet.persistence.migrations import MIGRATIONS, run_migrations
 class TestMigrations:
     """Test suite for database migrations."""
 
-    @pytest.mark.asyncio
     async def test_run_migrations_creates_all_tables(self) -> None:
         """run_migrations() creates all expected tables and indexes."""
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -32,7 +31,7 @@ class TestMigrations:
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 2  # Should be at version 2 after all migrations
+                assert row[0] == 3  # Should be at version 3 after all migrations
 
                 # Verify all tables were created
                 await db.execute("""
@@ -73,7 +72,6 @@ class TestMigrations:
         finally:
             Path(db_path).unlink(missing_ok=True)
 
-    @pytest.mark.asyncio
     async def test_run_migrations_idempotent(self) -> None:
         """run_migrations() is idempotent - running twice has no ill effects."""
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -89,7 +87,7 @@ class TestMigrations:
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 2
+                assert row[0] == 3
 
                 # Run migrations again (should be idempotent)
                 await run_migrations(db)
@@ -98,7 +96,7 @@ class TestMigrations:
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 2
+                assert row[0] == 3
 
                 # Verify tables still exist and work
                 await db.execute("SELECT COUNT(*) FROM projects")
@@ -119,7 +117,6 @@ class TestMigrations:
         finally:
             Path(db_path).unlink(missing_ok=True)
 
-    @pytest.mark.asyncio
     async def test_migrations_dict_not_empty(self) -> None:
         """MIGRATIONS dict contains at least version 1 and 2."""
         assert 1 in MIGRATIONS
@@ -128,7 +125,6 @@ class TestMigrations:
         assert 2 in MIGRATIONS
         assert "project_id" in MIGRATIONS[2]
 
-    @pytest.mark.asyncio
     async def test_migration_2_adds_project_id_column(self) -> None:
         """Migration 2 adds project_id TEXT column to agents table."""
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -139,11 +135,11 @@ class TestMigrations:
             async with db:
                 await run_migrations(db)
 
-                # Verify schema version is 2
+                # Verify schema version is 3
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 2
+                assert row[0] == 3
 
                 # Verify project_id column exists on agents table
                 await db.execute("PRAGMA table_info(agents)")

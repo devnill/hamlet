@@ -124,6 +124,9 @@ class TestWorldStateManager:
         assert agent.position == Position(15, 25)
         assert manager._grid.is_occupied(Position(15, 25))
         assert manager._grid.get_entity_at(Position(15, 25)) == agent_id
+        assert agent.state == AgentState.ZOMBIE, (
+            f"Expected ZOMBIE but got {agent.state}; agents must reload as ZOMBIE on daemon startup"
+        )
 
     async def test_get_or_create_project_creates_new(
         self, manager: WorldStateManager, mock_persistence: MagicMock
@@ -612,3 +615,333 @@ class TestWorldStateManager:
         assert log, "Event log should not be empty"
         assert log[-1].summary.startswith("Notification:")
         assert "[type=" not in log[-1].summary
+
+    async def test_load_from_persistence_sets_agent_state_to_zombie(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """load_from_persistence() sets all loaded agents to ZOMBIE regardless of stored state."""
+        now = datetime.now(UTC)
+        agent_id = "agent-zombie-test"
+
+        mock_data = MagicMock()
+        mock_data.projects = []
+        mock_data.villages = []
+        mock_data.sessions = []
+        mock_data.agents = [
+            {
+                "id": agent_id,
+                "session_id": "session-1",
+                "project_id": "proj-1",
+                "village_id": "village-1",
+                "inferred_type": "general",
+                "color": "white",
+                "position_x": 5,
+                "position_y": 10,
+                "last_seen": now,
+                "state": "active",
+            }
+        ]
+        mock_data.structures = []
+        mock_data.metadata = {}
+
+        mock_persistence.load_state.return_value = mock_data
+
+        await manager.load_from_persistence()
+
+        assert agent_id in manager._state.agents
+        agent = manager._state.agents[agent_id]
+        assert agent.state == AgentState.ZOMBIE, (
+            f"Expected ZOMBIE but got {agent.state}; agents must reload as ZOMBIE to prevent phantom active agents"
+        )
+        # Verify all other fields are preserved exactly as loaded
+        assert agent.id == agent_id
+        assert agent.session_id == "session-1"
+        assert agent.village_id == "village-1"
+        assert agent.position == Position(5, 10)
+        assert agent.inferred_type == AgentType.GENERAL
+        assert agent.last_seen == now
+
+    async def test_despawn_agent_removes_from_state(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """despawn_agent() removes the agent from world state."""
+        mock_persistence.delete_agent = AsyncMock()
+        village_id = "village-1"
+        agent_id = "agent-1"
+
+        manager._state.villages[village_id] = Village(
+            id=village_id,
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+            bounds=Bounds(0, 0, 0, 0),
+            agent_ids=[agent_id],
+        )
+        position = Position(5, 5)
+        agent = Agent(
+            id=agent_id,
+            session_id="session-1",
+            project_id="proj-1",
+            village_id=village_id,
+            position=position,
+            color="white",
+            state=AgentState.ACTIVE,
+            inferred_type=AgentType.GENERAL,
+        )
+        manager._state.agents[agent_id] = agent
+        manager._grid.occupy(position, agent_id)
+
+        await manager.despawn_agent(agent_id)
+
+        # Agent removed from state
+        all_agents = await manager.get_all_agents()
+        assert not any(a.id == agent_id for a in all_agents)
+
+    async def test_despawn_agent_frees_grid_position(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """despawn_agent() vacates the agent's grid position."""
+        mock_persistence.delete_agent = AsyncMock()
+        village_id = "village-1"
+        agent_id = "agent-1"
+        position = Position(3, 7)
+
+        manager._state.villages[village_id] = Village(
+            id=village_id,
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+            bounds=Bounds(0, 0, 0, 0),
+            agent_ids=[agent_id],
+        )
+        agent = Agent(
+            id=agent_id,
+            session_id="session-1",
+            project_id="proj-1",
+            village_id=village_id,
+            position=position,
+            color="white",
+            state=AgentState.ACTIVE,
+            inferred_type=AgentType.GENERAL,
+        )
+        manager._state.agents[agent_id] = agent
+        manager._grid.occupy(position, agent_id)
+
+        assert manager._grid.is_occupied(position)
+
+        await manager.despawn_agent(agent_id)
+
+        assert not manager._grid.is_occupied(position)
+
+    async def test_despawn_agent_removes_from_village(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """despawn_agent() removes the agent from its village's agent_ids."""
+        mock_persistence.delete_agent = AsyncMock()
+        village_id = "village-1"
+        agent_id = "agent-1"
+
+        manager._state.villages[village_id] = Village(
+            id=village_id,
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+            bounds=Bounds(0, 0, 0, 0),
+            agent_ids=[agent_id],
+        )
+        position = Position(2, 2)
+        agent = Agent(
+            id=agent_id,
+            session_id="session-1",
+            project_id="proj-1",
+            village_id=village_id,
+            position=position,
+            color="white",
+            state=AgentState.ACTIVE,
+            inferred_type=AgentType.GENERAL,
+        )
+        manager._state.agents[agent_id] = agent
+        manager._grid.occupy(position, agent_id)
+
+        await manager.despawn_agent(agent_id)
+
+        village = manager._state.villages[village_id]
+        assert agent_id not in village.agent_ids
+
+    async def test_despawn_agent_calls_persistence_delete(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """despawn_agent() calls persistence.delete_agent with the agent id."""
+        mock_persistence.delete_agent = AsyncMock()
+        village_id = "village-1"
+        agent_id = "agent-1"
+
+        manager._state.villages[village_id] = Village(
+            id=village_id,
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+            bounds=Bounds(0, 0, 0, 0),
+            agent_ids=[agent_id],
+        )
+        position = Position(1, 1)
+        agent = Agent(
+            id=agent_id,
+            session_id="session-1",
+            project_id="proj-1",
+            village_id=village_id,
+            position=position,
+            color="white",
+            state=AgentState.ACTIVE,
+            inferred_type=AgentType.GENERAL,
+        )
+        manager._state.agents[agent_id] = agent
+        manager._grid.occupy(position, agent_id)
+
+        await manager.despawn_agent(agent_id)
+
+        mock_persistence.delete_agent.assert_called_once_with(agent_id)
+
+    async def test_despawn_agent_nonexistent_is_noop(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """despawn_agent() with a nonexistent agent_id raises no exception."""
+        mock_persistence.delete_agent = AsyncMock()
+
+        # Should not raise
+        await manager.despawn_agent("nonexistent-id")
+
+        # persistence.delete_agent must NOT be called for a nonexistent agent
+        mock_persistence.delete_agent.assert_not_called()
+
+    async def test_despawn_agent_removes_from_session(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """despawn_agent() removes the agent from its session's agent_ids."""
+        mock_persistence.delete_agent = AsyncMock()
+        village_id = "village-1"
+        session_id = "session-1"
+        agent_id = "agent-1"
+
+        manager._state.villages[village_id] = Village(
+            id=village_id,
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+            bounds=Bounds(0, 0, 0, 0),
+            agent_ids=[agent_id],
+        )
+        manager._state.sessions[session_id] = Session(
+            id=session_id,
+            project_id="proj-1",
+            agent_ids=[agent_id],
+        )
+        position = Position(4, 8)
+        agent = Agent(
+            id=agent_id,
+            session_id=session_id,
+            project_id="proj-1",
+            village_id=village_id,
+            position=position,
+            color="white",
+            state=AgentState.ACTIVE,
+            inferred_type=AgentType.GENERAL,
+        )
+        manager._state.agents[agent_id] = agent
+        manager._grid.occupy(position, agent_id)
+
+        await manager.despawn_agent(agent_id)
+
+        session = manager._state.sessions[session_id]
+        assert agent_id not in session.agent_ids
+
+    async def test_found_village_seeds_initial_structures(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """found_village seeds at least one structure into the new village."""
+        village = await manager.found_village(
+            "orig-village-1", "proj-1", Position(100, 100), "Outpost Beta"
+        )
+
+        assert village is not None
+
+        # The new village should have at least one structure in world state
+        structures_for_village = [
+            s for s in manager._state.structures.values()
+            if s.village_id == village.id
+        ]
+        assert len(structures_for_village) >= 1, (
+            f"Expected at least one seeded structure for village {village.id}, "
+            f"but found none. All structures: {list(manager._state.structures.values())}"
+        )
+
+    async def test_found_village_idempotency_inner_guard(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """found_village returns the existing village when called with a position within 5 cells.
+
+        This covers the inner 5-cell proximity guard inside WorldStateManager.found_village,
+        which is separate from the 15-cell _is_clear_site guard in ExpansionManager.
+        The originating village is pre-inserted so the test exercises the has_expanded
+        set-and-queued code path within the guard branch.
+        """
+        # Pre-insert originating village so the guard path can set has_expanded on it
+        orig = Village(id="orig-village-1", project_id="proj-1", name="Origin", center=Position(0, 0))
+        manager._state.villages["orig-village-1"] = orig
+
+        # First call: create the outpost at (50, 50)
+        first = await manager.found_village("orig-village-1", "proj-1", Position(50, 50), "Outpost Alpha")
+
+        assert first is not None
+        assert first.center == Position(50, 50)
+        assert first.name == "Outpost Alpha"
+
+        # Record how many queue_write calls happened after the first found_village
+        call_count_after_first = mock_persistence.queue_write.call_count
+
+        # Second call: position (52, 50) is within 5 cells — guard fires; originating village
+        # gets has_expanded=True set (one queue_write for that update) and existing is returned
+        second = await manager.found_village("orig-village-1", "proj-1", Position(52, 50), "Outpost Alpha Duplicate")
+
+        # Exactly one queue_write should have occurred — for persisting has_expanded on originating
+        assert mock_persistence.queue_write.call_count == call_count_after_first + 1, (
+            f"Expected one queue_write call (for has_expanded update), "
+            f"got {mock_persistence.queue_write.call_count - call_count_after_first}"
+        )
+
+        # The returned village should be the same object (same id and center)
+        assert second.id == first.id
+        assert second.center == first.center
+
+    async def test_found_village_sets_has_expanded_on_originating_village(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """found_village sets has_expanded=True on the originating village."""
+        orig_village = Village(
+            id="orig-1", project_id="proj-1", name="Origin", center=Position(0, 0)
+        )
+        manager._state.villages["orig-1"] = orig_village
+
+        await manager.found_village("orig-1", "proj-1", Position(50, 50), "Outpost")
+
+        assert manager._state.villages["orig-1"].has_expanded is True
+
+    async def test_found_village_sets_has_expanded_even_when_guard_fires(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """found_village sets has_expanded=True on the originating village even when
+        the idempotency guard returns an existing nearby village."""
+        orig_village = Village(
+            id="orig-1", project_id="proj-1", name="Origin", center=Position(0, 0)
+        )
+        existing = Village(
+            id="existing-1", project_id="proj-1", name="Existing", center=Position(50, 50)
+        )
+        manager._state.villages["orig-1"] = orig_village
+        manager._state.villages["existing-1"] = existing
+
+        # (52, 50) is within 5 cells of (50, 50) — idempotency guard fires
+        result = await manager.found_village("orig-1", "proj-1", Position(52, 50), "Outpost")
+
+        assert result.id == "existing-1"
+        assert manager._state.villages["orig-1"].has_expanded is True

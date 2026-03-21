@@ -63,6 +63,12 @@ class WorldStateManager:
         state lookup, not spatial queries.
 
         Acquires self._lock for the duration of the rebuild.
+
+        Note: all agents are loaded as ``AgentState.ZOMBIE`` regardless of their
+        persisted state. The inference engine's zombie detection is memory-only
+        and empty at startup, so restoring non-zombie states would leave phantom
+        active agents on screen. New hook events from live Claude sessions will
+        promote agents back to ACTIVE via the normal inference path.
         """
         async with self._lock:
             data = await self._persistence.load_state()
@@ -89,6 +95,7 @@ class WorldStateManager:
                         max_x=d.get("bounds_max_x", 0),
                         max_y=d.get("bounds_max_y", 0),
                     ),
+                    has_expanded=bool(d.get("has_expanded", False)),
                 )
                 self._state.villages[village.id] = village
 
@@ -113,7 +120,7 @@ class WorldStateManager:
                     color=TYPE_COLORS.get(_inferred_type, "white"),
                     position=position,
                     last_seen=d["last_seen"],
-                    state=AgentState(d.get("state", "active")),
+                    state=AgentState.ZOMBIE,  # always start as zombie on reload; new events will promote to active
                 )
                 self._state.agents[agent.id] = agent
                 try:
@@ -533,6 +540,32 @@ class WorldStateManager:
                 if aid in self._state.agents
             ]
 
+    async def despawn_agent(self, agent_id: str) -> None:
+        """Remove an agent from world state and queue its deletion from persistence."""
+        async with self._lock:
+            agent = self._state.agents.pop(agent_id, None)
+            if agent is None:
+                return  # no-op if already gone
+            # Free grid position
+            try:
+                self._grid.vacate(agent.position)
+            except Exception as e:
+                logger.warning(
+                    "despawn_agent: failed to vacate grid position for agent %s: %s",
+                    agent_id,
+                    e,
+                )
+            # Remove from village's agent_ids
+            village = self._state.villages.get(agent.village_id)
+            if village and agent_id in village.agent_ids:
+                village.agent_ids.remove(agent_id)
+            # Remove from session's agent_ids
+            session = self._state.sessions.get(agent.session_id)
+            if session and agent_id in session.agent_ids:
+                session.agent_ids.remove(agent_id)
+        # Queue DB delete outside the lock (persistence is async-safe)
+        await self._persistence.delete_agent(agent_id)
+
     # ------------------------------------------------------------------
     # Structure CRUD
     # ------------------------------------------------------------------
@@ -836,6 +869,100 @@ class WorldStateManager:
         """Return a snapshot of all villages."""
         async with self._lock:
             return list(self._state.villages.values())
+
+    async def found_village(
+        self, originating_village_id: str, project_id: str, center: Position, name: str
+    ) -> Village:
+        """Create a new village for *project_id* at *center* and persist it.
+
+        If any existing village center is within 5 cells of *center* the
+        existing village is returned without creating a duplicate (idempotency
+        guard against concurrent ticks).
+
+        Sets ``has_expanded = True`` on the originating village (identified by
+        *originating_village_id*) so that subsequent ticks do not re-trigger
+        expansion for the same village.
+
+        Acquires self._lock.
+
+        Args:
+            originating_village_id: ID of the village that triggered expansion.
+            project_id: ID of the project that is founding the new settlement.
+            center: World-coordinate center of the new village.
+            name: Human-readable name for the new village.
+
+        Returns:
+            The newly created ``Village``, or an existing one if a nearby
+            village is already present.
+        """
+        village_to_seed: Village | None = None
+        async with self._lock:
+            # Idempotency guard: return existing village if one is already near center.
+            # Even on early return, mark originating village as expanded so future
+            # ticks don't retry (the outpost already exists nearby).
+            for existing in self._state.villages.values():
+                dist = (
+                    (existing.center.x - center.x) ** 2
+                    + (existing.center.y - center.y) ** 2
+                ) ** 0.5
+                if dist < 5:
+                    if originating_village_id in self._state.villages:
+                        self._state.villages[originating_village_id].has_expanded = True
+                        try:
+                            await self._persistence.queue_write(
+                                "village",
+                                originating_village_id,
+                                self._state.villages[originating_village_id],
+                            )
+                        except Exception as exc:
+                            logger.debug(
+                                "Could not queue village write for originating village"
+                                " (idempotency path): %s",
+                                exc,
+                            )
+                    return existing
+
+            # Mark originating village as expanded so this won't fire again.
+            if originating_village_id in self._state.villages:
+                self._state.villages[originating_village_id].has_expanded = True
+                try:
+                    await self._persistence.queue_write(
+                        "village",
+                        originating_village_id,
+                        self._state.villages[originating_village_id],
+                    )
+                except Exception as exc:
+                    logger.debug(
+                        "Could not queue village write for originating village: %s", exc
+                    )
+
+            village_id = str(uuid.uuid4())
+            now = datetime.now(UTC)
+            village = Village(
+                id=village_id,
+                project_id=project_id,
+                name=name,
+                center=center,
+                bounds=Bounds(center.x, center.y, center.x, center.y),
+                created_at=now,
+                updated_at=now,
+            )
+
+            self._state.villages[village_id] = village
+
+            try:
+                await self._persistence.queue_write("village", village_id, village)
+            except Exception as exc:
+                logger.debug("Could not queue village write for outpost: %s", exc)
+
+            village_to_seed = village
+
+        # Outside the lock: _seed_initial_structures calls create_structure which
+        # acquires self._lock itself; calling it inside would cause a deadlock.
+        if village_to_seed is not None:
+            await self._seed_initial_structures(village_to_seed)
+
+        return village_to_seed
 
     async def handle_event(self, event: InternalEvent) -> None:
         """Route an event by HookType and update world state accordingly.

@@ -174,8 +174,8 @@ class WriteExecutor:
             "INSERT OR REPLACE INTO villages"
             " (id, project_id, name, center_x, center_y,"
             "  bounds_min_x, bounds_min_y, bounds_max_x, bounds_max_y,"
-            "  created_at, updated_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "  has_expanded, created_at, updated_at)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 d.get("id"),
                 d.get("project_id"),
@@ -186,6 +186,7 @@ class WriteExecutor:
                 d.get("bounds_min_y", 0),
                 d.get("bounds_max_x", 0),
                 d.get("bounds_max_y", 0),
+                1 if d.get("has_expanded") else 0,
                 _iso(d.get("created_at")),
                 _iso(d.get("updated_at")),
             ),

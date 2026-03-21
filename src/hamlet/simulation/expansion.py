@@ -70,6 +70,8 @@ class ExpansionManager:
         all_agents = {a.id: a for a in all_agents_list}
         for village in all_villages:
             try:
+                if village.has_expanded:
+                    continue
                 village_agents = [
                     all_agents[aid]
                     for aid in village.agent_ids
@@ -79,6 +81,10 @@ class ExpansionManager:
                 if site is not None:
                     await self.create_road_between(
                         world_state, village.id, village.center, site
+                    )
+                    outpost_name = f"{village.name} Outpost"
+                    await world_state.found_village(
+                        village.id, village.project_id, site, outpost_name
                     )
             except Exception:
                 logger.exception(
@@ -95,12 +101,8 @@ class ExpansionManager:
         """Create stone road structures along a straight line from *start* to *end*.
 
         Uses Bresenham's line algorithm. Road segments are created with
-        stage=3 and material="stone". If *world_state* does not expose a
-        ``create_structure`` method the operation is silently skipped.
+        stage=3 and material="stone".
         """
-        if not hasattr(world_state, "create_structure"):
-            return
-
         for x, y in self._bresenham(start.x, start.y, end.x, end.y):
             position = Position(x, y)
             await world_state.create_structure(

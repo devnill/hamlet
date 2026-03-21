@@ -133,7 +133,6 @@ class TestExpansionManager:
                            (other_village.center.y - result.y) ** 2) ** 0.5
             assert dist_to_other >= 15
 
-    @pytest.mark.asyncio
     async def test_process_expansion_creates_roads(
         self,
         expansion_mgr: ExpansionManager,
@@ -146,6 +145,7 @@ class TestExpansionManager:
         world_state.get_all_villages = AsyncMock(return_value=[village])
         world_state.get_all_agents = AsyncMock(return_value=agents)
         world_state.create_structure = AsyncMock()
+        world_state.found_village = AsyncMock(return_value=MagicMock())
 
         # Set up village with agent IDs
         village.agent_ids = [agent.id for agent in agents]
@@ -221,22 +221,6 @@ class TestExpansionManager:
 
         assert result is False
 
-    @pytest.mark.asyncio
-    async def test_create_road_between_skips_without_create_structure(
-        self,
-        expansion_mgr: ExpansionManager,
-    ) -> None:
-        """create_road_between silently skips if world_state lacks create_structure method."""
-        world_state = MagicMock()
-        # No create_structure attribute
-        del world_state.create_structure
-
-        # Should not raise
-        await expansion_mgr.create_road_between(
-            world_state, "village-1", Position(0, 0), Position(5, 0)
-        )
-
-    @pytest.mark.asyncio
     async def test_create_road_between_creates_structures(
         self,
         expansion_mgr: ExpansionManager,
@@ -251,3 +235,164 @@ class TestExpansionManager:
 
         # Should create 4 structures (positions 0,1,2,3)
         assert world_state.create_structure.call_count == 4
+
+    async def test_process_expansion_calls_found_village(
+        self,
+        expansion_mgr: ExpansionManager,
+        village: Village,
+        agents: list[Agent],
+    ) -> None:
+        """process_expansion calls found_village when an expansion site is found."""
+        world_state = MagicMock()
+        world_state.get_all_villages = AsyncMock(return_value=[village])
+        world_state.get_all_agents = AsyncMock(return_value=agents)
+        world_state.create_structure = AsyncMock()
+        world_state.found_village = AsyncMock(return_value=MagicMock())
+
+        village.agent_ids = [agent.id for agent in agents]
+
+        await expansion_mgr.process_expansion(world_state)
+
+        # found_village must have been called exactly once with the correct args.
+        # New signature: found_village(originating_village_id, project_id, site, name)
+        assert world_state.found_village.called
+        call_kwargs = world_state.found_village.call_args
+        called_originating_id = call_kwargs[0][0]
+        called_project_id = call_kwargs[0][1]
+        called_name = call_kwargs[0][3]
+        assert called_originating_id == village.id
+        assert called_project_id == village.project_id
+        assert "Outpost" in called_name
+
+    async def test_process_expansion_no_duplicate_village(
+        self,
+        expansion_mgr: ExpansionManager,
+        village: Village,
+        agents: list[Agent],
+    ) -> None:
+        """A second process_expansion call does not found a duplicate village at the same site.
+
+        After the first expansion, the outpost village appears in all_villages.
+        On the second tick, _is_clear_site returns False for sites within 15
+        cells of the outpost, so the exact same site is never passed to
+        found_village again.  The found_village idempotency guard (5-cell
+        radius) also ensures that even if a very close site were selected, the
+        existing outpost would be returned rather than a duplicate being created.
+        """
+        captured: dict[str, Any] = {}
+
+        def _capture_outpost(orig_id: str, pid: str, site: Position, name: str) -> Village:
+            v = Village(
+                id="outpost-1",
+                project_id=pid,
+                name=name,
+                center=site,
+            )
+            captured["outpost"] = v
+            return v
+
+        world_state = MagicMock()
+        world_state.create_structure = AsyncMock()
+        world_state.found_village = AsyncMock(side_effect=_capture_outpost)
+
+        village.agent_ids = [agent.id for agent in agents]
+
+        # Tick 1: only original village — expansion site found, outpost founded.
+        world_state.get_all_villages = AsyncMock(return_value=[village])
+        world_state.get_all_agents = AsyncMock(return_value=agents)
+        await expansion_mgr.process_expansion(world_state)
+
+        assert world_state.found_village.call_count == 1
+        outpost = captured.get("outpost")
+        assert outpost is not None
+        tick1_site = world_state.found_village.call_args[0][2]
+
+        # Tick 2: both villages present — site near outpost is no longer clear.
+        world_state.found_village.reset_mock()
+        world_state.get_all_villages = AsyncMock(return_value=[village, outpost])
+        await expansion_mgr.process_expansion(world_state)
+
+        # If found_village was called, the site must be at least 15 cells from
+        # the outpost (i.e., _is_clear_site blocked the original location).
+        for call in world_state.found_village.call_args_list:
+            new_site: Position = call[0][2]
+            dist_to_outpost = (
+                (new_site.x - tick1_site.x) ** 2
+                + (new_site.y - tick1_site.y) ** 2
+            ) ** 0.5
+            assert dist_to_outpost >= 15, (
+                f"found_village called at {new_site} which is only {dist_to_outpost:.1f} "
+                f"cells from the outpost at {tick1_site}"
+            )
+
+    async def test_has_expanded_true_blocks_expansion(
+        self,
+        expansion_mgr: ExpansionManager,
+        agents: list[Agent],
+    ) -> None:
+        """A village with agents >= threshold and has_expanded=True does NOT trigger
+        road building or found_village on subsequent ticks."""
+        expanded_village = Village(
+            id="village-expanded",
+            project_id="project-1",
+            name="Expanded Village",
+            center=Position(0, 0),
+            has_expanded=True,
+        )
+        expanded_village.agent_ids = [agent.id for agent in agents]
+
+        world_state = MagicMock()
+        world_state.get_all_villages = AsyncMock(return_value=[expanded_village])
+        world_state.get_all_agents = AsyncMock(return_value=agents)
+        world_state.create_structure = AsyncMock()
+        world_state.found_village = AsyncMock()
+
+        await expansion_mgr.process_expansion(world_state)
+
+        # Neither road building nor village founding should happen.
+        world_state.create_structure.assert_not_called()
+        world_state.found_village.assert_not_called()
+
+    async def test_has_expanded_false_triggers_expansion_exactly_once(
+        self,
+        expansion_mgr: ExpansionManager,
+        agents: list[Agent],
+    ) -> None:
+        """A village with agents >= threshold and has_expanded=False triggers
+        expansion exactly once; after the call has_expanded is set to True on
+        the village object (via the world_state.found_village side-effect), so
+        a second process_expansion call with the flag already set does nothing."""
+        village = Village(
+            id="village-fresh",
+            project_id="project-fresh",
+            name="Fresh Village",
+            center=Position(0, 0),
+            has_expanded=False,
+        )
+        village.agent_ids = [agent.id for agent in agents]
+
+        def _set_expanded(orig_id: str, pid: str, site: Position, name: str) -> Village:
+            # Simulate manager setting has_expanded on the originating village.
+            village.has_expanded = True
+            return Village(id="outpost-x", project_id=pid, name=name, center=site)
+
+        world_state = MagicMock()
+        world_state.create_structure = AsyncMock()
+        world_state.found_village = AsyncMock(side_effect=_set_expanded)
+
+        # Tick 1: has_expanded is False — expansion fires.
+        world_state.get_all_villages = AsyncMock(return_value=[village])
+        world_state.get_all_agents = AsyncMock(return_value=agents)
+        await expansion_mgr.process_expansion(world_state)
+
+        assert world_state.found_village.call_count == 1
+        assert village.has_expanded is True
+
+        # Tick 2: has_expanded is now True — expansion must not fire again.
+        world_state.found_village.reset_mock()
+        world_state.create_structure.reset_mock()
+        world_state.get_all_villages = AsyncMock(return_value=[village])
+        await expansion_mgr.process_expansion(world_state)
+
+        world_state.found_village.assert_not_called()
+        world_state.create_structure.assert_not_called()

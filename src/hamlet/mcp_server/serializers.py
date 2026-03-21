@@ -62,6 +62,7 @@ def _serialize_village(village: Any) -> dict:
         },
         "structure_ids": village.structure_ids,
         "agent_ids": village.agent_ids,
+        "has_expanded": village.has_expanded,
         "created_at": village.created_at.isoformat(),
         "updated_at": village.updated_at.isoformat(),
     }

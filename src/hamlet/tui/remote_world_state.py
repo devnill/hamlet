@@ -13,12 +13,14 @@ from hamlet.world_state.types import (
     Bounds,
     Position,
     Project,
+    Session,
     Structure,
     StructureType,
     Village,
 )
 
 if TYPE_CHECKING:
+    from hamlet.event_processing.internal_event import InternalEvent
     from hamlet.tui.remote_state import RemoteStateProvider
 
 logger = logging.getLogger(__name__)
@@ -110,6 +112,7 @@ def _parse_village(d: dict) -> Village:
         bounds=_parse_bounds(d.get("bounds", {})),
         structure_ids=list(d.get("structure_ids", [])),
         agent_ids=list(d.get("agent_ids", [])),
+        has_expanded=bool(d.get("has_expanded", False)),
         created_at=_parse_datetime(d.get("created_at")),
         updated_at=_parse_datetime(d.get("updated_at")),
     )
@@ -234,6 +237,75 @@ class RemoteWorldState:
             if bounds.min_x <= s.position.x <= bounds.max_x
             and bounds.min_y <= s.position.y <= bounds.max_y
         ]
+
+    def get_viewport_center(self) -> tuple[int, int] | None:
+        """Viewer has no access to daemon's persisted viewport metadata; return None."""
+        return None
+
+    async def update_viewport_center(self, x: int, y: int) -> None:
+        """No-op — viewer does not persist viewport position to the daemon."""
+
+    async def despawn_agent(self, agent_id: str) -> None:
+        """No-op — viewer does not control agent lifecycle; the daemon owns despawn."""
+
+    # ------------------------------------------------------------------
+    # Write-side stubs — viewer is read-only; daemon owns all mutations
+    # ------------------------------------------------------------------
+
+    async def handle_event(self, event: "InternalEvent") -> None:
+        """No-op — viewer does not process raw hook events."""
+        logger.warning("RemoteWorldState.handle_event called in viewer mode; ignoring")
+
+    async def get_or_create_project(self, project_id: str, project_name: str) -> Project:
+        """Not supported in viewer mode."""
+        raise NotImplementedError("RemoteWorldState does not support get_or_create_project")
+
+    async def get_or_create_session(self, session_id: str, project_id: str) -> Session:
+        """Not supported in viewer mode."""
+        raise NotImplementedError("RemoteWorldState does not support get_or_create_session")
+
+    async def get_or_create_agent(
+        self, session_id: str, parent_id: "str | None" = None
+    ) -> Agent:
+        """Not supported in viewer mode."""
+        raise NotImplementedError("RemoteWorldState does not support get_or_create_agent")
+
+    async def update_agent(self, agent_id: str, **kwargs: Any) -> None:
+        """No-op — viewer does not mutate agent state."""
+        logger.warning("RemoteWorldState.update_agent called in viewer mode; ignoring")
+
+    async def add_work_units(
+        self, agent_id: str, structure_type: Any, units: int
+    ) -> None:
+        """No-op — viewer does not accumulate work units."""
+        logger.warning("RemoteWorldState.add_work_units called in viewer mode; ignoring")
+
+    async def update_structure(self, structure_id: str, **fields: Any) -> None:
+        """No-op — viewer is read-only and does not mutate structure state."""
+        logger.warning("RemoteWorldState.update_structure called in viewer mode; ignoring")
+
+    async def create_structure(
+        self, village_id: str, structure_type: StructureType, position: Position
+    ) -> Structure:
+        """Not supported in viewer mode — viewer does not create structures."""
+        raise NotImplementedError("RemoteWorldState does not support create_structure")
+
+    async def found_village(
+        self, originating_village_id: str, project_id: str, center: Any, name: str
+    ) -> Village:
+        """Not supported in viewer mode — viewer does not found villages."""
+        raise NotImplementedError("RemoteWorldState does not support found_village")
+
+    async def get_agents_by_session(self, session_id: str) -> list[Agent]:
+        """Return cached agents belonging to the given session."""
+        return [a for a in self._agents if a.session_id == session_id]
+
+    async def get_village_by_project(self, project_id: str) -> "Village | None":
+        """Return the cached village for the given project, or None."""
+        for v in self._villages:
+            if v.project_id == project_id:
+                return v
+        return None
 
     def get_animation_frame(self, agent_id: str) -> int:
         """Return the cached animation frame for the given agent, or 0 if not tracked."""

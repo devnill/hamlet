@@ -83,6 +83,7 @@ class Village:
     bounds: Bounds = field(default_factory=lambda: Bounds(0, 0, 0, 0))
     structure_ids: list[str] = field(default_factory=list)
     agent_ids: list[str] = field(default_factory=list)
+    has_expanded: bool = False
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
