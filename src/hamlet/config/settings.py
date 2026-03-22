@@ -1,9 +1,44 @@
-"""Settings configuration for Hamlet."""
+"""Settings configuration for Hamlet.
+
+Config file format (~/.hamlet/config.json):
+{
+    "db_path": "~/.hamlet/world.db",
+    "mcp_port": 8080,
+    "tick_rate": 30.0,
+    "theme": "default",
+    "event_log_max_entries": 1000,
+    "activity_model": "claude-haiku-4-5-20251001",
+    "zombie_despawn_seconds": 300,
+    "zombie_threshold_seconds": 300,
+    "terrain": {
+        "seed": null,
+        "world_size": 200,
+        "water_frequency": 0.02,
+        "mountain_frequency": 0.015,
+        "forest_threshold": 0.55,
+        "meadow_threshold": 0.1,
+        "water_threshold": -0.25,
+        "mountain_threshold": 0.75,
+        "octaves": 4,
+        "lacunarity": 2.0,
+        "persistence": 0.5,
+        "elevation_scale": 0.03,
+        "moisture_scale": 0.04,
+        "domain_warp_strength": 0.5,
+        "smoothing_passes": 4,
+        "forest_grove_count": 15,
+        "forest_growth_iterations": 8,
+        "min_lake_size": 10,
+        "lake_expansion_factor": 1.5,
+        "ridge_count": null
+    }
+}
+"""
 
 import json
-from dataclasses import dataclass, asdict, fields
+from dataclasses import dataclass, asdict, fields, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 
 from .paths import CONFIG_PATH, ensure_hamlet_dir
 
@@ -20,6 +55,9 @@ class Settings:
     activity_model: str = "claude-haiku-4-5-20251001"
     zombie_despawn_seconds: int = 300
     zombie_threshold_seconds: int = 300
+    # Terrain configuration as dict for JSON serialization
+    # Actual TerrainConfig is constructed from this in app_factory
+    terrain: dict[str, Any] = field(default_factory=dict)
 
     def _validate(self) -> None:
         """Validate settings values, raising ValueError for invalid fields.
@@ -55,6 +93,7 @@ class Settings:
             raise ValueError(
                 f"zombie_threshold_seconds must be > 0, got: {self.zombie_threshold_seconds!r}"
             )
+        # terrain is a dict, validation of its contents happens in TerrainConfig
 
     @classmethod
     def load(cls) -> "Settings":

@@ -3678,3 +3678,297 @@ items:
       - 'HTTP endpoint /terrain/{x}/{y} returns JSON with terrain and passable fields'
       - 'A test verifies RemoteWorldState.get_terrain_at makes correct HTTP request'
     notes: plan/notes/239.md
+
+  "240":
+    title: TerrainConfig v2 — configuration parameters for multi-octave noise
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: []
+    blocks: ["241", "242"]
+    criteria:
+      - 'TerrainConfig has octaves: int = 4 parameter'
+      - 'TerrainConfig has lacunarity: float = 2.0 parameter'
+      - 'TerrainConfig has persistence: float = 0.5 parameter'
+      - 'TerrainConfig has domain_warp_strength: float = 0.5 parameter'
+      - 'Existing TerrainConfig fields (seed, world_size, water_frequency, etc.) remain unchanged'
+      - 'TerrainConfig dataclass can be instantiated with default parameters'
+    notes: plan/notes/240.md
+
+  "241":
+    title: fBm Noise Implementation
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["240"]
+    blocks: ["242"]
+    criteria:
+      - '_fbm(x, y, octaves, lacunarity, persistence, base) method exists and returns float'
+      - '_fbm combines multiple noise octaves correctly (lacunarity scales frequency, persistence scales amplitude)'
+      - '_warped_fbm(x, y, ...) method exists and returns float'
+      - '_warped_fbm applies domain warping to x and y coordinates before calling _fbm'
+      - '_generate_with_noise() replaced to use _warped_fbm for unified heightmap'
+      - 'Same seed produces identical terrain (determinism test)'
+    notes: plan/notes/241.md
+
+  "242":
+    title: Threshold-Based Terrain Classification
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["241"]
+    blocks: ["243", "244", "245", "246"]
+    criteria:
+      - '_generate_with_noise uses unified heightmap from _warped_fbm'
+      - 'Moisture secondary noise layer is generated'
+      - 'Terrain is classified from combined height + moisture values using threshold logic'
+      - 'Water appears as connected regions (not scattered cells)'
+      - 'Mountain forms coherent shapes (not isolated peaks)'
+      - 'Forest clusters in areas of higher moisture'
+      - 'Meadow and plain fill remaining passable areas'
+      - 'Same seed + position always returns same terrain (determinism preserved)'
+    notes: plan/notes/242.md
+
+  "243":
+    title: Cellular Automata Post-Processing
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["242"]
+    blocks: []
+    criteria:
+      - 'smooth_terrain(grid, passes) function exists in TerrainGenerator'
+      - 'CA iteration counts neighbors and applies smoothing rules'
+      - 'Water cells with < 3 water neighbors become meadow'
+      - 'Land cells with >= 4 water neighbors become water'
+      - 'Smoothing is applied after initial terrain generation'
+      - 'TerrainGrid integrates smoothing into caching (generate_chunk applies smoothing)'
+      - 'Number of smoothing passes is configurable'
+    notes: plan/notes/243.md
+
+  "244":
+    title: Mountain Ridge Generation
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["242"]
+    blocks: []
+    criteria:
+      - 'generate_ridge_chain(start, end, roughness) method exists'
+      - 'Ridge uses midpoint displacement algorithm'
+      - 'Ridge cells are marked as MOUNTAIN terrain'
+      - 'Ridge chain connects to existing mountain cells from noise generation'
+      - 'Same seed produces same ridge placement (deterministic)'
+      - 'Ridge generation is integrated into main pipeline after fBm classification'
+    notes: plan/notes/244.md
+
+  "245":
+    title: Lake Detection and Expansion
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["242"]
+    blocks: []
+    criteria:
+      - 'detect_lakes(grid, min_size) function exists'
+      - 'Flood-fill algorithm identifies connected water regions'
+      - 'Returns list of (position_set, size) for each lake'
+      - 'expand_lake(lake_positions, target_size) function exists'
+      - 'Small water bodies (< min_size) are expanded to target_size'
+      - 'Expansion uses nearest-neighbor growth from lake center'
+      - 'Lake expansion preserves water/mountain adjacency (no expansion into mountains)'
+      - 'Lake processing is integrated into generation pipeline after CA smoothing'
+    notes: plan/notes/245.md
+
+  "246":
+    title: Forest Clustering Algorithm
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["242"]
+    blocks: []
+    criteria:
+      - 'generate_forest_groves(grid, count, growth_iterations) function exists'
+      - 'Seeding selects random positions in high-moisture areas'
+      - 'Growth algorithm expands forest cells to neighbors iteratively'
+      - 'Forest groves form connected clusters (not scattered individual cells)'
+      - 'Same seed produces same forest distribution (deterministic)'
+      - 'Forest generation is integrated into main pipeline after ridge/lake processing'
+    notes: plan/notes/246.md
+
+  "247":
+    title: Terrain Pipeline Integration Test
+    complexity: low
+    scope:
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["246"]
+    blocks: []
+    criteria:
+      - 'test_get_terrain_in_bounds_full_pipeline_produces_varied_terrain exists and passes'
+      - 'Test verifies all terrain types present (WATER, MOUNTAIN, FOREST, MEADOW, PLAIN)'
+      - 'Test verifies ridge integration by checking some MOUNTAIN cells are from ridges'
+      - 'Test uses noise library (skipif decorator for environments without noise)'
+    notes: plan/notes/247.md
+
+  "248":
+    title: Document Ridge Boundary Behavior
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+    depends: ["244"]
+    blocks: []
+    criteria:
+      - 'Comment added at terrain.py:974-977 explaining ridge truncation behavior'
+      - 'Comment explains that ridge positions extending outside bounds are skipped'
+    notes: plan/notes/248.md
+
+  # === refine-15: Terrain Generation Refinement ===
+
+  "249":
+    title: Terrain Legend Enhancement
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/legend.py, op: modify}
+    depends: []
+    blocks: ["252"]
+    criteria:
+      - 'Legend overlay displays terrain types: water (~), mountain (^), forest (♣), meadow ("), plain (.)'
+      - 'Each terrain type shows symbol with its color'
+      - 'Legend maintains existing agents, structures, materials, states sections'
+      - 'Legend height adjusted for new terrain section'
+    notes: plan/notes/249.md
+
+  "250":
+    title: TerrainConfig Parameter System
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+    depends: []
+    blocks: ["251", "252", "254"]
+    criteria:
+      - 'TerrainConfig dataclass has all adjustable parameters exposed'
+      - 'Parameters include: elevation_scale, moisture_scale, smoothing_passes, forest_grove_count, forest_growth_iterations, water_threshold, mountain_threshold, forest_threshold, meadow_threshold, ridge_count, min_lake_size, lake_expansion_factor, domain_warp_strength, octaves, lacunarity, persistence'
+      - 'Parameters have sensible defaults matching current behavior'
+      - 'TerrainGenerator accepts TerrainConfig in constructor and uses all parameters'
+    notes: plan/notes/250.md
+
+  "251":
+    title: Config Persistence for Terrain Parameters
+    complexity: medium
+    scope:
+      - {path: src/hamlet/config/settings.py, op: modify}
+      - {path: src/hamlet/app_factory.py, op: modify}
+    depends: ["250"]
+    blocks: ["252"]
+    criteria:
+      - 'Settings dataclass includes terrain_config field (TerrainConfig or dict)'
+      - 'Config loading reads terrain parameters from .hamlet/config.json'
+      - 'Config writing saves terrain parameters to .hamlet/config.json'
+      - 'Default values used when config lacks terrain section'
+    notes: plan/notes/251.md
+
+  "252":
+    title: Map Viewer Mode with Parameter Adjustment
+    complexity: high
+    scope:
+      - {path: src/hamlet/cli/__init__.py, op: modify}
+      - {path: src/hamlet/tui/app.py, op: modify}
+      - {path: src/hamlet/tui/map_viewer.py, op: create}
+      - {path: src/hamlet/tui/parameter_panel.py, op: create}
+    depends: ["249", "250", "251"]
+    blocks: ["253"]
+    criteria:
+      - 'New CLI flag: hamlet --map-viewer or hamlet map-viewer launches map viewer mode'
+      - 'Map viewer shows terrain without agents/structures'
+      - 'Parameter panel displays current terrain config values'
+      - 'Parameter changes trigger terrain regeneration'
+      - 'Terrain regenerates with same seed when parameters change'
+      - 'UI shows current seed and allows seed randomization'
+      - 'Save button persists parameters to config file'
+    notes: plan/notes/252.md
+
+  "253":
+    title: Zoom Functionality for Map Viewer
+    complexity: medium
+    scope:
+      - {path: src/hamlet/tui/map_viewer.py, op: modify}
+      - {path: src/hamlet/viewport/coordinates.py, op: modify}
+    depends: ["252"]
+    blocks: []
+    criteria:
+      - 'Zoom levels: 1x (default), 2x, 4x, 8x'
+      - 'Plus/minus keys adjust zoom level'
+      - 'Terrain cells scale appropriately (larger/smaller on screen)'
+      - 'World coordinates scale with zoom (viewport shows larger area at higher zoom)'
+      - 'Zoom level displayed in status bar'
+    notes: plan/notes/253.md
+
+  "254":
+    title: Biome Region Generation
+    complexity: high
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+    depends: ["250"]
+    blocks: ["255", "256", "257"]
+    criteria:
+      - 'Macro-scale noise (low frequency) defines biome regions'
+      - 'Each region has a dominant terrain type tendency'
+      - 'Regions span 50-200 cells across (configurable via region_scale parameter)'
+      - 'Boundaries between regions use blending or sharp transitions based on terrain types'
+      - 'Same seed produces same regions deterministically'
+      - 'Performance: generation under 500ms for 200x200 world'
+    notes: plan/notes/254.md
+
+  "255":
+    title: Realistic Water Features
+    complexity: high
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+    depends: ["254"]
+    blocks: ["256"]
+    criteria:
+      - 'Rivers: Linear water features following elevation gradients'
+      - 'Ponds: Small isolated water bodies (5-15 cells)'
+      - 'Lakes: Large connected water bodies with organic shapes'
+      - 'Water features connect naturally (rivers flow into lakes where terrain permits)'
+      - 'Water percentage configurable via parameter'
+      - 'Lake detection and expansion work with new region system'
+    notes: plan/notes/255.md
+
+  "256":
+    title: Forest Clustering Near Features
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+    depends: ["254", "255"]
+    blocks: []
+    criteria:
+      - 'Forests preferentially spawn near water features'
+      - 'Forest density varies by biome region (higher in forest-prone regions)'
+      - 'Forest groves use existing seeding and growth algorithm adapted for new system'
+      - 'Forests form coherent clusters, not scattered cells'
+      - 'Forest percentage configurable via parameter'
+    notes: plan/notes/256.md
+
+  "257":
+    title: Terrain Smoothing and Transition Rules
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+    depends: ["254"]
+    blocks: []
+    criteria:
+      - 'CA smoothing rules apply to all terrain types (not just water/mountain)'
+      - 'Forests expand into adjacent passable terrain with 5+ forest neighbors'
+      - 'Isolated forests (fewer than 2 forest neighbors) contract to meadow'
+      - 'Transition rules create gradual boundaries between similar biomes'
+      - 'Sharp boundaries occur where appropriate (water/land)'
+      - 'Smoothing passes configurable via parameter'
+    notes: plan/notes/257.md

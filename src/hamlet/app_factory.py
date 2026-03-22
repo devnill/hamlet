@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from hamlet.persistence.facade import PersistenceFacade
 from hamlet.persistence.types import PersistenceConfig
 from hamlet.world_state.manager import WorldStateManager
+from hamlet.world_state.terrain import TerrainConfig
 from hamlet.inference.engine import AgentInferenceEngine
 from hamlet.inference.summarizer import ActivitySummarizer
 from hamlet.simulation.engine import SimulationEngine
@@ -64,7 +65,11 @@ async def build_components(settings: Settings, port: int | None = None) -> Compo
 
         # 2. Initialize world state
         logger.debug("Initializing WorldStateManager...")
-        world_state = WorldStateManager(persistence)
+        # Build TerrainConfig from settings.terrain dict if present
+        terrain_config = None
+        if hasattr(settings, 'terrain') and settings.terrain:
+            terrain_config = TerrainConfig(**settings.terrain)
+        world_state = WorldStateManager(persistence, terrain_config=terrain_config)
         await world_state.load_from_persistence()
 
         # 2a. Initialize agent inference engine

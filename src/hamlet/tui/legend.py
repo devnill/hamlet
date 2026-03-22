@@ -18,7 +18,7 @@ LegendOverlay {
     layer: overlay;
     offset: 2 2;
     width: 51;
-    height: 22;
+    height: 26;
     background: $surface;
 }
 """
@@ -44,6 +44,10 @@ LegendOverlay {
             "│  ∩ House    ◊ Workshop    ⌂ Library          │\n"
             "│  ▲ Forge    ⎔ Tower       # Road             │\n"
             "│  ○ Well                                       │\n"
+            "│                                               │\n"
+            "│ [bold]Terrain[/bold]                                        │\n"
+            "│  [blue]~[/blue] Water    [grey85]^[/grey85] Mountain                 │\n"
+            "│  [green]♣[/green] Forest   [bright_green]\"[/bright_green] Meadow   [white].[/white] Plain     │\n"
             "│                                               │\n"
             "│ [bold]Materials:[/bold]                                     │\n"
             "│  ░ Wood → ▒ Stone → ▓ Brick → █ Enhanced     │\n"

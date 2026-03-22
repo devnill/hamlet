@@ -1,5 +1,27 @@
 # Project Journal
 
+## [refine] 2026-03-22 — refine-15 planning completed
+Trigger: User feedback on terrain generation aesthetics
+Principles changed: none
+New work items: WI-249 through WI-257 (9 items)
+
+User reported terrain generation produces "too busy" scattered terrain cells rather than coherent biome regions. Requested:
+- Larger biome regions with realistic transitions
+- Water features: rivers, ponds, lakes (not oceans)
+- Forests clustering near water/features
+- Configurable parameters for real-time tuning
+- Map viewer mode with zoom capability
+- Legend showing terrain types
+
+Work items organized in three phases:
+- Phase 1 (parallel): Legend enhancement, parameter system, config persistence
+- Phase 2 (sequential): Map viewer mode, zoom functionality
+- Phase 3 (parallel after WI-254): Biome regions, water features, forest clustering, smoothing rules
+
+All work items modify existing files except:
+- `src/hamlet/tui/map_viewer.py` (create)
+- `src/hamlet/tui/parameter_panel.py` (create)
+
 ## [brrr] 2026-03-21 — Terrain Generation Cycle 1 review complete — CONVERGENCE ACHIEVED
 Critical findings: 0
 Significant findings: 0
@@ -1480,3 +1502,66 @@ Verified terrain seed persistence. Added tests for seed generation, persistence 
 ## [brrr] 2026-03-21 — Cycle 1 — Work item 239: RemoteWorldState terrain methods
 Status: complete with rework
 Added get_terrain_at and is_passable methods to RemoteWorldState, added /terrain/{x}/{y} HTTP endpoint to daemon. Fixed: added missing tests for fetch_terrain in test_remote_state.py.
+
+## [refine] 2026-03-22 — Refinement planning completed (refine-14)
+Trigger: User feedback on terrain visualization — current Perlin noise produces scattered, disconnected cells. Need realistic geographic features: lakes, forest groves, mountain ranges.
+Principles changed: none
+New work items: WI-240 through WI-246
+Terrain generation overhaul: fBm noise with domain warping (WI-240, WI-241), threshold-based classification from unified heightmap (WI-242), cellular automata smoothing (WI-243), specialized feature generation for ridges (WI-244), lakes (WI-245), and forest groves (WI-246). All three phases implemented but modular for independent testing. Performance budget flexible (~200-250ms startup acceptable).
+
+## [brrr] 2026-03-22 — Cycle 1 — Work item 240: TerrainConfig v2 — configuration parameters for multi-octave noise
+Status: complete
+Added four new parameters to TerrainConfig dataclass: octaves, lacunarity, persistence, domain_warp_strength. Tests added for each new parameter. All acceptance criteria verified. Review passed with 2 minor findings (pre-existing test failure, no validation on new params — not required by criteria).
+
+## [brrr] 2026-03-22 — Cycle 1 — Work item 241: fBm Noise Implementation
+Status: complete with rework
+Implemented `_fbm()` and `_warped_fbm()` methods in TerrainGenerator. Updated `_generate_with_noise()` to use warped fBm for elevation and fBm for moisture. Added comprehensive tests for fBm methods. Fixed critical finding: missing skipif decorator on test_fbm_can_produce_varied_terrain_values.
+
+## [brrr] 2026-03-22 — Cycle 1 — Work item 242: Threshold-Based Terrain Classification
+Status: complete
+Implemented `_classify_terrain()` method with elevation-first then moisture-based classification. Updated threshold defaults to forest_threshold=0.5, meadow_threshold=0.0 to fix ordering issue. Modified `_generate_with_noise()` to use unified elevation from `_warped_fbm()` and moisture from `_fbm()` with seed offset. Added 7 new tests for classification logic. Review passed.
+
+## [brrr] 2026-03-22 — Cycle 1 — Work item 243: Cellular Automata Post-Processing
+Status: complete with rework
+Implemented `smooth_terrain()`, `_count_neighbors()`, and `_apply_smoothing_rule()` functions. Added `smoothing_passes` to TerrainConfig. TerrainGrid now applies CA smoothing to generated terrain. Added 26 tests for smoothing. Fixed significant finding: TerrainGrid now uses config.smoothing_passes when not explicitly provided.
+
+## [brrr] 2026-03-22 — Cycle 1 — Work item 244: Mountain Ridge Generation
+Status: complete with rework
+Implemented `generate_ridge_chain()` using midpoint displacement with perpendicular offset for natural-looking mountain ranges. Added `_fill_ridge_gaps()` for connectivity, `_generate_ridge_seeds()` to find peak pairs from heightmap, `generate_ridges_from_heightmap()` to coordinate ridge generation, and `generate_heightmap_and_moisture()` to expose raw noise values. Integration into `get_terrain_in_bounds()` as step 2 (after raw terrain, before smoothing). Added 15 tests. Review passed with 3 minor findings (weak test assertion, missing integration test, dead code method).
+
+## [brrr] 2026-03-22 — Cycle 1 — Work item 245: Lake Detection and Expansion
+Status: complete with rework
+Implemented `detect_lakes()` with flood-fill (4-connected), `_flood_fill_water()` helper, and `expand_lake()` for growing small water bodies. Added `min_lake_size` and `lake_expansion_factor` config parameters. Integration into `get_terrain_in_bounds()` as step 6 (after smoothing, before forests). Fixed critical bug: changed `detect_lakes(smoothed, min_size=min_lake_size)` to `detect_lakes(smoothed, min_size=1)` so expansion logic is reachable. Added 19 tests. Review passed after fix.
+
+## [brrr] 2026-03-22 — Cycle 1 — Work item 246: Forest Clustering Algorithm
+Status: complete
+Implemented `generate_forest_groves()` with seeding in high-moisture areas and iterative growth from cardinal neighbors. Added `forest_grove_count` and `forest_growth_iterations` config parameters. Integration into `get_terrain_in_bounds()` as step 7 (final step, after lakes). Uses moisture_map from step 1 for seeding and growth thresholds. Added 16 tests. Review passed with no findings.
+
+## [review] 2026-03-22 — Cycle 1 comprehensive review completed
+Critical findings: 0
+Significant findings: 2 (S1: no integration test for full pipeline, S2: ridge boundary behavior undocumented)
+Minor findings: 3 (M1: no parameter validation, M2: in-place modification, M3: runtime import overhead)
+Convergence: not achieved — significant findings require refinement
+
+## [refine] 2026-03-22 — Cycle 1 refinement
+Findings addressed: S1 (integration test WI-247), S2 (documentation WI-248)
+New work items created: WI-247, WI-248
+
+## [brrr] 2026-03-22 — Cycle 2 — Work item 247: Terrain Pipeline Integration Test
+Status: complete
+Added integration test class TestTerrainGridIntegration with two tests: test_get_terrain_in_bounds_full_pipeline_produces_varied_terrain (verifies all terrain types present) and test_get_terrain_in_bounds_deterministic_full_pipeline (verifies determinism). Both tests use skipif decorator for environments without noise library.
+
+## [brrr] 2026-03-22 — Cycle 2 — Work item 248: Document Ridge Boundary Behavior
+Status: complete
+Added clarifying comment at terrain.py:974-977 explaining that ridge positions extending outside bounds are truncated at the boundary. Comment explains the `if pos in terrain` check ensures only positions within bounds are marked as MOUNTAIN.
+
+## [review] 2026-03-22 — Cycle 2 comprehensive review completed
+Critical findings: 0
+Significant findings: 0
+Minor findings: 0
+Convergence: achieved — all work items complete, no outstanding issues
+
+## [brrr] 2026-03-22 — brrr session complete
+Total cycles: 2
+Total work items: 9 (WI-240 through WI-248)
+Final status: Converged

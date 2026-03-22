@@ -139,9 +139,21 @@ class HamletApp(App):
     def on_mount(self) -> None:
         """Set up a 30 FPS refresh interval and a 10 Hz state polling interval after the app mounts."""
         self.set_interval(1 / 30, self._refresh_world)
-        self.set_interval(1 / 10, self._update_state)
         if self._remote_provider is not None:
-            self.set_interval(0.5, self._refresh_remote_state)
+            # Kick off the async refresh task
+            self._kickoff_refresh_remote_state()
+
+    def _kickoff_refresh_remote_state(self) -> None:
+        """Kick off the periodic terrain refresh."""
+        import asyncio
+        async def _periodic_refresh():
+            while True:
+                try:
+                    await self._refresh_remote_state()
+                except Exception as e:
+                    logger.debug("_periodic_refresh error: %s", e)
+                await asyncio.sleep(0.5)
+        asyncio.create_task(_periodic_refresh())
 
     async def _refresh_remote_state(self) -> None:
         """Refresh remote world state from the daemon (viewer mode only)."""
@@ -153,12 +165,15 @@ class HamletApp(App):
             terrain_grid = getattr(self._world_state, "terrain_grid", None)
             if terrain_grid is not None:
                 bounds = self._viewport.get_visible_bounds()
-                await terrain_grid.prefetch_bounds(*bounds)
+                await terrain_grid.prefetch_bounds(
+                    bounds.min_x, bounds.min_y, bounds.max_x, bounds.max_y
+                )
         except Exception as exc:
             logger.debug("_refresh_remote_state: failed: %s", exc)
 
     def _refresh_world(self) -> None:
         """Refresh world state — stub, implemented in a later work item."""
+        pass
 
     async def _update_state(self) -> None:
         """Poll world state at 10 Hz and update reactive widget properties."""

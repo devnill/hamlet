@@ -1,7 +1,12 @@
 """RemoteStateProvider — HTTP client for polling a running Hamlet daemon."""
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Union
+
 import aiohttp
+
+if TYPE_CHECKING:
+    from hamlet.viewport.coordinates import BoundingBox
 
 
 class RemoteStateProvider:
@@ -69,6 +74,28 @@ class RemoteStateProvider:
         ) as r:
             return await r.json()
 
+    async def fetch_terrain_bounds(
+        self, min_x: int, min_y: int, max_x: int, max_y: int
+    ) -> dict[str, str]:
+        """Fetch terrain data for all positions in bounds from the daemon.
+
+        This uses the batch endpoint which applies the full terrain generation
+        pipeline (noise, ridges, lakes, forests).
+
+        Args:
+            min_x, min_y, max_x, max_y: Bounds of the area to fetch.
+
+        Returns:
+            Dict mapping "x,y" strings to terrain type strings.
+        """
+        if self._session is None:
+            return {}
+        async with self._session.get(
+            f"{self._base_url}/hamlet/terrain/bounds/{min_x}/{min_y}/{max_x}/{max_y}",
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as r:
+            return await r.json()
+
 
 class RemoteTerrainGrid:
     """Terrain grid that fetches terrain from a remote daemon.
@@ -93,7 +120,7 @@ class RemoteTerrainGrid:
         return terrain
 
     def get_terrain_in_bounds(
-        self, bounds: "tuple[int, int, int, int]"
+        self, bounds: "Union[BoundingBox, tuple[int, int, int, int]]"
     ) -> dict[tuple[int, int], str]:
         """Synchronously return cached terrain for positions in bounds.
 
@@ -102,12 +129,20 @@ class RemoteTerrainGrid:
         calling this method.
 
         Args:
-            bounds: (min_x, min_y, max_x, max_y) bounds
+            bounds: BoundingBox or (min_x, min_y, max_x, max_y) tuple
 
         Returns:
             Dict mapping (x, y) to terrain type string for cached positions.
         """
-        min_x, min_y, max_x, max_y = bounds
+        # Handle both BoundingBox dataclass and tuple
+        if hasattr(bounds, "min_x"):
+            # BoundingBox dataclass
+            min_x, min_y, max_x, max_y = (
+                bounds.min_x, bounds.min_y, bounds.max_x, bounds.max_y
+            )
+        else:
+            # tuple
+            min_x, min_y, max_x, max_y = bounds  # type: ignore[misc]
         result: dict[tuple[int, int], str] = {}
         for y in range(min_y, max_y + 1):
             for x in range(min_x, max_x + 1):
@@ -121,19 +156,17 @@ class RemoteTerrainGrid:
     ) -> None:
         """Pre-fetch terrain for all positions in bounds.
 
-        This should be called before get_terrain_in_bounds() to ensure
-        terrain data is available for rendering.
+        Uses the batch endpoint which applies the full terrain generation
+        pipeline (noise, ridges, lakes, forests). This should be called
+        before get_terrain_in_bounds() to ensure terrain data is available.
         """
-        import asyncio
-
-        async def fetch_one(x: int, y: int) -> None:
-            if (x, y) not in self._cache:
-                await self.get_terrain_at(x, y)
-
-        tasks = [
-            fetch_one(x, y)
-            for y in range(min_y, max_y + 1)
-            for x in range(min_x, max_x + 1)
-        ]
-        if tasks:
-            await asyncio.gather(*tasks)
+        data = await self._provider.fetch_terrain_bounds(min_x, min_y, max_x, max_y)
+        # data maps "x,y" strings to terrain type strings
+        for key_str, terrain in data.items():
+            parts = key_str.split(",")
+            if len(parts) == 2:
+                try:
+                    x, y = int(parts[0]), int(parts[1])
+                    self._cache[(x, y)] = terrain
+                except ValueError:
+                    pass

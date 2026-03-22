@@ -99,6 +99,10 @@ class MCPServer:
         app.router.add_get("/hamlet/state", self._handle_state)
         app.router.add_get("/hamlet/events", self._handle_events)
         app.router.add_get("/hamlet/terrain/{x}/{y}", self._handle_terrain)
+        app.router.add_get(
+            "/hamlet/terrain/bounds/{min_x}/{min_y}/{max_x}/{max_y}",
+            self._handle_terrain_bounds,
+        )
 
         try:
             runner = aiohttp.web.AppRunner(app)
@@ -191,6 +195,57 @@ class MCPServer:
             )
         except Exception as e:
             logger.error("Error handling terrain request: %s", e)
+            return aiohttp.web.json_response({"error": str(e)}, status=500)
+
+    async def _handle_terrain_bounds(
+        self, request: aiohttp.web.Request
+    ) -> aiohttp.web.Response:
+        """Handle GET /hamlet/terrain/bounds/{min_x}/{min_y}/{max_x}/{max_y}.
+
+        Return terrain for all positions within bounds using the full generation
+        pipeline (noise, ridges, lakes, forests).
+
+        Args:
+            request: The incoming aiohttp request with bounds path params.
+
+        Returns:
+            A JSON response mapping "x,y" strings to terrain type strings.
+        """
+        try:
+            min_x = int(request.match_info["min_x"])
+            min_y = int(request.match_info["min_y"])
+            max_x = int(request.match_info["max_x"])
+            max_y = int(request.match_info["max_y"])
+
+            if self._world_state is None:
+                return aiohttp.web.json_response(
+                    {"error": "world state not initialized"}, status=500
+                )
+
+            terrain_grid = self._world_state.terrain_grid
+            if terrain_grid is None:
+                return aiohttp.web.json_response(
+                    {"error": "terrain grid not initialized"}, status=500
+                )
+
+            from hamlet.world_state.types import Bounds
+
+            bounds = Bounds(min_x=min_x, min_y=min_y, max_x=max_x, max_y=max_y)
+            terrain_map = terrain_grid.get_terrain_in_bounds(bounds)
+
+            # Convert to JSON-serializable format
+            result = {
+                f"{pos.x},{pos.y}": terrain.value
+                for pos, terrain in terrain_map.items()
+            }
+            return aiohttp.web.json_response(result)
+
+        except ValueError:
+            return aiohttp.web.json_response(
+                {"error": "invalid coordinates"}, status=400
+            )
+        except Exception as e:
+            logger.error("Error handling terrain bounds request: %s", e)
             return aiohttp.web.json_response({"error": str(e)}, status=500)
 
     async def stop(self) -> None:

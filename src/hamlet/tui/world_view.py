@@ -11,6 +11,7 @@ from textual.widgets import Static
 from hamlet.tui.symbols import (
     AGENT_SYMBOL, get_agent_color, get_structure_symbol, get_structure_color,
 )
+from hamlet.world_state.terrain import TerrainType
 from hamlet.world_state.types import AgentState
 
 if TYPE_CHECKING:
@@ -116,8 +117,29 @@ class WorldView(Static):
         terrain_by_pos: dict[tuple[int, int], tuple[str, str]] = {}
         if self._terrain_grid is not None:
             terrain_map = self._terrain_grid.get_terrain_in_bounds(bounds)
-            for pos, terrain_type in terrain_map.items():
-                terrain_by_pos[(pos.x, pos.y)] = (terrain_type.symbol, terrain_type.color)
+            for pos, terrain in terrain_map.items():
+                # Handle both Position objects (local TerrainGrid) and tuples (RemoteTerrainGrid)
+                # Handle both TerrainType enums (local) and strings (remote)
+                try:
+                    # Convert position to tuple key
+                    if hasattr(pos, "x"):
+                        key = (pos.x, pos.y)
+                    else:
+                        key = tuple(pos)  # Already a tuple
+
+                    # Convert terrain to TerrainType if needed
+                    if isinstance(terrain, TerrainType):
+                        terrain_type = terrain
+                    else:
+                        terrain_type = TerrainType(terrain)
+
+                    terrain_by_pos[key] = (
+                        terrain_type.symbol,
+                        terrain_type.color,
+                    )
+                except (ValueError, AttributeError):
+                    # Unknown terrain type or invalid position, skip
+                    pass
 
         text = Text()
         for y in range(bounds.min_y, bounds.max_y + 1):

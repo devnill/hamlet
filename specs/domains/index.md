@@ -1,6 +1,6 @@
 # Domain Registry
 
-current_cycle: 9
+current_cycle: 10
 
 ## Domains
 

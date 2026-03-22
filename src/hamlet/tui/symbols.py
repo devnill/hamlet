@@ -91,7 +91,7 @@ TERRAIN_COLORS: dict[str, str] = {
     "water": "blue",
     "mountain": "grey85",
     "forest": "green",
-    "meadow": "chartreuse",
+    "meadow": "bright_green",
     "plain": "white",
 }
 

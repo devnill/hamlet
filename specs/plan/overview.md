@@ -1,77 +1,91 @@
-# Change Plan — refine-14: World Terrain Generation
+# Change Plan — refine-15: Terrain Legend and Configurable Generation
 
 ## What is changing and why
 
-User feedback after using hamlet revealed a desire for richer visual and gameplay elements. The first foundational change is world terrain generation: a deterministic, seed-based terrain map with water, mountains, forests, meadows, and plains.
+The current terrain generation produces visually busy, scattered terrain cells rather than coherent biome regions. Additionally, the TUI legend does not display terrain type information. This refinement addresses both issues:
 
-### Why terrain first?
+1. **Legend enhancement** — Add terrain types to the legend overlay
+2. **Terrain generation refinement** — Create realistic, configurable biome regions
 
-Terrain is foundational:
-- Affects where villages can be placed (can't build on water/mountains)
-- Enables future features: geography-specific structures, resource gathering, agent movement
-- Provides visual richness: the world is no longer a blank grid
-- Breaking change to data model: terrain seed must be persisted before other features depend on it
+### Triggering Context
 
-### Feature: Deterministic World Terrain
+User feedback after terrain generation implementation:
+- "The terrain is much too busy, I'd like something a little more realistic where biomes smoothly shift into each other"
+- "We should have a variety of different types — rivers, ponds, large lakes"
+- "Mountain ranges: ridge lines are great, we can also have scattered peaks occasionally"
+- "Forests should cluster around water/features, modeling terrain generation after nature"
+- "We should have editable parameters which can be altered to see how terrain generation is affected in real time"
 
-A global terrain map generated from a seed:
-- **Terrain types**: WATER, MOUNTAIN, FOREST, MEADOW, PLAIN
-- **Visual representation**: ASCII tiles (`~` for water, `^` for mountains, `♣` for forests, `"` for meadows, `.` for plains)
-- **Gameplay effect**: Structures cannot be built on WATER or MOUNTAIN terrain
-- **Deterministic**: Same seed produces same terrain — shareable world seeds
-- **Village placement**: Automatic search for passable terrain near world origin
-
-### Deferred to future cycles
-
-- Agent movement system (agents moving while working)
-- Geography-specific structures (mines in mountains, lumber mills in forests)
-- Project menu and village jumping UI
-- Roads as agent-built features
-- Building speed increases
-
-These features require terrain as a foundation and will be addressed in subsequent refinement cycles.
-
-## Scope
+### Scope Boundary
 
 **Changing:**
-- `src/hamlet/world_state/terrain.py` — NEW: TerrainType, TerrainConfig, TerrainGenerator, TerrainGrid
-- `src/hamlet/world_state/manager.py` — terrain field, terrain-aware village placement, structure validation
-- `src/hamlet/world_state/__init__.py` — export terrain classes
-- `src/hamlet/tui/world_view.py` — terrain layer rendering
-- `src/hamlet/tui/symbols.py` — terrain symbols and colors
-- `src/hamlet/tui/app.py` — pass terrain_grid to WorldView
-- `src/hamlet/tui/remote_world_state.py` — terrain query methods
-- `src/hamlet/protocols.py` — get_terrain_at, is_passable methods
-- `src/hamlet/mcp_server/server.py` — terrain HTTP endpoint
-- Tests for all new modules
+- `src/hamlet/tui/legend.py` — Add terrain type section
+- `src/hamlet/world_state/terrain.py` — Biome region generation, water features, forest clustering, smoothing rules
+- `src/hamlet/config/settings.py` — Terrain config persistence
+- `src/hamlet/app_factory.py` — Config loading integration
+- `src/hamlet/cli/__init__.py` — Map viewer mode flag
+- `src/hamlet/tui/app.py` — Map viewer mode entry
+- `src/hamlet/tui/map_viewer.py` — New file for map viewer
+- `src/hamlet/tui/parameter_panel.py` — New file for parameter adjustment UI
+- `src/hamlet/viewport/coordinates.py` — Zoom support
 
-**Not changing:** Hook scripts, inference engine, expansion manager, animation, persistence schema (uses existing world_metadata table), existing village/structure/agent logic beyond terrain validation.
+**Not changing:**
+- TerrainType enum (WATER, MOUNTAIN, FOREST, MEADOW, PLAIN unchanged)
+- TerrainGrid interface (same methods)
+- Agent behavior or rendering
+- Persistence schema
+- Guiding principles or constraints
+- Oceans/islands feature (deferred for future)
 
-## Work items
+## Work Items
 
-- WI-232: TerrainType enum and TerrainConfig dataclass
-- WI-233: TerrainGenerator — deterministic terrain from seed
-- WI-234: TerrainGrid — in-memory terrain storage with caching
-- WI-235: WorldStateManager terrain integration and village placement
-- WI-236: Terrain symbols and colors for TUI
-- WI-237: WorldView terrain layer rendering
-- WI-238: Persistence integration for terrain seed
-- WI-239: RemoteWorldState terrain methods
+### Phase 1: Foundation (WI-249, WI-250, WI-251)
 
-## Dependencies
+**WI-249**: Terrain Legend Enhancement — Add terrain types to legend overlay
+**WI-250**: TerrainConfig Parameter System — Expose all generation parameters
+**WI-251**: Config Persistence — Save/load terrain parameters from config
+
+### Phase 2: Map Viewer (WI-252, WI-253)
+
+**WI-252**: Map Viewer Mode — New mode with parameter adjustment UI
+**WI-253**: Zoom Functionality — Discrete zoom levels for viewing larger areas
+
+### Phase 3: Terrain Generation (WI-254, WI-255, WI-256, WI-257)
+
+**WI-254**: Biome Region Generation — Macro-scale regions for coherent terrain
+**WI-255**: Realistic Water Features — Rivers, ponds, lakes
+**WI-256**: Forest Clustering — Forests near water/features
+**WI-257**: Terrain Smoothing — CA rules for all terrain types
+
+## Dependency Graph
 
 ```
-WI-232 ─────────────────────────────────────────┐
-                                                │
-WI-233 ─┬───────────────────────────────────────┼──> WI-235 ──> WI-237
-        │                                       │
-WI-234 ─┘                                       │
-                                                │
-WI-236 ─────────────────────────────────────────┴──> WI-237
-
-WI-235 ────────────────────────────────────────────> WI-238 ──> WI-239
+Phase 1 (foundation):
+  WI-249 ──────────────────────────────────┐
+                                            │
+  WI-250 ─────┬─────────────────────────────┼─> WI-252 ──> WI-253
+              │                             │
+              │                             │
+              └─────────────────────────────┼─> WI-254 ──┬─> WI-255 ──> WI-256
+                                            │            │
+              WI-251 ───────────────────────┘            └─> WI-257
 ```
 
-Phase 1 (parallel): WI-232, WI-233, WI-234, WI-236
-Phase 2 (sequential): WI-235 → WI-237, WI-238
-Phase 3 (sequential): WI-239
+## Execution Strategy
+
+**Mode**: Batched parallel
+- Phase 1: WI-249, WI-250, WI-251 can run in parallel
+- Phase 2: WI-252 depends on Phase 1; WI-253 depends on WI-252
+- Phase 3: WI-254 depends on WI-250; WI-255, WI-256, WI-257 depend on WI-254
+
+**Parallelism**: Max 3 agents in Phase 1, 1 agent in Phase 2, 2 agents in Phase 3
+
+**Review cadence**: Incremental review after each work item
+
+## Expected Impact
+
+- **Visual**: Larger, coherent biome regions; realistic water features; forests clustered near water
+- **UX**: Legend shows terrain types; map viewer allows parameter tuning; zoom shows larger areas
+- **Configurability**: All terrain parameters adjustable in real-time and persistable
+- **Performance**: Target <500ms generation for 200x200 world
+- **Determinism**: Same seed + same parameters = same terrain

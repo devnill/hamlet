@@ -51,12 +51,15 @@ class WorldStateManager:
     # Minimum distance between village centers
     MIN_VILLAGE_DISTANCE = 15
 
-    def __init__(self, persistence: "PersistenceProtocol") -> None:
+    def __init__(
+        self, persistence: "PersistenceProtocol", terrain_config: TerrainConfig | None = None
+    ) -> None:
         self._persistence = persistence
         self._lock = asyncio.Lock()
         self._state = WorldState()
         self._grid = PositionGrid()
         self._terrain_grid: TerrainGrid | None = None
+        self._terrain_config = terrain_config  # Optional config from settings
 
     async def load_from_persistence(self) -> None:
         """Load all entities from persistence and rebuild the in-memory world state.
@@ -177,7 +180,15 @@ class WorldStateManager:
                 await self._persistence.queue_write(
                     "world_metadata", "terrain_seed", {"key": "terrain_seed", "value": terrain_seed}
                 )
-            config = TerrainConfig(seed=int(terrain_seed))
+            # Merge persisted seed with config from settings (if provided)
+            if self._terrain_config is not None:
+                # Use config from settings but override with persisted seed
+                config = TerrainConfig(
+                    seed=int(terrain_seed),
+                    **{k: v for k, v in dataclasses.asdict(self._terrain_config).items() if k != "seed"}
+                )
+            else:
+                config = TerrainConfig(seed=int(terrain_seed))
             self._terrain_grid = TerrainGrid(TerrainGenerator(config))
 
     async def get_terrain_at(self, x: int, y: int) -> TerrainType:
