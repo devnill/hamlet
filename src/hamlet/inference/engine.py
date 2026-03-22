@@ -346,44 +346,38 @@ class AgentInferenceEngine:
             logger.debug("Notification [session=%s]: %s", event.session_id, event.notification_message)
 
     async def _handle_stop(self, event: InternalEvent) -> None:
-        """Handle Stop events — refresh last_seen timestamps and log stop reason.
-
-        When ``stop_reason`` is ``"tool"``, ``"stop"``, or ``"end_turn"``,
-        the telemetry is authoritative: mark all session agents IDLE
-        immediately rather than waiting for zombie TTL.  For ``"tool"``
-        stops, also flush all
-        ``pending_tools`` entries for the session and decrement ``active_tools``
-        accordingly so future zombie-detection counters stay consistent.
-
-        When ``stop_reason`` is ``None``, no IDLE transition is performed —
-        zombie TTL handles those cases.
-        """
         session = self._state.sessions.get(event.session_id)
         if session:
             for agent_id in session.agent_ids:
                 self._state.last_seen[agent_id] = event.received_at
 
-        if event.stop_reason in ("tool", "stop", "end_turn"):
-            if event.stop_reason == "tool":
-                # Flush all pending tools for this session — the session was
-                # interrupted mid-tool; those calls will never complete.
-                keys_to_evict = [
-                    k
-                    for k, pt in self._state.pending_tools.items()
-                    if pt.session_id == event.session_id
-                ]
-                for key in keys_to_evict:
-                    del self._state.pending_tools[key]
-                if session is not None:
-                    session.active_tools = max(0, session.active_tools - len(keys_to_evict))
-
-            # Mark all session agents IDLE — explicit telemetry beats TTL.
+        if event.stop_reason == "tool":
+            keys_to_evict = [
+                k
+                for k, pt in self._state.pending_tools.items()
+                if pt.session_id == event.session_id
+            ]
+            for key in keys_to_evict:
+                del self._state.pending_tools[key]
+            if session is not None:
+                session.active_tools = max(0, session.active_tools - len(keys_to_evict))
             if session:
-                for agent_id in session.agent_ids:
+                for agent_id in list(session.agent_ids):
                     try:
-                        await self._world_state.update_agent(agent_id, state=AgentState.IDLE)
+                        await self._world_state.update_agent(agent_id, state=AgentState.ZOMBIE)
+                        self._state.zombie_since[agent_id] = datetime.now(UTC)
                     except Exception:
-                        logger.exception("_handle_stop: failed to mark agent %s IDLE", agent_id)
+                        logger.exception("_handle_stop: failed to zombie agent %s", agent_id)
+
+        elif event.stop_reason in ("stop", "end_turn"):
+            if session:
+                for agent_id in list(session.agent_ids):
+                    try:
+                        await self._world_state.despawn_agent(agent_id)
+                        self._state.last_seen.pop(agent_id, None)
+                        self._state.zombie_since.pop(agent_id, None)
+                    except Exception:
+                        logger.exception("_handle_stop: failed to despawn agent %s", agent_id)
 
         if event.stop_reason:
             logger.debug("Stop [session=%s, reason=%s]", event.session_id, event.stop_reason)
