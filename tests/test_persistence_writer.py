@@ -449,6 +449,55 @@ class TestWriteExecutor:
         assert json.loads(row[0]) == {"already": "string"}
 
     @pytest.mark.asyncio
+    async def test_execute_batch_structure_size_tier(self, executor: WriteExecutor) -> None:
+        """Test batch execution writes and persists size_tier for structures."""
+        now = datetime.now().isoformat()
+
+        # Create required parent records
+        await executor._db.execute(
+            "INSERT INTO projects (id, name, config_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+            ("proj-st", "Size Tier Project", "{}", now, now)
+        )
+        await executor._db.execute(
+            "INSERT INTO villages (id, project_id, name, center_x, center_y, bounds_min_x, bounds_min_y, bounds_max_x, bounds_max_y, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ("village-st", "proj-st", "Test Village", 0, 0, -10, -10, 10, 10, now, now)
+        )
+        await executor._db.commit()
+
+        operations = [
+            WriteOperation(
+                entity_type="structure",
+                entity_id="struct-st",
+                operation="insert",
+                data={
+                    "id": "struct-st",
+                    "village_id": "village-st",
+                    "type": "house",
+                    "position_x": 1,
+                    "position_y": 2,
+                    "stage": 0,
+                    "material": "wood",
+                    "work_units": 0,
+                    "work_required": 100,
+                    "size_tier": 2,
+                    "created_at": now,
+                    "updated_at": now,
+                },
+            )
+        ]
+
+        await executor.execute_batch(operations)
+
+        # Verify size_tier was written
+        await executor._db.execute(
+            "SELECT size_tier FROM structures WHERE id = ?",
+            ("struct-st",)
+        )
+        row = await executor._db.fetchone()
+        assert row is not None
+        assert row[0] == 2
+
+    @pytest.mark.asyncio
     async def test_execute_batch_agent_ids_json_string_handling(self, executor: WriteExecutor) -> None:
         """Test agent_ids_json handling when already a string."""
         now = datetime.now().isoformat()

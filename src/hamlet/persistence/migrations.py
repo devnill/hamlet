@@ -10,6 +10,12 @@ from hamlet.persistence.connection import DatabaseConnection
 __all__ = ["MIGRATIONS", "run_migrations"]
 
 MIGRATIONS: dict[int, str] = {
+    4: """
+BEGIN;
+ALTER TABLE structures ADD COLUMN size_tier INTEGER NOT NULL DEFAULT 1;
+UPDATE schema_version SET version = 4 WHERE version = 3;
+COMMIT;
+""",
     3: """
 BEGIN;
 ALTER TABLE villages ADD COLUMN has_expanded INTEGER NOT NULL DEFAULT 0;

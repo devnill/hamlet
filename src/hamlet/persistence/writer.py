@@ -150,8 +150,8 @@ class WriteExecutor:
         await self._db.execute(
             "INSERT OR REPLACE INTO structures"
             " (id, village_id, type, position_x, position_y, stage, material,"
-            "  work_units, work_required, created_at, updated_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "  work_units, work_required, size_tier, created_at, updated_at)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 d.get("id"),
                 d.get("village_id"),
@@ -162,6 +162,7 @@ class WriteExecutor:
                 d.get("material", "wood"),
                 d.get("work_units", 0),
                 d.get("work_required", 100),
+                d.get("size_tier", 1),
                 _iso(d.get("created_at")),
                 _iso(d.get("updated_at")),
             ),

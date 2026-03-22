@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -228,6 +229,12 @@ class RemoteWorldState:
             if bounds.min_x <= a.position.x <= bounds.max_x
             and bounds.min_y <= a.position.y <= bounds.max_y
         ]
+
+    async def get_nearest_village_to(self, x: int, y: int) -> Village | None:
+        """Return nearest village by Euclidean distance from cached villages."""
+        if not self._villages:
+            return None
+        return min(self._villages, key=lambda v: math.hypot(v.center.x - x, v.center.y - y))
 
     async def get_structures_in_view(self, bounds: Any) -> list[Structure]:
         """Return cached structures whose position falls within bounds."""

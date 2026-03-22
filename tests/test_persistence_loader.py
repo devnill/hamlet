@@ -414,3 +414,29 @@ class TestStateLoader:
         assert structure["created_at"].tzinfo is not None
         assert isinstance(structure["updated_at"], datetime)
         assert structure["updated_at"].tzinfo is not None
+
+    @pytest.mark.asyncio
+    async def test_load_structure_size_tier(self, db: DatabaseConnection) -> None:
+        """Test load_state loads size_tier from structures table."""
+        now = datetime.now().isoformat()
+
+        await db.execute(
+            "INSERT INTO projects (id, name, config_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+            ("proj-st", "Size Tier Project", "{}", now, now)
+        )
+        await db.execute(
+            "INSERT INTO villages (id, project_id, name, center_x, center_y, bounds_min_x, bounds_min_y, bounds_max_x, bounds_max_y, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ("village-st", "proj-st", "Test Village", 0, 0, -10, -10, 10, 10, now, now)
+        )
+        await db.execute(
+            "INSERT INTO structures (id, village_id, type, position_x, position_y, stage, material, work_units, work_required, size_tier, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ("struct-st", "village-st", "house", 1, 2, 0, "wood", 0, 100, 3, now, now)
+        )
+        await db.commit()
+
+        loader = StateLoader(db)
+        state = await loader.load_state()
+
+        assert len(state.structures) == 1
+        structure = state.structures[0]
+        assert structure["size_tier"] == 3

@@ -118,6 +118,7 @@ class Structure:
     material: str = "wood"
     work_units: int = 0
     work_required: int = 100
+    size_tier: int = 1
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 

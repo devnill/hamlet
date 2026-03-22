@@ -184,13 +184,13 @@ class StateLoader:
             "id", "village_id", "type",
             "position_x", "position_y",
             "stage", "material", "work_units", "work_required",
-            "created_at", "updated_at",
+            "size_tier", "created_at", "updated_at",
         ]
         try:
             await self._db.execute(
                 "SELECT id, village_id, type, position_x, position_y,"
                 " stage, material, work_units, work_required,"
-                " created_at, updated_at FROM structures"
+                " size_tier, created_at, updated_at FROM structures"
             )
             rows = await self._db.fetchall()
         except Exception as exc:

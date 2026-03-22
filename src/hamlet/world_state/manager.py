@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import math
 import random
 import uuid
 from datetime import UTC, datetime
@@ -824,6 +825,14 @@ class WorldStateManager:
                 if bounds.min_x <= a.position.x <= bounds.max_x
                 and bounds.min_y <= a.position.y <= bounds.max_y
             ]
+
+    async def get_nearest_village_to(self, x: int, y: int) -> Village | None:
+        """Return the village whose center is nearest to (x, y), or None if no villages."""
+        async with self._lock:
+            villages = list(self._state.villages.values())
+            if not villages:
+                return None
+            return min(villages, key=lambda v: math.hypot(v.center.x - x, v.center.y - y))
 
     async def get_structures_in_view(self, bounds: Any) -> list[Structure]:
         """Return structures whose position falls within the given bounding box.

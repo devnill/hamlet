@@ -31,7 +31,7 @@ class TestMigrations:
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 3  # Should be at version 3 after all migrations
+                assert row[0] == 4  # Should be at version 4 after all migrations
 
                 # Verify all tables were created
                 await db.execute("""
@@ -87,7 +87,7 @@ class TestMigrations:
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 3
+                assert row[0] == 4
 
                 # Run migrations again (should be idempotent)
                 await run_migrations(db)
@@ -96,7 +96,7 @@ class TestMigrations:
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 3
+                assert row[0] == 4
 
                 # Verify tables still exist and work
                 await db.execute("SELECT COUNT(*) FROM projects")
@@ -139,11 +139,34 @@ class TestMigrations:
                 await db.execute("SELECT MAX(version) FROM schema_version")
                 row = await db.fetchone()
                 assert row is not None
-                assert row[0] == 3
+                assert row[0] == 4
 
                 # Verify project_id column exists on agents table
                 await db.execute("PRAGMA table_info(agents)")
                 columns = {row[1] for row in await db.fetchall()}
                 assert "project_id" in columns
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+    async def test_migration_4_adds_size_tier_column(self) -> None:
+        """Migration 4 adds size_tier INTEGER column to structures table."""
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+            db_path = f.name
+
+        try:
+            db = DatabaseConnection(db_path)
+            async with db:
+                await run_migrations(db)
+
+                # Verify schema version is 4
+                await db.execute("SELECT MAX(version) FROM schema_version")
+                row = await db.fetchone()
+                assert row is not None
+                assert row[0] == 4
+
+                # Verify size_tier column exists on structures table
+                await db.execute("PRAGMA table_info(structures)")
+                columns = {row[1] for row in await db.fetchall()}
+                assert "size_tier" in columns
         finally:
             Path(db_path).unlink(missing_ok=True)

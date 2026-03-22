@@ -43,6 +43,7 @@ def _serialize_structure(structure: Any) -> dict:
         "material": structure.material,
         "work_units": structure.work_units,
         "work_required": structure.work_required,
+        "size_tier": structure.size_tier,
         "created_at": structure.created_at.isoformat(),
         "updated_at": structure.updated_at.isoformat(),
     }

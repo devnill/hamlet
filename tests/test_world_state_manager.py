@@ -6,10 +6,11 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from hamlet.event_processing.internal_event import HookType, InternalEvent
 from hamlet.world_state.manager import WorldStateManager
 from hamlet.world_state.state import WorldState
 from hamlet.world_state.types import (
@@ -367,9 +368,6 @@ class TestWorldStateManager:
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
         """SessionStart event causes project and session to be created in state."""
-        from hamlet.event_processing.internal_event import HookType, InternalEvent
-        from datetime import UTC, datetime
-
         event = InternalEvent(
             id="evt-session-start",
             sequence=1,
@@ -387,6 +385,8 @@ class TestWorldStateManager:
         project_ids = {p.id for p in projects}
         assert "p1" in project_ids, "Project 'p1' should have been created"
 
+        assert "s1" in manager._state.sessions, "Session 's1' should have been created"
+
         agents = await manager.get_all_agents()
         assert agents == [], "No agents should have been created by SessionStart alone"
 
@@ -394,10 +394,6 @@ class TestWorldStateManager:
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
         """SessionEnd event marks all agents for the session as IDLE."""
-        from hamlet.event_processing.internal_event import HookType, InternalEvent
-        from hamlet.world_state.types import AgentState
-        from datetime import UTC, datetime
-
         # Pre-populate a session and agent
         await manager.get_or_create_session("s1", "p1")
         await manager.get_or_create_agent("s1")
@@ -430,9 +426,6 @@ class TestWorldStateManager:
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
         """Stop event with stop_reason='end_turn' marks all session agents IDLE."""
-        from hamlet.event_processing.internal_event import HookType, InternalEvent
-        from hamlet.world_state.types import AgentState
-
         # Pre-populate a session and agent
         await manager.get_or_create_session("s2", "p2")
         await manager.get_or_create_agent("s2")
@@ -470,9 +463,6 @@ class TestWorldStateManager:
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
         """SubagentStart event results in an agent existing for the session."""
-        from hamlet.event_processing.internal_event import HookType, InternalEvent
-        from datetime import UTC, datetime
-
         # Create project and session so there is a village to spawn into
         await manager.get_or_create_project("p1", "P1")
         await manager.get_or_create_session("s1", "p1")
@@ -500,10 +490,6 @@ class TestWorldStateManager:
         self, manager: WorldStateManager, mock_persistence: MagicMock
     ) -> None:
         """TaskCompleted event triggers add_work_units for an agent with a village."""
-        from hamlet.event_processing.internal_event import HookType, InternalEvent
-        from unittest.mock import AsyncMock, patch
-        from datetime import UTC, datetime
-
         # Create project, session, and agent with a valid village_id
         await manager.get_or_create_project("p1", "P1")
         await manager.get_or_create_session("s1", "p1")
@@ -925,6 +911,37 @@ class TestWorldStateManager:
         await manager.found_village("orig-1", "proj-1", Position(50, 50), "Outpost")
 
         assert manager._state.villages["orig-1"].has_expanded is True
+
+    async def test_get_nearest_village_to_returns_closest(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """get_nearest_village_to() returns the village with the nearest center."""
+        village_origin = Village(
+            id="village-origin",
+            project_id="proj-1",
+            name="Origin",
+            center=Position(0, 0),
+        )
+        village_far = Village(
+            id="village-far",
+            project_id="proj-2",
+            name="Far",
+            center=Position(10, 10),
+        )
+        manager._state.villages["village-origin"] = village_origin
+        manager._state.villages["village-far"] = village_far
+
+        result = await manager.get_nearest_village_to(1, 1)
+
+        assert result is not None
+        assert result.id == "village-origin"
+
+    async def test_get_nearest_village_to_returns_none_when_no_villages(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """get_nearest_village_to() returns None when there are no villages."""
+        result = await manager.get_nearest_village_to(0, 0)
+        assert result is None
 
     async def test_found_village_sets_has_expanded_even_when_guard_fires(
         self, manager: WorldStateManager, mock_persistence: MagicMock

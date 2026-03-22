@@ -6,7 +6,7 @@ Run with: pytest tests/test_tui_world_view.py -v
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, PropertyMock, patch
 
 import pytest
 from rich.text import Text
@@ -259,5 +259,27 @@ class TestWorldView:
         mock_event.size.height = 40
 
         world_view.on_resize(mock_event)
+
+        viewport.resize.assert_called_with(120, 40)
+
+    def test_render_syncs_viewport_to_size(self) -> None:
+        """render() calls viewport.resize with the widget's current size each frame."""
+        viewport = Mock()
+        viewport.get_visible_bounds.return_value = BoundingBox(
+            min_x=0, min_y=0, max_x=10, max_y=10
+        )
+        world_state = Mock()
+
+        world_view = WorldView(world_state, viewport)
+        world_view._agents = []
+        world_view._structures = []
+
+        # Patch self.size to return a controlled width/height
+        mock_size = MagicMock()
+        mock_size.width = 120
+        mock_size.height = 40
+
+        with patch.object(type(world_view), "size", new_callable=PropertyMock, return_value=mock_size):
+            world_view.render()
 
         viewport.resize.assert_called_with(120, 40)

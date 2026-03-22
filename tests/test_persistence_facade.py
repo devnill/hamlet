@@ -280,3 +280,32 @@ class TestPersistenceFacade:
         """delete_agent() raises RuntimeError when facade is not running."""
         with pytest.raises(RuntimeError, match="facade not running"):
             await facade.delete_agent("agent-x")
+
+    async def test_stop_drains_queue_before_cancelling_task(self, facade: PersistenceFacade) -> None:
+        """stop() awaits queue.join() before cancelling the background write task."""
+        await facade.start()
+
+        call_order: list[str] = []
+        original_join = facade._write_queue.join
+
+        async def tracking_join() -> None:
+            call_order.append("join")
+            await original_join()
+
+        original_cancel = facade._write_task.cancel  # type: ignore[union-attr]
+
+        def tracking_cancel(*args: object, **kwargs: object) -> bool:
+            call_order.append("cancel")
+            return original_cancel(*args, **kwargs)
+
+        with patch.object(facade._write_queue, "join", side_effect=tracking_join):
+            with patch.object(facade._write_task, "cancel", side_effect=tracking_cancel):
+                await facade.stop()
+
+        assert "join" in call_order, "queue.join() was not awaited"
+        assert "cancel" in call_order, "task.cancel() was not called"
+        assert call_order.index("join") < call_order.index("cancel"), (
+            "queue.join() must be called before task.cancel()"
+        )
+        assert facade._write_task is None
+        assert facade._running is False

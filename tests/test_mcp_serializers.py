@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from hamlet.mcp_server.serializers import serialize_state
+from hamlet.mcp_server.serializers import serialize_state, _serialize_structure
 from hamlet.simulation.animation import AnimationManager, TICKS_PER_PULSE_FRAME, TICKS_PER_SPIN_FRAME
-from hamlet.world_state.types import Agent, AgentState, AgentType
+from hamlet.world_state.types import Agent, AgentState, AgentType, Structure, StructureType, Position
 
 
 # -----------------------------------------------------------------------------
@@ -126,3 +126,37 @@ class TestSerializeState:
 
         expected = (TICKS_PER_SPIN_FRAME * 3 // TICKS_PER_SPIN_FRAME) % 4
         assert result["animation_frames"]["active-1"] == expected
+
+
+class TestSerializeStructure:
+    """Tests for _serialize_structure()."""
+
+    def test_serialize_structure_includes_size_tier(self) -> None:
+        """_serialize_structure includes size_tier in output dict."""
+        structure = Structure(
+            id="struct-1",
+            village_id="village-1",
+            type=StructureType.HOUSE,
+            position=Position(x=3, y=4),
+            stage=1,
+            material="wood",
+            work_units=50,
+            work_required=100,
+            size_tier=2,
+        )
+
+        result = _serialize_structure(structure)
+
+        assert result["size_tier"] == 2
+
+    def test_serialize_structure_size_tier_default(self) -> None:
+        """_serialize_structure uses default size_tier of 1 when not explicitly set."""
+        structure = Structure(
+            id="struct-2",
+            village_id="village-1",
+            type=StructureType.WORKSHOP,
+        )
+
+        result = _serialize_structure(structure)
+
+        assert result["size_tier"] == 1
