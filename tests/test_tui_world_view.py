@@ -37,6 +37,7 @@ def _make_structure(
     structure_type: StructureType = StructureType.HOUSE,
     material: str = "wood",
     stage: int = 0,
+    size_tier: int = 1,
 ) -> MagicMock:
     """Create a mock Structure with the given position and properties."""
     structure = MagicMock(spec=Structure)
@@ -44,6 +45,7 @@ def _make_structure(
     structure.type = structure_type
     structure.material = material
     structure.stage = stage
+    structure.size_tier = size_tier
     return structure
 
 
@@ -283,3 +285,52 @@ class TestWorldView:
             world_view.render()
 
         viewport.resize.assert_called_with(120, 40)
+
+    def test_render_tier2_structure_renders_3x3_box(self, world_view_with_bounds: WorldView) -> None:
+        """Tier-2 structure at (5,5) renders a 3x3 box with +, -, |, and symbol."""
+        structure = _make_structure(x=5, y=5, structure_type=StructureType.HOUSE, size_tier=2)
+        world_view_with_bounds._agents = []
+        world_view_with_bounds._structures = [structure]
+
+        text = world_view_with_bounds.render()
+
+        # Parse rendered text into a grid: lines[y][x]
+        lines = text.plain.splitlines()
+
+        bounds = world_view_with_bounds._viewport.get_visible_bounds()
+        def char_at(wx: int, wy: int) -> str:
+            row = wy - bounds.min_y
+            col = wx - bounds.min_x
+            return lines[row][col]
+
+        # Corners
+        assert char_at(4, 4) == "+"
+        assert char_at(6, 4) == "+"
+        assert char_at(4, 6) == "+"
+        assert char_at(6, 6) == "+"
+        # Horizontal edges
+        assert char_at(5, 4) == "-"
+        assert char_at(5, 6) == "-"
+        # Vertical edges
+        assert char_at(4, 5) == "|"
+        assert char_at(6, 5) == "|"
+        # Interior (center) shows structure symbol
+        from hamlet.tui.symbols import get_structure_symbol
+        assert char_at(5, 5) == get_structure_symbol(structure)
+
+    def test_render_agent_takes_priority_over_structure_cell(self, world_view_with_bounds: WorldView) -> None:
+        """Agent at a structure footprint cell renders as agent, not structure border."""
+        structure = _make_structure(x=5, y=5, structure_type=StructureType.HOUSE, size_tier=2)
+        agent = _make_agent(x=4, y=5, state=AgentState.IDLE)
+
+        world_view_with_bounds._agents = [agent]
+        world_view_with_bounds._structures = [structure]
+
+        text = world_view_with_bounds.render()
+        lines = text.plain.splitlines()
+
+        bounds = world_view_with_bounds._viewport.get_visible_bounds()
+        row = 5 - bounds.min_y
+        col = 4 - bounds.min_x
+        # Agent symbol takes priority over the "|" border that would be at (4,5)
+        assert lines[row][col] == "@"

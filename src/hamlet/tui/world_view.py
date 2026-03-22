@@ -75,10 +75,35 @@ class WorldView(Static):
             pos = agent.position
             agent_by_pos[(pos.x, pos.y)] = agent
 
-        struct_by_pos: dict[tuple[int, int], Any] = {}
+        struct_by_pos: dict[tuple[int, int], tuple[str, str]] = {}
         for structure in self._structures:
             pos = structure.position
-            struct_by_pos[(pos.x, pos.y)] = structure
+            tier = getattr(structure, "size_tier", 1)
+            symbol = get_structure_symbol(structure)
+            color = get_structure_color(structure)
+            if tier <= 1:
+                struct_by_pos[(pos.x, pos.y)] = (symbol, color)
+            else:
+                half = tier - 1
+                for dx in range(-half, half + 1):
+                    for dy in range(-half, half + 1):
+                        cx, cy = pos.x + dx, pos.y + dy
+                        is_top = dy == -half
+                        is_bottom = dy == half
+                        is_left = dx == -half
+                        is_right = dx == half
+                        is_corner = (is_top or is_bottom) and (is_left or is_right)
+                        is_h_edge = (is_top or is_bottom) and not is_corner
+                        is_v_edge = (is_left or is_right) and not is_corner
+                        if is_corner:
+                            char: str = "+"
+                        elif is_h_edge:
+                            char = "-"
+                        elif is_v_edge:
+                            char = "|"
+                        else:
+                            char = symbol
+                        struct_by_pos[(cx, cy)] = (char, color)
 
         text = Text()
         for y in range(bounds.min_y, bounds.max_y + 1):
@@ -94,10 +119,8 @@ class WorldView(Static):
                         symbol = AGENT_SYMBOL
                     text.append(symbol, style=color)
                 elif key in struct_by_pos:
-                    structure = struct_by_pos[key]
-                    symbol = get_structure_symbol(structure)
-                    color = get_structure_color(structure)
-                    text.append(symbol, style=color)
+                    char, style = struct_by_pos[key]
+                    text.append(char, style=style)
                 else:
                     text.append(".", style="dim white")
             text.append("\n")
