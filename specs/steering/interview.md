@@ -97,3 +97,22 @@ A: (User delegated to best judgment) Update architecture.md to document flat for
 
 **Q: Viewport center persistence — address in Cycle 004 or defer?**
 A: (User delegated to best judgment) Defer. Viewport resetting to the first village on restart is acceptable for MVP. Critical path is hooks and village mechanics.
+---
+## Refinement Interview — 2026-03-20
+
+**Context**: New requirements: macOS launchd service management for the daemon, and low-friction upgrade flow.
+
+**Q: PATH registration — pip installs the `hamlet` entry point into its bin directory. Is that sufficient, or do you want the service install command to also symlink into /usr/local/bin?**
+A: That answers the request — pip's entry point registration is sufficient. No additional PATH work needed.
+
+**Q: Command structure for service management — `hamlet service` as a subcommand group (install/uninstall/start/stop/status/restart)?**
+A: Yes. `hamlet service` subcommand group is the right structure.
+
+**Q: Granular control — beyond install/uninstall, do you want start/stop/status/restart commands?**
+A: Yes, full granular control.
+
+**Q: When `hamlet daemon` is run while the launchd service is already running, what should happen?**
+A: The foreground daemon will fail due to a port conflict. A warning message is sufficient — detect the conflict, warn the user, and quit cleanly.
+
+**Q: Upgrade flow — is `pip install --upgrade hamlet` followed by `hamlet service restart` sufficient?**
+A: Yes. No new command needed for upgrades.

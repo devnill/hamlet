@@ -6,7 +6,17 @@ from textual.widgets import Static
 class HelpOverlay(Static):
     """Modal overlay showing keyboard controls. Toggled by ? from HamletApp."""
 
-    DEFAULT_CSS = "HelpOverlay { display: none; }"
+    DEFAULT_CSS = """
+HelpOverlay {
+    display: none;
+    layer: overlay;
+    position: absolute;
+    offset: 2 2;
+    width: 42;
+    height: 22;
+    background: $surface;
+}
+"""
 
     def render(self) -> str:
         return (

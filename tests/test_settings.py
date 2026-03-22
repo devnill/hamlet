@@ -146,3 +146,49 @@ class TestSettingsLoad:
         assert settings.mcp_port == 8080
         assert settings.db_path == "~/.hamlet/world.db"
         assert settings.activity_model == "claude-haiku-4-5-20251001"
+
+
+class TestSettingsZombieDespawn:
+    """Tests for zombie_despawn_seconds setting."""
+
+    def test_zombie_despawn_seconds_defaults_to_300(self) -> None:
+        """zombie_despawn_seconds defaults to 300."""
+        settings = Settings()
+        assert settings.zombie_despawn_seconds == 300
+
+
+class TestSettingsZombieThreshold:
+    """Tests for zombie_threshold_seconds validation."""
+
+    def test_validate_rejects_zero_zombie_threshold(self) -> None:
+        """_validate raises ValueError when zombie_threshold_seconds is 0."""
+        settings = Settings(zombie_threshold_seconds=0)
+        with pytest.raises(ValueError) as exc_info:
+            settings._validate()
+        msg = str(exc_info.value)
+        assert "zombie_threshold_seconds" in msg
+        assert "0" in msg
+
+    def test_validate_rejects_negative_zombie_threshold(self) -> None:
+        """_validate raises ValueError when zombie_threshold_seconds is negative."""
+        settings = Settings(zombie_threshold_seconds=-5)
+        with pytest.raises(ValueError) as exc_info:
+            settings._validate()
+        msg = str(exc_info.value)
+        assert "zombie_threshold_seconds" in msg
+        assert "-5" in msg
+
+    def test_validate_rejects_non_int_zombie_threshold(self) -> None:
+        """_validate raises ValueError when zombie_threshold_seconds is not an integer."""
+        settings = Settings()
+        settings.zombie_threshold_seconds = "300"  # type: ignore[assignment]
+        with pytest.raises(ValueError) as exc_info:
+            settings._validate()
+        msg = str(exc_info.value)
+        assert "zombie_threshold_seconds" in msg
+        assert "integer" in msg
+
+    def test_validate_accepts_positive_zombie_threshold(self) -> None:
+        """_validate accepts any positive integer for zombie_threshold_seconds."""
+        Settings(zombie_threshold_seconds=1)._validate()
+        Settings(zombie_threshold_seconds=600)._validate()

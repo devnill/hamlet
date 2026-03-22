@@ -3,49 +3,75 @@
 ## Prerequisites
 
 - Python 3.12+
-- A virtual environment with dependencies installed (`pip install -e .` from the repo root)
+- `pip install hamlet` (or `pip install -e .` for development installs)
 
-## Running Hamlet
+## Step 1: Initialize your project (one-time per project)
+
+**If you have the hamlet Claude Code plugin installed:**
+
+Inside a Claude Code session, run:
+
+```
+/hamlet:init
+```
+
+This invokes the `hamlet_init` MCP skill, which creates `.hamlet/config.json` in your project with a unique project ID. The daemon uses this ID to track the project as its own village.
+
+**Otherwise (CLI fallback):**
 
 ```bash
-.venv/bin/hamlet
+hamlet init
 ```
 
-Or equivalently:
+## Step 2: Connect Claude Code (one-time global setup)
 
-```bash
-.venv/bin/python -m hamlet
-```
+**If you used the hamlet plugin (`/hamlet:init`):** hooks are registered automatically — skip this step.
 
-Hamlet opens a Textual TUI and starts an HTTP server on `http://localhost:8080`. The village populates as Claude Code sessions send events.
-
-**Optional config** (`~/.hamlet/config.json`, created automatically on first run):
-
-```json
-{
-  "mcp_port": 8080,
-  "db_path": "~/.hamlet/world.db",
-  "tick_rate": 30.0
-}
-```
-
-## Connecting Claude Code
-
-Hamlet receives events via Claude Code hooks. Run the install command to configure all 15 hook types automatically:
+**Otherwise:**
 
 ```bash
 hamlet install
 ```
 
-If the hamlet Claude Code plugin is already installed, hooks are registered automatically — `hamlet install` will detect this and skip writing to `settings.json`.
+Restart Claude Code after running this command to load the new hooks.
 
-After installing, **restart Claude Code** to load the new hooks. Then start working normally — agents will appear in the village as you use tools.
+## Step 3: Start the daemon (in a separate terminal or background)
 
-## Verifying the Connection
+```bash
+hamlet daemon
+```
+
+The daemon runs the HTTP event server and simulation engine. Keep this running while you work.
+
+## Step 4: Open the viewer (in your working terminal)
+
+```bash
+hamlet
+# or: hamlet view
+```
+
+The viewer connects to the running daemon. Agents appear in the village as you use Claude Code.
+
+## Verifying the connection
 
 ```bash
 curl http://localhost:8080/hamlet/health
 # {"status": "ok"}
 ```
 
-If Hamlet isn't running, the hooks fail silently (`|| true`) and Claude Code is unaffected.
+If `hamlet daemon` isn't running, the curl will fail and hooks will fail silently without affecting Claude Code.
+
+## Optional config
+
+`~/.hamlet/config.json`:
+
+```json
+{
+  "mcp_port": 8080,
+  "db_path": "~/.hamlet/world.db",
+  "tick_rate": 30.0,
+  "theme": "default",
+  "event_log_max_entries": 1000,
+  "activity_model": "claude-haiku-4-5-20251001"
+}
+```

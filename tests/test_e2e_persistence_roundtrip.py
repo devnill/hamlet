@@ -160,7 +160,8 @@ async def test_save_and_load_world_state(world_with_data):
             assert loaded_agent.session_id == orig_agent.session_id
             assert loaded_agent.village_id == orig_agent.village_id
             assert loaded_agent.position == orig_agent.position
-            assert loaded_agent.state == orig_agent.state
+            # WI-208: agents always load as ZOMBIE regardless of stored state
+            assert loaded_agent.state == AgentState.ZOMBIE
 
         # Verify villages restored
         loaded_villages = list(new_world._state.villages.values())
@@ -449,7 +450,8 @@ async def test_agent_state_preserved_across_restart(world_with_data):
             (a for a in recovered_agents if a.id == agent.id), None
         )
         assert recovered_agent is not None
-        assert recovered_agent.state == AgentState.IDLE
+        # WI-208: agents always load as ZOMBIE regardless of stored state (e.g. IDLE)
+        assert recovered_agent.state == AgentState.ZOMBIE
 
     finally:
         await new_persistence.stop()

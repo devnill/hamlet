@@ -1,36 +1,29 @@
 ## Verdict: Pass
 
-No critical or significant defects found; the shared utility extraction is consistent and correct across all hooks, with two minor issues noted.
+All critical and significant findings identified during this cycle's review have been resolved within the cycle.
 
 ## Critical Findings
 
 None.
 
+*(C1 and C2 from the initial review pass — `has_expanded` missing from `_serialize_village` and `_parse_village` — were fixed within the cycle: `serializers.py` now includes `"has_expanded": village.has_expanded` and `remote_world_state.py:_parse_village` now passes `has_expanded=bool(d.get("has_expanded", False))`.)*
+
 ## Significant Findings
 
 None.
 
+*(S1 from the initial review pass — `test_found_village_idempotency_inner_guard` assertion was vacuously satisfied — was fixed within the cycle: the test now pre-inserts the originating village into `manager._state.villages` and asserts `queue_write.call_count == call_count_after_first + 1` to verify the guard path correctly sets `has_expanded` and queues a persistence write.)*
+
 ## Minor Findings
 
-### M1: Timing key collision under concurrent same-tool invocations
-- **File**: `/Users/dan/code/hamlet/hooks/pre_tool_use.py:21`, `/Users/dan/code/hamlet/hooks/post_tool_use.py:19`
-- **Issue**: The timing file key is constructed as `f"{session_id}_{tool_name}"`. If Claude Code fires the same tool twice concurrently within the same session (e.g., two parallel `Bash` calls), both `PreToolUse` events will write to the same file path. The second write silently overwrites the first, and when `PostToolUse` reads the file it will return an incorrect (too-short) duration for whichever call finishes first, and then delete the file so the second call gets `None`. The session_id+tool_name pair is not unique per invocation.
-- **Suggested fix**: Add a per-invocation nonce to the key, e.g. `f"{session_id}_{tool_name}_{uuid.uuid4().hex[:8]}"`, and pass the key through the event payload so `PostToolUse` can look up the right file. Alternatively, use a timestamp suffix: `f"{session_id}_{tool_name}_{time.time_ns()}"`.
+### M1: `test_found_village_seeds_initial_structures` asserts >= 1 structure, not 3
+- **File**: `tests/test_world_state_manager.py`
+- The assertion accepts any non-zero structure count. `_seed_initial_structures` places LIBRARY, WORKSHOP, and FORGE (three structures). A partial seeding regression would pass the test.
+- **Suggested fix**: Assert exactly 3 structures and verify their types.
 
-### M2: Importing private `_log_error` across module boundary
-- **File**: `/Users/dan/code/hamlet/hooks/pre_tool_use.py:11`, `/Users/dan/code/hamlet/hooks/post_tool_use.py:11`, `/Users/dan/code/hamlet/hooks/notification.py:10`, `/Users/dan/code/hamlet/hooks/stop.py:10`
-- **Issue**: All four hook scripts import `_log_error` directly by its private-prefixed name. Python's single-underscore convention signals "internal to this module." Callers importing `_log_error` by name couple themselves to an implementation detail and suppress any IDE/linter warnings about private access.
-- **Suggested fix**: Rename `_log_error` to `log_hook_error` (or any public name) in `hamlet_hook_utils.py` and update all four import lines. The helper `_cwd_hash` can remain private since it is not imported externally.
-
-### M3: `hamlet_init` directory creation error not surfaced as friendly text
-- **File**: `/Users/dan/code/hamlet/mcp/server.py:69`
-- **Issue**: `config_dir.mkdir(exist_ok=True)` and `config_path.write_text(...)` are not wrapped in a try/except. A permission error or path conflict (e.g., `.hamlet` exists as a file rather than a directory) will raise an unhandled exception that propagates as an MCP protocol error rather than a `TextContent` response the caller can read and display.
-- **Suggested fix**: Wrap lines 69–76 in a try/except and return a `TextContent` with the error message on failure, consistent with the pattern used on line 60–67 for the already-exists case.
-
-### M4: `datetime` import duplication noted in prior review remains unaddressed
-- **File**: `/Users/dan/code/hamlet/hooks/hamlet_hook_utils.py:7`
-- **Issue**: Carry-forward from incremental review 174/M1. `from datetime import datetime, timezone` is imported at module level in `hamlet_hook_utils.py` solely for use deep inside `_log_error`. Nothing in the module's public API uses it, making the top-level import non-obvious to a future reader.
-- **Suggested fix**: Move the `datetime` import inside `_log_error`, or add a comment `# used by _log_error` on the import line.
+### M2: No serializer round-trip test for `has_expanded`
+- **Context**: `_serialize_village` now includes `has_expanded` and `_parse_village` deserializes it, but no test verifies the full round-trip with `has_expanded=True`.
+- **Suggested fix**: Add a test in the serializer or remote_world_state test file.
 
 ## Unmet Acceptance Criteria
 

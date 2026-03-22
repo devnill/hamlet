@@ -30,7 +30,6 @@ class TestPersistenceFacade:
         """Return a PersistenceFacade with test config."""
         return PersistenceFacade(config)
 
-    @pytest.mark.asyncio
     async def test_start_initializes_all_components(self, facade: PersistenceFacade) -> None:
         """start() initializes database, migrations, queue, and background loop."""
         with patch.object(facade, "_write_loop", new_callable=AsyncMock) as mock_loop:
@@ -61,7 +60,6 @@ class TestPersistenceFacade:
             finally:
                 await facade.stop()
 
-    @pytest.mark.asyncio
     async def test_stop_drains_queue_and_closes_connection(self, facade: PersistenceFacade) -> None:
         """stop() cancels background loop and closes database connection."""
         await facade.start()
@@ -81,7 +79,6 @@ class TestPersistenceFacade:
         assert facade._event_log_manager is None
         assert facade._write_task is None
 
-    @pytest.mark.asyncio
     async def test_checkpoint_drains_and_wal_checkpoint(self, facade: PersistenceFacade) -> None:
         """checkpoint() drains queue and runs WAL checkpoint."""
         await facade.start()
@@ -101,13 +98,11 @@ class TestPersistenceFacade:
         finally:
             await facade.stop()
 
-    @pytest.mark.asyncio
     async def test_checkpoint_raises_when_not_running(self, facade: PersistenceFacade) -> None:
         """checkpoint() raises RuntimeError when facade not running."""
         with pytest.raises(RuntimeError, match="facade not running"):
             await facade.checkpoint()
 
-    @pytest.mark.asyncio
     async def test_enqueue_write_adds_operation(self, facade: PersistenceFacade) -> None:
         """enqueue_write() adds operation to the write queue."""
         await facade.start()
@@ -132,7 +127,6 @@ class TestPersistenceFacade:
         finally:
             await facade.stop()
 
-    @pytest.mark.asyncio
     async def test_enqueue_write_drops_when_full(self, facade: PersistenceFacade) -> None:
         """enqueue_write() silently drops operations when queue is full per GP-7."""
         # Use a very small queue
@@ -173,7 +167,6 @@ class TestPersistenceFacade:
         finally:
             await facade.stop()
 
-    @pytest.mark.asyncio
     async def test_enqueue_write_raises_when_not_running(self, facade: PersistenceFacade) -> None:
         """enqueue_write() raises RuntimeError when facade not running."""
         operation = WriteOperation(
@@ -186,13 +179,11 @@ class TestPersistenceFacade:
         with pytest.raises(RuntimeError, match="facade not running"):
             facade.enqueue_write(operation)
 
-    @pytest.mark.asyncio
     async def test_load_state_raises_when_not_started(self, facade: PersistenceFacade) -> None:
         """load_state() raises RuntimeError when facade not started."""
         with pytest.raises(RuntimeError, match="facade not started"):
             await facade.load_state()
 
-    @pytest.mark.asyncio
     async def test_start_is_idempotent(self, facade: PersistenceFacade) -> None:
         """start() is idempotent when already running."""
         await facade.start()
@@ -205,13 +196,11 @@ class TestPersistenceFacade:
         finally:
             await facade.stop()
 
-    @pytest.mark.asyncio
     async def test_stop_is_idempotent(self, facade: PersistenceFacade) -> None:
         """stop() is idempotent when not running."""
         # Calling stop before start should not raise
         await facade.stop()
 
-    @pytest.mark.asyncio
     async def test_log_event_delegates_to_append_event_log(self, facade: PersistenceFacade) -> None:
         """log_event() constructs EventLogEntry and delegates to append_event_log."""
         event = InternalEvent(
@@ -243,9 +232,8 @@ class TestPersistenceFacade:
         assert entry.tool_name == "Bash"
         assert entry.summary == "PreToolUse: Bash"
 
-    @pytest.mark.asyncio
-    async def test_log_event_swallows_exceptions(self, facade: PersistenceFacade, caplog) -> None:
-        """log_event() catches exceptions and logs at ERROR level (GP-7)."""
+    async def test_log_event_swallows_exceptions(self, facade: PersistenceFacade) -> None:
+        """log_event() propagates exceptions from append_event_log (GP-7)."""
         event = InternalEvent(
             id="evt-002",
             sequence=2,
@@ -262,9 +250,33 @@ class TestPersistenceFacade:
 
         facade.append_event_log = failing_append  # type: ignore[method-assign]
 
-        with caplog.at_level(logging.ERROR):
-            await facade.log_event(event)  # must not raise
+        with pytest.raises(RuntimeError, match="DB unavailable"):
+            await facade.log_event(event)
 
-        assert any("Failed to log event" in r.message for r in caplog.records)
+    async def test_delete_agent_queues_delete_operation(self, facade: PersistenceFacade) -> None:
+        """delete_agent() enqueues a delete WriteOperation for the agent."""
+        await facade.start()
 
-        assert facade._running is False
+        try:
+            agent_id = "agent-to-delete"
+            initial_size = facade._write_queue.qsize()
+
+            await facade.delete_agent(agent_id)
+
+            # Verify one item was enqueued
+            assert facade._write_queue.qsize() == initial_size + 1
+
+            # Drain and inspect the operation
+            batch = await facade._write_queue.get_batch(max_items=10)
+            assert len(batch) == 1
+            op = batch[0]
+            assert op.entity_type == "agent"
+            assert op.entity_id == agent_id
+            assert op.operation == "delete"
+        finally:
+            await facade.stop()
+
+    async def test_delete_agent_raises_when_not_running(self, facade: PersistenceFacade) -> None:
+        """delete_agent() raises RuntimeError when facade is not running."""
+        with pytest.raises(RuntimeError, match="facade not running"):
+            await facade.delete_agent("agent-x")

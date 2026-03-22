@@ -3002,3 +3002,543 @@ items:
       - 'tests/test_world_state_manager.py contains a test that delivers a Stop event with stop_reason="end_turn" to handle_event and asserts all agents in the session transition to AgentState.IDLE'
       - 'pytest passes'
     notes: plan/notes/201.md
+
+  "202":
+    title: "Update QUICKSTART.md for daemon/viewer split and hamlet_init skill"
+    complexity: low
+    scope:
+      - {path: QUICKSTART.md, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'QUICKSTART.md describes /hamlet:init as the primary project initialization method'
+      - 'QUICKSTART.md describes `hamlet init` CLI as an alternative for non-plugin users'
+      - 'QUICKSTART.md shows `hamlet daemon` and `hamlet` (or `hamlet view`) as two separate commands run in separate terminals'
+      - 'QUICKSTART.md does not reference `.venv/bin/hamlet` or describe hamlet as a single combined TUI+server process'
+      - 'QUICKSTART.md health-check curl command is present and accurate'
+    notes: plan/notes/202.md
+
+  "203":
+    title: "Update README.md Quick Start section"
+    complexity: low
+    scope:
+      - {path: README.md, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'README.md Quick Start step 1 covers project initialization via /hamlet:init (in-Claude) or `hamlet init` CLI'
+      - 'README.md Quick Start shows `hamlet daemon` as a separate step before opening the viewer'
+      - 'README.md Quick Start step for opening the viewer uses `hamlet` or `hamlet view`'
+      - 'README.md Quick Start is consistent with the flow described in QUICKSTART.md'
+    notes: plan/notes/203.md
+
+  "204":
+    title: hamlet service subcommand group with launchd integration
+    complexity: medium
+    scope:
+      - {path: src/hamlet/cli/commands/service.py, op: create}
+      - {path: src/hamlet/cli/__init__.py, op: modify}
+      - {path: tests/test_cli_service.py, op: create}
+    depends: []
+    blocks: []
+    criteria:
+      - '`hamlet service install` writes `~/Library/LaunchAgents/com.hamlet.daemon.plist` and loads it with launchctl'
+      - '`hamlet service uninstall` unloads the service and removes the plist file'
+      - '`hamlet service start` loads the service if the plist exists and it is not running'
+      - '`hamlet service stop` unloads the service if it is running'
+      - '`hamlet service restart` stops then starts the service'
+      - '`hamlet service status` prints whether the service is installed and whether the daemon is running'
+      - 'All commands print a clear error and exit non-zero if run on a non-macOS platform'
+      - '`hamlet service install` errors clearly if the `hamlet` executable cannot be found in PATH'
+      - 'The plist uses `KeepAlive=true` and `RunAtLoad=true`'
+      - 'The plist routes stdout and stderr to `~/.hamlet/daemon.log` and `~/.hamlet/daemon.err.log`'
+      - '`hamlet service` is registered in `cli/__init__.py` and appears in `hamlet --help`'
+      - 'Tests cover install, uninstall, start, stop, restart, status on macOS and non-macOS platforms'
+    notes: plan/notes/204.md
+
+  "205":
+    title: Daemon port conflict detection and warning
+    complexity: low
+    scope:
+      - {path: src/hamlet/cli/commands/daemon.py, op: modify}
+      - {path: tests/test_cli_daemon.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'Before starting, `hamlet daemon` checks if the configured port is already in use'
+      - 'If the port is in use and responds to `/hamlet/health`, prints a warning identifying the hamlet daemon as the conflict'
+      - 'If the port is in use but does not respond to `/hamlet/health`, prints a warning that another process is using the port'
+      - 'In both cases, the process exits with a non-zero code without starting'
+      - 'The warning message suggests `hamlet service status` and `hamlet service stop` as remedies'
+      - 'If the port is free, startup proceeds unchanged'
+      - 'Tests cover: port free (normal startup), port in use with hamlet health response, port in use without hamlet health response'
+    notes: plan/notes/205.md
+
+  "206":
+    title: Fix service.py correctness issues and test/daemon cleanup
+    complexity: medium
+    scope:
+      - {path: src/hamlet/cli/commands/service.py, op: modify}
+      - {path: src/hamlet/cli/commands/daemon.py, op: modify}
+      - {path: tests/test_cli_service.py, op: modify}
+      - {path: tests/test_cli_daemon.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`_install` in service.py checks `_service_is_running()` before calling bootstrap; if already loaded, prints "Service is already installed and running. Run `hamlet service uninstall` first." and exits 0'
+      - 'Plist template path values are XML-escaped using `xml.sax.saxutils.escape()` before interpolation'
+      - 'All `sys.exit(1)` calls in service.py are replaced with `return 1`; `sys.exit(0)` with `return 0`'
+      - 'Port conflict `print()` calls in daemon.py use `file=sys.stderr`'
+      - 'Settings patch target in test_cli_daemon.py port-conflict tests is `hamlet.cli.commands.daemon.Settings` (not `hamlet.config.settings.Settings`)'
+      - 'test_cli_service.py has a test for re-install when service is already running: asserts informational message and exit 0'
+    notes: plan/notes/206.md
+
+  "207":
+    title: Fix _install idempotency guard and missing edge-case tests
+    complexity: small
+    scope:
+      - {path: src/hamlet/cli/commands/service.py, op: modify}
+      - {path: tests/test_cli_service.py, op: modify}
+      - {path: src/hamlet/cli/__init__.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '_install returns 0 with a helpful message when PLIST_PATH.exists() is True regardless of _service_is_running() result'
+      - 'When plist exists and service is running, message says "already installed and running" and directs user to uninstall'
+      - 'When plist exists and service is not running, message says "already installed but not running" and directs user to `hamlet service start`'
+      - 'test_cli_service.py has a test for install-when-plist-exists-but-not-running: asserts result == 0 and message contains "not running" and "start"'
+      - 'service_command prints subparser help (not a bare usage string) when called with no subcommand'
+    notes: plan/notes/207.md
+
+  "208":
+    title: Reset agent state to ZOMBIE on daemon startup
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'In `load_from_persistence()`, all agents are created with `state=AgentState.ZOMBIE` regardless of the value stored in the database'
+      - 'A test in `test_world_state_manager.py` verifies that after `load_from_persistence()`, agents with stored state "active" are loaded as ZOMBIE'
+      - 'All existing `test_world_state_manager.py` tests continue to pass'
+    notes: plan/notes/208.md
+
+  "209":
+    title: Fix WorldView initial paint (remove premature resize in on_mount)
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/world_view.py, op: modify}
+      - {path: tests/test_tui_world_view.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`WorldView.on_mount()` does NOT call `self._viewport.resize()`'
+      - '`WorldView.on_resize()` remains the sole handler for updating viewport dimensions'
+      - 'A test in `test_tui_world_view.py` verifies that `on_mount` does not call `viewport.resize`'
+      - 'A test verifies that `on_resize` calls `viewport.resize` with the event dimensions'
+      - 'All existing `test_tui_world_view.py` tests continue to pass'
+    notes: plan/notes/209.md
+
+  "210":
+    title: Agent despawn infrastructure
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: src/hamlet/persistence/facade.py, op: modify}
+      - {path: src/hamlet/persistence/writer.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+      - {path: tests/test_persistence_facade.py, op: modify}
+    depends: ["208"]
+    blocks: ["211"]
+    criteria:
+      - '`WorldStateManager.despawn_agent(agent_id: str)` async method exists'
+      - '`despawn_agent` removes the agent from `_state.agents`'
+      - '`despawn_agent` frees the agent''s grid position via `_grid`'
+      - '`despawn_agent` removes the agent_id from its village''s agent_ids list'
+      - '`despawn_agent` queues a DELETE write to persistence via `PersistenceFacade`'
+      - '`PersistenceFacade` has a `delete_agent(agent_id: str)` async method'
+      - '`delete_agent` executes `DELETE FROM agents WHERE id = ?` via the write queue'
+      - '`despawn_agent` is a no-op (no error) if agent_id does not exist'
+      - 'Tests verify: agent removed from state, grid freed, village agent_ids updated, persistence delete queued'
+    notes: plan/notes/210.md
+
+  "211":
+    title: Inference engine despawn logic and zombie TTL config
+    complexity: medium
+    scope:
+      - {path: src/hamlet/inference/engine.py, op: modify}
+      - {path: src/hamlet/inference/types.py, op: modify}
+      - {path: src/hamlet/config/settings.py, op: modify}
+      - {path: tests/test_inference_engine.py, op: modify}
+      - {path: tests/test_settings.py, op: modify}
+    depends: ["210"]
+    blocks: []
+    criteria:
+      - '`Settings` has `zombie_despawn_seconds: int = 300`'
+      - '`InferenceState` has `zombie_since: dict[str, datetime]` field'
+      - '`_handle_stop()`: when stop_reason is authoritative ("tool", "stop", "end_turn"), calls `despawn_agent()` for all session agents instead of marking IDLE; cleans up `_state.last_seen` and `zombie_since` entries'
+      - '`_update_zombie_states()`: when an agent transitions to ZOMBIE, records timestamp in `zombie_since`'
+      - '`_update_zombie_states()`: agents in `zombie_since` longer than `zombie_despawn_seconds` are despawned via `despawn_agent()` and removed from `zombie_since` and `last_seen`'
+      - 'On daemon startup, `zombie_since` is seeded for all loaded agents (from WI-208) using `agent.last_seen` as the zombie timestamp, so long-inactive agents despawn promptly'
+      - 'If a despawned agent receives new events, `get_or_create_agent()` recreates it normally (resurrection)'
+      - 'Tests: session-end despawn fires for authoritative stop_reason; zombie TTL despawn fires after threshold; short-lived zombie does not despawn prematurely; resurrection after despawn creates new agent'
+    notes: plan/notes/211.md
+
+  "212":
+    title: Fix legend overlay positioning
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/legend.py, op: modify}
+      - {path: src/hamlet/tui/app.py, op: modify}
+      - {path: tests/test_tui_legend.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`HamletApp` declares `LAYERS = ("default", "overlay")` or equivalent Textual mechanism for floating overlays'
+      - '`LegendOverlay.DEFAULT_CSS` positions the widget as a floating overlay above the grid (using `layer: overlay` and `position: absolute`, or equivalent)'
+      - '`LegendOverlay` has a defined width and height in CSS so it is not zero-sized when displayed'
+      - 'Toggling `/` shows the legend content (symbols, colors, key bindings) visibly overlaid on the world view'
+      - 'The legend does not displace or resize any other widget when shown'
+      - 'Tests verify: `LegendOverlay.render()` returns non-empty content; overlay CSS includes positioning properties'
+    notes: plan/notes/212.md
+
+  "213":
+    title: Fix daemon error message and CLI port hardcoding
+    complexity: low
+    scope:
+      - {path: src/hamlet/__main__.py, op: modify}
+      - {path: src/hamlet/cli/__init__.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'The error message at `__main__.py` viewer health-check failure path says "hamlet daemon" not "hamlet"'
+      - '`cli/__init__.py` `view` parser `--url` default reads from Settings: default is `f"http://localhost:{settings.mcp_port}"`'
+      - '`_view_command` in `cli/__init__.py` loads Settings and uses `settings.mcp_port` when `--url` is not provided'
+      - '`main()` fallback path in `cli/__init__.py` (no subcommand) loads Settings and uses `settings.mcp_port` to construct the base URL'
+      - 'Existing CLI tests pass; a new test asserts `hamlet view` (no --url) uses settings.mcp_port, not hardcoded 8080'
+    notes: plan/notes/213.md
+
+  "214":
+    title: Wire zombie_threshold_seconds from Settings
+    complexity: low
+    scope:
+      - {path: src/hamlet/config/settings.py, op: modify}
+      - {path: src/hamlet/app_factory.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`Settings` has a `zombie_threshold_seconds: int = 300` field'
+      - '`build_components` passes `zombie_threshold_seconds=settings.zombie_threshold_seconds` to `AgentInferenceEngine.__init__`'
+      - 'A test verifies that `build_components` with a custom `Settings.zombie_threshold_seconds` produces an engine with the correct `_zombie_threshold_seconds`'
+    notes: plan/notes/214.md
+
+  "215":
+    title: Add request timeout to RemoteStateProvider fetch methods
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/remote_state.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`RemoteStateProvider.fetch_state` passes `timeout=aiohttp.ClientTimeout(total=5)` (or configurable) to the HTTP GET call'
+      - '`RemoteStateProvider.fetch_events` passes `timeout=aiohttp.ClientTimeout(total=5)` (or configurable) to the HTTP GET call'
+      - 'A test verifies that a timeout on `fetch_state` raises `aiohttp.ServerTimeoutError` (or equivalent) rather than hanging'
+    notes: plan/notes/215.md
+
+  "216":
+    title: Village expansion founds new settlements
+    complexity: medium
+    scope:
+      - {path: src/hamlet/simulation/expansion.py, op: modify}
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: tests/test_expansion.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`WorldStateManager` has a `found_village(project_id: str, center: Position, name: str) -> Village` (or equivalent) method that creates and persists a new `Village` record'
+      - '`ExpansionManager.process_expansion` calls `found_village` (or equivalent) after drawing the road, creating a new village at the expansion site'
+      - 'The new village is linked to the same project as the originating village'
+      - 'A second expansion check on the same originating village does not create a duplicate settlement at the same site (idempotency: founded village appears in `all_villages` on next tick, blocking re-selection)'
+      - 'Tests verify: expansion of a village with agents >= threshold creates a new village in world state; expansion does not create a second village at the same site on the next tick'
+    notes: plan/notes/216.md
+
+  "217":
+    title: Add Village.has_expanded flag and per-village expansion cooldown
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/types.py, op: modify}
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: src/hamlet/simulation/expansion.py, op: modify}
+      - {path: tests/test_expansion.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`Village` dataclass has a `has_expanded: bool = False` field'
+      - '`WorldStateManager.found_village` sets `has_expanded = True` on the originating village (the village that triggered the expansion, not the new outpost)'
+      - '`ExpansionManager.process_expansion` skips any village where `village.has_expanded is True` before calling `check_village_expansion`'
+      - 'A test verifies that a village with agents >= threshold and `has_expanded = True` does NOT trigger road building or `found_village` on subsequent ticks'
+      - 'A test verifies that a village with agents >= threshold and `has_expanded = False` triggers expansion exactly once'
+    notes: plan/notes/217.md
+
+  "218":
+    title: Add five missing methods to WorldStateProtocol
+    complexity: low
+    scope:
+      - {path: src/hamlet/protocols.py, op: modify}
+      - {path: src/hamlet/tui/remote_world_state.py, op: modify}
+      - {path: src/hamlet/simulation/expansion.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '`WorldStateProtocol` in `src/hamlet/protocols.py` declares `found_village`, `create_structure`, `update_structure`, `get_agents_in_view`, and `get_structures_in_view` with correct signatures'
+      - '`RemoteWorldState` already implements `get_agents_in_view` and `get_structures_in_view`; verify `update_structure` and `create_structure` stubs are added (no-op or raise NotImplementedError)'
+      - '`found_village` stub added to `RemoteWorldState` (raises NotImplementedError — viewer does not found villages)'
+      - 'The `if hasattr(world_state, "found_village"):` guard removed from `ExpansionManager.process_expansion` — replaced with direct call'
+      - 'All consumer modules that typed `world_state: Any` due to missing protocol methods can now type it as `WorldStateProtocol`'
+    notes: plan/notes/218.md
+
+  "219":
+    title: Seed initial structures for expansion outpost villages
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: tests/test_expansion.py, op: modify}
+    depends: ["217"]
+    blocks: []
+    criteria:
+      - '`WorldStateManager.found_village` calls `_seed_initial_structures(village)` after its `async with self._lock:` block (matching the pattern in `get_or_create_project`)'
+      - 'The call is made outside the lock to avoid deadlock (same pattern as `get_or_create_project` line 226)'
+      - 'A test verifies that after `found_village` is called, the new village has at least one structure in `world_state.get_all_structures()` (or equivalent)'
+      - 'Existing `found_village` idempotency tests still pass'
+    notes: plan/notes/219.md
+
+  "220":
+    title: Verify handle_event enum dispatch and add regression tests
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'All hook_type comparisons in `WorldStateManager.handle_event` use enum identity (`event.hook_type == HookType.X`), not string comparison (`event.hook_type.value == "X"`)'
+      - 'No occurrence of `.value == "` pattern exists in the handle_event method'
+      - 'A parametrized test in `tests/test_world_state_manager.py` verifies that handle_event processes all 15 HookType values without raising'
+    notes: plan/notes/220.md
+
+  "221":
+    title: Verify EVENT_SCHEMA string tool_output and add regression tests
+    complexity: low
+    scope:
+      - {path: src/hamlet/mcp_server/validation.py, op: modify}
+      - {path: src/hamlet/event_processing/event_processor.py, op: modify}
+      - {path: tests/test_mcp_validation.py, op: modify}
+      - {path: tests/test_event_processor.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'EVENT_SCHEMA tool_output type includes "string" in the allowed types list'
+      - 'InternalEvent.tool_output type annotation is `dict[str, Any] | str | None`'
+      - 'EventProcessor.process_event passes string tool_output values through to InternalEvent without modification'
+      - 'A test in `tests/test_mcp_validation.py` validates a payload with `tool_output: "some string"` passes schema validation'
+      - 'A test in `tests/test_mcp_validation.py` validates payloads with object and null tool_output'
+      - 'A test in `tests/test_event_processor.py` verifies `process_event` with string tool_output produces an InternalEvent where `event.tool_output == "the string"`'
+    notes: plan/notes/221.md
+
+  "222":
+    title: "stop_reason behavioral differentiation: tool -> ZOMBIE, others -> despawn"
+    complexity: medium
+    scope:
+      - {path: src/hamlet/inference/engine.py, op: modify}
+      - {path: tests/test_inference_engine.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - '_handle_stop with stop_reason=="tool" transitions all session agents to AgentState.ZOMBIE instead of calling despawn_agent'
+      - '_handle_stop with stop_reason=="tool" records zombie_since for each agent'
+      - '_handle_stop with stop_reason in {"stop", "end_turn"} calls despawn_agent for each session agent'
+      - '_handle_stop with stop_reason==None does not call despawn_agent or update_agent state'
+      - 'A test verifies stop_reason="tool" results in update_agent(state=AgentState.ZOMBIE), despawn_agent NOT called'
+      - 'A test verifies stop_reason="stop" results in despawn_agent called'
+      - 'A test verifies stop_reason="end_turn" results in despawn_agent called'
+      - 'A test verifies stop_reason=None results in neither despawn_agent nor ZOMBIE transition'
+    notes: plan/notes/222.md
+
+  "223":
+    title: Event pipeline parametrized test coverage
+    complexity: low
+    scope:
+      - {path: tests/test_event_processor.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'A parametrized test in `tests/test_event_processor.py` iterates all 15 HookType values and verifies process_event produces the correct hook_type enum'
+      - 'Tests for SessionStart verify handle_event creates project and session'
+      - 'Tests for SessionEnd verify handle_event sets session agents to AgentState.IDLE'
+      - 'Tests for SubagentStart verify handle_event calls get_or_create_agent'
+      - 'Tests for TaskCompleted verify handle_event calls add_work_units when a matching agent exists'
+      - 'No test uses @pytest.mark.asyncio decorator'
+    notes: plan/notes/223.md
+
+  "224":
+    title: TUI/persistence/install test coverage for Q-15 gaps and hotfixes
+    complexity: low
+    scope:
+      - {path: tests/test_tui_world_view.py, op: modify}
+      - {path: tests/test_cli_install.py, op: modify}
+      - {path: tests/test_persistence_facade.py, op: modify}
+    depends: []
+    blocks: []
+    criteria:
+      - 'A test in `tests/test_tui_world_view.py` verifies on_resize calls viewport.resize with event width and height'
+      - 'A test in `tests/test_tui_world_view.py` verifies render() calls self._viewport.resize(w, h) when size > 0'
+      - 'A test in `tests/test_cli_install.py` verifies is_plugin_active returns True when settings JSON contains a dict with "installPath" key'
+      - 'A test in `tests/test_cli_install.py` verifies is_plugin_active returns False when no settings file exists'
+      - 'A test in `tests/test_persistence_facade.py` verifies stop() calls write_queue.join() before cancelling the write task'
+      - 'No test uses @pytest.mark.asyncio decorator'
+    notes: plan/notes/224.md
+
+  "225":
+    title: Add get_nearest_village_to method to WorldStateManager and protocol
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: src/hamlet/protocols.py, op: modify}
+      - {path: src/hamlet/tui/remote_world_state.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: []
+    blocks: ["226"]
+    criteria:
+      - '`WorldStateManager.get_nearest_village_to(x: int, y: int) -> Village | None` method exists'
+      - 'Method returns the Village whose center has the smallest Euclidean distance to (x, y), or None if no villages exist'
+      - 'Method acquires self._lock to read self._state.villages'
+      - '`WorldStateProtocol` declares `async def get_nearest_village_to(self, x: int, y: int) -> "Village | None": ...`'
+      - '`RemoteWorldState.get_nearest_village_to(x, y)` computes nearest village from self._villages; returns None if empty'
+      - 'A test verifies with two villages at (0,0) and (10,10), get_nearest_village_to(1,1) returns the village at (0,0)'
+      - 'A test verifies with no villages, get_nearest_village_to(0,0) returns None'
+    notes: plan/notes/225.md
+
+  "226":
+    title: StatusBar village name from viewport center
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/status_bar.py, op: modify}
+      - {path: tests/test_tui_status_bar.py, op: modify}
+    depends: ["225"]
+    blocks: []
+    criteria:
+      - 'StatusBar shows "Village:" label instead of "Project:"'
+      - 'StatusBar has a `village_name` reactive attribute'
+      - 'When village_name is empty, the field displays "Village: —"'
+      - 'When village_name is non-empty, the field displays "Village: {village_name}"'
+      - 'A test verifies render() output contains "Village: TestVillage" when village_name is "TestVillage"'
+      - 'A test verifies render() output contains "Village: —" when village_name is empty'
+    notes: plan/notes/226.md
+
+  "227":
+    title: Structure size_tier data model, persistence migration, and serialization
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/types.py, op: modify}
+      - {path: src/hamlet/persistence/migrations.py, op: modify}
+      - {path: src/hamlet/persistence/loader.py, op: modify}
+      - {path: src/hamlet/persistence/writer.py, op: modify}
+      - {path: src/hamlet/mcp_server/serializers.py, op: modify}
+      - {path: tests/test_persistence_migrations.py, op: modify}
+      - {path: tests/test_persistence_loader.py, op: modify}
+      - {path: tests/test_persistence_writer.py, op: modify}
+      - {path: tests/test_mcp_serializers.py, op: modify}
+    depends: []
+    blocks: ["228", "229", "230", "231"]
+    criteria:
+      - 'Structure dataclass in types.py has `size_tier: int = 1` field'
+      - 'migrations.py has a migration (version 4) that runs `ALTER TABLE structures ADD COLUMN size_tier INTEGER NOT NULL DEFAULT 1`'
+      - '_load_structures in loader.py includes size_tier column in SELECT and reads it'
+      - '_write_structure in writer.py includes size_tier in INSERT'
+      - '_serialize_structure in serializers.py output dict includes `"size_tier": structure.size_tier`'
+      - 'A test verifies migration 4 adds size_tier column to structures table'
+      - 'A test verifies a structure row with size_tier=3 loads as Structure(size_tier=3)'
+      - 'A test verifies writing a structure with size_tier=2 persists size_tier=2'
+      - 'A test verifies _serialize_structure includes "size_tier" key'
+    notes: plan/notes/227.md
+
+  "228":
+    title: Size tier calculation in StructureUpdater with pluggable work classifier
+    complexity: medium
+    scope:
+      - {path: src/hamlet/simulation/structure_updater.py, op: modify}
+      - {path: src/hamlet/simulation/config.py, op: modify}
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: src/hamlet/protocols.py, op: modify}
+      - {path: tests/test_structure_updater.py, op: modify}
+    depends: ["227"]
+    blocks: ["229"]
+    criteria:
+      - 'SimulationConfig has `size_tier_thresholds: dict[int, int]` with default `{1: 0, 2: 500, 3: 2000, 4: 5000}`'
+      - 'StructureUpdater has `_compute_target_tier(structure) -> int` that returns highest tier whose threshold <= work_units'
+      - 'StructureUpdater.update_structures calls world_state.upgrade_structure_tier when target_tier > structure.size_tier'
+      - 'WorldStateProtocol declares `upgrade_structure_tier(structure_id, new_tier) -> None`'
+      - 'WorldStateManager.upgrade_structure_tier stub exists (calls update_structure with size_tier=new_tier)'
+      - 'A test verifies _compute_target_tier thresholds at boundaries (0, 499, 500, 1999, 2000, 4999, 5000)'
+      - 'A test verifies update_structures calls upgrade_structure_tier when upgrade needed'
+      - 'A test verifies update_structures does NOT call upgrade_structure_tier when already at target tier'
+    notes: plan/notes/228.md
+
+  "229":
+    title: Multi-cell footprint in PositionGrid and agent displacement on tier upgrade
+    complexity: high
+    scope:
+      - {path: src/hamlet/world_state/grid.py, op: modify}
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: src/hamlet/tui/remote_world_state.py, op: modify}
+      - {path: tests/test_position_grid.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: ["228"]
+    blocks: ["230"]
+    criteria:
+      - 'PositionGrid.occupy_footprint(position, tier, entity_id) marks all cells in (2*tier-1)x(2*tier-1) square centered on position'
+      - 'PositionGrid.vacate_footprint(position, tier, entity_id) unmarks cells occupied by entity_id'
+      - 'Tier 1 footprint is 1x1, tier 2 is 3x3, tier 3 is 5x5, tier 4 is 7x7'
+      - 'WorldStateManager.upgrade_structure_tier vacates old footprint, finds agents in new footprint, moves them to nearest free cell via spiral search, occupies new footprint'
+      - 'RemoteWorldState.upgrade_structure_tier stub added (raises NotImplementedError)'
+      - 'A test verifies occupy_footprint for tier 2 at (5,5) occupies exactly 9 cells'
+      - 'A test verifies vacate_footprint clears the correct cells'
+      - 'A test verifies upgrade_structure_tier displaces an agent inside the new footprint to a cell outside it'
+    notes: plan/notes/229.md
+
+  "230":
+    title: Multi-cell structure rendering in WorldView with box-drawing characters
+    complexity: medium
+    scope:
+      - {path: src/hamlet/tui/world_view.py, op: modify}
+      - {path: tests/test_tui_world_view.py, op: modify}
+    depends: ["229"]
+    blocks: []
+    criteria:
+      - 'WorldView.render() expands structures with size_tier >= 2 into full footprint in struct_by_pos'
+      - 'Tier 1 structures render as single symbol (unchanged)'
+      - 'Tier 2+ corners render as "+"'
+      - 'Tier 2+ top/bottom edge cells (non-corner) render as "-"'
+      - 'Tier 2+ left/right edge cells (non-corner) render as "|"'
+      - 'Tier 2+ interior cells render as the structure symbol'
+      - 'Agent rendering takes priority over structure footprint rendering'
+      - 'A test verifies a tier 2 structure at (5,5) renders corners as "+", top/bottom edges as "-", side edges as "|"'
+      - 'A test verifies an agent inside a tier 2 footprint renders as the agent, not the structure border'
+    notes: plan/notes/230.md
+
+  "231":
+    title: RemoteWorldState size_tier deserialization
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/remote_world_state.py, op: modify}
+      - {path: tests/test_remote_world_state.py, op: modify}
+    depends: ["227"]
+    blocks: []
+    criteria:
+      - '_parse_structure in remote_world_state.py reads `size_tier=int(d.get("size_tier", 1))`'
+      - 'Backwards compatible: missing "size_tier" key defaults to 1'
+      - 'A test verifies _parse_structure with {"size_tier": 3} returns Structure(size_tier=3)'
+      - 'A test verifies _parse_structure without "size_tier" returns Structure(size_tier=1)'
+    notes: plan/notes/231.md

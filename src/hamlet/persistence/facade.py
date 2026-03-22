@@ -97,6 +97,16 @@ class PersistenceFacade:
 
         self._running = False
 
+        # Drain pending writes before cancelling so despawns and other
+        # queued operations are not lost on shutdown.
+        if self._write_queue:
+            try:
+                await asyncio.wait_for(self._write_queue.join(), timeout=5.0)
+            except asyncio.TimeoutError:
+                logger.warning("Timed out waiting for write queue to drain on shutdown")
+            except Exception:
+                logger.exception("Error draining write queue on shutdown")
+
         # Cancel and await background write task
         if self._write_task:
             self._write_task.cancel()
@@ -317,3 +327,15 @@ class PersistenceFacade:
         except Exception:
             logger.exception("Failed to queue write for %s %s", entity_type, entity_id)
             raise
+
+    async def delete_agent(self, agent_id: str) -> None:
+        """Queue deletion of an agent record from the database."""
+        if not self._running or not self._write_queue:
+            raise RuntimeError("Cannot delete agent: facade not running")
+        operation = WriteOperation(
+            entity_type="agent",
+            entity_id=agent_id,
+            operation="delete",
+            data={"id": agent_id},
+        )
+        self.enqueue_write(operation)

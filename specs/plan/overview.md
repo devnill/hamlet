@@ -1,77 +1,106 @@
-# Change Plan — Refine-9: Quality Cycle (v0.4.x)
+# Change Plan — refine-13: Village Name Display + Multi-Cell Structures + Maintenance
 
 ## What is changing and why
 
-This cycle addresses quality, not features. Trigger: cycle 008 review passed but left a significant test-coverage gap (Q-15), several pre-existing open questions (Q-6, Q-10, Q-13, Q-14, Q-16), and structural code-health items identified by the architect survey.
+Post-convergence refinement after brrr cycle 7. Addresses four deferred open questions, two
+hotfixes needing formal test coverage, and two new features requested after first use.
 
-**Three areas:**
+### Maintenance: Open Questions
 
-1. **Test coverage** — 11 new HookType values, 11 new handle_event branches, on_resize, is_plugin_active, and all 15 hook scripts have zero test coverage. Adding tests for all of these.
+**Q-14: handle_event enum dispatch** (WI-220)
+`WorldStateManager.handle_event()` compares `event.hook_type.value == "Notification"` (string)
+rather than `event.hook_type == HookType.Notification` (enum). Engine uses enum. Unify.
 
-2. **Documentation** — No CLAUDE.md exists. README/QUICKSTART are stale (4 hooks shown, manual JSON config, missing commands). Public API docstrings are sparse on the 5 core modules.
+**Q-10: Bash string tool_output** (WI-221)
+`EVENT_SCHEMA` rejects plain-string `tool_output`. Bash PostToolUse events with string stdout
+are silently discarded. Widen schema to accept `["object", "string", "null"]` and update
+`event_processor.py` to handle the string case without crashing.
 
-3. **Code health and functional gaps** — Enum identity convention comment in handle_event; orphaned saver.py removal; startup sequence deduplication; /hamlet/health test; Bash tool_output schema widening (Q-10); notification_type extraction (Q-16); stop_reason behavioral differentiation using available telemetry (Q-13); Protocol interfaces replacing Any-typed module boundaries.
+**Q-13: stop_reason behavioral differentiation** (WI-222)
+All Stop events currently produce immediate despawn. Differentiate:
+- `"stop"` / `"end_turn"`: immediate despawn (clean session end)
+- `"tool"`: transition to ZOMBIE (interrupted; may resume)
 
-## Scope boundary
+**Q-15: Test coverage gaps** (WI-223, WI-224)
+11 new HookType values, 11 handle_event branches, on_resize handler, is_plugin_active —
+all untested since cycle 008. Two work items: event pipeline coverage, and TUI/install/
+persistence coverage (which also covers the two hotfixes below).
 
-**Changing**: tests, CLAUDE.md, README, QUICKSTART, docstrings, enum convention comment, saver.py deletion, app_factory.py extraction, validation.py, internal_event.py, event_processor.py (schema + notification_type), inference/engine.py (stop_reason), world_state/manager.py (stop_reason), protocols.py (new).
+### Maintenance: Hotfixes with Missing Tests
 
-**Not changing**: game mechanics, simulation logic, TUI layout, hook scripts, hooks.json, persistence schema, world state data model structure, CLI commands, MCP server logic (beyond health endpoint test), agent inference rules.
+Two fixes applied outside the formal cycle need test coverage:
+- `PersistenceFacade.stop()` drains queue before cancelling (WI-224)
+- `WorldView.render()` syncs viewport to `self.size` each frame (WI-224)
 
-## Expected impact
+### Feature 1: Viewport-Centered Village Name in Status Bar (WI-225, WI-226)
 
-- Test suite coverage increases significantly for the event pipeline and hook scripts
-- Regressions in v0.4.0 functionality will now be caught automatically
-- Bash-heavy agent sessions will generate world-state changes (Q-10 fix)
-- Agents interrupted mid-tool are properly marked IDLE rather than waiting for zombie TTL (Q-13 fix)
-- Notification type differentiation available for downstream use (Q-16 fix)
-- Module boundaries are statically typed — mypy/pyright can catch interface mismatches
-- Startup code is in one place (app_factory.py)
-- Developer onboarding is faster (CLAUDE.md)
+The status bar "Project:" line currently shows the project name from `.hamlet/config.json`.
+Replace it with the name of the village the viewport is currently centered on.
+
+- New `get_nearest_village_to(x, y)` method on WorldStateManager, WorldStateProtocol, RemoteWorldState
+- StatusBar widget updated to query nearest village name based on viewport center coordinates
+- When no village exists, show "—"
+
+### Feature 2: Multi-Cell Structures Based on Work Volume (WI-227–WI-231)
+
+Structures gain a size tier determined by cumulative work_units. Thresholds are configurable.
+The work-type classifier is a pluggable interface (default: volume-only; future: new-feature vs bug-fix heuristic).
+
+Size tiers:
+| Tier | Footprint | Default work_unit threshold |
+|------|-----------|----------------------------|
+| 1    | 1×1       | 0 (initial)                |
+| 2    | 3×3       | 500                        |
+| 3    | 5×5       | 2000                       |
+| 4    | 7×7       | 5000                       |
+
+Visual: rectangular box-drawing border (`+`, `-`, `|`) for tiers 2+; interior shows structure symbol.
+
+Hard footprint: structure claims all cells in its footprint in the occupancy grid.
+Agent displacement: when tier increases, agents in the new footprint cells move to the nearest free cell outside.
+
+Work items:
+- WI-227: Structure size_tier data model + persistence + serialization
+- WI-228: Size tier calculation in StructureUpdater (pluggable classifier)
+- WI-229: Multi-cell footprint in PositionGrid + agent displacement in WorldStateManager
+- WI-230: Multi-cell rendering in WorldView with box-drawing characters
+- WI-231: RemoteWorldState deserialization for size_tier
+
+## Scope
+
+**Changing:**
+- `src/hamlet/world_state/manager.py` — nearest village query; agent displacement; enum dispatch (Q-14)
+- `src/hamlet/world_state/types.py` — Structure.size_tier field
+- `src/hamlet/world_state/grid.py` — multi-cell footprint occupancy
+- `src/hamlet/world_state/rules.py` — size tier thresholds
+- `src/hamlet/simulation/structure_updater.py` — pluggable work classifier, tier upgrade logic
+- `src/hamlet/simulation/config.py` — size tier threshold config
+- `src/hamlet/protocols.py` — get_nearest_village_to method
+- `src/hamlet/mcp_server/validation.py` — widen tool_output schema (Q-10)
+- `src/hamlet/mcp_server/serializers.py` — serialize size_tier
+- `src/hamlet/event_processing/event_processor.py` — handle string tool_output (Q-10)
+- `src/hamlet/inference/engine.py` — stop_reason differentiation (Q-13)
+- `src/hamlet/tui/world_view.py` — multi-cell rendering
+- `src/hamlet/tui/status_bar.py` — village name display
+- `src/hamlet/tui/remote_world_state.py` — nearest village stub + size_tier deserialization
+- `src/hamlet/persistence/migrations.py` — add size_tier column
+- `src/hamlet/persistence/loader.py` — load size_tier
+- `src/hamlet/persistence/writer.py` — write size_tier
+- Tests for all modified modules
+
+**Not changing:** Hook scripts, CLI commands, inference type rules, MCP plugin server, viewport module, legend/help overlays, animation system, expansion system (beyond agent displacement).
 
 ## Work items
 
-WI-187 through WI-198 (12 items)
-
-## What Is Changing
-
-### 1. All Claude Code Hook Types (WI-179–181)
-Claude Code now exposes 26+ hook event types. Hamlet currently implements 4 (PreToolUse, PostToolUse, Notification, Stop). This cycle adds the remaining relevant hooks:
-
-**Agent/session lifecycle** — SubagentStart, SubagentStop, SessionStart, SessionEnd, TeammateIdle, TaskCompleted
-**System/observation** — PostToolUseFailure, UserPromptSubmit, PreCompact, PostCompact, StopFailure
-
-All new hooks are Python scripts following the existing pattern: read stdin, find_config(), POST to daemon, exit. All use `async: true` where supported.
-
-**Fix**: Remove `async: true` from PreToolUse — per Claude Code docs, `async` is unsupported on blocking hook events. This is also the likely cause of the persistent "1 error during load" in plugin reload.
-
-### 2. Event Schema for New Hook Types (WI-182)
-HookType enum, InternalEvent typed fields, and validation schema extended to cover all 11 new hook event names and their stdin payloads.
-
-### 3. Daemon Handling for New Event Types (WI-183)
-EventProcessor and WorldStateManager extended to accept and route new event types. Each new event type triggers at minimum a random agent movement or animation tick — the goal is visual activity, not semantic precision. New types map to existing animation/movement infrastructure.
-
-### 4. Adaptive Viewport (WI-184)
-WorldView widget wired to update ViewportManager on mount and on Textual resize events. Uses `self.size` (the actual Textual widget dimensions) rather than any hardcoded values. ViewportManager.resize() already exists but was never called.
-
-### 5. Plugin Update Hygiene (WI-185)
-`hamlet install` detects whether the hamlet plugin is currently active (hooks registered via plugin's hooks.json) and skips installation with a clear warning. Prevents double-firing of hooks when both `hamlet install` and the plugin are active.
-
-### 6. Version Bump to 0.4.0 (WI-186)
-All four version locations updated: pyproject.toml, .claude-plugin/plugin.json, src/hamlet/__init__.py, src/hamlet/cli/__init__.py.
-
-## Scope Boundary
-
-**Not changing**: inference engine logic, TUI layout/widgets (except WorldView resize wiring), persistence schema, mcp/server.py, existing hook scripts (hamlet_hook_utils.py, pre_tool_use.py, post_tool_use.py, notification.py, stop.py), world state data model, simulation engine.
-
-## Expected Impact
-
-After this cycle:
-- All 15 hook types fire and reach the daemon; busy sessions produce more events → more visual activity
-- Viewport correctly fills the terminal window and adapts on resize
-- Plugin updates via marketplace pick up new hook registrations automatically
-- `hamlet install` and plugin coexist safely without duplicate hooks
-- Load error from `async: true` on PreToolUse is resolved
-
-## New Work Items
-WI-179 through WI-186 (8 items)
+- WI-220: Fix handle_event enum dispatch (Q-14)
+- WI-221: Fix EVENT_SCHEMA + event_processor for Bash string tool_output (Q-10)
+- WI-222: stop_reason behavioral differentiation in inference engine (Q-13)
+- WI-223: Event pipeline test coverage — HookType parametrized + handle_event branches (Q-15)
+- WI-224: TUI/persistence test coverage — on_resize, is_plugin_active, facade drain, worldview render (Q-15 + hotfixes)
+- WI-225: get_nearest_village_to() method on WorldStateManager + protocol + RemoteWorldState
+- WI-226: StatusBar village name from viewport center
+- WI-227: Structure size_tier data model + persistence migration + serialization
+- WI-228: Size tier calculation in StructureUpdater with pluggable work classifier
+- WI-229: Multi-cell footprint in PositionGrid + agent displacement on tier upgrade
+- WI-230: Multi-cell rendering in WorldView with box-drawing characters
+- WI-231: RemoteWorldState deserialization for size_tier

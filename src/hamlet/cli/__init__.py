@@ -26,7 +26,7 @@ For more information, visit: https://github.com/dan/hamlet
     parser.add_argument(
         "--version",
         action="version",
-        version="%(prog)s 0.5.0"
+        version="%(prog)s 0.5.1"
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -99,10 +99,29 @@ For more information, visit: https://github.com/dan/hamlet
     )
     view_parser.add_argument(
         "--url",
-        default="http://localhost:8080",
+        default=None,
         help="Daemon URL"
     )
     view_parser.set_defaults(func=_view_command)
+
+    # Service command (macOS launchd integration)
+    service_parser = subparsers.add_parser(
+        "service",
+        help="Manage the hamlet daemon as a macOS launchd service",
+        description="Install, start, stop, and manage the hamlet daemon via launchd (macOS only)."
+    )
+    service_subparsers = service_parser.add_subparsers(
+        dest="service_subcommand",
+        help="Service sub-commands"
+    )
+    service_subparsers.required = True
+    service_subparsers.add_parser("install", help="Install and load the launchd service")
+    service_subparsers.add_parser("uninstall", help="Unload and remove the launchd service")
+    service_subparsers.add_parser("start", help="Start (load) the launchd service")
+    service_subparsers.add_parser("stop", help="Stop (unload) the launchd service")
+    service_subparsers.add_parser("restart", help="Restart the launchd service")
+    service_subparsers.add_parser("status", help="Show service installation and running status")
+    service_parser.set_defaults(func=_service_command)
 
     return parser
 
@@ -123,8 +142,18 @@ def _view_command(args) -> int:
     """Thin shim that launches the TUI viewer connecting to a running daemon."""
     import asyncio
     from hamlet.__main__ import _run_viewer
-    url = getattr(args, "url", "http://localhost:8080")
+    url = getattr(args, "url", None)
+    if not url:
+        from hamlet.config.settings import Settings
+        settings = Settings.load()
+        url = f"http://localhost:{settings.mcp_port}"
     return asyncio.run(_run_viewer(url))
+
+
+def _service_command(args) -> int:
+    """Thin shim so the service import is deferred until the command is actually invoked."""
+    from hamlet.cli.commands.service import service_command
+    return service_command(args)
 
 
 def main(args: list[str] | None = None) -> int:
@@ -142,7 +171,9 @@ def main(args: list[str] | None = None) -> int:
     if not parsed_args.command:
         import asyncio
         from hamlet.__main__ import _run_viewer
-        return asyncio.run(_run_viewer("http://localhost:8080"))
+        from hamlet.config.settings import Settings
+        settings = Settings.load()
+        return asyncio.run(_run_viewer(f"http://localhost:{settings.mcp_port}"))
 
     try:
         return parsed_args.func(parsed_args)

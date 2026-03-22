@@ -85,7 +85,7 @@ async def test_check_zombie_returns_true_when_elapsed_meets_threshold():
 
     # Seen exactly at the threshold boundary (300 seconds ago).
     engine._state.last_seen[agent_id] = datetime.now(UTC) - timedelta(
-        seconds=AgentInferenceEngine.ZOMBIE_THRESHOLD_SECONDS
+        seconds=engine._zombie_threshold_seconds
     )
 
     result = engine._check_zombie(agent_id)

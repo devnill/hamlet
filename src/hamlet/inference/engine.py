@@ -34,18 +34,36 @@ __all__ = ["AgentInferenceEngine"]
 class AgentInferenceEngine:
     """Infers agent spawn, type, and lifecycle from hook events."""
 
-    ZOMBIE_THRESHOLD_SECONDS: int = 300
-
     def __init__(
         self,
         world_state: "WorldStateProtocol",
         summarizer: ActivitySummarizer | None = None,
         config: SimulationConfig | None = None,
+        despawn_threshold_seconds: int = 300,
+        zombie_threshold_seconds: int = 300,
     ) -> None:
         self._world_state = world_state
         self._summarizer = summarizer
         self._config = config if config is not None else SimulationConfig()
         self._state = InferenceState()
+        self._despawn_threshold_seconds = despawn_threshold_seconds
+        self._zombie_threshold_seconds = zombie_threshold_seconds
+
+    async def startup(self) -> None:
+        """Seed zombie_since from agents already in ZOMBIE state at startup.
+
+        When the daemon starts, WI-208 loads all agents as ZOMBIE. The
+        inference engine's zombie_since is empty, so TTL despawn would never
+        fire for them without this seeding step.
+        """
+        # Note: last_seen is intentionally not seeded. The zombie_since TTL is
+        # sufficient to despawn stale agents; seeding last_seen would suppress
+        # the zombie detection that triggers despawn in _update_zombie_states.
+        agents = await self._world_state.get_all_agents()
+        for agent in agents:
+            if agent.state == AgentState.ZOMBIE:
+                # Use last_seen from DB as the zombie start time
+                self._state.zombie_since[agent.id] = agent.last_seen
 
     async def process_event(self, event: InternalEvent) -> None:
         """Route an event to the appropriate hook-type handler.
@@ -383,12 +401,12 @@ class AgentInferenceEngine:
             logger.debug("Stop [session=%s, reason=%s]", event.session_id, event.stop_reason)
 
     def _check_zombie(self, agent_id: str) -> bool:
-        """Return True if the agent has not been seen within ZOMBIE_THRESHOLD_SECONDS."""
+        """Return True if the agent has not been seen within zombie_threshold_seconds."""
         last_seen = self._state.last_seen.get(agent_id)
         if last_seen is None:
             return False
         elapsed = (datetime.now(UTC) - last_seen).total_seconds()
-        return elapsed >= self.ZOMBIE_THRESHOLD_SECONDS
+        return elapsed >= self._zombie_threshold_seconds
 
     async def _summarize_and_update(self, agent_id: str, tool_name: str, tool_input: dict) -> None:
         """Background helper: call summarizer and update agent current_activity.
@@ -407,7 +425,7 @@ class AgentInferenceEngine:
 
         Called by ``SimulationEngine`` on each simulation step. Currently runs
         zombie detection: agents whose ``last_seen`` timestamp is older than
-        ``ZOMBIE_THRESHOLD_SECONDS`` are marked ``AgentState.ZOMBIE`` in world
+        ``zombie_threshold_seconds`` are marked ``AgentState.ZOMBIE`` in world
         state. Stale ``PendingTool`` entries (PreToolUse with no matching
         PostToolUse within the threshold window) are also evicted and the
         corresponding session's ``active_tools`` counter is decremented.
@@ -424,7 +442,7 @@ class AgentInferenceEngine:
         Only agents registered via ``_handle_pre_tool_use`` are evaluated —
         those are the only agents that populate ``_state.last_seen``.
 
-        Also evicts pending_tools entries older than ZOMBIE_THRESHOLD_SECONDS
+        Also evicts pending_tools entries older than zombie_threshold_seconds
         (tool calls that started in PreToolUse but never received a PostToolUse),
         decrementing the corresponding session's active_tools count so the two
         stay in sync.
@@ -433,14 +451,27 @@ class AgentInferenceEngine:
             if self._check_zombie(agent_id):
                 try:
                     await self._world_state.update_agent(agent_id, state=AgentState.ZOMBIE)
+                    if agent_id not in self._state.zombie_since:
+                        self._state.zombie_since[agent_id] = datetime.now(UTC)
                 except Exception:
                     logger.exception(
                         "_update_zombie_states: failed to update agent %s", agent_id
                     )
 
+        # Despawn agents that have been zombies longer than DESPAWN_THRESHOLD_SECONDS.
+        despawn_cutoff = datetime.now(UTC) - timedelta(seconds=self._despawn_threshold_seconds)
+        for agent_id in list(self._state.zombie_since.keys()):
+            if self._state.zombie_since[agent_id] <= despawn_cutoff:
+                try:
+                    await self._world_state.despawn_agent(agent_id)
+                    self._state.last_seen.pop(agent_id, None)
+                    self._state.zombie_since.pop(agent_id, None)
+                except Exception:
+                    logger.exception("_update_zombie_states: failed to despawn agent %s", agent_id)
+
         # Evict stale pending_tools entries whose PreToolUse was never matched
         # by a PostToolUse within the zombie threshold window.
-        cutoff = datetime.now(UTC) - timedelta(seconds=self.ZOMBIE_THRESHOLD_SECONDS)
+        cutoff = datetime.now(UTC) - timedelta(seconds=self._zombie_threshold_seconds)
         stale_keys = [
             k for k, p in self._state.pending_tools.items() if p.started_at < cutoff
         ]

@@ -36,7 +36,7 @@ class WorldView(Static):
     def on_mount(self) -> None:
         """Set up 4Hz animation frame updates and 30FPS render refresh."""
         self.set_interval(1 / 4, self._update_animation_frame)
-        self._viewport.resize(self.size.width, self.size.height)
+        # on_resize fires after the layout pass with the correct terminal size.
 
     def on_resize(self, event: Resize) -> None:
         """Update viewport dimensions when terminal is resized."""
@@ -57,6 +57,13 @@ class WorldView(Static):
 
     def render(self) -> Text:
         """Render the world view using cached agent/structure state."""
+        # Sync viewport to widget's actual allocated size on every render.
+        # on_resize may fire before layout is complete; reading self.size here
+        # ensures the viewport is always correct without waiting for a user resize.
+        w, h = self.size.width, self.size.height
+        if w > 0 and h > 0:
+            self._viewport.resize(w, h)
+
         try:
             bounds = self._viewport.get_visible_bounds()
         except Exception:

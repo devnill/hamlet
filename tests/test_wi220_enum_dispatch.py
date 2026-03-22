@@ -27,7 +27,12 @@ def world_state_manager():
 @pytest.mark.parametrize("hook_type", list(HookType))
 async def test_handle_event_all_hook_types(hook_type, world_state_manager):
     event = _make_minimal_event(hook_type)
+    before = len(world_state_manager._state.event_log)
     await world_state_manager.handle_event(event)
+    assert len(world_state_manager._state.event_log) == before + 1, (
+        f"handle_event({hook_type}) did not append to event_log"
+    )
 
 def test_hook_type_count():
+    # Pin: if you add a HookType, update this count and add a branch in handle_event.
     assert len(list(HookType)) == 15

@@ -12,7 +12,17 @@ class LegendOverlay(Static):
     Toggled by ``/`` from HamletApp; dismissed by ``Esc`` from HamletApp.
     """
 
-    DEFAULT_CSS = "LegendOverlay { display: none; }"
+    DEFAULT_CSS = """
+LegendOverlay {
+    display: none;
+    layer: overlay;
+    position: absolute;
+    offset: 2 2;
+    width: 51;
+    height: 22;
+    background: $surface;
+}
+"""
 
     # ------------------------------------------------------------------
     # Rendering

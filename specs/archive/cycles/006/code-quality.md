@@ -1,6 +1,6 @@
-## Verdict: Pass
+## Verdict: Fail
 
-The three work items integrate correctly end-to-end. The color pipeline value-based mapping is safe for all 7 AgentType members, find_config() has no KeyError risk after the guard, and all new code paths respect GP-7 exception boundaries. One minor inconsistency in handle_event() is noted below.
+The four Cycle 6 work items are individually correct, but WI-216 introduces an unbounded expansion loop: `process_expansion` has no per-village cooldown, so any village at or above `expansion_threshold` agents will attempt to found a new outpost and rebuild its road on every simulation tick (~30 times per second).
 
 ## Critical Findings
 
@@ -8,30 +8,33 @@ None.
 
 ## Significant Findings
 
-None.
+### S1: `process_expansion` founds outposts and rebuilds roads on every tick with no cooldown
+
+- **File**: `/Users/dan/code/hamlet/src/hamlet/simulation/expansion.py:66`
+- **Issue**: `process_expansion` runs for every village every tick. The only gate is `check_village_expansion`, which returns a site whenever `len(agents) >= expansion_threshold`. Once a village reaches 20 agents the condition stays true permanently, so on every subsequent tick the engine calls `create_road_between` (which calls `create_structure` once per road cell, each acquiring `WorldStateManager._lock`) and then calls `found_village`. The `found_village` 5-cell idempotency guard prevents duplicate village records, but `create_road_between` has no deduplication. `_create_structure_locked` does not check whether a structure already exists at a position before inserting — it calls `self._grid.occupy()`, catches the `ValueError` on collision, logs a warning, and then proceeds to add the structure to `self._state.structures` and call `self._persistence.queue_write` anyway. Road cells are therefore re-inserted into the structures dict and re-queued for persistence on every tick that the village is large enough. At the default 30 ticks/s, a road of N cells generates N new phantom structure records per second in both memory and SQLite.
+- **Impact**: Unbounded memory growth in `self._state.structures`, unbounded SQLite write queue pressure, and lock contention from O(road_length) lock acquisitions per tick. Road cells accumulate as duplicate entries in the render data, breaking the visual display.
+- **Suggested fix**: Track per-village expansion state. Add a `has_expanded: bool = False` flag (dataclass field) to `Village`, set it to `True` inside `WorldStateManager.found_village` on the originating village, and check it at the top of the per-village loop in `process_expansion` — skipping any village for which `village.has_expanded` is True. This caps each village at one expansion event for its lifetime.
 
 ## Minor Findings
 
-### M1: handle_event() dispatches on hook_type.value string instead of enum identity
+### M1: `zombie_despawn_seconds` has no validation in `Settings._validate()`
 
-- **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:684`
-- **Issue**: The Notification and Stop branches compare `event.hook_type.value == "Notification"` and `event.hook_type.value == "Stop"` (string comparisons against the enum's .value) rather than comparing against `HookType.Notification` and `HookType.Stop` directly. The parallel dispatch in `engine.process_event()` at lines 48–55 uses direct enum comparison. The string values happen to match today, but this is a maintenance trap: if a HookType value is ever renamed, this branch silently falls through to the `else` tool format for Notification and Stop events instead of failing loudly.
-- **Suggested fix**: Replace with direct enum comparison:
-  ```python
-  if event.hook_type == HookType.Notification:
-      summary = f"Notification: {event.notification_message or ''}"
-  elif event.hook_type == HookType.Stop:
-      summary = f"Stop: {event.stop_reason or ''}"
-  else:
-      summary = f"{event.hook_type.value}: {event.tool_name or ''}"
-  ```
-  Requires adding `from hamlet.event_processing.internal_event import HookType` to manager.py imports (currently only `InternalEvent` is imported from that module at line 10).
+- **File**: `/Users/dan/code/hamlet/src/hamlet/config/settings.py:21`
+- **Issue**: WI-214 added `zombie_threshold_seconds` with full type, bool, and positive-integer validation. The companion field `zombie_despawn_seconds` (present before Cycle 6) has no validation at all. A config file containing `"zombie_despawn_seconds": 0` or `"zombie_despawn_seconds": "300"` produces no startup error; the bad value is passed directly to `AgentInferenceEngine` where it will cause incorrect behavior or a downstream `TypeError`.
+- **Suggested fix**: Add matching validation after the `zombie_threshold_seconds` block.
 
-## Self-Check Against Incremental Reviews
+### M2: `Optional` imported but never used in `settings.py`
 
-The incremental reviews (WI-122: 0C/0S/2M, WI-123: 0C/0S/1M, WI-124: 0C/0S/1M) focused on per-file correctness within each work item's scope. This capstone review covers cross-cutting concerns not addressable incrementally:
+- **File**: `/Users/dan/code/hamlet/src/hamlet/config/settings.py:6`
+- **Issue**: `from typing import Optional` is present but `Optional` is not referenced anywhere in the module.
+- **Suggested fix**: Remove the import line.
 
-- **Color pipeline end-to-end**: Confirmed that all 7 AgentType string values are identical between `world_state/types.py` and `inference/types.py`, making the value-based round-trip in `animation.py:56` (`InfAgentType(agent.inferred_type.value)`) safe for every member. The incremental review of WI-123 would have confirmed the mapping logic exists; this review confirms it is correct for all 7 values.
-- **Event field completeness**: `notification_message` and `stop_reason` reach both the engine debug log and the event log summary. No additional downstream consumers are expected by the architecture. No gap found.
-- **find_config() KeyError risk**: Confirmed no risk. The `"project_id" not in data` guard at line 40 ensures the subsequent `data["project_id"]` at line 42 is always safe. All four hooks are identical in this regard.
-- **M1 above** (string vs enum comparison in handle_event) is a cross-cutting observation that spans WI-122 (which introduced the Notification/Stop branching) and the pre-existing module structure of manager.py. It would not have been visible in a WI-122-only incremental review because it only becomes notable when compared against the dispatch pattern established in engine.py (a different file).
+### M3: `fetch_state` and `fetch_events` do not catch network exceptions at the method level
+
+- **File**: `/Users/dan/code/hamlet/src/hamlet/tui/remote_state.py:37-56`
+- **Issue**: `check_health` wraps its request in `try/except Exception` and returns a safe default on failure. `fetch_state` and `fetch_events` propagate all aiohttp exceptions to the caller. The current call site catches them, but the asymmetry means any future caller must remember to add its own try/except.
+- **Suggested fix**: Add `try/except Exception` in `fetch_state` returning `{}` and in `fetch_events` returning `[]`, matching `check_health`.
+
+## Unmet Acceptance Criteria
+
+None.

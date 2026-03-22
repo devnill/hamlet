@@ -70,7 +70,13 @@ async def build_components(settings: Settings, port: int | None = None) -> Compo
         # 2a. Initialize agent inference engine
         logger.debug("Initializing AgentInferenceEngine...")
         summarizer = ActivitySummarizer(model=settings.activity_model)
-        agent_inference = AgentInferenceEngine(world_state, summarizer=summarizer)
+        agent_inference = AgentInferenceEngine(
+            world_state,
+            summarizer=summarizer,
+            despawn_threshold_seconds=settings.zombie_despawn_seconds,
+            zombie_threshold_seconds=settings.zombie_threshold_seconds,
+        )
+        await agent_inference.startup()
 
         # 2b. Initialize simulation subsystems
         logger.debug("Initializing simulation subsystems...")

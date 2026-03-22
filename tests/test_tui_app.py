@@ -171,21 +171,22 @@ class TestHamletApp:
         async with TestHamletApp().run_test() as pilot:
             legend = pilot.app.query_one(LegendOverlay)
 
-            # Initially should be not visible
-            initial_visible = legend.visible
+            # Initially hidden (display: none in CSS)
+            initial_display = legend.display
+            assert initial_display is False
 
             # Press / to toggle legend
             await pilot.press("/")
             await pilot.pause()
 
-            # Visibility should have toggled
-            assert legend.visible is not initial_visible
+            # Display should have toggled
+            assert legend.display is not initial_display
 
             # Press / again to toggle back
             await pilot.press("/")
             await pilot.pause()
 
-            assert legend.visible is initial_visible
+            assert legend.display is initial_display
 
     @pytest.mark.asyncio
     async def test_update_state_updates_status_bar(

@@ -93,34 +93,6 @@ class TestAgentUpdater:
         world_state.update_agent.assert_awaited_once_with(agent.id, state=AgentState.IDLE)
 
     @pytest.mark.asyncio
-    async def test_zombie_agent_after_threshold(
-        self, updater: AgentUpdater, world_state: MagicMock, config: SimulationConfig
-    ) -> None:
-        """test_zombie_agent_after_threshold - Agent becomes ZOMBIE after zombie_threshold."""
-        agent = _make_agent(
-            state=AgentState.ACTIVE,
-            last_seen=datetime.now(UTC) - timedelta(seconds=int(config.zombie_threshold) + 1),
-        )
-
-        await updater.update_agents([agent], world_state)
-
-        world_state.update_agent.assert_awaited_once_with(agent.id, state=AgentState.ZOMBIE)
-
-    @pytest.mark.asyncio
-    async def test_idle_to_zombie_transition(
-        self, updater: AgentUpdater, world_state: MagicMock, config: SimulationConfig
-    ) -> None:
-        """IDLE agent becomes ZOMBIE after zombie_threshold."""
-        agent = _make_agent(
-            state=AgentState.IDLE,
-            last_seen=datetime.now(UTC) - timedelta(seconds=int(config.zombie_threshold) + 1),
-        )
-
-        await updater.update_agents([agent], world_state)
-
-        world_state.update_agent.assert_awaited_once_with(agent.id, state=AgentState.ZOMBIE)
-
-    @pytest.mark.asyncio
     async def test_active_to_idle_at_exactly_60_seconds(
         self, updater: AgentUpdater, world_state: MagicMock
     ) -> None:
@@ -148,20 +120,6 @@ class TestAgentUpdater:
 
         # Should not transition
         world_state.update_agent.assert_not_awaited()
-
-    @pytest.mark.asyncio
-    async def test_zombie_at_exactly_threshold(
-        self, updater: AgentUpdater, world_state: MagicMock, config: SimulationConfig
-    ) -> None:
-        """Agent becomes ZOMBIE at exactly zombie_threshold seconds."""
-        agent = _make_agent(
-            state=AgentState.ACTIVE,
-            last_seen=datetime.now(UTC) - timedelta(seconds=int(config.zombie_threshold)),
-        )
-
-        await updater.update_agents([agent], world_state)
-
-        world_state.update_agent.assert_awaited_once_with(agent.id, state=AgentState.ZOMBIE)
 
     @pytest.mark.asyncio
     async def test_multiple_agents_different_states(
@@ -205,4 +163,17 @@ class TestAgentUpdater:
         await updater.update_agents([agent], world_state)
 
         # Agent should already be IDLE, so no update needed
+        world_state.update_agent.assert_not_awaited()
+
+    async def test_zombie_agent_is_skipped(
+        self, updater: AgentUpdater, world_state: MagicMock
+    ) -> None:
+        """ZOMBIE agents are not touched by AgentUpdater; zombie lifecycle belongs to AgentInferenceEngine."""
+        agent = _make_agent(
+            state=AgentState.ZOMBIE,
+            last_seen=datetime.now(UTC) - timedelta(seconds=600),
+        )
+
+        await updater.update_agents([agent], world_state)
+
         world_state.update_agent.assert_not_awaited()

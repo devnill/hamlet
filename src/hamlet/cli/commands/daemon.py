@@ -4,13 +4,39 @@ from __future__ import annotations
 import asyncio
 import logging
 import signal
+import socket
 import sys
+import urllib.request
 from types import FrameType
+
+from hamlet.config.settings import Settings
 
 logger = logging.getLogger(__name__)
 
 # Global flag for graceful shutdown (set by signal handlers)
 _shutdown_requested = False
+
+
+def _check_port_conflict(port: int) -> str | None:
+    """
+    Returns None if the port is free.
+    Returns "hamlet" if hamlet daemon is already running on this port.
+    Returns "other" if something else is using the port.
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        if s.connect_ex(("localhost", port)) != 0:
+            return None  # port is free
+    # Port is in use — check if it's hamlet
+    try:
+        with urllib.request.urlopen(
+            f"http://localhost:{port}/hamlet/health", timeout=1
+        ) as resp:
+            if resp.status == 200:
+                return "hamlet"
+    except Exception:
+        pass
+    return "other"
 
 
 def _signal_handler(signum: int, frame: FrameType | None) -> None:
@@ -33,6 +59,7 @@ async def _run_daemon(port: int) -> int:
         Exit code (0 for success, non-zero for errors).
     """
     global _shutdown_requested
+    _shutdown_requested = False
 
     from hamlet.config.settings import Settings
     from hamlet.config.paths import HAMLET_DIR, ensure_hamlet_dir
@@ -115,10 +142,28 @@ def daemon_command(args) -> int:
     Returns:
         Exit code (0 for success, non-zero for errors).
     """
-    from hamlet.config.settings import Settings
-
     settings = Settings.load()
     port = getattr(args, "port", None) or settings.mcp_port
+
+    conflict = _check_port_conflict(port)
+    if conflict == "hamlet":
+        print(
+            f"Error: hamlet daemon is already running on port {port}.\n"
+            f"  Check status:  hamlet service status\n"
+            f"  Stop service:  hamlet service stop\n"
+            f"  Or stop the foreground daemon with Ctrl+C if it is running in another terminal.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    elif conflict == "other":
+        print(
+            f"Error: port {port} is already in use by another process.\n"
+            f"  Check status:  hamlet service status\n"
+            f"  Stop service:  hamlet service stop\n"
+            f"  Or use --port to specify a different port.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     try:
         return asyncio.run(_run_daemon(port))

@@ -35,11 +35,12 @@ class AgentUpdater:
         now = datetime.now(UTC)
 
         for agent in agents:
+            if agent.state == AgentState.ZOMBIE:
+                continue  # zombie lifecycle is owned by AgentInferenceEngine
+
             time_since_seen = (now - agent.last_seen).total_seconds()
 
-            if time_since_seen > self._config.zombie_threshold:
-                new_state = AgentState.ZOMBIE
-            elif time_since_seen > _IDLE_THRESHOLD:
+            if time_since_seen > _IDLE_THRESHOLD:
                 new_state = AgentState.IDLE
             else:
                 new_state = AgentState.ACTIVE

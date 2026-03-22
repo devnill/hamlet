@@ -1,5 +1,32 @@
 # hamlet — Developer Notes
 
+## Installation and Updates
+
+hamlet is installed via pipx. **Source code changes do not take effect until you reinstall.**
+
+```bash
+pipx install --force /Users/dan/code/hamlet   # reinstall from local source
+```
+
+After reinstalling, restart the service:
+
+```bash
+hamlet service stop && hamlet service start
+```
+
+Or in one step:
+
+```bash
+pipx install --force /Users/dan/code/hamlet && hamlet service stop && hamlet service start
+```
+
+Check the installed version:
+
+```bash
+pipx list | grep hamlet
+hamlet service status
+```
+
 ## Running
 
 Start the daemon first, then the viewer as a separate process:
@@ -10,6 +37,15 @@ hamlet                 # or: hamlet view  (connects to running daemon)
 ```
 
 The daemon and viewer are separate processes. The viewer will not work without a running daemon.
+
+The production daemon runs as a launchd service:
+
+```bash
+hamlet service status    # check if running
+hamlet service start     # start the service
+hamlet service stop      # stop the service
+hamlet service restart   # stop then start (note: use stop && start if restart fails)
+```
 
 ## Testing
 

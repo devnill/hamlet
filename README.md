@@ -18,17 +18,25 @@ Requires Python 3.12+ and Claude Code.
 
 ## Quick Start
 
-1. **Install hooks** (one-time setup):
+1. **Initialize this project** (one-time per project):
+   - In a Claude Code session: use the `/hamlet:init` skill
+   - Or from the terminal: `hamlet init`
+
+2. **Connect Claude Code** (one-time global setup):
+   - Plugin users (Claude Code MCP plugin): hooks are registered automatically — skip this step
+   - Others: `hamlet install`, then restart Claude Code
+
+3. **Start the daemon**:
    ```bash
-   hamlet install
+   hamlet daemon
    ```
 
-2. **Run Hamlet**:
+4. **Open the viewer** (in a separate terminal):
    ```bash
    hamlet
    ```
 
-3. **Use Claude Code normally** - your village will grow as you work!
+5. **Use Claude Code normally** — your village grows as you work!
 
 ## Usage
 

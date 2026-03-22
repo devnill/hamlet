@@ -167,7 +167,6 @@ class TestWorldView:
         # Library = ⌂
         assert "⌂" in plain_text
 
-    @pytest.mark.asyncio
     async def test_update_animation_frame_updates_state(self) -> None:
         """Test that _update_animation_frame fetches agents and structures."""
         viewport = Mock()
@@ -186,7 +185,6 @@ class TestWorldView:
         world_state.get_agents_in_view.assert_called_once()
         world_state.get_structures_in_view.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_update_animation_frame_advances_spin_frame(self) -> None:
         """Test that _update_animation_frame advances the spin frame."""
         viewport = Mock()
@@ -205,7 +203,6 @@ class TestWorldView:
 
         assert world_view._spin_frame == (initial_frame + 1) % 4
 
-    @pytest.mark.asyncio
     async def test_update_animation_frame_handles_errors_gracefully(self) -> None:
         """Test that _update_animation_frame handles errors following GP-7."""
         viewport = Mock()
@@ -236,8 +233,8 @@ class TestWorldView:
         assert isinstance(text, Text)
         assert "Loading..." in text.plain
 
-    def test_on_mount_calls_resize_with_widget_dimensions(self) -> None:
-        """on_mount calls viewport.resize with the widget's current size."""
+    def test_on_mount_does_not_call_viewport_resize(self) -> None:
+        """on_mount must NOT call viewport.resize (premature size is wrong at mount time)."""
         viewport = Mock()
         world_state = Mock()
 
@@ -246,15 +243,9 @@ class TestWorldView:
         # set_interval is a Textual internal; mock it to avoid errors
         world_view.set_interval = Mock()
 
-        size_mock = Mock()
-        size_mock.width = 80
-        size_mock.height = 24
+        world_view.on_mount()
 
-        # size is a read-only property on Textual widgets; patch it on the class
-        with patch.object(type(world_view), "size", new_callable=lambda: property(lambda self: size_mock)):
-            world_view.on_mount()
-
-        viewport.resize.assert_called_with(80, 24)
+        viewport.resize.assert_not_called()
 
     def test_on_resize_calls_resize_with_event_dimensions(self) -> None:
         """on_resize calls viewport.resize with the event's size dimensions."""

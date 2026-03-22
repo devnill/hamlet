@@ -74,7 +74,6 @@ class TestLegendOverlay:
         assert "Press / to toggle" in text
         assert "Esc to close" in text
 
-    @pytest.mark.asyncio
     async def test_initial_display_is_false(self) -> None:
         """LegendOverlay is initially hidden via display: none CSS."""
         from textual.app import App
@@ -87,7 +86,6 @@ class TestLegendOverlay:
             legend = pilot.app.query_one(LegendOverlay)
             assert legend.display is False
 
-    @pytest.mark.asyncio
     async def test_display_can_be_set_true(self) -> None:
         """Setting display to True shows the overlay."""
         from textual.app import App
@@ -105,7 +103,6 @@ class TestLegendOverlay:
 
             assert legend.display is True
 
-    @pytest.mark.asyncio
     async def test_display_can_be_toggled(self) -> None:
         """display can be toggled on and off."""
         from textual.app import App
@@ -142,7 +139,28 @@ class TestLegendOverlay:
         """action_hide_legend is not defined on the overlay; it lives in HamletApp."""
         assert not hasattr(LegendOverlay, "action_hide_legend")
 
-    @pytest.mark.asyncio
+    def test_render_returns_nonempty_string(self) -> None:
+        """LegendOverlay.render() returns a non-empty string."""
+        legend = LegendOverlay()
+        text = legend.render()
+        assert isinstance(text, str)
+        assert len(text) > 0
+
+    def test_default_css_contains_layer_overlay(self) -> None:
+        """LegendOverlay.DEFAULT_CSS contains 'layer: overlay' or 'position: absolute'."""
+        css = LegendOverlay.DEFAULT_CSS
+        assert "layer: overlay" in css or "position: absolute" in css
+
+    def test_default_css_contains_display_none(self) -> None:
+        """LegendOverlay.DEFAULT_CSS contains 'display: none' so overlay starts hidden."""
+        assert "display: none" in LegendOverlay.DEFAULT_CSS
+
+    def test_default_css_contains_explicit_dimensions(self) -> None:
+        """LegendOverlay.DEFAULT_CSS contains explicit width and height values."""
+        css = LegendOverlay.DEFAULT_CSS
+        assert "width:" in css
+        assert "height:" in css
+
     async def test_render_integration(self) -> None:
         """Integration test using Textual's testing patterns."""
         from textual.app import App

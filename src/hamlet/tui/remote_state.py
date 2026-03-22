@@ -39,7 +39,8 @@ class RemoteStateProvider:
         if self._session is None:
             return {}
         async with self._session.get(
-            f"{self._base_url}/hamlet/state"
+            f"{self._base_url}/hamlet/state",
+            timeout=aiohttp.ClientTimeout(total=5),
         ) as r:
             return await r.json()
 
@@ -48,7 +49,8 @@ class RemoteStateProvider:
         if self._session is None:
             return []
         async with self._session.get(
-            f"{self._base_url}/hamlet/events"
+            f"{self._base_url}/hamlet/events",
+            timeout=aiohttp.ClientTimeout(total=5),
         ) as r:
             data = await r.json()
             return data.get("events", [])

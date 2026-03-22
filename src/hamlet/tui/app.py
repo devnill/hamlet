@@ -89,6 +89,8 @@ except ImportError:
 class HamletApp(App):
     """Main Textual application for the Hamlet world simulator TUI."""
 
+    LAYERS = ("default", "overlay")
+
     CSS = """
     Screen {
         layout: grid;

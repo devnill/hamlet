@@ -90,7 +90,7 @@ async def _run_app() -> int:
     return 0
 
 
-async def _run_viewer(base_url: str = "http://localhost:8080") -> int:
+async def _run_viewer(base_url: str) -> int:
     """Run the Hamlet TUI in viewer mode, connecting to a running daemon.
 
     Returns:
@@ -112,7 +112,7 @@ async def _run_viewer(base_url: str = "http://localhost:8080") -> int:
                 file=sys.stderr,
             )
             print(
-                "       Start the daemon first with: hamlet",
+                "       Start the daemon first with: hamlet daemon",
                 file=sys.stderr,
             )
             return 1

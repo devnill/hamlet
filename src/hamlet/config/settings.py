@@ -18,6 +18,8 @@ class Settings:
     theme: str = "default"
     event_log_max_entries: int = 1000
     activity_model: str = "claude-haiku-4-5-20251001"
+    zombie_despawn_seconds: int = 300
+    zombie_threshold_seconds: int = 300
 
     def _validate(self) -> None:
         """Validate settings values, raising ValueError for invalid fields.
@@ -41,6 +43,17 @@ class Settings:
         if not isinstance(self.activity_model, str) or not self.activity_model:
             raise ValueError(
                 f"activity_model must be a non-empty string, got: {self.activity_model!r}"
+            )
+        if (
+            isinstance(self.zombie_threshold_seconds, bool)
+            or not isinstance(self.zombie_threshold_seconds, int)
+        ):
+            raise ValueError(
+                f"zombie_threshold_seconds must be an integer, got: {self.zombie_threshold_seconds!r}"
+            )
+        if self.zombie_threshold_seconds <= 0:
+            raise ValueError(
+                f"zombie_threshold_seconds must be > 0, got: {self.zombie_threshold_seconds!r}"
             )
 
     @classmethod
