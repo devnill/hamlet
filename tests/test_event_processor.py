@@ -77,7 +77,6 @@ class TestEventProcessor:
     # AC-2: test_process_event_validates_required_fields
     # -------------------------------------------------------------------------
 
-    @pytest.mark.asyncio
     async def test_process_event_validates_required_fields(
         self,
         processor: EventProcessor,
@@ -96,7 +95,6 @@ class TestEventProcessor:
                 await processor.process_event(raw_event)
             assert f"missing required field '{field}'" in str(exc_info.value)
 
-    @pytest.mark.asyncio
     async def test_process_event_validates_empty_required_fields(
         self,
         processor: EventProcessor,
@@ -114,7 +112,6 @@ class TestEventProcessor:
                 await processor.process_event(raw_event)
             assert f"missing required field '{field}'" in str(exc_info.value)
 
-    @pytest.mark.asyncio
     async def test_process_event_validates_unknown_hook_type(
         self,
         processor: EventProcessor,
@@ -134,7 +131,6 @@ class TestEventProcessor:
     # AC-3: test_route_event_calls_all_handlers
     # -------------------------------------------------------------------------
 
-    @pytest.mark.asyncio
     async def test_route_event_calls_all_handlers(
         self,
         processor: EventProcessor,
@@ -167,7 +163,6 @@ class TestEventProcessor:
         mock_handlers["agent_inference"].process_event.assert_awaited_once_with(event)
         mock_handlers["persistence"].log_event.assert_awaited_once_with(event)
 
-    @pytest.mark.asyncio
     async def test_route_event_calls_subscribers(
         self,
         processor: EventProcessor,
@@ -203,7 +198,6 @@ class TestEventProcessor:
     # AC-4: test_route_event_error_in_handler_logged - GP-7
     # -------------------------------------------------------------------------
 
-    @pytest.mark.asyncio
     async def test_route_event_error_in_handler_logged(
         self,
         processor: EventProcessor,
@@ -244,7 +238,6 @@ class TestEventProcessor:
         mock_handlers["agent_inference"].process_event.assert_awaited_once()
         mock_handlers["persistence"].log_event.assert_awaited_once()
 
-    @pytest.mark.asyncio
     async def test_route_event_subscriber_error_logged(
         self,
         processor: EventProcessor,
@@ -285,7 +278,6 @@ class TestEventProcessor:
     # AC-5: test_consume_loop_processes_queue
     # -------------------------------------------------------------------------
 
-    @pytest.mark.asyncio
     async def test_consume_loop_processes_queue(
         self,
         event_queue: asyncio.Queue[dict[str, Any]],
@@ -309,7 +301,6 @@ class TestEventProcessor:
         # Verify the queue is empty (event was processed)
         assert event_queue.empty()
 
-    @pytest.mark.asyncio
     async def test_consume_loop_processes_multiple_events(
         self,
         event_queue: asyncio.Queue[dict[str, Any]],
@@ -343,7 +334,6 @@ class TestEventProcessor:
         assert len(processed_events) == 3
         assert event_queue.empty()
 
-    @pytest.mark.asyncio
     async def test_consume_loop_handles_invalid_events(
         self,
         event_queue: asyncio.Queue[dict[str, Any]],
@@ -382,7 +372,6 @@ class TestEventProcessor:
     # Additional tests for process_event
     # -------------------------------------------------------------------------
 
-    @pytest.mark.asyncio
     async def test_process_event_returns_internal_event(
         self,
         processor: EventProcessor,
@@ -401,7 +390,6 @@ class TestEventProcessor:
         assert result.id is not None
         assert result.received_at is not None
 
-    @pytest.mark.asyncio
     async def test_process_event_assigns_sequence_numbers(
         self,
         processor: EventProcessor,
@@ -413,7 +401,6 @@ class TestEventProcessor:
 
         assert result2.sequence == result1.sequence + 1
 
-    @pytest.mark.asyncio
     async def test_process_event_uses_project_id_as_default_project_name(
         self,
         processor: EventProcessor,
@@ -424,7 +411,6 @@ class TestEventProcessor:
 
         assert result.project_name == valid_raw_event["project_id"]
 
-    @pytest.mark.asyncio
     async def test_process_event_uses_provided_project_name(
         self,
         processor: EventProcessor,
@@ -487,7 +473,6 @@ async def test_process_event_all_hook_types(hook_type_str: str) -> None:
     )
 
 
-@pytest.mark.asyncio
 async def test_tool_output_string() -> None:
     """process_event passes through a string tool_output without modification."""
     queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
@@ -507,7 +492,6 @@ async def test_tool_output_string() -> None:
 
 
 @pytest.mark.parametrize("tool_output_value", [{"exit_code": 0}, None])
-@pytest.mark.asyncio
 async def test_tool_output_non_string(tool_output_value: dict[str, Any] | None) -> None:
     """process_event passes through object and None tool_output values unchanged."""
     queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
@@ -526,7 +510,6 @@ async def test_tool_output_non_string(tool_output_value: dict[str, Any] | None) 
     assert event.tool_output == tool_output_value
 
 
-@pytest.mark.asyncio
 async def test_notification_type_extraction() -> None:
     """process_event extracts notification_type from raw event dict."""
     queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
