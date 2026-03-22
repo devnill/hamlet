@@ -73,6 +73,7 @@ class InferenceState:
     sessions: dict[str, SessionState] = field(default_factory=dict)
     tool_windows: dict[str, ToolWindow] = field(default_factory=dict)
     last_seen: dict[str, datetime] = field(default_factory=dict)
+    zombie_since: dict[str, datetime] = field(default_factory=dict)
 
 
 TYPE_COLORS: dict[AgentType, str] = {
