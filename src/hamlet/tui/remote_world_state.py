@@ -98,6 +98,7 @@ def _parse_structure(d: dict) -> Structure:
         material=d.get("material", "wood"),
         work_units=int(d.get("work_units", 0)),
         work_required=int(d.get("work_required", 100)),
+        size_tier=int(d.get("size_tier", 1)),
         created_at=_parse_datetime(d.get("created_at")),
         updated_at=_parse_datetime(d.get("updated_at")),
     )
@@ -302,6 +303,10 @@ class RemoteWorldState:
     ) -> Village:
         """Not supported in viewer mode — viewer does not found villages."""
         raise NotImplementedError("RemoteWorldState does not support found_village")
+
+    async def upgrade_structure_tier(self, structure_id: str, new_tier: int) -> None:
+        """Not supported in viewer mode — viewer does not upgrade structure tiers."""
+        raise NotImplementedError("RemoteWorldState does not support upgrade_structure_tier")
 
     async def get_agents_by_session(self, session_id: str) -> list[Agent]:
         """Return cached agents belonging to the given session."""

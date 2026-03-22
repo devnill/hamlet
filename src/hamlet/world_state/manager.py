@@ -677,6 +677,104 @@ class WorldStateManager:
             except Exception as exc:
                 logger.debug("Could not queue structure write: %s", exc)
 
+    def _find_free_position_outside(self, center: "Position", tier: int) -> "Position":
+        """Find nearest free cell outside the (2*tier-1)x(2*tier-1) footprint.
+
+        Caller must hold self._lock (or ensure no concurrent mutations).
+        Searches outward from the footprint edge and returns the first unoccupied cell.
+        Continues expanding indefinitely until a free cell is found (up to 200 rings).
+        """
+        half = tier  # start just outside the footprint
+        for radius in range(half, half + 200):
+            for dx in range(-radius, radius + 1):
+                for dy in range(-radius, radius + 1):
+                    if abs(dx) == radius or abs(dy) == radius:
+                        pos = Position(center.x + dx, center.y + dy)
+                        if not self._grid.is_occupied(pos):
+                            return pos
+        # Absolute fallback: far corner that is highly unlikely to be occupied
+        fallback = Position(center.x + 500, center.y + 500)
+        logger.warning("_find_free_position_outside: exhausted search, using fallback %s", fallback)
+        return fallback
+
+    async def upgrade_structure_tier(self, structure_id: str, new_tier: int) -> None:
+        """Upgrade a structure's size_tier, expanding its footprint and displacing agents.
+
+        Steps:
+        1. Vacate the structure's old footprint from the grid.
+        2. Find any agents occupying cells in the new (larger) footprint.
+        3. Move those agents to the nearest free cell outside the new footprint.
+        4. Occupy the new footprint with the structure.
+        5. Update the structure's size_tier and queue persistence.
+
+        Acquires self._lock.
+
+        Args:
+            structure_id: ID of the structure to upgrade.
+            new_tier: The new size_tier value (must be > current tier).
+        """
+        async with self._lock:
+            structure = self._state.structures.get(structure_id)
+            if structure is None:
+                logger.debug("upgrade_structure_tier: structure %s not found", structure_id)
+                return
+
+            old_tier = structure.size_tier
+            center = structure.position
+
+            # Vacate the old footprint
+            self._grid.vacate_footprint(center, old_tier, structure.id)
+
+            # Compute the new footprint cells
+            new_footprint = self._grid.footprint_positions(center, new_tier)
+
+            # Find agents occupying new footprint cells (deduplicated; skip non-agent occupants)
+            seen_agent_ids: set[str] = set()
+            agents_to_displace: list[Agent] = []
+            for pos in new_footprint:
+                occupant_id = self._grid.get_entity_at(pos)
+                if occupant_id is not None and occupant_id not in seen_agent_ids:
+                    agent = self._state.agents.get(occupant_id)
+                    if agent is not None:
+                        seen_agent_ids.add(occupant_id)
+                        agents_to_displace.append(agent)
+                    else:
+                        logger.warning(
+                            "upgrade_structure_tier: non-agent occupant %s at %s — cannot displace",
+                            occupant_id, pos,
+                        )
+
+            # Displace agents one at a time, computing free position after each vacate
+            # so subsequent agents see the updated grid state (avoids duplicate targets).
+            for agent in agents_to_displace:
+                self._grid.vacate(agent.position)
+                free_pos = self._find_free_position_outside(center, new_tier)
+                try:
+                    self._grid.occupy(free_pos, agent.id)
+                    agent.position = free_pos  # only update position on success
+                except ValueError:
+                    logger.warning(
+                        "upgrade_structure_tier: free_pos %s already taken displacing agent %s; "
+                        "agent left off-grid",
+                        free_pos,
+                        agent.id,
+                    )
+                try:
+                    await self._persistence.queue_write("agent", agent.id, agent)
+                except Exception as exc:
+                    logger.debug("Could not queue agent write after displacement: %s", exc)
+
+            # Occupy new (expanded) footprint
+            self._grid.occupy_footprint(center, new_tier, structure.id)
+
+            # Update the structure's tier
+            structure.size_tier = new_tier
+            structure.updated_at = datetime.now(UTC)
+            try:
+                await self._persistence.queue_write("structure", structure.id, structure)
+            except Exception as exc:
+                logger.debug("Could not queue structure write: %s", exc)
+
     async def get_structure(self, structure_id: str) -> Structure | None:
         """Return the structure with the given id, or None."""
         async with self._lock:

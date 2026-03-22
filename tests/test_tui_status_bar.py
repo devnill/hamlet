@@ -22,14 +22,31 @@ class TestStatusBar:
 
         assert "Agents: 5" in text
 
-    def test_render_shows_project_name(self) -> None:
-        """StatusBar render output includes the project name."""
+    def test_render_shows_village_name(self) -> None:
+        """StatusBar render output includes the village name."""
         bar = StatusBar()
-        bar.project_name = "my-project"
+        bar.village_name = "TestVillage"
 
         text = bar.render()
 
-        assert "Project: my-project" in text
+        assert "Village: TestVillage" in text
+
+    def test_render_shows_village_dash_when_empty(self) -> None:
+        """StatusBar render output shows em dash when village name is empty."""
+        bar = StatusBar()
+        bar.village_name = ""
+
+        text = bar.render()
+
+        assert "Village: \u2014" in text
+
+    def test_render_does_not_show_project(self) -> None:
+        """StatusBar render output does not contain 'Project:'."""
+        bar = StatusBar()
+
+        text = bar.render()
+
+        assert "Project:" not in text
 
     def test_render_shows_structure_count(self) -> None:
         """StatusBar render output includes the structure count."""
@@ -58,16 +75,15 @@ class TestStatusBar:
 
         assert bar.agent_count == 10
 
-    def test_reactive_project_name_update(self) -> None:
-        """Reactive property project_name can be updated."""
+    def test_reactive_village_name_update(self) -> None:
+        """Reactive property village_name can be updated."""
         bar = StatusBar()
-        assert bar.project_name == ""
+        assert bar.village_name == ""
 
-        bar.project_name = "test-project"
+        bar.village_name = "test-village"
 
-        assert bar.project_name == "test-project"
+        assert bar.village_name == "test-village"
 
-    @pytest.mark.asyncio
     async def test_render_integration(self) -> None:
         """Integration test using Textual's testing patterns."""
         from textual.app import App
@@ -80,10 +96,11 @@ class TestStatusBar:
             status = pilot.app.query_one(StatusBar)
             status.agent_count = 7
             status.structure_count = 4
-            status.project_name = "integration-test"
+            status.village_name = "IntegrationVillage"
             await pilot.pause()
 
             text = status.render()
             assert "Agents: 7" in text
             assert "Structures: 4" in text
-            assert "Project: integration-test" in text
+            assert "Village: IntegrationVillage" in text
+            assert "Project:" not in text

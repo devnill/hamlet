@@ -170,9 +170,11 @@ class HamletApp(App):
                 status_bar.agent_count = len(agents_list)
                 status_bar.structure_count = len(structures_list)
                 status_bar.viewport_pos = (viewport_state.center.x, viewport_state.center.y)
-                # Get project name from first project found (clear if none)
-                projects = await self._world_state.get_projects()
-                status_bar.project_name = projects[0].name if projects else ""
+                # Get village nearest to viewport center
+                village = await self._world_state.get_nearest_village_to(
+                    viewport_state.center.x, viewport_state.center.y
+                )
+                status_bar.village_name = village.name if village else ""
                 # Display current_activity of the globally most recently active agent.
                 # Use all agents, not just viewport-visible ones, so activity is
                 # always shown regardless of viewport position.

@@ -21,6 +21,8 @@ from hamlet.world_state.types import (
     Position,
     Project,
     Session,
+    Structure,
+    StructureType,
     Village,
 )
 
@@ -962,3 +964,113 @@ class TestWorldStateManager:
 
         assert result.id == "existing-1"
         assert manager._state.villages["orig-1"].has_expanded is True
+
+    async def test_upgrade_structure_tier_displaces_agents_in_new_footprint(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """upgrade_structure_tier() moves agents that fall inside the new footprint."""
+        # Place a structure at (5, 5) with tier 1 (occupies only (5, 5))
+        structure_id = "struct-1"
+        village_id = "village-1"
+        structure = Structure(
+            id=structure_id,
+            village_id=village_id,
+            type=StructureType.HOUSE,
+            position=Position(5, 5),
+            size_tier=1,
+        )
+        manager._state.structures[structure_id] = structure
+        manager._grid.occupy(Position(5, 5), structure_id)
+
+        # Place an agent at (4, 5) — inside the 3x3 footprint when tier upgrades to 2
+        agent_id = "agent-1"
+        now = datetime.now(UTC)
+        agent = Agent(
+            id=agent_id,
+            session_id="session-1",
+            project_id="proj-1",
+            village_id=village_id,
+            inferred_type=AgentType.GENERAL,
+            color="white",
+            position=Position(4, 5),
+            last_seen=now,
+            state=AgentState.ACTIVE,
+        )
+        manager._state.agents[agent_id] = agent
+        manager._grid.occupy(Position(4, 5), agent_id)
+
+        # Upgrade structure to tier 2 — footprint becomes (4,4)-(6,6)
+        await manager.upgrade_structure_tier(structure_id, new_tier=2)
+
+        # Verify structure size_tier updated
+        assert manager._state.structures[structure_id].size_tier == 2
+
+        # Verify agent was displaced outside the 3x3 footprint
+        new_pos = manager._state.agents[agent_id].position
+        footprint = {
+            Position(5 + dx, 5 + dy)
+            for dx in range(-1, 2)
+            for dy in range(-1, 2)
+        }
+        assert new_pos not in footprint, (
+            f"Agent at {new_pos} is still inside the new footprint {footprint}"
+        )
+
+        # Verify agent's new position is registered in the grid
+        assert manager._grid.get_entity_at(new_pos) == agent_id
+
+        # Verify agent persistence was queued
+        mock_persistence.queue_write.assert_any_call("agent", agent_id, agent)
+
+    async def test_upgrade_structure_tier_displaces_multiple_agents_to_distinct_positions(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """Multiple agents in the new footprint each get a distinct free position."""
+        structure_id = "struct-2"
+        village_id = "village-2"
+        structure = Structure(
+            id=structure_id,
+            village_id=village_id,
+            type=StructureType.HOUSE,
+            position=Position(10, 10),
+            size_tier=1,
+        )
+        manager._state.structures[structure_id] = structure
+        manager._grid.occupy(Position(10, 10), structure_id)
+
+        now = datetime.now(UTC)
+        # Place two agents inside the 3x3 footprint that will surround (10,10)
+        agent_a = Agent(
+            id="agent-a", session_id="s1", project_id="p1", village_id=village_id,
+            inferred_type=AgentType.GENERAL, color="white",
+            position=Position(9, 10), last_seen=now, state=AgentState.ACTIVE,
+        )
+        agent_b = Agent(
+            id="agent-b", session_id="s1", project_id="p1", village_id=village_id,
+            inferred_type=AgentType.GENERAL, color="white",
+            position=Position(11, 10), last_seen=now, state=AgentState.ACTIVE,
+        )
+        for ag in (agent_a, agent_b):
+            manager._state.agents[ag.id] = ag
+            manager._grid.occupy(ag.position, ag.id)
+
+        await manager.upgrade_structure_tier(structure_id, new_tier=2)
+
+        footprint = {
+            Position(10 + dx, 10 + dy)
+            for dx in range(-1, 2)
+            for dy in range(-1, 2)
+        }
+        new_pos_a = manager._state.agents["agent-a"].position
+        new_pos_b = manager._state.agents["agent-b"].position
+
+        # Both agents must be outside the footprint
+        assert new_pos_a not in footprint, f"agent-a at {new_pos_a} still inside footprint"
+        assert new_pos_b not in footprint, f"agent-b at {new_pos_b} still inside footprint"
+
+        # Both agents must be at distinct positions
+        assert new_pos_a != new_pos_b, "Two agents displaced to same position"
+
+        # Both positions registered correctly in the grid
+        assert manager._grid.get_entity_at(new_pos_a) == "agent-a"
+        assert manager._grid.get_entity_at(new_pos_b) == "agent-b"

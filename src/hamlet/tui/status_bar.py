@@ -8,20 +8,21 @@ __all__ = ["StatusBar"]
 
 
 class StatusBar(Static):
-    """Status bar widget showing agent count, structure count, project name, and viewport position."""
+    """Status bar widget showing agent count, structure count, village name, and viewport position."""
 
     agent_count: reactive[int] = reactive(0)
     structure_count: reactive[int] = reactive(0)
-    project_name: reactive[str] = reactive("")
+    village_name: reactive[str] = reactive("")
     viewport_pos: reactive[tuple[int, int]] = reactive((0, 0))
     current_activity: reactive[str] = reactive("")
 
     def render(self) -> str:
         x, y = self.viewport_pos
+        village_display = self.village_name if self.village_name else "\u2014"
         base = (
             f"Agents: {self.agent_count} │ "
             f"Structures: {self.structure_count} │ "
-            f"Project: {self.project_name} │ "
+            f"Village: {village_display} │ "
             f"({x}, {y})"
         )
         if self.current_activity:

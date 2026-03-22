@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from hamlet.tui.remote_world_state import RemoteWorldState
+from hamlet.tui.remote_world_state import RemoteWorldState, _parse_structure
 
 
 @pytest.fixture
@@ -25,28 +25,16 @@ def mock_provider():
 @pytest.fixture
 def remote_state(mock_provider):
     return RemoteWorldState(mock_provider)
-
-
-@pytest.mark.asyncio
 async def test_get_all_agents_empty_before_refresh(remote_state):
     agents = await remote_state.get_all_agents()
     assert agents == []
-
-
-@pytest.mark.asyncio
 async def test_get_animation_frame_returns_default(remote_state):
     frame = remote_state.get_animation_frame("unknown-agent")
     assert frame == 0
-
-
-@pytest.mark.asyncio
 async def test_get_animation_frame_after_refresh(remote_state, mock_provider):
     await remote_state.refresh()
     frame = remote_state.get_animation_frame("agent-1")
     assert frame == 2
-
-
-@pytest.mark.asyncio
 async def test_get_event_log_uses_oldest_first(remote_state, mock_provider):
     # fetch_events returns a list directly
     mock_provider.fetch_events = AsyncMock(return_value=[
@@ -62,9 +50,6 @@ async def test_get_event_log_uses_oldest_first(remote_state, mock_provider):
     assert len(log) == 2
     assert log[0].id == "e1"  # oldest first (insertion order)
     assert log[1].id == "e2"
-
-
-@pytest.mark.asyncio
 async def test_refresh_retains_stale_on_exception(remote_state, mock_provider):
     # Set initial state
     await remote_state.refresh()
@@ -78,9 +63,6 @@ async def test_refresh_retains_stale_on_exception(remote_state, mock_provider):
     # Stale data retained
     frame_after_failure = remote_state.get_animation_frame("agent-1")
     assert frame_after_failure == initial_frame
-
-
-@pytest.mark.asyncio
 async def test_get_all_agents_after_refresh(mock_provider):
     mock_provider.fetch_state = AsyncMock(return_value={
         "agents": [
@@ -111,9 +93,6 @@ async def test_get_all_agents_after_refresh(mock_provider):
     agents = await state.get_all_agents()
     assert len(agents) == 1
     assert agents[0].id == "a1"
-
-
-@pytest.mark.asyncio
 async def test_get_event_log_respects_limit(remote_state, mock_provider):
     events = [
         {"id": f"e{i}", "timestamp": None, "session_id": "", "project_id": "",
@@ -125,9 +104,6 @@ async def test_get_event_log_respects_limit(remote_state, mock_provider):
     log = await remote_state.get_event_log(limit=5)
     assert len(log) == 5
     assert log[0].id == "e0"
-
-
-@pytest.mark.asyncio
 async def test_events_fetch_failure_retains_stale_events(remote_state, mock_provider):
     events = [
         {"id": "e1", "timestamp": None, "session_id": "", "project_id": "",
@@ -146,3 +122,22 @@ async def test_events_fetch_failure_retains_stale_events(remote_state, mock_prov
     log_after = await remote_state.get_event_log()
     assert len(log_after) == 1
     assert log_after[0].id == "e1"
+
+
+def test_parse_structure_reads_size_tier():
+    result = _parse_structure({
+        "id": "s1",
+        "village_id": "v1",
+        "type": "house",
+        "size_tier": 3,
+    })
+    assert result.size_tier == 3
+
+
+def test_parse_structure_defaults_size_tier_to_1():
+    result = _parse_structure({
+        "id": "s1",
+        "village_id": "v1",
+        "type": "house",
+    })
+    assert result.size_tier == 1
