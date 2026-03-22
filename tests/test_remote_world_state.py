@@ -141,3 +141,53 @@ def test_parse_structure_defaults_size_tier_to_1():
         "type": "house",
     })
     assert result.size_tier == 1
+
+
+# ---------------------------------------------------------------------------
+# Terrain query tests
+# ---------------------------------------------------------------------------
+
+async def test_get_terrain_at_returns_terrain_from_provider():
+    """Test that get_terrain_at fetches terrain from provider and returns TerrainType."""
+    provider = MagicMock()
+    provider.fetch_terrain = AsyncMock(return_value={"terrain": "forest", "passable": True})
+    state = RemoteWorldState(provider)
+
+    terrain = await state.get_terrain_at(10, 20)
+
+    assert terrain.value == "forest"
+    provider.fetch_terrain.assert_called_once_with(10, 20)
+
+
+async def test_get_terrain_at_defaults_to_plain():
+    """Test that get_terrain_at defaults to PLAIN if provider returns empty dict."""
+    provider = MagicMock()
+    provider.fetch_terrain = AsyncMock(return_value={})
+    state = RemoteWorldState(provider)
+
+    terrain = await state.get_terrain_at(0, 0)
+
+    assert terrain.value == "plain"
+
+
+async def test_is_passable_returns_passable_from_provider():
+    """Test that is_passable returns the passable field from provider."""
+    provider = MagicMock()
+    provider.fetch_terrain = AsyncMock(return_value={"terrain": "water", "passable": False})
+    state = RemoteWorldState(provider)
+
+    result = await state.is_passable(5, 10)
+
+    assert result is False
+    provider.fetch_terrain.assert_called_once_with(5, 10)
+
+
+async def test_is_passable_defaults_to_true():
+    """Test that is_passable defaults to True if provider returns empty dict."""
+    provider = MagicMock()
+    provider.fetch_terrain = AsyncMock(return_value={})
+    state = RemoteWorldState(provider)
+
+    result = await state.is_passable(0, 0)
+
+    assert result is True

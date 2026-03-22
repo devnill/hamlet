@@ -116,3 +116,28 @@ A: The foreground daemon will fail due to a port conflict. A warning message is 
 
 **Q: Upgrade flow — is `pip install --upgrade hamlet` followed by `hamlet service restart` sufficient?**
 A: Yes. No new command needed for upgrades.
+---
+## Refinement Interview — 2026-03-21
+
+**Context**: User feedback after using hamlet revealed a desire for richer visual and gameplay elements. Terrain generation is the foundational change — a deterministic, seed-based world map with water, mountains, forests, meadows, and plains.
+
+**Q: Guiding principles still apply?**
+A: Yes, all principles confirmed unchanged.
+
+**Q: What specific changes do you want to make?**
+A: World terrain generation — a global terrain map generated from seed, visible in the TUI as ASCII tiles, affecting gameplay by restricting structure placement. Villages should be automatically placed on passable terrain. Future: agent movement, geography-specific structures, roads, faster building.
+
+**Q: Why terrain first?**
+A: Terrain is a breaking change to data structures. It affects where villages can be placed and enables future features. Must be done before other geography-dependent features.
+
+**Q: How should villages be placed relative to terrain?**
+A: Automatic placement. The game should search for passable terrain near the world origin. Terrain should be deterministic based on seed.
+
+**Q: Should terrain be stored or generated?**
+A: Deterministic generation from seed. Persist only the seed in world_metadata table. No migration needed.
+
+**Q: What terrain types and how should they affect gameplay?**
+A: WATER (impassable), MOUNTAIN (impassable), FOREST, MEADOW, PLAIN (all passable). Structures cannot be built on water or mountains.
+
+**Q: How should terrain render?**
+A: ASCII tiles: `~` water, `^` mountain, `♣` forest, `"` meadow, `.` plain. Render as background layer, then structures, then agents.

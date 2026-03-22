@@ -15,6 +15,7 @@ from hamlet.world_state.types import AgentState
 
 if TYPE_CHECKING:
     from hamlet.viewport.coordinates import BoundingBox
+    from hamlet.world_state.terrain import TerrainGrid
 
 _log = logging.getLogger(__name__)
 
@@ -23,12 +24,18 @@ __all__ = ["WorldView"]
 
 
 class WorldView(Static):
-    """Main world rendering widget displaying agents and structures."""
+    """Main world rendering widget displaying agents, structures, and terrain."""
 
-    def __init__(self, world_state: Any, viewport: Any) -> None:
+    def __init__(
+        self,
+        world_state: Any,
+        viewport: Any,
+        terrain_grid: "TerrainGrid | None" = None,
+    ) -> None:
         super().__init__()
         self._world_state = world_state
         self._viewport = viewport
+        self._terrain_grid = terrain_grid
         self._agents: list[Any] = []
         self._structures: list[Any] = []
         self._spin_frame: int = 0
@@ -56,7 +63,7 @@ class WorldView(Static):
         self.refresh()
 
     def render(self) -> Text:
-        """Render the world view using cached agent/structure state."""
+        """Render the world view using cached agent/structure state and terrain."""
         # Sync viewport to widget's actual allocated size on every render.
         # on_resize may fire before layout is complete; reading self.size here
         # ensures the viewport is always correct without waiting for a user resize.
@@ -105,6 +112,13 @@ class WorldView(Static):
                             char = symbol
                         struct_by_pos[(cx, cy)] = (char, color)
 
+        # Build terrain lookup for visible bounds
+        terrain_by_pos: dict[tuple[int, int], tuple[str, str]] = {}
+        if self._terrain_grid is not None:
+            terrain_map = self._terrain_grid.get_terrain_in_bounds(bounds)
+            for pos, terrain_type in terrain_map.items():
+                terrain_by_pos[(pos.x, pos.y)] = (terrain_type.symbol, terrain_type.color)
+
         text = Text()
         for y in range(bounds.min_y, bounds.max_y + 1):
             for x in range(bounds.min_x, bounds.max_x + 1):
@@ -121,6 +135,9 @@ class WorldView(Static):
                 elif key in struct_by_pos:
                     char, style = struct_by_pos[key]
                     text.append(char, style=style)
+                elif key in terrain_by_pos:
+                    terrain_symbol, terrain_color = terrain_by_pos[key]
+                    text.append(terrain_symbol, style=terrain_color)
                 else:
                     text.append(".", style="dim white")
             text.append("\n")

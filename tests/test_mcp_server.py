@@ -80,3 +80,80 @@ class TestMCPServer:
         import json
         body = json.loads(response.body)
         assert body == {"status": "ok"}
+
+    @pytest.mark.asyncio
+    async def test_terrain_endpoint_returns_terrain_data(self) -> None:
+        """Test that _handle_terrain returns terrain and passable fields."""
+        from hamlet.world_state.terrain import TerrainType
+
+        # Create a mock world_state with get_terrain_at
+        mock_world_state = AsyncMock()
+        mock_world_state.get_terrain_at = AsyncMock(return_value=TerrainType.FOREST)
+
+        server = MCPServer(world_state=mock_world_state)
+
+        # Create mock request with match_info
+        request = MagicMock()
+        request.match_info = {"x": "10", "y": "20"}
+
+        response = await server._handle_terrain(request)
+
+        assert response.status == 200
+        import json
+        body = json.loads(response.body)
+        assert body["terrain"] == "forest"
+        assert body["passable"] is True
+
+        # Verify world_state method was called with correct coordinates
+        mock_world_state.get_terrain_at.assert_called_once_with(10, 20)
+
+    @pytest.mark.asyncio
+    async def test_terrain_endpoint_returns_water_not_passable(self) -> None:
+        """Test that water terrain returns passable=False."""
+        from hamlet.world_state.terrain import TerrainType
+
+        mock_world_state = AsyncMock()
+        mock_world_state.get_terrain_at = AsyncMock(return_value=TerrainType.WATER)
+
+        server = MCPServer(world_state=mock_world_state)
+
+        request = MagicMock()
+        request.match_info = {"x": "5", "y": "5"}
+
+        response = await server._handle_terrain(request)
+
+        assert response.status == 200
+        import json
+        body = json.loads(response.body)
+        assert body["terrain"] == "water"
+        assert body["passable"] is False
+
+    @pytest.mark.asyncio
+    async def test_terrain_endpoint_invalid_coordinates(self) -> None:
+        """Test that invalid coordinates return HTTP 400."""
+        server = MCPServer()
+        request = MagicMock()
+        request.match_info = {"x": "not-a-number", "y": "20"}
+
+        response = await server._handle_terrain(request)
+
+        assert response.status == 400
+        import json
+        body = json.loads(response.body)
+        assert "error" in body
+        assert "invalid" in body["error"].lower()
+
+    @pytest.mark.asyncio
+    async def test_terrain_endpoint_no_world_state(self) -> None:
+        """Test that missing world_state returns HTTP 500."""
+        server = MCPServer(world_state=None)
+
+        request = MagicMock()
+        request.match_info = {"x": "10", "y": "20"}
+
+        response = await server._handle_terrain(request)
+
+        assert response.status == 500
+        import json
+        body = json.loads(response.body)
+        assert "error" in body

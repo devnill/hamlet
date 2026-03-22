@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, Protocol
 if TYPE_CHECKING:
     from hamlet.event_processing.internal_event import InternalEvent
     from hamlet.persistence.types import WorldStateData
+    from hamlet.world_state.terrain import TerrainType
     from hamlet.world_state.types import Agent, Position, Project, Session, Structure, StructureType, Village
 
 __all__ = [
@@ -52,6 +53,8 @@ class WorldStateProtocol(Protocol):
     async def get_agents_in_view(self, bounds: Any) -> "list[Agent]": ...
     async def get_structures_in_view(self, bounds: Any) -> "list[Structure]": ...
     async def get_nearest_village_to(self, x: int, y: int) -> "Village | None": ...
+    async def get_terrain_at(self, x: int, y: int) -> "TerrainType": ...
+    async def is_passable(self, x: int, y: int) -> bool: ...
 
 
 class InferenceEngineProtocol(Protocol):

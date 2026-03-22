@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from hamlet.world_state.state import EventLogEntry
+from hamlet.world_state.terrain import TerrainType
 from hamlet.world_state.types import (
     Agent,
     AgentState,
@@ -22,7 +23,7 @@ from hamlet.world_state.types import (
 
 if TYPE_CHECKING:
     from hamlet.event_processing.internal_event import InternalEvent
-    from hamlet.tui.remote_state import RemoteStateProvider
+    from hamlet.tui.remote_state import RemoteStateProvider, RemoteTerrainGrid
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +167,18 @@ class RemoteWorldState:
         self._villages: list[Village] = []
         self._projects: list[Project] = []
         self._event_log: list[EventLogEntry] = []
+
+        # Lazy-initialized terrain grid for remote queries
+        self._terrain_grid: "RemoteTerrainGrid | None" = None
+
+    @property
+    def terrain_grid(self) -> "RemoteTerrainGrid":
+        """Return the terrain grid for remote queries."""
+        from hamlet.tui.remote_state import RemoteTerrainGrid
+
+        if self._terrain_grid is None:
+            self._terrain_grid = RemoteTerrainGrid(self._provider)
+        return self._terrain_grid
 
     async def refresh(self) -> None:
         """Fetch fresh state from the daemon and update local caches."""
@@ -322,3 +335,18 @@ class RemoteWorldState:
     def get_animation_frame(self, agent_id: str) -> int:
         """Return the cached animation frame for the given agent, or 0 if not tracked."""
         return self._cached_state.get("animation_frames", {}).get(agent_id, 0)
+
+    # ------------------------------------------------------------------
+    # Terrain queries — delegated to daemon via HTTP
+    # ------------------------------------------------------------------
+
+    async def get_terrain_at(self, x: int, y: int) -> TerrainType:
+        """Return terrain type at position. RemoteWorldState fetches terrain from daemon."""
+        data = await self._provider.fetch_terrain(x, y)
+        terrain_str = data.get("terrain", "plain")
+        return TerrainType(terrain_str)
+
+    async def is_passable(self, x: int, y: int) -> bool:
+        """Check if position is passable."""
+        data = await self._provider.fetch_terrain(x, y)
+        return data.get("passable", True)

@@ -20,6 +20,7 @@ import dataclasses
 
 from .grid import PositionGrid
 from .rules import STRUCTURE_RULES
+from .terrain import TerrainConfig, TerrainGenerator, TerrainGrid, TerrainType
 
 # Derived constants for test/external access
 STAGE_THRESHOLDS: dict[str, list[int]] = {
@@ -47,11 +48,15 @@ __all__ = ["WorldStateManager"]
 class WorldStateManager:
     """Manages the in-memory world state and synchronises it with persistence."""
 
+    # Minimum distance between village centers
+    MIN_VILLAGE_DISTANCE = 15
+
     def __init__(self, persistence: "PersistenceProtocol") -> None:
         self._persistence = persistence
         self._lock = asyncio.Lock()
         self._state = WorldState()
         self._grid = PositionGrid()
+        self._terrain_grid: TerrainGrid | None = None
 
     async def load_from_persistence(self) -> None:
         """Load all entities from persistence and rebuild the in-memory world state.
@@ -163,6 +168,96 @@ class WorldStateManager:
             # Restore world metadata (viewport center, etc.)
             self._state.world_metadata = dict(data.metadata)
 
+            # Initialize terrain grid from seed (or generate new seed)
+            terrain_seed = self._state.world_metadata.get("terrain_seed")
+            if terrain_seed is None:
+                terrain_seed = str(random.randint(0, 2**31 - 1))
+                self._state.world_metadata["terrain_seed"] = terrain_seed
+                # Persist the new seed so terrain is deterministic across restarts
+                await self._persistence.queue_write(
+                    "world_metadata", "terrain_seed", {"key": "terrain_seed", "value": terrain_seed}
+                )
+            config = TerrainConfig(seed=int(terrain_seed))
+            self._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+    async def get_terrain_at(self, x: int, y: int) -> TerrainType:
+        """Return the terrain type at position (x, y).
+
+        Returns PLAIN if terrain grid not yet initialized.
+        """
+        if self._terrain_grid is None:
+            return TerrainType.PLAIN
+        return self._terrain_grid.get_terrain(Position(x, y))
+
+    async def is_passable(self, x: int, y: int) -> bool:
+        """Check if position (x, y) is passable for agents and structures.
+
+        Returns True if terrain grid not yet initialized (graceful fallback).
+        """
+        if self._terrain_grid is None:
+            return True
+        return self._terrain_grid.is_passable(Position(x, y))
+
+    @property
+    def terrain_grid(self) -> "TerrainGrid | None":
+        """Return the terrain grid for rendering, or None if not initialized."""
+        return self._terrain_grid
+
+    def _find_village_position(
+        self,
+        existing_villages: list[Village],
+        occupied_positions: set[Position],
+    ) -> Position:
+        """Find a valid position for a new village using spiral search.
+
+        Searches from origin (0, 0) outward, checking:
+        1. Terrain is passable (not WATER or MOUNTAIN)
+        2. Position is not occupied by an existing entity
+        3. Position is at least MIN_VILLAGE_DISTANCE from other village centers
+
+        Raises RuntimeError if no valid position found within MAX_SEARCH_RADIUS.
+
+        Caller must hold self._lock (or ensure no concurrent mutations).
+        """
+        MAX_SEARCH_RADIUS = 100
+
+        for radius in range(0, MAX_SEARCH_RADIUS + 1):
+            # Spiral outward, checking perimeter of each ring
+            for dx in range(-radius, radius + 1):
+                for dy in range(-radius, radius + 1):
+                    # Only check perimeter cells (not inner cells)
+                    if abs(dx) != radius and abs(dy) != radius:
+                        continue
+                    candidate = Position(dx, dy)
+
+                    # Check terrain passability
+                    if self._terrain_grid is not None:
+                        if not self._terrain_grid.is_passable(candidate):
+                            continue
+
+                    # Check not occupied
+                    if candidate in occupied_positions:
+                        continue
+
+                    # Check minimum distance from other village centers
+                    too_close = False
+                    for village in existing_villages:
+                        dist = math.hypot(
+                            candidate.x - village.center.x,
+                            candidate.y - village.center.y,
+                        )
+                        if dist < self.MIN_VILLAGE_DISTANCE:
+                            too_close = True
+                            break
+                    if too_close:
+                        continue
+
+                    return candidate
+
+        raise RuntimeError(
+            f"No valid village position found within {MAX_SEARCH_RADIUS} units of origin"
+        )
+
     async def get_or_create_project(self, project_id: str, name: str) -> Project:
         """Return the existing project or create a new one with an associated village.
 
@@ -189,6 +284,13 @@ class WorldStateManager:
             village_id = str(uuid.uuid4())
             now = datetime.now(UTC)
 
+            # Find a valid position for the village using terrain-aware placement
+            occupied_positions = self._grid.get_occupied_positions()
+            village_center = self._find_village_position(
+                list(self._state.villages.values()),
+                occupied_positions,
+            )
+
             project = Project(
                 id=project_id,
                 name=name,
@@ -200,8 +302,13 @@ class WorldStateManager:
                 id=village_id,
                 project_id=project_id,
                 name=f"{name} village",
-                center=Position(0, 0),
-                bounds=Bounds(0, 0, 0, 0),
+                center=village_center,
+                bounds=Bounds(
+                    village_center.x,
+                    village_center.y,
+                    village_center.x,
+                    village_center.y,
+                ),
             )
 
             self._state.projects[project_id] = project
@@ -575,6 +682,14 @@ class WorldStateManager:
         self, village_id: str, structure_type: StructureType, position: Position
     ) -> Structure:
         """Create a structure without acquiring the lock. Caller must hold self._lock."""
+        # Validate terrain is passable before creating structure
+        if self._terrain_grid is not None:
+            terrain = self._terrain_grid.get_terrain(position)
+            if not terrain.passable:
+                raise ValueError(
+                    f"Cannot build {structure_type.value} on {terrain.value} terrain at {position}"
+                )
+
         now = datetime.now(UTC)
         structure_id = str(uuid.uuid4())
         rules = STRUCTURE_RULES.get(structure_type)

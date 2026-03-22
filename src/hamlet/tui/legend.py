@@ -16,7 +16,6 @@ class LegendOverlay(Static):
 LegendOverlay {
     display: none;
     layer: overlay;
-    position: absolute;
     offset: 2 2;
     width: 51;
     height: 22;

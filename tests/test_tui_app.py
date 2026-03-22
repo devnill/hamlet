@@ -32,6 +32,7 @@ class TestHamletApp:
         ws.get_projects = AsyncMock(return_value=[])
         ws.get_event_log = AsyncMock(return_value=[])
         ws.get_all_agents = AsyncMock(return_value=[])
+        ws.terrain_grid = None  # WorldView needs terrain_grid attribute
         return ws
 
     @pytest.fixture

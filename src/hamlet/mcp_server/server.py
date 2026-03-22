@@ -98,6 +98,7 @@ class MCPServer:
         app.router.add_get("/hamlet/health", self._handle_health)
         app.router.add_get("/hamlet/state", self._handle_state)
         app.router.add_get("/hamlet/events", self._handle_events)
+        app.router.add_get("/hamlet/terrain/{x}/{y}", self._handle_terrain)
 
         try:
             runner = aiohttp.web.AppRunner(app)
@@ -162,6 +163,35 @@ class MCPServer:
         Always returns HTTP 200 with {"status": "ok"} per GP-7 (graceful degradation).
         """
         return aiohttp.web.json_response({"status": "ok"})
+
+    async def _handle_terrain(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
+        """Handle GET /hamlet/terrain/{x}/{y} — return terrain type and passability.
+
+        Args:
+            request: The incoming aiohttp request object with x, y path params.
+
+        Returns:
+            A JSON response with {"terrain": str, "passable": bool}.
+        """
+        try:
+            x = int(request.match_info["x"])
+            y = int(request.match_info["y"])
+            if self._world_state is None:
+                return aiohttp.web.json_response(
+                    {"error": "world state not initialized"}, status=500
+                )
+            terrain = await self._world_state.get_terrain_at(x, y)
+            return aiohttp.web.json_response({
+                "terrain": terrain.value,
+                "passable": terrain.passable,
+            })
+        except ValueError:
+            return aiohttp.web.json_response(
+                {"error": "invalid coordinates"}, status=400
+            )
+        except Exception as e:
+            logger.error("Error handling terrain request: %s", e)
+            return aiohttp.web.json_response({"error": str(e)}, status=500)
 
     async def stop(self) -> None:
         """Gracefully shut down the server.

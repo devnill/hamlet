@@ -129,8 +129,9 @@ class HamletApp(App):
 
     def compose(self) -> ComposeResult:
         """Yield the main widgets and the legend overlay."""
+        terrain_grid = getattr(self._world_state, "terrain_grid", None)
         yield StatusBar()
-        yield WorldView(self._world_state, self._viewport)
+        yield WorldView(self._world_state, self._viewport, terrain_grid)
         yield EventLog()
         yield LegendOverlay()
         yield HelpOverlay()
@@ -147,6 +148,12 @@ class HamletApp(App):
         try:
             if hasattr(self._world_state, "refresh"):
                 await self._world_state.refresh()
+
+            # Prefetch terrain for visible viewport
+            terrain_grid = getattr(self._world_state, "terrain_grid", None)
+            if terrain_grid is not None:
+                bounds = self._viewport.get_visible_bounds()
+                await terrain_grid.prefetch_bounds(*bounds)
         except Exception as exc:
             logger.debug("_refresh_remote_state: failed: %s", exc)
 

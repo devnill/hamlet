@@ -1,3 +1,22 @@
+# Review Manifest — Cycle 001/refine-13 (Full Review)
+
+| ID | Title | File Scope (key files) | Verdict | Findings (C/S/M) | Review Path |
+|---|---|---|---|---|---|
+| 220 | Verify handle_event enum dispatch | manager.py, test_world_state_manager.py | Pass | 0/0/0 | archive/incremental/220-verify-enum-dispatch.md |
+| 221 | Verify EVENT_SCHEMA string tool_output | validation.py, event_processor.py, tests | Pass | 0/0/0 | archive/incremental/221-verify-bash-string-tool-output.md |
+| 222 | stop_reason behavioral differentiation | inference/engine.py, test_inference_engine.py | Pass | 0/0/0 | archive/incremental/222-verify-stop-reason-differentiation.md |
+| 223 | Event pipeline parametrized coverage | test_event_processor.py, test_world_state_manager.py | Fail→Fixed | 0/1/0 | archive/incremental/223-verify-event-pipeline-coverage.md |
+| 224 | TUI/persistence/install test coverage | test_tui_world_view.py, test_cli_install.py, test_persistence_facade.py | Fail→Fixed | 0/1/0 | archive/incremental/224-verify-tui-persistence-coverage.md |
+| 225 | get_nearest_village_to method | manager.py, protocols.py, remote_world_state.py | Fail→Fixed | 1/1/1 | archive/incremental/225-verify-nearest-village.md |
+| 226 | StatusBar village name | status_bar.py, test_tui_status_bar.py | Pass | 0/0/1 | archive/incremental/226-verify-status-bar-village-name.md |
+| 227 | Structure size_tier data model | types.py, migrations.py, loader.py, writer.py, serializers.py | Pass | 0/0/0 | archive/incremental/227-verify-size-tier-data-model.md |
+| 228 | Size tier calculation in StructureUpdater | structure_updater.py, config.py, manager.py, protocols.py | Fail→Fixed | 1/2/1 | archive/incremental/228-verify-size-tier-calculation.md |
+| 229 | Multi-cell footprint + agent displacement | grid.py, manager.py, remote_world_state.py, tests | Fail→Fixed | 2/3/2 | archive/incremental/229-verify-multi-cell-footprint.md |
+| 230 | Multi-cell WorldView rendering | world_view.py, test_tui_world_view.py | Pass | 0/0/0 | archive/incremental/230-verify-multi-cell-rendering.md |
+| 231 | RemoteWorldState size_tier deserialization | remote_world_state.py, test_remote_world_state.py | Pass | 0/0/1 | archive/incremental/231-verify-remote-world-state-size-tier.md |
+
+---
+
 # Review Manifest — Cycle 006 (Full Review)
 
 | id | title | file scope | verdict | findings (C/S/M) | review path |

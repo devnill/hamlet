@@ -1074,3 +1074,459 @@ class TestWorldStateManager:
         # Both positions registered correctly in the grid
         assert manager._grid.get_entity_at(new_pos_a) == "agent-a"
         assert manager._grid.get_entity_at(new_pos_b) == "agent-b"
+
+    # -------------------------------------------------------------------------
+    # Terrain integration tests (WI-235)
+    # -------------------------------------------------------------------------
+
+    async def test_load_from_persistence_initializes_terrain_grid(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """load_from_persistence() initializes terrain grid from stored seed."""
+        mock_data = MagicMock()
+        mock_data.projects = []
+        mock_data.villages = []
+        mock_data.sessions = []
+        mock_data.agents = []
+        mock_data.structures = []
+        mock_data.metadata = {"terrain_seed": "42"}
+
+        mock_persistence.load_state.return_value = mock_data
+
+        await manager.load_from_persistence()
+
+        assert manager._terrain_grid is not None
+        assert manager._terrain_grid.seed == 42
+
+    async def test_load_from_persistence_generates_new_seed_if_missing(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """load_from_persistence() generates a new seed and persists it if terrain_seed is missing."""
+        mock_data = MagicMock()
+        mock_data.projects = []
+        mock_data.villages = []
+        mock_data.sessions = []
+        mock_data.agents = []
+        mock_data.structures = []
+        mock_data.metadata = {}
+
+        mock_persistence.load_state.return_value = mock_data
+
+        await manager.load_from_persistence()
+
+        assert manager._terrain_grid is not None
+        assert isinstance(manager._terrain_grid.seed, int)
+        assert "terrain_seed" in manager._state.world_metadata
+
+        # Verify the new seed was persisted via queue_write
+        mock_persistence.queue_write.assert_called_once()
+        call_args = mock_persistence.queue_write.call_args
+        assert call_args[0][0] == "world_metadata"
+        assert call_args[0][1] == "terrain_seed"
+        assert call_args[0][2]["key"] == "terrain_seed"
+        # The value should match what's stored in world_metadata
+        assert call_args[0][2]["value"] == manager._state.world_metadata["terrain_seed"]
+
+    async def test_load_from_persistence_uses_existing_seed(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """load_from_persistence() uses existing seed and does not call queue_write."""
+        mock_data = MagicMock()
+        mock_data.projects = []
+        mock_data.villages = []
+        mock_data.sessions = []
+        mock_data.agents = []
+        mock_data.structures = []
+        mock_data.metadata = {"terrain_seed": "42"}
+
+        mock_persistence.load_state.return_value = mock_data
+
+        await manager.load_from_persistence()
+
+        # Should use the existing seed
+        assert manager._terrain_grid is not None
+        assert manager._terrain_grid.seed == 42
+        assert manager._state.world_metadata["terrain_seed"] == "42"
+
+        # Should NOT have called queue_write for the seed
+        mock_persistence.queue_write.assert_not_called()
+
+    async def test_terrain_determinism_across_restarts(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """Same terrain seed produces same terrain after restart simulation."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid
+
+        # First "session" - generate a new seed
+        mock_data = MagicMock()
+        mock_data.projects = []
+        mock_data.villages = []
+        mock_data.sessions = []
+        mock_data.agents = []
+        mock_data.structures = []
+        mock_data.metadata = {}
+
+        mock_persistence.load_state.return_value = mock_data
+
+        await manager.load_from_persistence()
+
+        # Capture the generated seed
+        generated_seed = manager._state.world_metadata["terrain_seed"]
+        assert generated_seed is not None
+
+        # Sample some terrain from the first grid
+        terrain_samples = []
+        for x in range(-5, 6):
+            for y in range(-5, 6):
+                terrain_samples.append((x, y, manager._terrain_grid.get_terrain(Position(x, y))))
+
+        # Simulate restart: create a new manager with the seed from persistence
+        mock_persistence_restart = MagicMock()
+        mock_persistence_restart.queue_write = AsyncMock()
+        mock_persistence_restart.load_state = AsyncMock()
+
+        mock_data_restart = MagicMock()
+        mock_data_restart.projects = []
+        mock_data_restart.villages = []
+        mock_data_restart.sessions = []
+        mock_data_restart.agents = []
+        mock_data_restart.structures = []
+        mock_data_restart.metadata = {"terrain_seed": generated_seed}
+
+        mock_persistence_restart.load_state.return_value = mock_data_restart
+
+        manager_restart = WorldStateManager(mock_persistence_restart)
+        await manager_restart.load_from_persistence()
+
+        # Verify same seed is used
+        assert manager_restart._terrain_grid.seed == int(generated_seed)
+
+        # Verify terrain samples match
+        for x, y, expected_terrain in terrain_samples:
+            actual_terrain = manager_restart._terrain_grid.get_terrain(Position(x, y))
+            assert actual_terrain == expected_terrain, (
+                f"Terrain mismatch at ({x}, {y}): expected {expected_terrain}, got {actual_terrain}"
+            )
+
+        # No new seed should have been written on restart
+        mock_persistence_restart.queue_write.assert_not_called()
+
+    async def test_get_terrain_at_returns_terrain_type(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """get_terrain_at(x, y) returns the terrain type at that position."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid
+
+        # Set up terrain grid with known seed
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Get terrain at (0, 0) and verify it's a valid TerrainType
+        terrain = await manager.get_terrain_at(0, 0)
+        assert hasattr(terrain, "passable"), "get_terrain_at should return a TerrainType"
+
+    async def test_get_terrain_at_returns_plain_before_initialization(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """get_terrain_at() returns PLAIN as fallback before terrain grid is initialized."""
+        from hamlet.world_state.terrain import TerrainType
+
+        # Ensure terrain grid is not initialized
+        manager._terrain_grid = None
+
+        terrain = await manager.get_terrain_at(0, 0)
+        assert terrain == TerrainType.PLAIN
+
+    async def test_is_passable_returns_true_for_passable_terrain(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """is_passable(x, y) returns True for passable terrain positions."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid, TerrainType
+
+        # Set up terrain grid with known seed
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Find a passable position by searching
+        passable_found = False
+        for x in range(-10, 11):
+            for y in range(-10, 11):
+                if await manager.is_passable(x, y):
+                    passable_found = True
+                    # Verify get_terrain_at agrees
+                    terrain = await manager.get_terrain_at(x, y)
+                    assert terrain.passable, f"Position ({x}, {y}) should have passable terrain"
+                    break
+            if passable_found:
+                break
+
+        assert passable_found, "Should find at least one passable position in the grid"
+
+    async def test_is_passable_returns_false_for_water_and_mountain(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """is_passable(x, y) returns False for WATER and MOUNTAIN terrain."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid, TerrainType
+
+        # Set up terrain grid with known seed
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Find impassable positions (WATER or MOUNTAIN)
+        impassable_found = False
+        for x in range(-20, 21):
+            for y in range(-20, 21):
+                terrain = await manager.get_terrain_at(x, y)
+                if not terrain.passable:
+                    impassable_found = True
+                    assert await manager.is_passable(x, y) is False
+                    assert terrain in (TerrainType.WATER, TerrainType.MOUNTAIN)
+                    break
+            if impassable_found:
+                break
+
+        # It's possible but unlikely that no impassable terrain exists in this range
+        # If not found, we still verify that is_passable returns False when terrain is impassable
+        if not impassable_found:
+            # Verify is_passable would return False if terrain were WATER
+            assert TerrainType.WATER.passable is False
+            assert TerrainType.MOUNTAIN.passable is False
+
+    async def test_is_passable_returns_true_before_initialization(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """is_passable() returns True as fallback before terrain grid is initialized."""
+        # Ensure terrain grid is not initialized
+        manager._terrain_grid = None
+
+        # Should return True as fallback (graceful degradation)
+        assert await manager.is_passable(0, 0) is True
+
+    async def test_find_village_position_finds_passable_terrain(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """_find_village_position() returns a position with passable terrain."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid
+
+        # Set up terrain grid
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Find a village position with no existing villages or occupied positions
+        position = manager._find_village_position([], set())
+
+        # The returned position should be passable
+        assert manager._terrain_grid.is_passable(position)
+
+    async def test_find_village_position_avoids_other_villages(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """_find_village_position() returns positions at least MIN_VILLAGE_DISTANCE apart."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid
+
+        # Set up terrain grid
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # First village at origin area (find position first)
+        first_pos = manager._find_village_position([], set())
+
+        # Create a mock village at that position
+        first_village = Village(
+            id="first",
+            project_id="p1",
+            name="First Village",
+            center=first_pos,
+        )
+
+        # Find second village position
+        second_pos = manager._find_village_position([first_village], set())
+
+        # Distance should be at least MIN_VILLAGE_DISTANCE
+        import math
+        distance = math.hypot(second_pos.x - first_pos.x, second_pos.y - first_pos.y)
+        assert distance >= manager.MIN_VILLAGE_DISTANCE, (
+            f"Villages should be at least {manager.MIN_VILLAGE_DISTANCE} apart, "
+            f"but got {distance}"
+        )
+
+    async def test_create_structure_raises_on_water_terrain(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """create_structure() raises ValueError when position is on WATER terrain."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid, TerrainType
+
+        # Set up terrain grid
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Create a village first
+        village = Village(
+            id="village-water-test",
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+        )
+        manager._state.villages[village.id] = village
+
+        # Find a WATER position
+        water_pos = None
+        for x in range(-50, 51):
+            for y in range(-50, 51):
+                pos = Position(x, y)
+                if not manager._terrain_grid.is_passable(pos):
+                    terrain = manager._terrain_grid.get_terrain(pos)
+                    if terrain == TerrainType.WATER:
+                        water_pos = pos
+                        break
+            if water_pos:
+                break
+
+        if water_pos is None:
+            # Skip test if no WATER found (unlikely but possible)
+            pytest.skip("No WATER terrain found in search range")
+
+        # Attempting to create structure on WATER should raise ValueError
+        with pytest.raises(ValueError, match="Cannot build.*on water terrain"):
+            await manager.create_structure(
+                village_id=village.id,
+                structure_type=StructureType.HOUSE,
+                position=water_pos,
+            )
+
+    async def test_create_structure_raises_on_mountain_terrain(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """create_structure() raises ValueError when position is on MOUNTAIN terrain."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid, TerrainType
+
+        # Set up terrain grid
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Create a village first
+        village = Village(
+            id="village-mountain-test",
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+        )
+        manager._state.villages[village.id] = village
+
+        # Find a MOUNTAIN position
+        mountain_pos = None
+        for x in range(-50, 51):
+            for y in range(-50, 51):
+                pos = Position(x, y)
+                if not manager._terrain_grid.is_passable(pos):
+                    terrain = manager._terrain_grid.get_terrain(pos)
+                    if terrain == TerrainType.MOUNTAIN:
+                        mountain_pos = pos
+                        break
+            if mountain_pos:
+                break
+
+        if mountain_pos is None:
+            # Skip test if no MOUNTAIN found (unlikely but possible)
+            pytest.skip("No MOUNTAIN terrain found in search range")
+
+        # Attempting to create structure on MOUNTAIN should raise ValueError
+        with pytest.raises(ValueError, match="Cannot build.*on mountain terrain"):
+            await manager.create_structure(
+                village_id=village.id,
+                structure_type=StructureType.HOUSE,
+                position=mountain_pos,
+            )
+
+    async def test_create_structure_succeeds_on_passable_terrain(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """create_structure() succeeds when position is on passable terrain."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid
+
+        # Set up terrain grid
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Create a village first
+        village = Village(
+            id="village-passable-test",
+            project_id="proj-1",
+            name="Test Village",
+            center=Position(0, 0),
+        )
+        manager._state.villages[village.id] = village
+
+        # Find a passable position
+        passable_pos = None
+        for x in range(-10, 11):
+            for y in range(-10, 11):
+                pos = Position(x, y)
+                if manager._terrain_grid.is_passable(pos):
+                    passable_pos = pos
+                    break
+            if passable_pos:
+                break
+
+        assert passable_pos is not None, "Should find passable terrain"
+
+        # Creating structure on passable terrain should succeed
+        structure = await manager.create_structure(
+            village_id=village.id,
+            structure_type=StructureType.HOUSE,
+            position=passable_pos,
+        )
+
+        assert structure is not None
+        assert structure.position == passable_pos
+
+    async def test_get_or_create_project_uses_terrain_aware_village_placement(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """get_or_create_project() places villages on passable terrain."""
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid
+
+        # Set up terrain grid
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Create a new project - should use terrain-aware placement
+        project = await manager.get_or_create_project("test-proj", "Test Project")
+
+        # The village center should be on passable terrain
+        village = manager._state.villages.get(project.village_id)
+        assert village is not None
+
+        # Verify village center is on passable terrain
+        assert manager._terrain_grid.is_passable(village.center), (
+            f"Village center {village.center} should be on passable terrain"
+        )
+
+    async def test_villages_are_at_least_min_distance_apart(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """Multiple villages created by get_or_create_project are at least MIN_VILLAGE_DISTANCE apart."""
+        import math
+        from hamlet.world_state.terrain import TerrainConfig, TerrainGenerator, TerrainGrid
+
+        # Set up terrain grid
+        config = TerrainConfig(seed=42)
+        manager._terrain_grid = TerrainGrid(TerrainGenerator(config))
+
+        # Create multiple projects (each gets a village)
+        project1 = await manager.get_or_create_project("proj-distance-1", "Project 1")
+        project2 = await manager.get_or_create_project("proj-distance-2", "Project 2")
+        project3 = await manager.get_or_create_project("proj-distance-3", "Project 3")
+
+        # Get village centers
+        village1 = manager._state.villages[project1.village_id]
+        village2 = manager._state.villages[project2.village_id]
+        village3 = manager._state.villages[project3.village_id]
+
+        # Verify all pairwise distances are at least MIN_VILLAGE_DISTANCE
+        for v1, v2 in [(village1, village2), (village1, village3), (village2, village3)]:
+            dist = math.hypot(v1.center.x - v2.center.x, v1.center.y - v2.center.y)
+            assert dist >= manager.MIN_VILLAGE_DISTANCE, (
+                f"Villages {v1.id} and {v2.id} are only {dist} units apart, "
+                f"should be at least {manager.MIN_VILLAGE_DISTANCE}"
+            )

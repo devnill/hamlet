@@ -3542,3 +3542,139 @@ items:
       - 'A test verifies _parse_structure with {"size_tier": 3} returns Structure(size_tier=3)'
       - 'A test verifies _parse_structure without "size_tier" returns Structure(size_tier=1)'
     notes: plan/notes/231.md
+
+  "232":
+    title: TerrainType enum and TerrainConfig dataclass
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: create}
+      - {path: src/hamlet/world_state/__init__.py, op: modify}
+      - {path: tests/test_terrain.py, op: create}
+    depends: []
+    blocks: ["235", "237"]
+    criteria:
+      - 'TerrainType enum has exactly 5 members: WATER, MOUNTAIN, FOREST, MEADOW, PLAIN'
+      - 'TerrainType.passable returns True for FOREST/MEADOW/PLAIN, False for WATER/MOUNTAIN'
+      - 'TerrainType.symbol returns correct ASCII character for each type'
+      - 'TerrainType.color returns valid Rich color name for each type'
+      - 'TerrainConfig dataclass has all fields with correct types and default values'
+    notes: plan/notes/232.md
+
+  "233":
+    title: TerrainGenerator — deterministic terrain from seed
+    complexity: medium
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["232"]
+    blocks: ["235"]
+    criteria:
+      - 'TerrainGenerator(seed=N).generate_terrain(Position(x, y)) returns same result every time'
+      - 'Different seeds produce different terrain at same position'
+      - 'All 5 terrain types can be generated'
+      - 'generate_chunk yields correct number of positions for given bounds'
+      - 'is_passable(Position(x, y)) matches generate_terrain(Position(x, y)).passable'
+      - 'Fallback to seeded random works when noise library not installed'
+    notes: plan/notes/233.md
+
+  "234":
+    title: TerrainGrid — in-memory terrain storage with caching
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/terrain.py, op: modify}
+      - {path: tests/test_terrain.py, op: modify}
+    depends: ["233"]
+    blocks: ["235"]
+    criteria:
+      - 'TerrainGrid(generator).get_terrain(Position(x, y)) returns same type on repeated calls'
+      - 'Cache is populated on first lookup for a position'
+      - 'get_terrain_in_bounds(bounds) returns correct positions for bounds'
+      - 'is_passable(Position(x, y)) delegates to get_terrain(Position(x, y)).passable'
+      - 'clear_cache() removes all cached terrain'
+    notes: plan/notes/234.md
+
+  "235":
+    title: WorldStateManager terrain integration and village placement
+    complexity: high
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: src/hamlet/protocols.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: ["232", "233", "234"]
+    blocks: ["237", "238"]
+    criteria:
+      - 'WorldStateManager has _terrain_grid field initialized in load_from_persistence'
+      - 'get_terrain_at(x, y) returns correct TerrainType'
+      - 'is_passable(x, y) returns True for FOREST/MEADOW/PLAIN, False for WATER/MOUNTAIN'
+      - '_find_village_position spiral search finds passable terrain'
+      - 'create_structure raises ValueError when position is on WATER or MOUNTAIN'
+      - 'Village centers are at least 15 units apart'
+    notes: plan/notes/235.md
+
+  "236":
+    title: Terrain symbols and colors for TUI
+    complexity: low
+    scope:
+      - {path: src/hamlet/tui/symbols.py, op: modify}
+      - {path: tests/test_tui_symbols.py, op: create}
+    depends: []
+    blocks: ["237"]
+    criteria:
+      - 'TERRAIN_SYMBOLS dict has exactly 5 entries matching TerrainType values'
+      - 'TERRAIN_COLORS dict has exactly 5 entries with valid Rich color names'
+      - 'get_terrain_symbol("water") returns "~"'
+      - 'get_terrain_symbol("mountain") returns "^"'
+      - 'get_terrain_color("water") returns "blue"'
+      - 'Unknown terrain types return "." symbol and "white" color'
+    notes: plan/notes/236.md
+
+  "237":
+    title: WorldView terrain layer rendering
+    complexity: medium
+    scope:
+      - {path: src/hamlet/tui/world_view.py, op: modify}
+      - {path: src/hamlet/tui/app.py, op: modify}
+      - {path: tests/test_tui_world_view.py, op: modify}
+    depends: ["235", "236"]
+    blocks: []
+    criteria:
+      - 'WorldView renders terrain symbols as background when no agent or structure is present'
+      - 'Water renders as ~ in blue, Mountain as ^ in grey85, Forest as ♣ in green, Meadow as " in chartreuse, Plain as . in white'
+      - 'Agents render on top of terrain'
+      - 'Structures render on top of terrain'
+      - 'Multi-cell structure borders (+, -, |) render on top of terrain'
+      - 'A test verifies terrain layer is rendered for empty cells'
+    notes: plan/notes/237.md
+
+  "238":
+    title: Persistence integration for terrain seed
+    complexity: low
+    scope:
+      - {path: src/hamlet/world_state/manager.py, op: modify}
+      - {path: tests/test_world_state_manager.py, op: modify}
+    depends: ["235"]
+    blocks: ["239"]
+    criteria:
+      - 'Terrain seed is stored in world_metadata table with key "terrain_seed"'
+      - 'On fresh start, a random seed is generated and persisted'
+      - 'On subsequent starts, the existing seed is loaded from DB'
+      - 'Same world seed produces same terrain on restart'
+      - 'A test verifies terrain seed persists across load_state / queue_write cycle'
+    notes: plan/notes/238.md
+
+  "239":
+    title: RemoteWorldState terrain methods
+    complexity: medium
+    scope:
+      - {path: src/hamlet/tui/remote_world_state.py, op: modify}
+      - {path: src/hamlet/mcp_server/server.py, op: modify}
+      - {path: tests/test_remote_world_state.py, op: modify}
+      - {path: tests/test_mcp_server.py, op: modify}
+    depends: ["238"]
+    blocks: []
+    criteria:
+      - 'RemoteWorldState.get_terrain_at(x, y) returns TerrainType fetched from daemon'
+      - 'RemoteWorldState.is_passable(x, y) returns boolean fetched from daemon'
+      - 'HTTP endpoint /terrain/{x}/{y} returns JSON with terrain and passable fields'
+      - 'A test verifies RemoteWorldState.get_terrain_at makes correct HTTP request'
+    notes: plan/notes/239.md

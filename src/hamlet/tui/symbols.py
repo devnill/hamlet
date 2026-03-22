@@ -12,6 +12,10 @@ __all__ = [
     "STAGE_SYMBOLS",
     "get_structure_symbol",
     "get_structure_color",
+    "TERRAIN_SYMBOLS",
+    "TERRAIN_COLORS",
+    "get_terrain_symbol",
+    "get_terrain_color",
 ]
 
 AGENT_SYMBOL = "@"
@@ -72,3 +76,31 @@ def get_structure_symbol(structure: Structure) -> str:
 def get_structure_color(structure: Structure) -> str:
     """Return the display color for a structure based on its material."""
     return MATERIAL_COLORS.get(structure.material, "white")
+
+
+# Terrain symbols (background layer)
+TERRAIN_SYMBOLS: dict[str, str] = {
+    "water": "~",
+    "mountain": "^",
+    "forest": "♣",
+    "meadow": '"',
+    "plain": ".",
+}
+
+TERRAIN_COLORS: dict[str, str] = {
+    "water": "blue",
+    "mountain": "grey85",
+    "forest": "green",
+    "meadow": "chartreuse",
+    "plain": "white",
+}
+
+
+def get_terrain_symbol(terrain_type: str) -> str:
+    """Return symbol for terrain type."""
+    return TERRAIN_SYMBOLS.get(terrain_type, ".")
+
+
+def get_terrain_color(terrain_type: str) -> str:
+    """Return Rich color name for terrain type."""
+    return TERRAIN_COLORS.get(terrain_type, "white")

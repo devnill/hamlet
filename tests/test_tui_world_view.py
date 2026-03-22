@@ -334,3 +334,233 @@ class TestWorldView:
         col = 4 - bounds.min_x
         # Agent symbol takes priority over the "|" border that would be at (4,5)
         assert lines[row][col] == "@"
+
+
+def _make_terrain_grid(terrain_map: dict) -> MagicMock:
+    """Create a mock TerrainGrid with specified terrain at positions.
+
+    Args:
+        terrain_map: Dict mapping (x, y) tuples to TerrainType values
+
+    Returns:
+        Mock TerrainGrid that returns terrain from the map
+    """
+    from hamlet.world_state.terrain import TerrainType
+    from hamlet.world_state.types import Position
+
+    grid = MagicMock()
+
+    def get_terrain(pos):
+        return terrain_map.get((pos.x, pos.y), TerrainType.PLAIN)
+
+    def get_terrain_in_bounds(bounds):
+        result = {}
+        for y in range(bounds.min_y, bounds.max_y + 1):
+            for x in range(bounds.min_x, bounds.max_x + 1):
+                pos = Position(x, y)
+                terrain = terrain_map.get((x, y), TerrainType.PLAIN)
+                result[pos] = terrain
+        return result
+
+    grid.get_terrain.side_effect = get_terrain
+    grid.get_terrain_in_bounds.side_effect = get_terrain_in_bounds
+    return grid
+
+
+class TestWorldViewTerrain:
+    """Test suite for terrain rendering in WorldView widget."""
+
+    @pytest.fixture
+    def world_view_with_terrain(self) -> WorldView:
+        """Create a WorldView with mocked viewport and terrain_grid."""
+        from hamlet.world_state.terrain import TerrainType
+
+        viewport = Mock()
+        viewport.get_visible_bounds.return_value = BoundingBox(
+            min_x=0, min_y=0, max_x=10, max_y=10
+        )
+        world_state = Mock()
+
+        # Create terrain grid with water at (2, 2), mountain at (5, 5)
+        terrain_grid = _make_terrain_grid({
+            (2, 2): TerrainType.WATER,
+            (5, 5): TerrainType.MOUNTAIN,
+        })
+
+        return WorldView(world_state, viewport, terrain_grid)
+
+    def test_render_terrain_shows_water_symbol_at_water_position(self, world_view_with_terrain: WorldView) -> None:
+        """Terrain layer renders water symbol at water positions."""
+        from hamlet.world_state.terrain import TerrainType
+
+        world_view_with_terrain._agents = []
+        world_view_with_terrain._structures = []
+
+        text = world_view_with_terrain.render()
+        lines = text.plain.splitlines()
+
+        bounds = world_view_with_terrain._viewport.get_visible_bounds()
+        row = 2 - bounds.min_y
+        col = 2 - bounds.min_x
+
+        # Water should render as '~' at position (2, 2)
+        assert lines[row][col] == TerrainType.WATER.symbol  # '~'
+
+    def test_render_terrain_shows_mountain_symbol_at_mountain_position(self, world_view_with_terrain: WorldView) -> None:
+        """Terrain layer renders mountain symbol at mountain positions."""
+        from hamlet.world_state.terrain import TerrainType
+
+        world_view_with_terrain._agents = []
+        world_view_with_terrain._structures = []
+
+        text = world_view_with_terrain.render()
+        lines = text.plain.splitlines()
+
+        bounds = world_view_with_terrain._viewport.get_visible_bounds()
+        row = 5 - bounds.min_y
+        col = 5 - bounds.min_x
+
+        # Mountain should render as '^' at position (5, 5)
+        assert lines[row][col] == TerrainType.MOUNTAIN.symbol  # '^'
+
+    def test_render_terrain_layer_for_empty_cells(self, world_view_with_terrain: WorldView) -> None:
+        """WorldView renders terrain symbols as background when no agent or structure is present."""
+        from hamlet.world_state.terrain import TerrainType
+
+        world_view_with_terrain._agents = []
+        world_view_with_terrain._structures = []
+
+        text = world_view_with_terrain.render()
+        lines = text.plain.splitlines()
+
+        bounds = world_view_with_terrain._viewport.get_visible_bounds()
+
+        # Check that water at (2,2) renders as '~' and not as plain '.'
+        row = 2 - bounds.min_y
+        col = 2 - bounds.min_x
+        assert lines[row][col] == TerrainType.WATER.symbol
+
+        # Check that mountain at (5,5) renders as '^'
+        row = 5 - bounds.min_y
+        col = 5 - bounds.min_x
+        assert lines[row][col] == TerrainType.MOUNTAIN.symbol
+
+        # Check that positions without explicit terrain default to plain ('.')
+        # Position (0, 0) is not in our terrain map, should show PLAIN
+        row = 0 - bounds.min_y
+        col = 0 - bounds.min_x
+        assert lines[row][col] == TerrainType.PLAIN.symbol  # '.'
+
+    def test_render_agent_takes_priority_over_terrain(self, world_view_with_terrain: WorldView) -> None:
+        """Agent renders on top of terrain, not terrain symbol at that position."""
+        from hamlet.world_state.terrain import TerrainType
+
+        # Place agent at (2, 2) which is water terrain
+        agent = _make_agent(x=2, y=2, state=AgentState.IDLE)
+        world_view_with_terrain._agents = [agent]
+        world_view_with_terrain._structures = []
+
+        text = world_view_with_terrain.render()
+        lines = text.plain.splitlines()
+
+        bounds = world_view_with_terrain._viewport.get_visible_bounds()
+        row = 2 - bounds.min_y
+        col = 2 - bounds.min_x
+
+        # Agent should show '@', not water symbol '~'
+        assert lines[row][col] == "@"
+
+    def test_render_structure_takes_priority_over_terrain(self, world_view_with_terrain: WorldView) -> None:
+        """Structure renders on top of terrain, not terrain symbol at that position."""
+        from hamlet.world_state.terrain import TerrainType
+
+        # Place structure at (5, 5) which is mountain terrain
+        structure = _make_structure(x=5, y=5, structure_type=StructureType.HOUSE)
+        world_view_with_terrain._agents = []
+        world_view_with_terrain._structures = [structure]
+
+        text = world_view_with_terrain.render()
+        lines = text.plain.splitlines()
+
+        bounds = world_view_with_terrain._viewport.get_visible_bounds()
+        row = 5 - bounds.min_y
+        col = 5 - bounds.min_x
+
+        # Structure should show its symbol, not mountain '^'
+        from hamlet.tui.symbols import get_structure_symbol
+        assert lines[row][col] == get_structure_symbol(structure)
+
+    def test_render_without_terrain_grid_shows_dots(self) -> None:
+        """WorldView without terrain_grid renders '.' for empty cells."""
+        viewport = Mock()
+        viewport.get_visible_bounds.return_value = BoundingBox(
+            min_x=0, min_y=0, max_x=5, max_y=5
+        )
+        world_state = Mock()
+
+        # Create WorldView without terrain_grid
+        world_view = WorldView(world_state, viewport, terrain_grid=None)
+        world_view._agents = []
+        world_view._structures = []
+
+        text = world_view.render()
+        plain_text = text.plain
+
+        # Without terrain, all empty cells should show '.'
+        assert "." in plain_text
+
+    def test_render_forest_terrain_with_correct_symbol(self) -> None:
+        """Forest terrain renders with correct symbol and color."""
+        from hamlet.world_state.terrain import TerrainType
+
+        viewport = Mock()
+        viewport.get_visible_bounds.return_value = BoundingBox(
+            min_x=0, min_y=0, max_x=5, max_y=5
+        )
+        world_state = Mock()
+
+        terrain_grid = _make_terrain_grid({
+            (3, 3): TerrainType.FOREST,
+        })
+
+        world_view = WorldView(world_state, viewport, terrain_grid)
+        world_view._agents = []
+        world_view._structures = []
+
+        text = world_view.render()
+        lines = text.plain.splitlines()
+
+        bounds = viewport.get_visible_bounds()
+        row = 3 - bounds.min_y
+        col = 3 - bounds.min_x
+
+        # Forest should render as '♣'
+        assert lines[row][col] == TerrainType.FOREST.symbol
+
+    def test_render_meadow_terrain_with_correct_symbol(self) -> None:
+        """Meadow terrain renders with correct symbol."""
+        from hamlet.world_state.terrain import TerrainType
+
+        viewport = Mock()
+        viewport.get_visible_bounds.return_value = BoundingBox(
+            min_x=0, min_y=0, max_x=5, max_y=5
+        )
+        world_state = Mock()
+
+        terrain_grid = _make_terrain_grid({
+            (2, 4): TerrainType.MEADOW,
+        })
+
+        world_view = WorldView(world_state, viewport, terrain_grid)
+        world_view._agents = []
+        world_view._structures = []
+
+        text = world_view.render()
+        lines = text.plain.splitlines()
+
+        bounds = viewport.get_visible_bounds()
+        row = 4 - bounds.min_y
+        col = 2 - bounds.min_x
+
+        # Meadow should render as '"'
+        assert lines[row][col] == TerrainType.MEADOW.symbol

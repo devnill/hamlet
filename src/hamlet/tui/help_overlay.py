@@ -10,7 +10,6 @@ class HelpOverlay(Static):
 HelpOverlay {
     display: none;
     layer: overlay;
-    position: absolute;
     offset: 2 2;
     width: 42;
     height: 22;
