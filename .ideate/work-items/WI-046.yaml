@@ -1,0 +1,28 @@
+id: WI-046
+type: work_item
+title: Integrate Simulation Components into Tick Loop
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `SimulationEngine._tick()` calls all update components in sequence
+  - Retrieves villages, then agents and structures per village
+  - Calls `agent_updater.update_agents()`
+  - Calls `structure_updater.update_structures()`
+  - Calls `expansion_manager.process_expansion()` once per tick
+  - Calls `animation_manager.advance_frames()`
+  - Each component call wrapped in try/except
+  - "Order: agent updates, structure updates, expansion check, animation advance"
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 046
+  
+  Tick loop is single async task. WorldStateManager handles all internal locking. Errors in one component do not prevent others from running.
+cycle_created: 1
+cycle_modified: null
+content_hash: b2965e01b4e46b5ebc720a7083c7aee4f9e9f680d97d384764b45c654b8163f7
+token_count: 230
+file_path: .ideate/work-items/WI-046.yaml

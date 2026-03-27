@@ -1,0 +1,36 @@
+id: WI-101
+type: work_item
+title: Fix PersistenceFacade constructor call in __main__.py
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Line creating PersistenceFacade no longer passes `db_path=settings.db_path`
+  - PersistenceFacade constructed with a `PersistenceConfig(db_path=settings.db_path)` argument
+  - `PersistenceConfig` is imported from `hamlet.persistence.types`
+  - Application starts without TypeError on PersistenceFacade construction
+module: null
+domain: null
+notes: |
+  # Work Item 101: Fix PersistenceFacade constructor call in __main__.py
+  
+  ## Problem
+  `__main__.py` calls `PersistenceFacade(db_path=settings.db_path)` but `PersistenceFacade.__init__` expects `config: PersistenceConfig | None = None`. This raises `TypeError` at startup.
+  
+  ## Fix
+  ```python
+  from hamlet.persistence.types import PersistenceConfig
+  
+  config = PersistenceConfig(db_path=settings.db_path)
+  persistence = PersistenceFacade(config=config)
+  ```
+  
+  ## Notes
+  Read `src/hamlet/persistence/facade.py` to confirm the exact constructor signature before applying the fix. If `PersistenceConfig` has additional fields that map to `Settings` attributes (e.g., `event_log_max_entries`), wire those too.
+cycle_created: 1
+cycle_modified: null
+content_hash: e20ca437ff264635741c71dd9f4554d7084736fab05135f769e8d519a8bb3a34
+token_count: 331
+file_path: .ideate/work-items/WI-101.yaml

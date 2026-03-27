@@ -1,0 +1,18 @@
+id: F-004-015
+type: finding
+cycle: 4
+reviewer: spec-reviewer
+severity: minor
+title: `HelpOverlay` positioning not directly tested
+description: |
+  WI-212 changed `HelpOverlay.DEFAULT_CSS` to add `layer: overlay` / `position: absolute`, but there is no test asserting `HelpOverlay.DEFAULT_CSS` contains positioning properties. Only `LegendOverlay` has positioning tests. `HelpOverlay` was not in WI-212's stated scope — minor gap.
+  
+  **File**: `src/hamlet/tui/help_overlay.py:12-13`
+file_path: cycles/004/findings/F-004-015.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-004
+verdict: Fail
+content_hash: b855611e2f510bc9679c1c1a8b3d4e49f787c171b9199b6826db05c30730e989
+token_count: 159

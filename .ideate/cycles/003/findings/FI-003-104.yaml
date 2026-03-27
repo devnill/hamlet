@@ -1,0 +1,17 @@
+id: FI-003-104
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `operation="insert"` for upsert with no enforcement
+description: |
+  - **Issue**: `Operation` literal has no "upsert" value; using "insert" relies on write executor using INSERT OR REPLACE implicitly.
+  - **Resolution**: Accepted — write executor uses INSERT OR REPLACE for "insert" operations. No change.
+file_path: cycles/003/findings/FI-003-104.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "1508882b0b16ac3ee49bcf496376fbfc5fb072da382e4cd150cac8ac5cdec32f"
+token_count: 139

@@ -1,0 +1,18 @@
+id: F-016-070
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `encode_image_display` hardcodes placement ID `p=1`
+description: |
+  - **File**: `src/hamlet/gui/kitty/protocol.py`
+  - **Issue**: The Kitty protocol uses `(image_id, placement_id)` pairs to uniquely identify placements. Hardcoding `p=1` means the same image displayed at two locations simultaneously will have the second placement replace the first. When sprites are eventually displayed, each placement needs a unique ID.
+  - **Suggested fix**: Accept an optional `placement_id` parameter or auto-increment placement IDs.
+file_path: cycles/016/findings/F-016-070.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-016
+verdict: null
+content_hash: "75d2b92dd3e66a77edfca597da02937ecfb81e9565c4bb73482b62def9e85367"
+token_count: 190

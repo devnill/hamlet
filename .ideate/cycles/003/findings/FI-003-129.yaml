@@ -1,0 +1,19 @@
+id: FI-003-129
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No tests for HTTP endpoint behaviour
+description: |
+  - **File**: `tests/test_mcp_server.py`
+  - **Issue**: Zero tests cover any HTTP path. Existing tests also don't mock aiohttp, so they will attempt to bind port 8080 during test runs.
+  - **Impact**: All HTTP acceptance criteria unverified by test suite.
+  - **Suggested fix**: Add tests using aiohttp test utilities or mocking TCPSite.
+file_path: cycles/003/findings/FI-003-129.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-100
+verdict: Pass
+content_hash: "91a7f26aca1b71527608034d03effa2dbc2deb5f37fe3a0b951c5a931baa7aa3"
+token_count: 158

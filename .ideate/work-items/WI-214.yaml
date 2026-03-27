@@ -1,0 +1,50 @@
+id: WI-214
+type: work_item
+title: Wire zombie_threshold_seconds from Settings
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "`Settings` has a `zombie_threshold_seconds: int = 300` field"
+  - `build_components` passes `zombie_threshold_seconds=settings.zombie_threshold_seconds` to `AgentInferenceEngine.__init__`
+  - A test verifies that `build_components` with a custom `Settings.zombie_threshold_seconds` produces an engine with the correct `_zombie_threshold_seconds`
+module: null
+domain: null
+notes: |
+  # WI-214 Implementation Notes
+  
+  ## Context
+  
+  `AgentInferenceEngine.__init__` takes two separate threshold parameters:
+  - `despawn_threshold_seconds` — how long a zombie lives before being despawned (~`zombie_despawn_seconds` in Settings, already wired)
+  - `zombie_threshold_seconds` — how long an agent can be inactive before being marked ZOMBIE (NOT in Settings, defaults to 300s, not configurable)
+  
+  `Settings` in `src/hamlet/config/settings.py` has only `zombie_despawn_seconds`.
+  `app_factory.py:76` passes `despawn_threshold_seconds=settings.zombie_despawn_seconds` but omits `zombie_threshold_seconds`.
+  
+  ## Fix
+  
+  ### `src/hamlet/config/settings.py`
+  
+  Add field:
+  ```python
+  zombie_threshold_seconds: int = 300
+  ```
+  
+  ### `src/hamlet/app_factory.py`
+  
+  In `build_components`, update the `AgentInferenceEngine` constructor call to add:
+  ```python
+  zombie_threshold_seconds=settings.zombie_threshold_seconds,
+  ```
+  
+  ## Testing
+  
+  Existing tests for `AgentInferenceEngine` already use `engine._zombie_threshold_seconds`. A new integration-style test should verify that `build_components` with a non-default `zombie_threshold_seconds` in Settings produces an engine with the correct threshold. This can be done by constructing a `Settings` with a custom value and calling `build_components`, then inspecting `bundle.agent_inference._zombie_threshold_seconds`.
+cycle_created: 1
+cycle_modified: null
+content_hash: f635181b6a975a9f520e3c73e0cfd1b45d12a5f1f2a3cb0fc79b18c869bc693c
+token_count: 502
+file_path: .ideate/work-items/WI-214.yaml

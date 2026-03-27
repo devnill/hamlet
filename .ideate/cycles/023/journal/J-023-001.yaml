@@ -1,0 +1,13 @@
+id: J-023-001
+type: journal_entry
+phase: refine
+date: "2026-03-20"
+cycle_created: 23
+title: Metrics summary (refine-10)
+content: |
+  Agents spawned: 1 (architect — background, result not awaited before planning)
+  Total wall-clock: not recorded (architect ran in background)
+  Models used: opus (architect)
+  Slowest agent: architect (background)
+content_hash: d6408f1730fc9abab93e1251423799939f8102a9f0de9519ad6908ab0a898651
+token_count: 89

@@ -1,0 +1,19 @@
+id: FI-016-017
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: significant
+title: `test_view_renderer_argument_choices` does not test "kitty"
+description: |
+  - **File**: `tests/test_cli.py:107`
+  - **Issue**: The test iterates over `("auto", "textual")` and does not include `"kitty"`. The acceptance criterion says CLI `--renderer` choices must include `"kitty"`. While the parser definition at `src/hamlet/cli/__init__.py:113` does include it, the test does not exercise or assert it.
+  - **Impact**: If someone removes `"kitty"` from the choices list, this test still passes. The criterion is only partially verified.
+  - **Suggested fix**: Add `"kitty"` to the tuple: `for choice in ("auto", "textual", "kitty"):`.
+file_path: cycles/016/findings/FI-016-017.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-280
+verdict: Fail
+content_hash: "34c8c47214f00dff51e372e231f4d533401fbe870b0b0fde73da77cc3810e138"
+token_count: 225

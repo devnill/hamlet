@@ -1,0 +1,14 @@
+id: Q-12
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: SpriteSheet references silently invalidated after cleanup
+cycle_created: 1
+cycle_modified: null
+content_hash: a2b2c5b329cd9d5aa5d901cddf780a2ba8b0a1c1ea23e7bde9f4e496e09d05bd
+token_count: 74
+file_path: .ideate/questions/Q-12.yaml

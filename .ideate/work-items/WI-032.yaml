@@ -1,0 +1,25 @@
+id: WI-032
+type: work_item
+title: Create WorldState Container
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/world_state/state.py` exists
+  - `WorldState` class with `projects`, `sessions`, `agents`, `villages`, `structures` dict attributes
+  - `EventLogEntry` dataclass with id, timestamp, session_id, project_id, hook_type, tool_name, summary fields
+  - `event_log` list attribute for chronological events
+  - Module imports all types from `world_state.types`
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 032
+  
+  WorldState is a simple container. Entity maps are keyed by ID strings. Event log is ordered chronologically.
+cycle_created: 1
+cycle_modified: null
+content_hash: d5cd14e4001db38811452ec16784f7918352d65e6f3e8acad01d5ff881f18682
+token_count: 196
+file_path: .ideate/work-items/WI-032.yaml

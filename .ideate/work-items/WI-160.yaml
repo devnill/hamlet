@@ -1,0 +1,46 @@
+id: WI-160
+type: work_item
+title: Call get_or_create_project before session/agent creation in inference engine
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - _handle_pre_tool_use calls await self._world_state.get_or_create_project(event.project_id, event.project_name) before get_or_create_session
+  - All agents for the same project_id share one village after this change
+  - After restart, agents loaded from persistence have a corresponding Project in memory
+  - get_or_create_project is idempotent (returns existing project on repeated calls)
+module: null
+domain: null
+notes: |
+  # WI-160: Call get_or_create_project before session/agent creation in inference engine
+  
+  ## Context
+  `AgentInferenceEngine._handle_pre_tool_use` calls `get_or_create_session(event.session_id, event.project_id)` and `get_or_create_agent(...)` but never calls `get_or_create_project(event.project_id, ...)`.
+  
+  The method `get_or_create_project` exists at `manager.py:134` and is never called from the inference engine. As a result:
+  - Multiple sessions for the same project_id can land in different placeholder villages
+  - After restart, agents have a project_id with no corresponding Project in memory
+  - "One village per codebase" requirement from interview is never met
+  
+  ## Fix
+  
+  ### src/hamlet/inference/engine.py — _handle_pre_tool_use
+  
+  Add at the beginning of the method (before get_or_create_session):
+  ```python
+  await self._world_state.get_or_create_project(event.project_id, event.project_name)
+  ```
+  
+  This call is idempotent — it returns the existing project if one already exists for that project_id.
+  
+  ## Notes
+  - Read engine.py to find the exact location in _handle_pre_tool_use
+  - Read manager.py to verify get_or_create_project signature matches
+  - event.project_name comes from the hook's project_name field (will be properly populated after WI-158, but this fix is independent)
+cycle_created: 1
+cycle_modified: null
+content_hash: "8798da83cd9de8a1f8105ecb0c18ab30a8e148de38e11aae5b8fdf5a16ed6e7b"
+token_count: 505
+file_path: .ideate/work-items/WI-160.yaml

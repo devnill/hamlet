@@ -1,0 +1,18 @@
+id: FI-003-041
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: load_state() called outside the lock — TOCTOU race
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:37`
+  - **Issue**: `await self._persistence.load_state()` was called before acquiring `self._lock`, creating a window where concurrent mutations could be overwritten.
+  - **Fix**: Moved `data = await self._persistence.load_state()` inside `async with self._lock`.
+file_path: cycles/003/findings/FI-003-041.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-034
+verdict: Pass
+content_hash: "41ccb0147ea68f29f6c59e830749bffeefd411e7be4bb53d0bd5561af3ff9702"
+token_count: 155

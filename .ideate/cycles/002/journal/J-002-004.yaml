@@ -1,0 +1,11 @@
+id: J-002-004
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 2
+title: "Work item 265: Add hamlet settings CLI command"
+content: |
+  Status: complete with rework
+  Rework: 2 significant, 1 minor findings fixed from incremental review. Details: S1 — added TerrainConfig construction for terrain sub-key validation; S2 — added 18 tests for settings CLI; M1 — fixed misleading boolean error message. Also improved type coercion for nullable terrain fields.
+content_hash: b0dbadb0fbe8076d7d9b1db3caba202b2f19a5de99334a669c5e51fe59620bd3
+token_count: 121

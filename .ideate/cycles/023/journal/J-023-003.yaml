@@ -1,0 +1,11 @@
+id: J-023-003
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 23
+title: "Work item 203: Update README.md Quick Start section"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed from incremental review (M2: clarified "Plugin users" to "Plugin users (Claude Code MCP plugin)"). M1 (heading wording) left as-is — "Connect Claude Code" is intentional to match QUICKSTART.md terminology.
+content_hash: a5903c15a8176fa974e42409036f9bae3375a5603285a772a44c667a50ea0836
+token_count: 111

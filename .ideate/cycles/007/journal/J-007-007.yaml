@@ -1,0 +1,11 @@
+id: J-007-007
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 7
+title: "Cycle 4 — Work item 208: Reset agent state to ZOMBIE on daemon startup"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed from incremental review (test didn't verify field preservation; existing load test lacked ZOMBIE assertion). 1 minor finding fixed (docstring updated to document ZOMBIE startup invariant). E2E tests in test_e2e_persistence_roundtrip.py updated to reflect intentional behavior change.
+content_hash: "3cb557536197b52733d8111925177eb9943540784d1a92839f041021452e7478"
+token_count: 134

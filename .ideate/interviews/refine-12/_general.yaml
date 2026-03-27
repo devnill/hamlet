@@ -1,0 +1,13 @@
+id: interviews/refine-12/_general
+type: interview
+cycle: 12
+source_path: steering/interviews/refine-12/_general.md
+entries:
+  - {id: IQ-012-001, question: When opening hamlet you see 6 agents even though no agents are running. What behavior do you expect?, answer: No active agents should be visible when no Claude sessions are running. Agents from past sessions that persist in the database are acceptable (persistent world), but they should not appear as active., domain: null, seq: 1}
+  - {id: IQ-012-002, question: The initial paint shows only 2 rows and requires a terminal resize to render correctly. Is this the full extent of the issue?, answer: Yes — after resizing, the layout is correct. The fix should make the initial render fill the terminal correctly without requiring a manual resize., domain: null, seq: 2}
+  - {id: IQ-012-003, question: Zombies persist in the world indefinitely. What should happen to them?, answer: After a session ends cleanly (Stop hook), agents from that session should despawn immediately — no zombie phase, just gone. For agents that became zombie from timeout (no clean stop), they should despawn after a configurable delay (default 5 minutes). If an agent comes back (new events after zombification), it re-appears normally., domain: null, seq: 3}
+  - {id: IQ-012-004, question: The legend opens but shows nothing. Is the content wrong or is it a display issue?, answer: "Display issue — the legend content (symbols, colors, key bindings) exists in code but the overlay is not visible. Needs to be fixed so it renders correctly when toggled with /.
+
+**Scope boundary**: Two bugs (WI-208, WI-209), zombie despawn (WI-210, WI-211), and legend fix (WI-212). No architecture changes. Guiding principles and constraints unchanged.", domain: null, seq: 4}
+content_hash: "2a80cb60953f9ae795f6808a1c5d72daf4c8c5fe37f5103b4a3c3ac59db86d57"
+token_count: 454

@@ -1,0 +1,18 @@
+id: FI-005-008
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: find_config() traversal reaches ~/.hamlet/config.json unnecessarily
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/pre_tool_use.py:34-44` (same pattern in post_tool_use.py, notification.py, stop.py)
+  - **Issue**: `find_config()` walks from CWD through all parent directories including the home directory. Because install.py now writes `~/.hamlet/config.json`, this traversal will always find that file as a candidate project config before reaching the filesystem root. The file doesn't contain `project_id` or `project_name`, so `.get()` falls back to the hash, producing a correct result — but the file is opened and parsed unnecessarily on every hook invocation when no project config exists. The architecture document states these two config files are intentionally separate and that `find_server_url()` reads only from home.
+  - **Suggested fix**: Either stop traversal before reaching `Path.home()` (e.g., `if parent == Path.home(): break`), or check that the found config contains `project_id` before treating it as a project config.
+file_path: cycles/005/findings/FI-005-008.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-121
+verdict: Pass
+content_hash: c38ce2c84637f32faefb7456a4734a5344aed398e0a25e41b59c732637a97692
+token_count: 322

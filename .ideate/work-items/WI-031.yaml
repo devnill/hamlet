@@ -1,0 +1,27 @@
+id: WI-031
+type: work_item
+title: Define Data Model Types
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/world_state/types.py` exists
+  - `Position` dataclass with x, y integer fields
+  - `Bounds` dataclass with min_x, min_y, max_x, max_y fields
+  - `Project`, `Session`, `Village`, `Agent`, `Structure` dataclasses defined
+  - "`AgentType` enum: RESEARCHER, CODER, PLANNER, ARCHITECT, TESTER, GENERAL"
+  - "`StructureType` enum: HOUSE, WORKSHOP, LIBRARY, FORGE, TOWER, ROAD, WELL"
+  - "`AgentState` enum: ACTIVE, IDLE, ZOMBIE"
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 031
+  
+  All dataclasses use `@dataclass(frozen=False)`. Position must be frozen=True or implement `__hash__` for dict/set membership.
+cycle_created: 1
+cycle_modified: null
+content_hash: "6172d048a31282f50fa479ed1a55447e94452f374bbec82572674ed6ba8c7ead"
+token_count: 214
+file_path: .ideate/work-items/WI-031.yaml

@@ -1,0 +1,13 @@
+id: D-12
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: ASCII rendering is the universal fallback; optional graphical backend selected by renderer setting
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "77f9bbe1c88bc359b59432be9f9ebca21d17592e1df9b3ba979059d6423de770"
+token_count: 80
+file_path: .ideate/decisions/D-12.yaml

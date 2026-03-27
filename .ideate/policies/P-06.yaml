@@ -1,0 +1,13 @@
+id: P-06
+type: domain_policy
+domain: visualization
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: The graphical backend (Kitty graphics protocol) must use pixel-art sprites with a constrained 16-32 color palette, SNES-era proportions, and zoom-dependent resolution. Self-colored outlines, chibi character proportions, and 3/4 perspective are required for agent sprites. The warm saturated palette and medieval village theme must be consistent with the ASCII backend's thematic identity (GP-3). The backend is implemented as pure Python escape sequences — no C library or ctypes bindings.
+cycle_created: 1
+cycle_modified: null
+content_hash: b70bcad148f67d19343c998b0d39afdef45920c0d1126101d41494791491aa63
+token_count: 182
+file_path: .ideate/policies/P-06.yaml

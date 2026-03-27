@@ -1,0 +1,13 @@
+id: J-003-001
+type: journal_entry
+phase: refine
+date: "2026-03-22"
+cycle_created: 3
+title: Refinement planning completed
+content: |
+  Trigger: user request — CLI settings management, configurable village spacing, config hot-reload
+  Principles changed: none
+  New work items: 264-266
+  Settings CLI (`hamlet settings get/set`), min_village_distance as configurable setting (previously hardcoded at 15), periodic config reload in daemon (30s interval). Three work items in two groups: WI-264 and WI-265 parallel, WI-266 depends on both.
+content_hash: "6724128f517d7143cfc143d62dcd1369b481bf18f32bf750dcf6e3891938853b"
+token_count: 136

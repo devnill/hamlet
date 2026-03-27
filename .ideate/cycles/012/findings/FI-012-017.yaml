@@ -1,0 +1,19 @@
+id: FI-012-017
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Water adjacency bonus is a flat probability
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:1151-1159`
+  - **Issue**: The `forest_water_adjacency_bonus` (default 0.3) is added as a flat probability bonus to all seeds adjacent to water, regardless of distance or water body size.
+  - **Impact**: Seeds near ponds and rivers get the same bonus, which may not be the intended behavior.
+  - **Suggested fix**: Consider scaling bonus by water body size or proximity.
+file_path: cycles/012/findings/FI-012-017.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-256
+verdict: Pass
+content_hash: "23ec68097b5a9a20284497b0d51e7e671e4f7a0a3e3772d5afd621e087dcc589"
+token_count: 186

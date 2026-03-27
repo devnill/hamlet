@@ -1,0 +1,26 @@
+id: WI-024
+type: work_item
+title: Type Inference Rules
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `TYPE_RULES` constant defines (tool_patterns, minimum_ratio, agent_type)
+  - "Rules include: Read/Grep/Glob → RESEARCHER (0.6), Write/Edit → CODER (0.6), Bash → EXECUTOR (0.5), Task → ARCHITECT (0.4)"
+  - `_update_tool_window(event)` adds events to sliding window
+  - `_infer_type(session_id)` analyzes tool frequency
+  - Returns GENERAL if window has fewer than 10 events
+  - `_handle_post_tool_use` updates tool window and infers type
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 024
+  
+  Use sliding window of 5 minutes. Tool frequency = count(tool_name) / total_events. If multiple rules match, first match wins.
+cycle_created: 1
+cycle_modified: null
+content_hash: "5a08a43b4366e382a1f50ee7ca29cb57c2136607bb1350632d13a08e67687665"
+token_count: 215
+file_path: .ideate/work-items/WI-024.yaml

@@ -1,0 +1,44 @@
+id: WI-268
+type: work_item
+title: Renderer protocol and symbol config extraction
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - RendererProtocol is a typing.Protocol with render_frame and cleanup methods
+  - SymbolConfig aggregates AgentVisual, StructureVisual, TerrainVisual dataclasses
+  - default_config() returns values matching current symbols.py hardcoded values
+  - symbols.py delegates to default_config() preserving all public exports
+  - All existing tests importing from symbols.py pass without modification
+module: null
+domain: null
+notes: |
+  # WI-268: Renderer protocol and symbol config extraction
+  
+  ## Implementation Notes
+  
+  ### RendererProtocol
+  Define in `src/hamlet/gui/renderer_protocol.py` using `typing.Protocol`:
+  - `render_frame(viewport_state, agents, structures, terrain_data, event_log)`
+  - `cleanup()`
+  
+  Check actual types in `hamlet.viewport.coordinates` and `hamlet.world_state.types`.
+  
+  ### SymbolConfig extraction
+  Create `src/hamlet/gui/symbol_config.py` with frozen dataclasses:
+  - `AgentVisual`: symbol ("@"), colors dict (AgentType -> color), zombie_color
+  - `StructureVisual`: symbols dict, stage_symbols, material_colors
+  - `TerrainVisual`: symbols dict (terrain type -> char), colors dict
+  - `SymbolConfig`: agent, structure, terrain
+  
+  `default_config()` creates SymbolConfig with exact values from current `symbols.py`.
+  
+  ### symbols.py refactor
+  Replace module-level dicts with references to `default_config()`. All public exports must continue to work identically. The `get_*` rendering helpers remain in symbols.py.
+cycle_created: 1
+cycle_modified: null
+content_hash: a7811073c7cb8565bacd8da7348b862025f744fd9a928accfe37dbd980da159a
+token_count: 425
+file_path: .ideate/work-items/WI-268.yaml

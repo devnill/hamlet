@@ -1,0 +1,18 @@
+id: FI-003-072
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Empty cell sets never pruned from `_cells` — unbounded memory growth
+description: |
+  - **File**: `src/hamlet/viewport/spatial_index.py:35` and `:47`
+  - **Issue**: After discarding an entity from a cell's set (in both `update` and `remove`), the cell key was never deleted from `_cells` when the set became empty. Over time, as entities move or are removed, `_cells` accumulates entries for all cells ever visited.
+  - **Fix**: After each `discard`, check if the set is now empty and delete the cell key: `if not cell_set: del self._cells[cell]`. Applied in both `update` (old cell removal) and `remove`.
+file_path: cycles/003/findings/FI-003-072.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-053
+verdict: Pass
+content_hash: d9d1579161e072ea59ef120a82e536dc0e8b22bf187a0a750bef66585b25fba3
+token_count: 212

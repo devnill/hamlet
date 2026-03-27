@@ -1,0 +1,18 @@
+id: FI-003-095
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: executemany did not update self._cursor
+description: |
+  - **File**: `src/hamlet/persistence/connection.py:39-42`
+  - **Issue**: executemany returns a cursor but discards it, inconsistent with execute(). Calling fetchall() after executemany() would use stale results.
+  - **Fix**: Added docstring note that fetchone/fetchall must not be called after executemany.
+file_path: cycles/003/findings/FI-003-095.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-072
+verdict: Pass
+content_hash: "5e8aab670bfdb061ff6e24ed29568935014e5dac1eefecc09778d869f1e62855"
+token_count: 150

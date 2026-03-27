@@ -1,0 +1,15 @@
+id: FI-003-105
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `agent_ids` list stored without JSON serialization
+description: "- **Resolution**: Fixed in C2 fix above."
+file_path: cycles/003/findings/FI-003-105.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "4c2e884979b4a446b8e93cbe9bedb261e2062573b203e962b682c727c55ca2b9"
+token_count: 88

@@ -1,0 +1,18 @@
+id: FI-003-103
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `save_agent` and `save_structure` omitted required `created_at` and `updated_at`
+description: |
+  - **File**: `src/hamlet/persistence/saver.py:56` and `:79`
+  - **Issue**: Both columns are `NOT NULL` in schema for both tables.
+  - **Resolution**: Fixed — `created_at`/`updated_at` added to `Agent` and `Structure` dataclasses and included in dicts.
+file_path: cycles/003/findings/FI-003-103.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "327e469a6a88b719f3ad785abf863d7657792ba2632b27c22605d664093d77e7"
+token_count: 147

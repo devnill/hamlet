@@ -1,0 +1,59 @@
+id: WI-277
+type: work_item
+title: Kitty sprite system
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - SpriteHandle frozen dataclass with fields image_id, width, height, uploaded
+  - SpriteManager with monotonically increasing _next_id counter
+  - load_sprite returns SpriteHandle with unique ID, or None if file missing
+  - get_terrain_sprite, get_structure_sprite, get_agent_sprite follow naming conventions and return None when file missing
+  - get_upload_sequence calls protocol.encode_image_upload and returns escape sequence string
+  - cleanup returns encode_delete_all sequence and clears internal cache
+  - Cache keyed by (filename, size) — same file at same size returns same handle
+  - SpriteHandle instances are never mutated after creation (fixes Q-12)
+  - Tests verify None return for non-existent paths
+  - Tests verify cache returns same handle for repeated calls
+  - Tests verify _next_id increments for distinct sprites
+module: null
+domain: null
+notes: |
+  # WI-277: Kitty sprite system
+  
+  ## Context
+  Replaces the notcurses sprite system. Key improvement: immutable SpriteHandle with explicit lifecycle fixes cycle 015 Q-12 (invalidation after cleanup).
+  
+  ## Design
+  
+  ### SpriteHandle (frozen dataclass)
+  - `image_id: int` — unique, monotonically increasing
+  - `width: int`, `height: int` — pixel dimensions
+  - `uploaded: bool` — whether the image has been transmitted to terminal
+  
+  ### SpriteManager
+  - `_next_id: int` — starts at 1, increments per sprite
+  - `_cache: dict[tuple[str, int], SpriteHandle]` — keyed by (filename, size)
+  - `_png_data: dict[int, bytes]` — raw PNG bytes keyed by image_id
+  - `assets_dir: Path` — defaults to `Path(__file__).parent / "assets"`
+  
+  ### Naming conventions
+  - Terrain: `terrain_{type}_{size}.png` (e.g., `terrain_forest_16.png`)
+  - Structure: `structure_{type}_{stage}_{size}.png` (e.g., `structure_house_3_16.png`)
+  - Agent: `agent_{type}_{frame}_{size}.png` (e.g., `agent_coder_0_16.png`)
+  
+  ### Q-12 fix (SpriteSheet invalidation)
+  - SpriteHandle is frozen — never mutated
+  - Image IDs are monotonically increasing — never reused
+  - `cleanup()` sends bulk delete to terminal, clears cache, but doesn't touch existing SpriteHandle objects
+  - After cleanup, display commands for deleted IDs are silently ignored by terminal
+  
+  ### Size snapping
+  Supported: 16, 8. Snap to largest <= requested. If < 8, use 8.
+cycle_created: 1
+cycle_modified: null
+content_hash: "5b127ac043aa08f653273b3731fc87bfd733fcf0c0bb7003cea9f936271872cc"
+token_count: 623
+file_path: .ideate/work-items/WI-277.yaml

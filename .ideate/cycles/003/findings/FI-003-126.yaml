@@ -1,0 +1,19 @@
+id: FI-003-126
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: PLANNER color mismatch and zombie color collision
+description: |
+  - **File**: `src/hamlet/inference/types.py:91` and `src/hamlet/tui/symbols.py:23`
+  - **Issue**: `TYPE_COLORS` assigns `AgentType.PLANNER` `"dark_green"`. `AGENT_COLORS` assigns it `"green"`. Additionally, `"green"` is the zombie override color in `get_agent_color`, making a live PLANNER visually indistinguishable from a zombie.
+  - **Impact**: Cannot distinguish live PLANNER agents from zombie agents by color.
+  - **Suggested fix**: Change `AGENT_COLORS[AgentType.PLANNER]` from `"green"` to `"dark_green"` in `tui/symbols.py`.
+file_path: cycles/003/findings/FI-003-126.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-099
+verdict: Pass
+content_hash: "3b028f5471873f94eda2eda661628d12b3db75126c35cc0736d0c0f6da7d23ab"
+token_count: 213

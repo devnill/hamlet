@@ -1,0 +1,28 @@
+id: FI-012-004
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: No Validation of Direct zoom Property Assignment
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/map_viewer.py:40`
+  - **Issue**: The `zoom` reactive property is public and can be set directly to invalid values (e.g., `viewer.zoom = 3`), which would cause `ZOOM_LEVELS.index(3)` to raise `ValueError` in `zoom_in()`/`zoom_out()`.
+  - **Suggested fix**: Add a validator to the reactive property or make it private with a setter that validates:
+    ```python
+    @property
+    def zoom_level(self) -> int:
+        return self._zoom
+    
+    def set_zoom(self, level: int) -> None:
+        if level not in ZOOM_LEVELS:
+            raise ValueError(f"Invalid zoom level {level}. Must be one of {ZOOM_LEVELS}")
+        self.zoom = level
+    ```
+file_path: cycles/012/findings/FI-012-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-253
+verdict: Pass
+content_hash: "947a2633891c4742aae84c3cb3b4333f4cfb9e0b17e69660385c5aff7e1fe3a6"
+token_count: 247

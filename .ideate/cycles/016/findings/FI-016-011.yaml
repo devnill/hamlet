@@ -1,0 +1,18 @@
+id: FI-016-011
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `flush()` is never called after `_output.write()`
+description: |
+  - **File**: `src/hamlet/gui/kitty/renderer.py:101`, `:109`
+  - **Issue**: `render_frame` and `cleanup` both call `self._output.write(...)` without a subsequent `flush()`. If `output` is buffered (e.g., `sys.stdout` in block-buffered mode when redirected), frames may not appear until the buffer fills or the program exits.
+  - **Suggested fix**: Add `self._output.flush()` after each `self._output.write(...)` call, or require callers to use a line-buffered / unbuffered stream and document this in the docstring.
+file_path: cycles/016/findings/FI-016-011.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-278
+verdict: Fail
+content_hash: d3944e06eeb3875b56da005a9491eee981f9ed2e7e0532146a42b5824947e382
+token_count: 204

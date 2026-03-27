@@ -1,0 +1,29 @@
+id: WI-071
+type: work_item
+title: Persistence Data Structures
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/persistence/types.py` exists
+  - `WriteOperation` dataclass with `entity_type`, `entity_id`, `operation`, `data` fields
+  - `PersistenceConfig` dataclass with `db_path`, `write_queue_size`, `checkpoint_interval` fields and defaults
+  - `WorldStateData` dataclass with `projects`, `sessions`, `villages`, `agents`, `structures`, `metadata` fields
+  - "`entity_type` is Literal union: \"project\", \"session\", \"agent\", \"structure\", \"village\", \"event_log\""
+  - "`operation` is Literal: \"insert\", \"update\", \"delete\""
+  - Default `db_path` is `~/.hamlet/world.db`
+  - Default `write_queue_size` is 1000
+  - Default `checkpoint_interval` is 5.0 seconds
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 071
+  
+  These types are the public interface for the persistence module. WriteOperation represents a queued write. PersistenceConfig is passed to Persistence constructor. WorldStateData is the result of loading state from disk.
+cycle_created: 1
+cycle_modified: null
+content_hash: "1b0d2543d9545de6e50293252e3638c72050d35d5391cb80792622468962fb26"
+token_count: 298
+file_path: .ideate/work-items/WI-071.yaml

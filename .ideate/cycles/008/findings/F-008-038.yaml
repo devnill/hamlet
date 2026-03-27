@@ -1,0 +1,18 @@
+id: F-008-038
+type: finding
+cycle: 8
+reviewer: spec-reviewer
+severity: minor
+title: Infallible literal assignments wrapped in `try/except` — WI-183
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:762–829`
+  - **Issue**: Several `handle_event` branches wrap a bare f-string assignment in `try/except Exception`. A bare f-string on a `str | None` field cannot raise. The try blocks add noise without catching any real error. The pattern appears for `TeammateIdle`, `PostToolUseFailure`, `UserPromptSubmit`, `PreCompact`, `PostCompact`, and `StopFailure`.
+  - **Suggested fix**: Remove the `try/except` wrappers from branches that contain only the `summary = f"..."` assignment. Reserve try/except for branches that call async helpers or mutate state.
+file_path: cycles/008/findings/F-008-038.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-008
+verdict: Pass
+content_hash: "63957519215cce65ddf3328a852f3aeae69d390898417371f2019fef221caca6"
+token_count: 230

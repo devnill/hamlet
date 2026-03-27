@@ -1,9 +1,0 @@
-# Review Manifest — Cycle 006
-
-## Work Items
-
-| # | Title | File Scope | Incremental Verdict | Findings (C/S/M) | Work Item Path | Review Path |
-|---|---|---|---|---|---|---|
-| 122 | Consume notification_message and stop_reason downstream | inference/engine.py, world_state/manager.py | Pass | 0/0/2 | plan/work-items.yaml#122 | archive/incremental/122-consume-notification-stop.md |
-| 123 | Consolidate agent color maps — animation.py uses TYPE_COLORS | simulation/animation.py | Pass | 0/0/1 | plan/work-items.yaml#123 | archive/incremental/123-color-map-consolidation.md |
-| 124 | Fix find_config() traversal — skip global config without project_id | hooks/pre_tool_use.py, hooks/post_tool_use.py, hooks/notification.py, hooks/stop.py | Pass | 0/0/1 | plan/work-items.yaml#124 | archive/incremental/124-find-config-fix.md |

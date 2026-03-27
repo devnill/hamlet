@@ -1,0 +1,11 @@
+id: J-007-043
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 005: MCPServer Integration"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed (S1: start() guard changed from _running flag to _run_task task check to prevent race; S2: null guard added for world_state in read_resource handler). 1 minor finding fixed (M1: asyncio.Task[None] annotation). S3 (app wiring not present) is out of scope — MCPServer integration with app orchestrator is deferred to the app integration work item.
+content_hash: "53d4d2fedd89f92190ad4b3ebf3275d5ca669e392c262475f11e407094aa0f73"
+token_count: 142

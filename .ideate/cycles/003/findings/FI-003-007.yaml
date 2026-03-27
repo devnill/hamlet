@@ -1,0 +1,19 @@
+id: FI-003-007
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `world_state` accessed without null guard in `read_resource`
+description: |
+  - **File**: `src/hamlet/mcp_server/handlers.py:78`
+  - **Issue**: `world_state._state` accessed unconditionally. `MCPServer.__init__` accepts `world_state=None` as default, so `AttributeError` on None is certain.
+  - **Suggested fix**: Add explicit `if world_state is None` check.
+  - **Resolution**: Fixed — null guard added.
+file_path: cycles/003/findings/FI-003-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-005
+verdict: Fail
+content_hash: f288ece6a8dc961cab45ad686d985d6bcae0526fbea6814d173172db16d55385
+token_count: 161

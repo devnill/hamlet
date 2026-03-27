@@ -1,0 +1,18 @@
+id: FI-003-079
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Silent out-of-range stage fallback in get_structure_symbol
+description: |
+  - **File**: `src/hamlet/tui/symbols.py:67`
+  - **Issue**: `STAGE_SYMBOLS.get(structure.stage, "#")` silently returns "#" for stage values outside 0-3.
+  - **Resolution**: Graceful degradation (GP7) — fallback behavior is correct. No change.
+file_path: cycles/003/findings/FI-003-079.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-062
+verdict: Pass
+content_hash: "76e503776e13d8d98a315660765ae1529c2db98b47c517002c40f94b41562924"
+token_count: 139

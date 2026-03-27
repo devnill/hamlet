@@ -1,0 +1,101 @@
+id: WI-178
+type: work_item
+title: Add error logging in hamlet_hook_utils.py on malformed config JSON
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - find_config() calls _log_error("find_config", exc) in each except block before passing, so malformed JSON is logged to ~/.hamlet/hooks.log
+  - find_server_url() calls _log_error("find_server_url", exc) in each except block (project-level traversal) before passing
+  - Silent pass-through behavior on malformed JSON is replaced with logged pass-through (still falls through gracefully, per GP-7)
+  - All four except blocks that silently catch JSON parse errors now log before continuing
+module: null
+domain: null
+notes: |
+  # WI-178 Notes: Add error logging on malformed config JSON in hamlet_hook_utils.py
+  
+  ## Context
+  Gap analysis EC2 (significant): `find_config()` falls through to a phantom `project_id` when `.hamlet/config.json` contains malformed JSON. `except Exception: pass` swallows the error silently, routing hook events to a ghost village. EC1 (minor): same issue in `find_server_url()`.
+  
+  The fix is to call `_log_error` inside each `except` block before continuing, matching the error-handling pattern already used in the hook scripts' `main()` functions.
+  
+  ## File to modify
+  `/Users/dan/code/hamlet/hooks/hamlet_hook_utils.py`
+  
+  ## Current find_config() (lines ~46-64)
+  ```python
+  def find_config() -> tuple[str, str]:
+      """Traverse from cwd up to root looking for .hamlet/config.json with project_id."""
+      cwd = Path(os.getcwd())
+      for directory in [cwd, *cwd.parents]:
+          config_path = directory / ".hamlet" / "config.json"
+          if config_path.exists():
+              try:
+                  cfg = json.loads(config_path.read_text())
+                  pid = cfg.get("project_id", "")
+                  if pid:
+                      return pid, cfg.get("project_name", directory.name)
+              except Exception:
+                  pass
+      return f"project-{_cwd_hash(cwd)}", cwd.name
+  ```
+  
+  ## Desired find_config()
+  ```python
+  def find_config() -> tuple[str, str]:
+      """Traverse from cwd up to root looking for .hamlet/config.json with project_id."""
+      cwd = Path(os.getcwd())
+      for directory in [cwd, *cwd.parents]:
+          config_path = directory / ".hamlet" / "config.json"
+          if config_path.exists():
+              try:
+                  cfg = json.loads(config_path.read_text())
+                  pid = cfg.get("project_id", "")
+                  if pid:
+                      return pid, cfg.get("project_name", directory.name)
+              except Exception as exc:
+                  _log_error("find_config", exc)
+      return f"project-{_cwd_hash(cwd)}", cwd.name
+  ```
+  
+  ## Current find_server_url() project-level except
+  ```python
+      for directory in [cwd, *cwd.parents]:
+          config_path = directory / ".hamlet" / "config.json"
+          if config_path.exists():
+              try:
+                  cfg = json.loads(config_path.read_text())
+                  url = cfg.get("server_url", "")
+                  if url:
+                      return url
+              except Exception:
+                  pass
+  ```
+  
+  ## Desired find_server_url() project-level except
+  ```python
+      for directory in [cwd, *cwd.parents]:
+          config_path = directory / ".hamlet" / "config.json"
+          if config_path.exists():
+              try:
+                  cfg = json.loads(config_path.read_text())
+                  url = cfg.get("server_url", "")
+                  if url:
+                      return url
+              except Exception as exc:
+                  _log_error("find_server_url", exc)
+  ```
+  
+  ## Note on global config except blocks
+  The outer try/except in `find_server_url()` (reading `~/.hamlet/config.json`) can also be updated similarly but is less critical — the global config is rarely malformed. Include for completeness.
+  
+  ## Acceptance Criteria
+  All 4 `except Exception: pass` blocks in the two functions become `except Exception as exc: _log_error(...)`.
+  No other logic changes.
+cycle_created: 1
+cycle_modified: null
+content_hash: e0329c52bf8b967508ca44ca3ccd25311ca04e7892f6f9880962f798e7ca43d8
+token_count: 1048
+file_path: .ideate/work-items/WI-178.yaml

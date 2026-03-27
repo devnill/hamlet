@@ -1,0 +1,19 @@
+id: FI-012-007
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Weak Test for Region Scale Effect
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_terrain.py:2256-2258`
+  - **Issue**: The test `test_region_scale_affects_region_size` asserts `assert small_scale_variations >= 0` and `assert large_scale_variations >= 0`. These assertions only verify the code runs without error; they do not verify that smaller region_scale actually creates smaller/more varied regions.
+  - **Impact**: The test provides false confidence. A buggy implementation that ignores region_scale would pass this test.
+  - **Suggested fix**: Replace with an assertion that verifies the expected behavior. For example, assert that `small_scale_variations > large_scale_variations` or measure the actual region size by sampling bias values at different distances.
+file_path: cycles/012/findings/FI-012-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-254
+verdict: Pass
+content_hash: e623fc223082bfef30c7789ab463831224adea92c40630166d3386f6b441626b
+token_count: 257

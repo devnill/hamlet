@@ -1,0 +1,13 @@
+id: D-16
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: Notcurses abandoned; Kitty graphics protocol adopted as graphical backend
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "7893714e16f425c142f54ed328265e97e2f9cf970a7c731023162996a13552be"
+token_count: 74
+file_path: .ideate/decisions/D-16.yaml

@@ -1,0 +1,28 @@
+id: WI-043
+type: work_item
+title: Implement Structure Progression System
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/simulation/structure_updater.py` exists
+  - `StructureUpdater` class with `__init__(config)`
+  - `STRUCTURE_RULES` constant defines thresholds and materials per structure type
+  - `async update_structures(structures, world_state)` method
+  - Skips structures with stage >= 3 (complete)
+  - Increments stage when work_units >= threshold
+  - Updates material at stage advancement
+  - "Defines all structure types: HOUSE, WORKSHOP, LIBRARY, FORGE, TOWER, ROAD, WELL"
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 043
+  
+  Material progression: stage 0-1 = wood, stage 2 = stone, stage 3 = brick. Thresholds defined per structure type.
+cycle_created: 1
+cycle_modified: null
+content_hash: "5fa263503909b5efa053d58f26b702ff0e85b0688e5901eb94285abddfc02a70"
+token_count: 226
+file_path: .ideate/work-items/WI-043.yaml

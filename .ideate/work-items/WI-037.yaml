@@ -1,0 +1,27 @@
+id: WI-037
+type: work_item
+title: Implement Structure and Work Unit Management
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `create_structure(village_id, type, position)` creates new Structure
+  - `update_structure(structure_id, **fields)` updates and queues persistence
+  - `get_structure(id)`, `get_structures_by_village(village_id)`
+  - `add_work_units(agent_id, structure_type, units)` adds to agent total and structure
+  - Structure stage advances when work_units >= threshold
+  - "Material evolves: wood → stone at stage 2, stone → brick at stage 3"
+  - `STAGE_THRESHOLDS` and `MATERIAL_STAGES` constants defined
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 037
+  
+  Thresholds: HOUSE=[100,500,1000], WORKSHOP=[150,750,1500], etc. Work units reset after stage advancement.
+cycle_created: 1
+cycle_modified: null
+content_hash: fe6ad5581e0fdeffc2426cd3208d59752952f8105590d938aabe4a915c169207
+token_count: 230
+file_path: .ideate/work-items/WI-037.yaml

@@ -1,0 +1,10 @@
+id: C-06
+type: constraint
+category: design
+status: active
+description: Project-based villages. Each project (codebase) maps to exactly one village. Multiple projects create multiple villages on a shared global map.
+cycle_created: 1
+cycle_modified: null
+content_hash: "14a82b07a6daafb8348231c799359f827f9f64c09697d586d864ac7e3f515e7b"
+token_count: 78
+file_path: .ideate/constraints/C-06.yaml

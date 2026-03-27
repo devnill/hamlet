@@ -1,0 +1,16 @@
+id: GP-09
+type: guiding_principle
+name: Parent-Child Spatial Relationships
+status: active
+description: |
+  New agents spawn near their parent. This creates visual clustering of related work and makes the spawn relationship visible at a glance.
+  
+  **Why:** User specified: "when they spawn, they should just pop on to the screen next to the parent which spawned them."
+  
+  **How to apply:** When an agent spawn event is detected (inferred from tool patterns), place the new agent at a position adjacent to the parent agent. Use proximity for team clustering as a secondary behavior.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: a49760198c35f44375262cdcd374935c9cc00c62fe1d2cbc698842c877594616
+token_count: 175
+file_path: .ideate/principles/GP-09.yaml

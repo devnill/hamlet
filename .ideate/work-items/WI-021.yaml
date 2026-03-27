@@ -1,0 +1,26 @@
+id: WI-021
+type: work_item
+title: Core Types and Data Structures
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "`AgentType` enum exists with values: RESEARCHER, CODER, EXECUTOR, ARCHITECT, TESTER, GENERAL"
+  - `InferenceResult` dataclass with action, agent_id, parent_id, inferred_type, position fields
+  - `InferenceAction` enum with SPAWN, UPDATE, COMPLETE, IDLE values
+  - `PendingTool`, `SessionState`, `ToolWindow`, `InferenceState` dataclasses
+  - `TYPE_COLORS` constant maps AgentType to color strings
+  - Module exports all types
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 021
+  
+  All types use `@dataclass`. `AgentType` enum defines color mapping. `InferenceState` tracks pending tools, sessions, and tool windows for inference.
+cycle_created: 1
+cycle_modified: null
+content_hash: "039cb9c4824d7aa1093fe7d7fc0300cabf41706f9d4c076e9be828099f023ada"
+token_count: 220
+file_path: .ideate/work-items/WI-021.yaml

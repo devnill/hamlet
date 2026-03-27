@@ -1,0 +1,50 @@
+id: WI-140
+type: work_item
+title: Fix exit code propagation in main()
+status: pending
+complexity: small
+scope: []
+depends: []
+blocks: []
+criteria:
+  - main() passes _run_viewer() return code to sys.exit() (not discards it)
+  - hamlet exits non-zero when daemon is unreachable
+  - hamlet exits non-zero on unexpected exception in viewer
+  - sys.exit() called with correct code in all code paths of main()
+module: null
+domain: null
+notes: |
+  # WI-140: Fix exit code propagation in main()
+  
+  ## Context
+  `main()` in `__main__.py` calls `asyncio.run(_run_viewer())` and discards the return value. `_run_viewer()` returns `1` on error (daemon unreachable, exception). The process always exits `0`.
+  
+  ## Existing Code
+  - `src/hamlet/__main__.py` — `main()` function, current no-args branch
+  - `_run_viewer()` returns int (0 or 1)
+  
+  ## Change
+  
+  ```python
+  def main() -> None:
+      import sys
+      args = sys.argv[1:]
+  
+      if not args:
+          exit_code = asyncio.run(_run_viewer())
+          sys.exit(exit_code)
+  
+      from hamlet.cli import main as cli_main
+      sys.exit(cli_main(args))
+  ```
+  
+  ## Notes
+  - Read current `main()` implementation before modifying
+  - `sys.exit(0)` on successful viewer run (or omit, since None → 0)
+  - `sys.exit(1)` on daemon unreachable or exception in viewer
+  - The `sys.exit(cli_main(args))` path is already correct — do not change it
+cycle_created: 1
+cycle_modified: null
+content_hash: "19438666b40bf36d972258a90052abc5f31e54abf95ffdb1d203e72488305217"
+token_count: 367
+file_path: .ideate/work-items/WI-140.yaml

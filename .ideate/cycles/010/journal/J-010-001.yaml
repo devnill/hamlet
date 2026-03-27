@@ -1,0 +1,15 @@
+id: J-010-001
+type: journal_entry
+phase: refine
+date: "2026-03-16"
+cycle_created: 10
+title: Refinement planning completed
+content: |
+  Trigger: Cycle 003 comprehensive review Fail — hook scripts never read stdin, use fabricated environment variables, omit required fields
+  Principles changed: none
+  Architecture changed: HookEvent contract updated to document flat field format as canonical (not nested under "data")
+  New work items: 113-118
+  Cycle 004 addresses: all 8 critical findings, all 5 significant findings, 4 of 7 minor findings from Cycle 003 review
+  Deferred: viewport center persistence (acceptable for MVP), PLANNER inference rule (marked reserved)
+content_hash: "7b20d9348f3fd4ce92437dee55fc2263f0a563c3d46b6d534ee17d9d7a371a24"
+token_count: 169

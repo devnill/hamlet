@@ -1,0 +1,13 @@
+id: D-25
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: Settings CLI uses dot notation for terrain sub-keys
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "58a3d80163bc952b3b81652a4b5b2b1152f53a32b143b53b48764f3801ed0d47"
+token_count: 68
+file_path: .ideate/decisions/D-25.yaml

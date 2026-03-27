@@ -1,0 +1,19 @@
+id: F-012-047
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Inverted Water Bias Formula in Wet Regions (WI-254)
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:663`
+  - **Issue**: The water bias calculation for wet regions uses `bias_strength * (-biome_char) * 0.5`. While this is an improvement over the original inverted formula, the comment still states "wet regions: more water and forest" but the formula implementation doesn't align with the stated intent. For `biome_char = -1` (wettest), the water bias is `0.3 * 1.0 * 0.5 = 0.15`, but for `biome_char = -0.33` (boundary), the water bias is `0.3 * 0.33 * 0.5 = 0.05`. This means wet regions get higher water bias, which is correct. However, the constant `0.3` in line 651 (`bias_strength = self._config.region_blending * 0.3`) combined with the `* 0.5` in line 663 produces a maximum bias of 0.15, not 0.3 as suggested by the comment "Max +/-0.3 adjustment".
+  - **Impact**: The water bias in wet regions works correctly but the documented maximum is inaccurate. Users configuring `region_blending=1.0` expect a maximum bias of +/-0.3 but actually get +/-0.15.
+  - **Suggested fix**: Either update the comment on line 651 to reflect the actual maximum bias, or adjust the multiplier in the formula to achieve the documented 0.3 maximum.
+file_path: cycles/012/findings/F-012-047.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-012
+verdict: Fail
+content_hash: "0529638d366609eecf66b9f88b95fb4c11b4b015f85c10782f0c4c4c82b844fc"
+token_count: 380

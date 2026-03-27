@@ -1,0 +1,19 @@
+id: FI-003-158
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: Migration tests hardcode version 1, fail after migration 2 is applied
+description: |
+  - **File**: `tests/test_persistence_migrations.py:35` and `:92`
+  - **Issue**: Both `test_run_migrations_creates_all_tables` and `test_run_migrations_idempotent` assert `row[0] == 1` after `run_migrations()`. With migration 2 in the dict, schema_version will be 2.
+  - **Impact**: CI broken immediately.
+  - **Suggested fix**: Change assertions to `row[0] == 2`.
+file_path: cycles/003/findings/FI-003-158.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-109
+verdict: Pass
+content_hash: "71da65e1cefdfa2a1ec0f16d339d1977a273ab274ff0ca18e95898b5aa6b3a85"
+token_count: 172

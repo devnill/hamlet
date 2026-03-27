@@ -1,0 +1,12 @@
+id: J-006-005
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 6
+title: "Cycle 6 — Work item 214: Wire zombie_threshold_seconds from Settings"
+content: |
+  Status: complete with rework
+  Rework: 2 minor findings fixed (added validation for zombie_threshold_seconds > 0; added regression guard for _despawn_threshold_seconds in test).
+  Settings.zombie_threshold_seconds field added; wired to AgentInferenceEngine in build_components.
+content_hash: fa64d8465965858b252db034f3140c0a76a93362f287402d63b5a17f0c14d942
+token_count: 115

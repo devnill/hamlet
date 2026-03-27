@@ -1,0 +1,11 @@
+id: J-003-004
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 259: Add Missing Parameters to Parameter Panel"
+content: |
+  Status: complete
+  Added 10 missing TerrainConfig parameters to TERRAIN_PARAMS in parameter_panel.py: region_scale, region_blending, river_count, pond_count, min_pond_size, max_pond_size, water_percentage_target, forest_water_adjacency_bonus, forest_region_bias_strength, forest_percentage_target.
+content_hash: "511597d4a6b1b145be4a1319cdb5e2d6786ce71b7f990414fff138ff75c2c645"
+token_count: 118

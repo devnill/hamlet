@@ -1,0 +1,18 @@
+id: FI-003-062
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Zombie pulse invisible for PLANNER agents
+description: |
+  - **File**: `src/hamlet/simulation/animation.py:54`
+  - **Issue**: `get_animation_color` alternated between the agent's base color and `"green"`. `PLANNER` base color is `"green"`, so both pulse phases were identical — no visual change.
+  - **Fix**: Replaced pulse highlight `"green"` with `ZOMBIE_PULSE_COLOR = "bright_green"`, which is visually distinct from all base colors including PLANNER's `"green"`.
+file_path: cycles/003/findings/FI-003-062.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-044
+verdict: Pass
+content_hash: "3793093f01f1ed64f4a979ecfdb0d43bcb9dca606c58fee4fed202c5bc46bf8d"
+token_count: 180

@@ -1,0 +1,80 @@
+id: WI-118
+type: work_item
+title: Minor display and code fixes
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - legend.py renders the EXECUTOR entry using red color, matching symbols.py and types.py
+  - inference/engine.py uses "if event.duration_ms is not None" not the truthy "if event.duration_ms"
+  - inference/rules.py contains a comment on or near the TYPE_RULES list noting that AgentType.PLANNER is reserved for a future inference rule
+  - mcp_server/server.py does not start the stdio MCP listener (remove the stdio server start() call and its background task)
+module: null
+domain: null
+notes: |
+  # WI-118: Minor display and code fixes
+  
+  ## Context
+  
+  Four small, independent fixes. None touch the same lines as WI-114, WI-116, or WI-117, but they all modify files those items also modify, so they run after Group 2/3 completes.
+  
+  ## Fix 1: EXECUTOR legend color (legend.py)
+  
+  `legend.py:64` renders the EXECUTOR entry as green. `symbols.py:23` and `types.py:93` both map `AgentType.EXECUTOR` to `"red"`. The legend is wrong.
+  
+  Change the EXECUTOR line in `legend.py` from green markup to red:
+  ```python
+  # Before (approximate):
+  Text("@ Executor (green)", style="green")
+  # After:
+  Text("@ Executor (red)", style="red")
+  ```
+  
+  Read the current line at legend.py:64 exactly before modifying.
+  
+  ## Fix 2: duration_ms truthy check (inference/engine.py)
+  
+  `engine.py:275` has:
+  ```python
+  units = max(1, event.duration_ms // 100) if event.duration_ms else 1
+  ```
+  
+  Change to:
+  ```python
+  units = max(1, event.duration_ms // 100) if event.duration_ms is not None else 1
+  ```
+  
+  This ensures `duration_ms=0` (a valid value, meaning sub-millisecond) contributes 1 work unit rather than silently falling to the else branch for the wrong reason.
+  
+  ## Fix 3: PLANNER reserved comment (inference/rules.py)
+  
+  Find `TYPE_RULES` in `inference/rules.py`. Add a comment near the end of the list or after it:
+  
+  ```python
+  # NOTE: AgentType.PLANNER is defined (inference/types.py) but intentionally
+  # has no TYPE_RULE entry in this list. It is reserved for a future rule
+  # (e.g., high ratio of coordination/planning tool calls). Do not add a
+  # PLANNER rule without a corresponding interview/refinement cycle.
+  ```
+  
+  ## Fix 4: Remove stdio MCP transport (mcp_server/server.py)
+  
+  `MCPServer.start()` currently starts both an aiohttp HTTP server and a stdio MCP server. The stdio server waits indefinitely on stdin that will never arrive (hooks use HTTP exclusively since WI-100).
+  
+  Locate the stdio MCP server start call in `server.py` (approximately lines 54-65 and 109-128 per the review). Remove the `asyncio.create_task(stdio_server.run())` call (or equivalent). The stdio MCP handlers registered in `handlers.py` may remain registered — removing the transport is sufficient.
+  
+  If the stdio server is started via `mcp.run()` or similar, remove or comment that call. The HTTP route at `/hamlet/event` handles all production traffic.
+  
+  ## Key locations
+  
+  - `legend.py:64` — EXECUTOR color entry
+  - `engine.py:275` — duration_ms conditional
+  - `inference/rules.py` — TYPE_RULES list (end of list, add comment)
+  - `server.py:54-65, 109-128` — stdio MCP server start code
+cycle_created: 1
+cycle_modified: null
+content_hash: "71ae4f389bab9ff677b676584104951dc6e767cbe18e65349580d798b242b615"
+token_count: 831
+file_path: .ideate/work-items/WI-118.yaml

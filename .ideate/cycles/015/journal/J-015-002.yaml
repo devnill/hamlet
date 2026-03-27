@@ -1,0 +1,23 @@
+id: J-015-002
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: Cycle 1 review complete
+content: |
+  Critical findings: 8
+  Significant findings: 13
+  Minor findings: 13
+  Convergence: not achieved
+  
+  Key critical issues:
+  - animation_manager not passed to MCPServer in daemon or viewer paths
+  - Stale tests assert old "?" legend binding (should be "/")
+  - main() discards _run_viewer() exit code (always exits 0)
+  - plugin.json missing hooks field (hooks never registered via plugin)
+  - install_hooks_to_settings writes wrong format for Claude Code
+  - HelpOverlay visible reactive shadows DOMNode.visible framework property
+  - hooks.json CLAUDE_PLUGIN_ROOT unexpanded in JSON context
+  - mcp/start.sh broken path resolution when CLAUDE_PLUGIN_ROOT unset
+content_hash: "52459439a2880a93a27a651058b9adee5b4451c06896803cebadec9cb59ae2ae"
+token_count: 198

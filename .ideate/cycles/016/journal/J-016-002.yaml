@@ -1,0 +1,11 @@
+id: J-016-002
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 1 — Work item 166: Add async:true to plugin hooks.json"
+content: |
+  Status: complete
+  Added "async": true to all four hook entries in hooks/hooks.json (PreToolUse, PostToolUse, Notification, Stop). timeout: 5 and command paths unchanged.
+content_hash: c77961257bd2b3900e9179ff0833fcae7a015dcc1d6eb22614da9f26786fb3f7
+token_count: 87

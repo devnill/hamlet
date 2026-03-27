@@ -1,0 +1,11 @@
+id: J-007-050
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 075: Entity Save Operations"
+content: |
+  Status: complete with rework
+  Rework: 6 critical findings fixed — schema mismatches in all five save methods: project had spurious village_id; session used agent_ids instead of agent_ids_json; agent used project_id instead of village_id (and village_id field added to Agent dataclass + manager); village included nonexistent agent_ids/structure_ids columns; village/agent/structure missing created_at/updated_at (fields added to dataclasses). 2 significant findings fixed (JSON serialization for agent_ids_json and config_json). Manager.get_or_create_agent and load_from_persistence updated to set/load village_id.
+content_hash: "4e3b56b78a7ae5cf236ea91574ea15650fca558a0ffef16f27770777727ae7f9"
+token_count: 193

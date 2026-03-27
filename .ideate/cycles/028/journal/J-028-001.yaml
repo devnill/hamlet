@@ -1,0 +1,13 @@
+id: J-028-001
+type: journal_entry
+phase: refine
+date: "2026-03-21"
+cycle_created: 28
+title: Refinement planning completed (refine-14)
+content: |
+  Trigger: User feedback after using hamlet — desire for richer visual and gameplay elements
+  Principles changed: none
+  New work items: WI-232 through WI-239
+  Terrain generation foundation: TerrainType enum, TerrainGenerator (seed-based deterministic), TerrainGrid (cached storage), village placement on passable terrain, TUI rendering with ASCII tiles, persistence integration for terrain seed, RemoteWorldState terrain methods. Deferred to future cycles: agent movement, geography-specific structures, project menu, roads, building speed.
+content_hash: "3e6c9285c259dd93d06fffb63cd2c562ca3da77d1eb6bedcdfd85f47c08dc660"
+token_count: 175

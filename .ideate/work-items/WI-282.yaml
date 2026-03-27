@@ -1,0 +1,51 @@
+id: WI-282
+type: work_item
+title: Doctor command and architecture documentation updates
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - doctor_command prints Kitty protocol availability, KITTY_WINDOW_ID, terminal type, tmux warning, recommended renderer
+  - No references to notcurses in doctor output
+  - architecture.md component map includes GUI MODULE section with gui/ subtree (fixes Q-20)
+  - architecture.md references Kitty graphics protocol, not notcurses
+  - test_doctor.py verifies "kitty" in output, tmux warning tested
+module: null
+domain: null
+notes: |
+  # WI-282: Doctor command and architecture documentation updates
+  
+  ## Context
+  Update diagnostics for Kitty. Update architecture.md to document gui/ module (fixes Q-20).
+  
+  ## doctor.py
+  Print: Kitty protocol availability, KITTY_WINDOW_ID value, TERM, tmux detection with warning, recommended renderer. No notcurses references.
+  
+  ## architecture.md
+  Add GUI MODULE section to component map:
+  ```
+  gui/renderer_protocol.py — RendererProtocol
+  gui/symbol_config.py — SymbolConfig, AgentVisual, etc.
+  gui/detect.py — detect_renderer(), resolve_renderer()
+  gui/kitty/
+    protocol.py — Kitty APC escape sequences
+    renderer.py — KittyRenderer (RendererProtocol)
+    sprites.py — SpriteManager, SpriteHandle
+    app.py — KittyApp (30fps render loop)
+    state_fetcher.py — HTTP state polling
+    zoom.py — ZoomLevel, ZoomConfig
+  ```
+  
+  Replace all notcurses references with Kitty graphics protocol.
+  
+  ## test_doctor.py
+  - Assert "kitty" in output (case-insensitive)
+  - Remove notcurses assertions
+  - tmux warning test remains
+cycle_created: 1
+cycle_modified: null
+content_hash: "0af206fd6148f8afb14465cf107963e38abdb8f4f679bdc344af8ddbb26888d6"
+token_count: 430
+file_path: .ideate/work-items/WI-282.yaml

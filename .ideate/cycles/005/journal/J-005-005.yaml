@@ -1,0 +1,11 @@
+id: J-005-005
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 5
+title: "Cycle 7 — Work item 217: Add Village.has_expanded flag + expansion cooldown"
+content: |
+  Status: complete with rework
+  Rework: C1 fixed (has_expanded now set on originating village even when 5-cell idempotency guard fires); S1 fixed (two new tests added for has_expanded set on new-village path and guard-fires path); S2 fixed (@pytest.mark.asyncio decorators removed from test_persistence_migrations.py).
+content_hash: dec22a8c36598c66615b2dd429ce44c93575433418fcd9a08d99cc1682cae455
+token_count: 127

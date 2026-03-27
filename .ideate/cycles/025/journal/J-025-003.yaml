@@ -1,0 +1,11 @@
+id: J-025-003
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 25
+title: "Cycle 1 — Work item 205: Daemon port conflict detection and warning"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding (missing service remedy in "other" conflict message), 1 significant finding (no direct unit tests for _check_port_conflict — added 3 tests). 1 minor finding fixed (Settings.load patched in existing tests).
+content_hash: "07fa7af02a425086432c2bc80a08fd54a9635b88e823f6a0907be581879531b0"
+token_count: 113

@@ -1,0 +1,11 @@
+id: J-007-045
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 036: Implement Agent CRUD with Position Assignment"
+content: |
+  Status: complete with rework
+  Rework: 3 significant findings fixed (S1: update_agent signature changed to **fields kwargs, agent_updater.py caller updated; S2: _find_spawn_position rewritten as true Chebyshev-distance spiral with RuntimeError fallback; S3: setattr guarded with dataclasses.fields() validation). 2 minor findings fixed (M1: placeholder village now queued for persistence; M2: warning logged when session is None).
+content_hash: cac0f740f8c7c40867c5916883c2f42e9e2f0cb11e62e88e59462d7be25092b7
+token_count: 152

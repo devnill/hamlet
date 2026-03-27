@@ -1,0 +1,19 @@
+id: FI-008-024
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: No tests for any of the 11 new `handle_event` branches
+description: |
+  - **File**: `tests/test_world_state_manager.py` (no relevant tests found)
+  - **Issue**: `test_world_state_manager.py` contains zero tests for `handle_event`. The `test_event_processor.py` file only mocks `handle_event` as an `AsyncMock` and does not exercise its internals. None of the 11 new `HookType` branches (`SessionStart`, `SessionEnd`, `SubagentStart`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`, `PostToolUseFailure`, `UserPromptSubmit`, `PreCompact`, `PostCompact`, `StopFailure`) have tests verifying summary content, EventLogEntry creation, state mutations, or try/except behaviour.
+  - **Impact**: Regressions in any branch go undetected. Acceptance criteria cannot be verified automatically.
+  - **Suggested fix**: Add a test class `TestHandleEvent` covering at minimum: (1) each new HookType produces an `EventLogEntry` with a non-empty summary; (2) `SessionStart` calls `get_or_create_project` and `get_or_create_session`; (3) `SessionEnd` sets matching agents to `AgentState.IDLE`; (4) `SubagentStart` calls `get_or_create_agent`; (5) `TaskCompleted` calls `add_work_units` with 10 units; (6) an exception inside a branch is caught and logged as a warning, not raised.
+file_path: cycles/008/findings/FI-008-024.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: "62ec2bd71860bdd5358afff8a278eb993838ebc582caab123dff24a36955b86b"
+token_count: 376

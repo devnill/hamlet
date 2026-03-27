@@ -1,0 +1,11 @@
+id: J-009-012
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 111: LLM activity summarization"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (S1: summarizer was awaited inline in _handle_post_tool_use, blocking event pipeline for up to 5s — changed to asyncio.create_task(_summarize_and_update(...)) with private helper method). 2 minor findings fixed (M1: current_activity now reads from get_all_agents() instead of viewport-visible agents; M2: added tests/test_summarizer.py with 5 tests covering happy path, exception fallback, timeout fallback, and _fallback mapping).
+content_hash: d1ffb7db2b329fd4fad115debc43e57729fed21eb3aa6c331dafc9991ae05927
+token_count: 164

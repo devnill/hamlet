@@ -1,0 +1,130 @@
+id: WI-096
+type: work_item
+title: README and Documentation
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - README.md exists with project description and screenshot placeholder
+  - README includes Installation section with pip install command
+  - "README includes Quick Start section: hamlet install, hamlet run"
+  - README includes Configuration section explaining ~/.hamlet/config.json
+  - README includes Requirements (Python 3.12+, Claude Code)
+  - README includes Troubleshooting section for common issues
+  - README includes License section
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 096 - README and Documentation
+  
+  ## Scope
+  
+  Create comprehensive README for users.
+  
+  ## Structure
+  
+  ```markdown
+  # Hamlet 🏰
+  
+  Terminal-based idle game for Claude Code agent activity visualization.
+  
+  ![Screenshot placeholder](docs/screenshot.png)
+  
+  ## What is Hamlet?
+  
+  Hamlet turns your Claude Code sessions into a living ASCII village. Each agent becomes a `@` character that moves, works, and builds structures in real-time. Watch your codebase come alive as agents construct buildings, roads, and settlements.
+  
+  ## Installation
+  
+  ```bash
+  pip install hamlet
+  ```
+  
+  Requires Python 3.12+ and Claude Code.
+  
+  ## Quick Start
+  
+  1. **Install hooks** (one-time setup):
+     ```bash
+     hamlet install
+     ```
+  
+  2. **Run Hamlet**:
+     ```bash
+     hamlet
+     ```
+  
+  3. **Use Claude Code normally** - your village will grow as you work!
+  
+  ## Controls
+  
+  - `h/j/k/l` or arrow keys - Scroll viewport
+  - `f` - Toggle follow mode
+  - `?` - Toggle legend
+  - `q` or `Ctrl+C` - Quit
+  
+  ## Configuration
+  
+  Edit `~/.hamlet/config.json`:
+  
+  ```json
+  {
+    "tick_rate": 30.0,
+    "theme": "default"
+  }
+  ```
+  
+  ## How It Works
+  
+  - Hook scripts send Claude Code events to Hamlet
+  - Agent inference detects spawns and activity types
+  - World simulation advances construction and animations
+  - TUI renders the ASCII village at 30 FPS
+  - SQLite persists your world across sessions
+  
+  ## Troubleshooting
+  
+  **Hamlet won't start**
+  - Check Python version: `python --version` (need 3.12+)
+  - Try: `pip install --upgrade hamlet`
+  
+  **Agents not appearing**
+  - Run `hamlet install` to configure hooks
+  - Check Claude Code is using the hooks
+  
+  **Village not persisting**
+  - Check `~/.hamlet/` directory exists and is writable
+  
+  ## Uninstall
+  
+  ```bash
+  hamlet uninstall
+  pip uninstall hamlet
+  ```
+  
+  ## License
+  
+  MIT
+  ```
+  
+  ## Additional Documentation
+  
+  Could add:
+  - `docs/ARCHITECTURE.md` - Technical architecture
+  - `docs/HOOKS.md` - Hook development guide
+  - `docs/THEMES.md` - Custom theme creation
+  
+  ## Acceptance Criteria
+  
+  - [ ] README has all required sections
+  - [ ] Installation instructions are clear
+  - [ ] Quick start is actually quick (2-3 steps)
+  - [ ] Troubleshooting covers common issues
+  - [ ] Screenshot placeholder exists
+cycle_created: 1
+cycle_modified: null
+content_hash: ff47374d46134c253605be50918e162c009490b291fd2f90085a1f42689ea0c2
+token_count: 742
+file_path: .ideate/work-items/WI-096.yaml

@@ -1,0 +1,28 @@
+id: WI-067
+type: work_item
+title: Input Handling and Actions
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `action_scroll_left()` calls `viewport.scroll(-1, 0)`
+  - `action_scroll_right()` calls `viewport.scroll(1, 0)`
+  - `action_scroll_up()` calls `viewport.scroll(0, -1)`
+  - `action_scroll_down()` calls `viewport.scroll(0, 1)`
+  - `action_toggle_follow()` toggles follow mode (center on active agent or village)
+  - `action_toggle_legend()` toggles legend overlay visibility
+  - `action_quit()` exits the application
+  - Bindings use hjkl keys (vim-style) plus arrow keys
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 067
+  
+  Textual actions are defined as `action_<name>()` methods. Key bindings map keys to actions via `BINDINGS` class attribute. Scroll amount is 1 cell per key press. Follow mode: first press enables follow on most recently active agent, second press returns to village center.
+cycle_created: 1
+cycle_modified: null
+content_hash: "7c3fa2f0c1d9c40fbccf09762d4b9aece3fb523f6bad55aa0a9b27c47aeb7a84"
+token_count: 260
+file_path: .ideate/work-items/WI-067.yaml

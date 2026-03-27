@@ -1,0 +1,17 @@
+id: FI-003-155
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: STRUCTURE_RULES value type annotation too loose
+description: |
+  - **File**: `src/hamlet/world_state/rules.py:8`
+  - **Suggested fix**: Use TypedDict for the value type.
+file_path: cycles/003/findings/FI-003-155.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-108
+verdict: Pass
+content_hash: ee75cea1e2407c8ea631778df31201985120d89911fcf1b8d60d25b8442864c4
+token_count: 102

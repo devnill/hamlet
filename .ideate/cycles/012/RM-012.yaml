@@ -1,0 +1,19 @@
+id: RM-012
+type: review_manifest
+cycle: 12
+content: |
+  # Review Manifest — Cycle 012 (Terrain Generation Refinement)
+  
+  | # | Title | File Scope | Verdict | Findings (C/S/M) | Review Path |
+  |---|---|---|---|---|---|
+  | 249 | Terrain Legend Enhancement | legend.py | Pass | 0/0/0 | archive/incremental/249-terrain-legend-enhancement.md |
+  | 250 | TerrainConfig Parameter System | terrain.py | Pass | 0/0/0 | archive/incremental/250-terrainconfig-parameter-system.md |
+  | 251 | Config Persistence for Terrain Parameters | settings.py, app_factory.py | Pass | 0/0/0 | archive/incremental/251-config-persistence.md |
+  | 252 | Map Viewer Mode with Parameter Adjustment | map_viewer.py, parameter_panel.py, map_app.py, cli/__init__.py | Pass | 0/0/1 | archive/incremental/252-map-viewer-mode.md |
+  | 253 | Zoom Functionality for Map Viewer | map_viewer.py, coordinates.py | Pass | 0/1/0 | archive/incremental/253-zoom-functionality.md |
+  | 254 | Biome Region Generation | terrain.py | Pass (with rework) | 1/2/2 | archive/incremental/254-biome-region-generation.md |
+  | 255 | Realistic Water Features | terrain.py | Pass (with rework) | 1/0/0 | archive/incremental/255-realistic-water-features.md |
+  | 256 | Forest Clustering Near Features | terrain.py | Pass | 0/0/0 | archive/incremental/256-forest-clustering.md |
+  | 257 | Terrain Smoothing and Transition Rules | terrain.py | Pass (with rework) | 0/0/1 | archive/incremental/257-terrain-smoothing.md |
+content_hash: "7a18cdc487d061e4b495be85285a10b720b3f4133a75f47c83bb614d7ae3a8c3"
+token_count: 364

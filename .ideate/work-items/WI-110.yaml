@@ -1,0 +1,52 @@
+id: WI-110
+type: work_item
+title: TESTER inference rules
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `AgentInferenceEngine._infer_type` includes a post-rule refinement step for TESTER detection
+  - If inferred type would be EXECUTOR and >= 50% of Bash events in the tool window contain "pytest", "unittest", or "test_", type is overridden to TESTER
+  - TESTER detection logic is clearly commented in the code
+  - An agent running `pytest tests/` is classified as TESTER, not EXECUTOR
+module: null
+domain: null
+notes: |
+  # Work Item 110: TESTER inference rules
+  
+  ## Problem
+  `AgentType.TESTER` can only be assigned manually — no inference rule classifies agents as TESTER from tool patterns. Agents running pytest are classified as EXECUTOR.
+  
+  ## Implementation
+  In `inference/engine.py`, in the `_infer_type` method, after applying TYPE_RULES:
+  
+  ```python
+  # Post-rule refinement: if EXECUTOR, check for test-running Bash commands
+  if inferred_type == AgentType.EXECUTOR:
+      bash_events = [
+          e for e in tool_window
+          if e.tool_name == "Bash"
+          and e.tool_input is not None
+      ]
+      test_keywords = ("pytest", "unittest", "test_", " test ", "run_tests", "tox", "nose")
+      if bash_events:
+          test_count = sum(
+              1 for e in bash_events
+              if any(kw in str(e.tool_input) for kw in test_keywords)
+          )
+          if test_count / len(bash_events) >= 0.5:
+              inferred_type = AgentType.TESTER
+  ```
+  
+  ## Notes
+  - `tool_window` is the sliding window of recent tool events used by _infer_type — check the actual variable name in engine.py
+  - `e.tool_input` may be a dict; `str(e.tool_input)` for keyword search is intentionally simple
+  - The 50% threshold is a soft heuristic; adjust if it produces false positives in practice
+  - Add a comment: `# GP-4: Modular, iterable classification — TESTER refines EXECUTOR when bash is test-focused`
+cycle_created: 1
+cycle_modified: null
+content_hash: caf28f7b51dcdf231d126f46cbdf7e16dd47792d4b8389d927bdd4e2c0dfd2b1
+token_count: 515
+file_path: .ideate/work-items/WI-110.yaml

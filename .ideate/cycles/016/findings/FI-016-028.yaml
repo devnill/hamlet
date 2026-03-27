@@ -1,0 +1,18 @@
+id: FI-016-028
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: GUI MODULE omitted from coverage table
+description: |
+  - **File**: `/Users/dan/code/hamlet/specs/plan/architecture.md:891`
+  - **Issue**: The `100% Coverage Check` table at the bottom of the document lists 8 modules (MCP Server through Persistence) but does not include the GUI module that was added to the component map in this work item.
+  - **Suggested fix**: Add a row: `| GUI | Kitty renderer, sprite management, renderer detection | Env → Renderer |`
+file_path: cycles/016/findings/FI-016-028.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-282
+verdict: Pass
+content_hash: b78c8d93f2304f1b9c0b2a68d9a99f0c0d367767b71f15a3fab97a153b55b268
+token_count: 174

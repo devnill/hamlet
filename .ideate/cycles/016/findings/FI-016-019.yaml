@@ -1,0 +1,18 @@
+id: FI-016-019
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: Stale docstring in `resolve_renderer`
+description: |
+  - **File**: `src/hamlet/gui/detect.py:39`
+  - **Issue**: The `Returns:` section says `The resolved renderer name ("textual").` The function can return `"kitty"` or any other valid renderer string.
+  - **Suggested fix**: Change to `The resolved renderer name ("textual", "kitty", or the value from cli_arg/settings).`
+file_path: cycles/016/findings/FI-016-019.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-280
+verdict: Fail
+content_hash: a46dcc38de751d751b341523b4f6f3201e8644efe3c51e57ef05b5c09d3933b4
+token_count: 154

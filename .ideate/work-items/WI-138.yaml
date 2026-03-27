@@ -1,0 +1,61 @@
+id: WI-138
+type: work_item
+title: Fix animation_manager wiring and frame serialization
+status: pending
+complexity: small
+scope: []
+depends: []
+blocks: []
+criteria:
+  - MCPServer receives animation_manager in both __main__.py and daemon.py
+  - AnimationManager exposes public get_frames() returning dict[str, int] of display frame indices (tick // TICKS_PER_SPIN_FRAME % N_FRAMES)
+  - serializers.py calls animation_manager.get_frames() instead of accessing _frames directly
+  - GET /hamlet/state returns non-empty animation_frames when agents are active
+module: null
+domain: null
+notes: |
+  # WI-138: Fix animation_manager wiring and frame serialization
+  
+  ## Context
+  Two call sites construct `AnimationManager()` but never pass it to `MCPServer`, so `self._animation_manager` is always `None` and `/hamlet/state` always returns `animation_frames: {}`. Additionally, `serializers.py` accesses `_frames` directly (private attribute) and returns raw tick counts, not display frame indices.
+  
+  ## Existing Code
+  - `src/hamlet/__main__.py` — `animation_manager = AnimationManager()` at ~line 96, not passed to MCPServer at ~line 100
+  - `src/hamlet/cli/commands/daemon.py` — same omission at ~line 102-106
+  - `src/hamlet/mcp_server/serializers.py` — `dict(animation_manager._frames)` for animation_frames
+  - `src/hamlet/simulation/animation.py` — `AnimationManager._frames` stores tick counts; has `TICKS_PER_SPIN_FRAME` constant
+  
+  ## Changes
+  
+  ### `src/hamlet/__main__.py`
+  Change `MCPServer(world_state=world_state, port=settings.mcp_port)` to include `animation_manager=animation_manager`.
+  
+  ### `src/hamlet/cli/commands/daemon.py`
+  Same fix — pass `animation_manager=animation_manager` to `MCPServer(...)`.
+  
+  ### `src/hamlet/simulation/animation.py`
+  Add public method:
+  ```python
+  def get_frames(self) -> dict[str, int]:
+      """Return per-agent display frame indices (0 to N_FRAMES-1)."""
+      return {
+          agent_id: ticks // TICKS_PER_SPIN_FRAME % N_SPIN_FRAMES
+          for agent_id, ticks in self._frames.items()
+      }
+  ```
+  Check actual constant names in the file before writing.
+  
+  ### `src/hamlet/mcp_server/serializers.py`
+  Change:
+  ```python
+  dict(animation_manager._frames)
+  ```
+  To:
+  ```python
+  animation_manager.get_frames() if animation_manager else {}
+  ```
+cycle_created: 1
+cycle_modified: null
+content_hash: "84328cd3f5bfffac49be2de9bf34b088f3baf8655da1eea34107ad97d7228ca3"
+token_count: 597
+file_path: .ideate/work-items/WI-138.yaml

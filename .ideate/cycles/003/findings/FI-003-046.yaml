@@ -1,0 +1,18 @@
+id: FI-003-046
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `_find_spawn_position` is a raster scan, not a spiral; fallback returns occupied position
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:226`
+  - **Issue**: Nested range loops traversed from (-MAX_SPAWN_RADIUS,-MAX_SPAWN_RADIUS) — placing first agent at the bounding-box corner, not at origin. Fallback `return origin` returned an occupied position causing silent grid violation.
+  - **Resolution**: Fixed — rewrote to iterate by Chebyshev radius (0 to MAX_SPAWN_RADIUS), checking perimeter at each radius, so origin is tried first. Fallback `return origin` replaced with `raise RuntimeError`.
+file_path: cycles/003/findings/FI-003-046.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-036
+verdict: Fail
+content_hash: a1181af9823e9fd12edd76a23298d9fe079dc233454b347c4c94d2595b0048ab
+token_count: 213

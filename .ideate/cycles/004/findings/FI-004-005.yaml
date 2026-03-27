@@ -1,0 +1,18 @@
+id: FI-004-005
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: validate_mcp_server_running silently swallows the Settings exception with no log
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/cli/commands/install.py:89-90`
+  - **Issue**: The bare `except Exception` fallback produces no log or warning. If `Settings.load()` fails the operator has no indication the fallback port 8080 is being used.
+  - **Suggested fix**: Add a stderr warning in the except block.
+file_path: cycles/004/findings/FI-004-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-116
+verdict: Pass
+content_hash: "5ebfb8225514f3ff5543aa94edaa24d424b32f820cc31720825795b10e1b17c9"
+token_count: 163

@@ -1,0 +1,11 @@
+id: J-009-013
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 112: Config validation in Settings.load()"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (C1: `isinstance(True, int)` is True in Python — added `isinstance(self.mcp_port, bool)` exclusion before the int check so booleans are rejected). 1 significant finding fixed (S1: split mcp_port validation into two distinct checks — type check raises "must be an integer", range check raises "must be between 1 and 65535"). 2 minor findings fixed (M1: updated test assertion from `"1" in msg and "65535" in msg` to `"between 1 and 65535" in msg`; M2: added test_validate_rejects_bool_mcp_port and test_validate_rejects_negative_mcp_port).
+content_hash: "8c9abe2d4aeca1fc370989101b4701d04bdd090439421d50bcbb83a712ed97fc"
+token_count: 195

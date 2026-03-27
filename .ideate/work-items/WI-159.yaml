@@ -1,0 +1,47 @@
+id: WI-159
+type: work_item
+title: Fix active_tools counter decrement in inference engine
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - _handle_post_tool_use decrements session.active_tools using max(0, session.active_tools - 1)
+  - pending_tools entry is removed when the corresponding PostToolUse event arrives
+  - A single session executing N sequential tools spawns exactly 1 agent (not N)
+  - active_tools never goes below 0
+  - pending_tools does not grow without bound across sequential tool calls
+module: null
+domain: null
+notes: |
+  # WI-159: Fix active_tools counter decrement in inference engine
+  
+  ## Context
+  `_handle_pre_tool_use` increments `session.active_tools += 1` on every PreToolUse event. `_handle_post_tool_use` does not decrement it. After the first tool call completes, `active_tools` is permanently ≥ 1. Every subsequent PreToolUse passes the `session.active_tools > 0` check in `_detect_spawn` and triggers a new agent spawn.
+  
+  Also, `state.pending_tools` is populated in `_handle_pre_tool_use` but never consumed, growing without bound.
+  
+  ## Fix
+  
+  ### src/hamlet/inference/engine.py — _handle_post_tool_use
+  
+  After identifying the session, decrement active_tools:
+  ```python
+  session.active_tools = max(0, session.active_tools - 1)
+  ```
+  
+  Remove the pending_tools entry. The key used in `_handle_pre_tool_use` is typically `event.tool_name` or `event.id`. Read the current code to determine the exact key used, then evict it:
+  ```python
+  state.pending_tools.pop(event.tool_name, None)  # or whatever key is used
+  ```
+  
+  ## Notes
+  - Read engine.py before modifying — focus on `_handle_pre_tool_use` (where active_tools is incremented and pending_tools is populated) and `_handle_post_tool_use` (where the decrement should happen)
+  - Verify what key is used for pending_tools (tool_name vs event.id vs session_id)
+  - The decrement guard `max(0, ...)` prevents underflow if PostToolUse arrives without a preceding PreToolUse
+cycle_created: 1
+cycle_modified: null
+content_hash: "4d7c9b2bba55d91131bea3fa83ba16468e7da08e1b8bd7a2c80fd7a41a148b5b"
+token_count: 521
+file_path: .ideate/work-items/WI-159.yaml

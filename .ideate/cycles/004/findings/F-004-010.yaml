@@ -1,0 +1,18 @@
+id: F-004-010
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: significant
+title: `startup()` not declared on `InferenceEngineProtocol`
+description: |
+  - **File**: `src/hamlet/protocols.py:46`
+  - **Issue**: `AgentInferenceEngine.startup()` is called in `app_factory.py:78` on the concrete type. `InferenceEngineProtocol` only declares `process_event` and `tick`. Any consumer that depends on the protocol cannot call `startup()`, and any stub substituted in tests will silently skip the seeding step, leaving startup zombies that never despawn.
+  - **Suggested fix**: Add `async def startup(self) -> None: ...` to `InferenceEngineProtocol`.
+file_path: cycles/004/findings/F-004-010.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-004
+verdict: Fail
+content_hash: "5143614e84d9c183aa6ecd7e1a28861780e76af35e960334e4485ad0066dffce"
+token_count: 201

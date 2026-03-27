@@ -1,0 +1,25 @@
+id: WI-036
+type: work_item
+title: Implement Agent CRUD with Position Assignment
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `get_or_create_agent(session_id, parent_id)` returns or creates agent
+  - `_find_spawn_position(village, parent, occupied)` implements spiral search
+  - Position uniqueness enforced via grid
+  - `update_agent(agent_id, **fields)` updates and queues persistence
+  - `get_agents_by_session`, `get_agents_by_village` query methods
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 036
+  
+  Spiral search finds empty cell within MAX_SPAWN_RADIUS (default 3) of parent or village center. New agents start with GENERAL type, white color, ACTIVE state.
+cycle_created: 1
+cycle_modified: null
+content_hash: d366f75053d52a6bf0f59efd33bfe38276df52031cdb3637ef7a6cd5cc117d76
+token_count: 203
+file_path: .ideate/work-items/WI-036.yaml

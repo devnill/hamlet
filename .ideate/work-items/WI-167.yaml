@@ -1,0 +1,39 @@
+id: WI-167
+type: work_item
+title: Remove inline hooks from ~/.claude/settings.json
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - settings.json has no "hooks" key
+  - extraKnownMarketplaces entry is preserved unchanged
+  - All other existing keys are preserved unchanged
+  - JSON is valid
+module: null
+domain: null
+notes: |
+  # WI-167 Notes: Remove inline hooks from ~/.claude/settings.json
+  
+  ## File to modify
+  `~/.claude/settings.json`
+  
+  ## Current state
+  settings.json has:
+  - `"hooks"` — four inline hook entries using `jq + curl` one-liners, one per hook type
+  - `"extraKnownMarketplaces"` — the devnill/claude-marketplace registration
+  
+  ## What to change
+  Remove the entire `"hooks"` key and its value from the JSON object. Keep `"extraKnownMarketplaces"` and any other top-level keys exactly as-is.
+  
+  ## Result
+  The plugin's hooks.json (WI-166) becomes the sole source of hook configuration once the hamlet plugin is installed. No inline hooks remain that could duplicate events or conflict.
+  
+  ## Note on notify.sh
+  `~/.claude/hooks/notify.sh` exists but is separate (likely from beepboop plugin). Do not touch it.
+cycle_created: 1
+cycle_modified: null
+content_hash: "08d061df615d7f056a15c52ff76c6e87b1d6b6da7dedf977844c3b813fa9863d"
+token_count: 317
+file_path: .ideate/work-items/WI-167.yaml

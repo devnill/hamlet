@@ -1,0 +1,18 @@
+id: F-006-025
+type: finding
+cycle: 6
+reviewer: code-reviewer
+severity: minor
+title: `fetch_state` and `fetch_events` do not catch network exceptions at the method level
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/remote_state.py:37-56`
+  - **Issue**: `check_health` wraps its request in `try/except Exception` and returns a safe default on failure. `fetch_state` and `fetch_events` propagate all aiohttp exceptions to the caller. The current call site catches them, but the asymmetry means any future caller must remember to add its own try/except.
+  - **Suggested fix**: Add `try/except Exception` in `fetch_state` returning `{}` and in `fetch_events` returning `[]`, matching `check_health`.
+file_path: cycles/006/findings/F-006-025.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-006
+verdict: Fail
+content_hash: "9fededafb5bbed46c2af6b03ca2433dbf4139cfa11264256d6debd1cb56c0087"
+token_count: 218

@@ -1,0 +1,11 @@
+id: J-007-056
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 068: Reactive State Updates"
+content: |
+  Status: complete with rework
+  Rework: 2 critical findings fixed (C1: viewport_state and bounds captured before _viewport.update() — fixed by reordering to call update() first, then read viewport_state and bounds so status bar and structure queries reflect current viewport; C2: _world_state._state.projects and _state.agents accessed directly without public API — added get_projects() and get_all_agents() methods to WorldStateManager; action_toggle_follow made async to use get_all_agents()).
+content_hash: cc50ce576d2fb0796cfc2bd08dd82ee30f132de061aa7799c772be753b21eaef
+token_count: 162

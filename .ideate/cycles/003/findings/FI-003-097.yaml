@@ -1,0 +1,18 @@
+id: FI-003-097
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `db._conn.executescript` accesses private attribute
+description: |
+  - **File**: `src/hamlet/persistence/migrations.py:121`
+  - **Issue**: `db._conn` exposes the internal aiosqlite connection; `DatabaseConnection` has no public `executescript` method.
+  - **Resolution**: Intentional — `executescript` for multi-statement DDL is not part of the standard `DatabaseConnection` public API. Accessing `_conn` directly is the appropriate escape hatch for this one-time migration use case. Out of scope to add a public `executescript` wrapper.
+file_path: cycles/003/findings/FI-003-097.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-073
+verdict: Pass
+content_hash: "159153486098cc470dc80857a0f46fcf7200819eca7aedd854b39c0424fe668d"
+token_count: 193

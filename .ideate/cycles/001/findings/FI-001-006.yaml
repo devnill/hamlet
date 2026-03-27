@@ -1,0 +1,25 @@
+id: FI-001-006
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: significant
+title: _running flag inconsistent on error in _run_server
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py:76-77`
+  - **Issue**: If an exception occurs in `_run_server()` (not CancelledError), `_running` is set to `False` but `_server` remains set. This creates inconsistent state where `_running=False` but `_server` is not `None`.
+  - **Impact**: Subsequent `start()` call will work, but `_server` reference to old instance persists.
+  - **Suggested fix**: Reset `_server` to `None` in the exception handler:
+    ```python
+    except Exception as e:
+        logger.error(f"MCP server error: {e}")
+        self._running = False
+        self._server = None
+    ```
+file_path: cycles/001/findings/FI-001-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: d87adf400938682811ee47bbfcd80adabbf5d36e2f64b95c77c03e5f6a57df0e
+token_count: 233

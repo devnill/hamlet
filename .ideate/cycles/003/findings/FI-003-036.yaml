@@ -1,0 +1,17 @@
+id: FI-003-036
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `_update_zombie_states` scope undocumented
+description: |
+  - **File**: `src/hamlet/inference/engine.py:257`
+  - **Fix applied**: Added docstring note explaining that only agents registered via `_handle_pre_tool_use` (i.e., in `_state.last_seen`) are evaluated.
+file_path: cycles/003/findings/FI-003-036.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-025
+verdict: Fail
+content_hash: b67157f7edee7168f241bb2cbcd1cdf0e1be1b5fbe8c5753782884f7c5fb2d38
+token_count: 125

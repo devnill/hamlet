@@ -1,0 +1,32 @@
+id: FI-001-004
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: critical
+title: Module cannot be imported - missing package configuration
+description: |
+  - **File**: `/Users/dan/code/hamlet/` (root)
+  - **Issue**: There is no `pyproject.toml`, `setup.py`, or `setup.cfg` file. The package cannot be installed or imported outside the source directory. Running `python -c "from hamlet.mcp_server.server import MCPServer"` fails with `ModuleNotFoundError: No module named 'hamlet'`.
+  - **Impact**: Fails acceptance criterion 7 ("Module imports successfully with no missing dependencies"). The code cannot be used or tested.
+  - **Suggested fix**: Add `pyproject.toml`:
+    ```toml
+    [build-system]
+    requires = ["setuptools>=61.0"]
+    build-backend = "setuptools.build_meta"
+    
+    [project]
+    name = "hamlet"
+    version = "0.1.0"
+    dependencies = ["mcp>=1.0.0"]
+    
+    [tool.setuptools.packages.find]
+    where = ["src"]
+    ```
+file_path: cycles/001/findings/FI-001-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: "1fb5151d599c29a261549d100fcdfd6ba93c067266d468cdc2836f6e4583e51d"
+token_count: 276

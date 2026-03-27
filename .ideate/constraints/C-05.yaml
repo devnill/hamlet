@@ -1,0 +1,10 @@
+id: C-05
+type: constraint
+category: design
+status: active
+description: Non-destructive integration. Hook setup must not interfere with existing Claude Code functionality. The setup command/skill must be reversible and safe.
+cycle_created: 1
+cycle_modified: null
+content_hash: "72fdfd2cacc40290f7d8d0c70a143fdab636b976049ae4bcb450d25e7bd9e84c"
+token_count: 81
+file_path: .ideate/constraints/C-05.yaml

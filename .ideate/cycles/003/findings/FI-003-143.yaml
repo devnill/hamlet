@@ -1,0 +1,19 @@
+id: FI-003-143
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No tests for `log_event`
+description: |
+  - **File**: `tests/test_persistence_facade.py`
+  - **Issue**: Zero tests covered `log_event` — no happy-path test verifying `EventLogEntry` construction and delegation to `append_event_log`, no error-path test verifying GP-7 swallow behavior.
+  - **Impact**: Regressions in `log_event` go undetected.
+  - **Suggested fix**: Add happy-path and error-path tests.
+file_path: cycles/003/findings/FI-003-143.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-105
+verdict: Pass
+content_hash: "8ee277eb16d610b335579fe00f919493dccd7f7a64cd64d8cf754ad4f0689477"
+token_count: 161

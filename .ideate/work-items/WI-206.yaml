@@ -1,0 +1,94 @@
+id: WI-206
+type: work_item
+title: Fix service.py correctness issues and test/daemon cleanup
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `_install` in service.py checks `_service_is_running()` before calling bootstrap; if already loaded, prints "Service is already installed and running. Run `hamlet service uninstall` first." and exits 0
+  - Plist template path values are XML-escaped using `xml.sax.saxutils.escape()` before interpolation
+  - All `sys.exit(1)` calls in service.py are replaced with `return 1`; `sys.exit(0)` with `return 0`
+  - Port conflict `print()` calls in daemon.py use `file=sys.stderr`
+  - Settings patch target in test_cli_daemon.py port-conflict tests is `hamlet.cli.commands.daemon.Settings` (not `hamlet.config.settings.Settings`)
+  - "test_cli_service.py has a test for re-install when service is already running: asserts informational message and exit 0"
+module: null
+domain: null
+notes: |
+  # WI-206: Fix service.py correctness issues and test/daemon cleanup
+  
+  ## Context
+  
+  Cycle 012 comprehensive review found two significant issues and four minor issues in the refine-11 implementation. This work item addresses all of them.
+  
+  ## Fixes Required
+  
+  ### Fix 1 (S1): Add idempotency guard to `_install`
+  
+  At the top of `_install` in `src/hamlet/cli/commands/service.py`, after `_check_platform()`, add:
+  
+  ```python
+  if PLIST_PATH.exists() and _service_is_running():
+      print("Service is already installed and running. Run `hamlet service uninstall` first.")
+      return 0
+  ```
+  
+  ### Fix 2 (S2): XML-escape path values in plist template
+  
+  Add `from xml.sax.saxutils import escape` to imports. In `_install`, wrap each interpolated path value:
+  
+  ```python
+  plist_content = PLIST_TEMPLATE.format(
+      hamlet_executable=escape(hamlet_exe),
+      log_path=escape(log_path),
+      err_log_path=escape(err_log_path),
+  )
+  ```
+  
+  `xml.sax.saxutils` is stdlib — no new dependencies.
+  
+  ### Fix 3 (M2): Replace sys.exit() with return in service.py
+  
+  Replace all `sys.exit(1)` calls with `return 1` and `sys.exit(0)` calls with `return 0` throughout `service.py`. The `main()` dispatcher in `cli/__init__.py` calls `sys.exit()` on the return value if needed — check how existing commands handle this before making changes. If the shim calls `sys.exit(result)` already, just return integers. If it doesn't, make sure the behavior is equivalent.
+  
+  ### Fix 4 (M4): Port conflict messages to stderr in daemon.py
+  
+  In `src/hamlet/cli/commands/daemon.py`, in the `conflict == "hamlet"` and `conflict == "other"` branches, change bare `print(...)` to `print(..., file=sys.stderr)`. Add `import sys` if not already present.
+  
+  ### Fix 5 (M1): Fix Settings patch target in test_cli_daemon.py
+  
+  In `tests/test_cli_daemon.py`, in the three port-conflict tests that patch Settings, change:
+  ```python
+  patch("hamlet.config.settings.Settings")
+  ```
+  to:
+  ```python
+  patch("hamlet.cli.commands.daemon.Settings")
+  ```
+  (Check first how Settings is imported in daemon.py to confirm the correct patch path.)
+  
+  ### Fix 6 (M3): Add re-install test to test_cli_service.py
+  
+  In `tests/test_cli_service.py`, add to `TestInstallCommand`:
+  
+  ```python
+  def test_install_when_already_running_exits_gracefully(self, ...):
+      # mock PLIST_PATH.exists() = True
+      # mock _service_is_running() = True
+      # call install
+      # assert exit code is 0 (or no SystemExit)
+      # assert output contains "already installed"
+  ```
+  
+  ## Key Points
+  
+  - Read each file before modifying
+  - Do not change behavior of any command other than `_install`'s idempotency
+  - xml.sax.saxutils is stdlib — verify before importing
+  - Check how `cli/__init__.py` dispatches service subcommands to understand the return value contract before changing sys.exit() to return
+cycle_created: 1
+cycle_modified: null
+content_hash: "8f437f7624d4ed87769f2aeebcde02b597a7fb9aab7d9973ee6d1860987d5ffd"
+token_count: 976
+file_path: .ideate/work-items/WI-206.yaml

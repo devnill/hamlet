@@ -1,0 +1,18 @@
+id: F-012-051
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Outdated Water Frequency and Mountain Frequency in Settings
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/config/settings.py:16-17`
+  - **Issue**: The settings docstring includes `water_frequency` and `mountain_frequency` parameters, but these are not used in the current TerrainConfig. The TerrainConfig uses threshold-based classification (`water_threshold`, `mountain_threshold`) instead.
+  - **Suggested fix**: Update the docstring example to reflect current parameters, or remove these legacy fields.
+file_path: cycles/012/findings/F-012-051.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-012
+verdict: Fail
+content_hash: "388650eaa4f6ca7d4f8efe0b809532276ed161f6625014d14dd900fcfc3b81a4"
+token_count: 190

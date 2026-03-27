@@ -1,0 +1,26 @@
+id: WI-064
+type: work_item
+title: StatusBar Widget
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/tui/status_bar.py` exists
+  - `StatusBar` class inherits from `textual.widgets.Static`
+  - "Reactive properties: `agent_count`, `structure_count`, `project_name`, `viewport_pos`"
+  - "`render()` method returns formatted string: \"Agents: N │ Structures: N │ Project: name │ (x,y)\""
+  - Separators are `│` (Unicode pipe) with spaces
+  - Updates are reactive (Textual's `reactive` decorator)
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 064
+  
+  Use Textual's `reactive` attribute for each status field. The main app updates these reactive properties when state changes. Render format: "Agents: {agent_count} │ Structures: {structure_count} │ Project: {project_name} │ ({x}, {y})"
+cycle_created: 1
+cycle_modified: null
+content_hash: "1ac6732733f9e376b05e2c67f002512d040f10532fa3ebcb4b54aa28d4d61c9e"
+token_count: 233
+file_path: .ideate/work-items/WI-064.yaml

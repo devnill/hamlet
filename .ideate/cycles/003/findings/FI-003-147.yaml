@@ -1,0 +1,18 @@
+id: FI-003-147
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No test verifies `add_work_units` called with correct arguments
+description: |
+  - **File**: `tests/test_type_inference.py`
+  - **Issue**: No test asserted `add_work_units` was called with specific `agent_id`, `structure_type`, and `units`. The wiring from tool name to structure type (AC-2) and the call itself (AC-1) were unverified.
+  - **Suggested fix**: Add integration tests asserting exact call arguments for each mapped tool.
+file_path: cycles/003/findings/FI-003-147.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-106
+verdict: Pass
+content_hash: e0248a77bad0099ce02e675f899147d7e453dbdda1c83b6a7085d65122a6b403
+token_count: 169

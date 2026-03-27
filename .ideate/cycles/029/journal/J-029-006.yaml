@@ -1,0 +1,11 @@
+id: J-029-006
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 29
+title: "Cycle 1 — Work item 244: Mountain Ridge Generation"
+content: |
+  Status: complete with rework
+  Implemented `generate_ridge_chain()` using midpoint displacement with perpendicular offset for natural-looking mountain ranges. Added `_fill_ridge_gaps()` for connectivity, `_generate_ridge_seeds()` to find peak pairs from heightmap, `generate_ridges_from_heightmap()` to coordinate ridge generation, and `generate_heightmap_and_moisture()` to expose raw noise values. Integration into `get_terrain_in_bounds()` as step 2 (after raw terrain, before smoothing). Added 15 tests. Review passed with 3 minor findings (weak test assertion, missing integration test, dead code method).
+content_hash: b9c5a72558bb8466d555c6aa26e52d7cee979d10f34deb7709caea51e2c4929a
+token_count: 194

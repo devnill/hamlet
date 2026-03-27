@@ -1,0 +1,27 @@
+id: WI-034
+type: work_item
+title: Implement WorldStateManager Foundation
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/world_state/manager.py` exists
+  - `WorldStateManager.__init__(persistence)` stores reference
+  - Creates `asyncio.Lock` for thread-safe access
+  - Creates `WorldState` instance
+  - Creates `PositionGrid` instance
+  - `async load_from_persistence()` restores all entities from database
+  - Rebuilds PositionGrid from loaded agent and structure positions
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 034
+  
+  Persistence interface: `load_state()` returns `WorldStateData`. Write-behind pattern for saves.
+cycle_created: 1
+cycle_modified: null
+content_hash: eee6ca3f1b5a37aa89730d3863d5b4d4b71bbfc03fb4a7f5cce47c426b6b6c0a
+token_count: 196
+file_path: .ideate/work-items/WI-034.yaml

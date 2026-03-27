@@ -1,0 +1,21 @@
+id: F-014-060
+type: finding
+cycle: 14
+reviewer: code-reviewer
+severity: significant
+title: Error messages reference deprecated launchctl subcommand names
+description: |
+  - **File**: `src/hamlet/cli/commands/service.py:105`, `:145`, `:162`, `:185`
+  - **Issue**: After the migration to `bootstrap`/`bootout` (previous cycles), four error message strings still say "launchctl load failed" (lines 105, 145, 185) and "launchctl unload failed" (line 162). These are the deprecated command names that were replaced precisely because they were removed in newer macOS releases.
+  - **Impact**: When `bootstrap` or `bootout` fails, the error message tells the user the wrong command failed. A user who reads the message and tries to diagnose the issue — or searches for it — will be sent in the wrong direction. The message is actively misleading on macOS 13+.
+  - **Suggested fix**: Update the strings to match the actual commands:
+    - Lines 105, 145, 185: `"Error: launchctl bootstrap failed: {output}"`
+    - Line 162: `"Error: launchctl bootout failed: {output}"`
+file_path: cycles/014/findings/F-014-060.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-014
+verdict: Pass
+content_hash: e91830ab738815371b04cc102221e71639e1ae390cdeef1a4caf25e3019a802d
+token_count: 305

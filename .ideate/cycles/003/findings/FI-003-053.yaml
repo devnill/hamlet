@@ -1,0 +1,15 @@
+id: FI-003-053
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `create_structure` hardcoded `material="wood"` instead of `MATERIAL_STAGES[0]`
+description: "- **Resolution**: Fixed — replaced with `material=MATERIAL_STAGES[0]`."
+file_path: cycles/003/findings/FI-003-053.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-037
+verdict: Fail
+content_hash: c3ef467ecdfb7e846ac504f1ee31d58fce9e68bf8fc40b13f1d56f092747952c
+token_count: 102

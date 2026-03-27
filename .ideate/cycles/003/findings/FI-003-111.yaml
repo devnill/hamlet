@@ -1,0 +1,19 @@
+id: FI-003-111
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: INSERT and DELETE not atomic
+description: |
+  - **File**: `src/hamlet/persistence/event_log.py:17-40`
+  - **Issue**: `connection.py` uses `isolation_level=None` (autocommit). Each `db.execute()` was its own implicit transaction. INSERT committed immediately; DELETE committed separately. A crash between the two left the table over `max_entries` permanently. A concurrent caller appending between the two statements caused the DELETE subquery to resolve against a shifted boundary, potentially pruning the concurrent entry.
+  - **Impact**: Data loss of concurrent entries; persistent overflow of `max_entries` after mid-operation crash.
+  - **Fix applied**: Wrapped both statements in `begin_transaction()`/`commit()`/`rollback()`, consistent with `WriteExecutor.execute_batch`.
+file_path: cycles/003/findings/FI-003-111.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-077
+verdict: Fail
+content_hash: "0c93cf89657bad1118db6bf0d4c1eadeae9cd3fb9f36bf7c637e56191c3ae143"
+token_count: 255

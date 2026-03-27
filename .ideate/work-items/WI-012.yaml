@@ -1,0 +1,25 @@
+id: WI-012
+type: work_item
+title: Sequence Generator
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/event_processing/sequence_generator.py` exists
+  - `SequenceGenerator` class with `next()` async method
+  - Sequence numbers start at 1 and increment by 1
+  - Concurrent calls return unique numbers (no duplicates)
+  - Uses `asyncio.Lock` for thread safety
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 012
+  
+  Internal counter starts at 0, returns 1 for first call. Lock ensures atomicity. No persistence — reset on restart.
+cycle_created: 1
+cycle_modified: null
+content_hash: "16f4df5830fed552e4fdb1bc5605a890263a3239dd7bb04938e09c7c40caaff3"
+token_count: 171
+file_path: .ideate/work-items/WI-012.yaml

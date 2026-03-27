@@ -1,0 +1,35 @@
+id: FI-001-003
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: critical
+title: No schema validation
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py`
+  - **Issue**: The module specification requires schema validation using `jsonschema` library. The schema is defined in the module spec (lines 96-116 in mcp-server.md) but no validation code exists.
+  - **Impact**: Malformed or malicious events could be processed, leading to undefined behavior downstream. Per guiding principle 7, malformed events should be logged and discarded.
+  - **Suggested fix**: Add `validate_event()` function using jsonschema:
+    ```python
+    from jsonschema import validate, ValidationError
+    
+    EVENT_SCHEMA = {
+        "type": "object",
+        "required": ["jsonrpc", "method", "params"],
+        # ... full schema from spec
+    }
+    
+    def validate_event(event: dict) -> bool:
+        try:
+            validate(event, EVENT_SCHEMA)
+            return True
+        except ValidationError:
+            return False
+    ```
+file_path: cycles/001/findings/FI-001-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: "5fcc66ba77a02aceb84ea3d86e64f3327e772176560b52b4396f5a249a6bff19"
+token_count: 301

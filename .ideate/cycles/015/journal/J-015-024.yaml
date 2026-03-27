@@ -1,0 +1,11 @@
+id: J-015-024
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 162: Move TOOL_TO_STRUCTURE to world_state/rules.py"
+content: |
+  Status: complete
+  Already correctly implemented — TOOL_TO_STRUCTURE defined in world_state/rules.py and imported from there in engine.py.
+content_hash: "9829e0dbe0f0602d9f2060fd63812ff7674bc78d7bd963752c6097a5db5345ea"
+token_count: 81

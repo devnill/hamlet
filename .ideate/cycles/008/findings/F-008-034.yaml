@@ -1,0 +1,29 @@
+id: F-008-034
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: Infallible literal assignments wrapped in `try/except` — WI-183
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:762–829`
+  
+  - **Issue**: Several `handle_event` branches wrap a plain string assignment in `try/except Exception`:
+    ```python
+    elif event.hook_type == HookType.SubagentStop:
+        try:
+            summary = f"SubagentStop: {event.agent_type or 'unknown'}"
+        except Exception as exc:
+            logger.warning("SubagentStop handler error: %s", exc)
+            summary = "SubagentStop"
+    ```
+    The same pattern appears for `TeammateIdle`, `PostToolUseFailure`, `UserPromptSubmit`, `PreCompact`, `PostCompact`, and `StopFailure`. A bare f-string on a known-`str | None` field cannot raise. The `try` block obscures the fact that no real error is possible and makes the code harder to read. This was noted in the incremental review manifest (line 18) but was not corrected.
+  
+  - **Suggested fix**: Remove the `try/except` wrappers from branches that contain only the `summary = f"..."` assignment. Reserve `try/except` for branches that call async helpers or mutate state, as the `SessionStart`, `SessionEnd`, `SubagentStart`, and `TaskCompleted` branches correctly do.
+file_path: cycles/008/findings/F-008-034.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-008
+verdict: Fail
+content_hash: bc1fe3cec1f7b8bd138b68537683949d063d8fd3ebaa838359705643ff60b222
+token_count: 363

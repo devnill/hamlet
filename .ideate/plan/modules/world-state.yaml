@@ -1,0 +1,58 @@
+id: module_spec-world-state
+type: module_spec
+name: World State
+scope: |
+  This module owns the core data model and in-memory state management. It is responsible for:
+  
+  - Maintaining all world entities: projects, villages, agents, structures
+  - Managing session-to-project-to-village relationships
+  - Providing CRUD operations for all entities
+  - Enforcing entity constraints (position uniqueness, village bounds)
+  - Coordinating with Persistence module for durability
+  
+  This module is NOT responsible for:
+  
+  - Game loop and progression (Simulation module)
+  - Coordinate translation (Viewport module)
+  - Rendering (TUI module)
+  - Inferring agent state (Agent Inference module)
+provides:
+  - `WorldState` class — Central state container
+  - "- `projects: Dict[str, Project]`"
+  - "- `sessions: Dict[str, Session]`"
+  - "- `agents: Dict[str, Agent]`"
+  - "- `villages: Dict[str, Village]`"
+  - "- `structures: Dict[str, Structure]`"
+  - "- `event_log: List[EventLogEntry]`"
+  - `WorldStateManager` class — State manipulation interface
+  - - `async get_or_create_project(project_id, name) -> Project`
+  - - `async get_or_create_village(project_id) -> Village`
+  - - `async get_or_create_agent(session_id, parent_id) -> Agent`
+  - - `async update_agent(agent_id, fields) -> None`
+  - - `async create_structure(village_id, structure_type, position) -> Structure`
+  - - `async update_structure(structure_id, fields) -> None`
+  - - `async add_work_units(agent_id, structure_type, units) -> None`
+  - - `async get_event_log(limit) -> List[EventLogEntry]`
+  - "Data types:"
+  - - `Project(id, name, config, village_id)`
+  - - `Session(id, project_id, started_at, last_activity, agent_ids)`
+  - - `Village(id, project_id, name, center, bounds)`
+  - - `Agent(id, session_id, village_id, parent_id, inferred_type, color, position, last_seen, state, activity, work_units)`
+  - - `Structure(id, village_id, type, position, stage, material, work_units, work_required)`
+  - "- `Position(x: int, y: int)`"
+requires:
+  - `Persistence` (from Persistence module) — SQLite storage
+  - - `async load_state() -> WorldStateData`
+  - - `async save_project(project)`
+  - - `async save_agent(agent)`
+  - - `async save_structure(structure)`
+  - - `async save_event_log_entry(entry)`
+  - `asyncio.Lock` — Thread-safe state access
+boundary_rules:
+  - "1. **Single source of truth.** World State is the authoritative in-memory store. All reads go through this module."
+  - "2. **Write-behind persistence.** State changes queue writes to Persistence; they do not wait for I/O."
+  - "3. **Position uniqueness.** No two entities can occupy the same position. Position assignment must check for conflicts."
+  - "4. **Village-scoped agents.** Agents belong to exactly one village. Position is relative to village center."
+  - "5. **Thread-safe access.** All public methods must be async and acquire the state lock."
+content_hash: fb74cea068919bdc6711cf9e5bc81e0d4696b9cb7fdad073f081081efd642255
+token_count: 701

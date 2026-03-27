@@ -1,0 +1,11 @@
+id: J-007-005
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 7
+title: "Cycle 4 — Work item 211: Inference engine despawn logic + zombie TTL config"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (despawn_agent added to WorldStateProtocol). 3 minor findings fixed (DESPAWN_THRESHOLD_SECONDS class var removed/inlined, startup() comment added, single-agent stop tests updated to verify cleanup). app_factory.py wired startup() call after engine construction.
+content_hash: becc6d8853e2cba9ab2c03df07358b0a60c83b65a7c37f51fff1fe60610e51b2
+token_count: 130

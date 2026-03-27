@@ -1,0 +1,25 @@
+id: WI-033
+type: work_item
+title: Implement Position Grid Index
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/world_state/grid.py` exists
+  - `PositionGrid` class with `occupy`, `vacate`, `is_occupied`, `get_entity_at`, `get_occupied_positions` methods
+  - Position must be hashable (frozen=True or custom `__hash__`)
+  - `occupy(position, entity_id)` raises ValueError if position already occupied
+  - `vacate` is idempotent
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 033
+  
+  Internal storage uses `dict[Position, str]`. No persistence — in-memory only.
+cycle_created: 1
+cycle_modified: null
+content_hash: "33171b89389b2bcd0f1c5a8096d23fa6043ba8ebaf6664d14d4bf4223742a5ff"
+token_count: 180
+file_path: .ideate/work-items/WI-033.yaml

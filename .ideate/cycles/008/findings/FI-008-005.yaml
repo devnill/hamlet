@@ -1,0 +1,18 @@
+id: FI-008-005
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `hook_input` read before `find_config` — silent data loss on stdin failure
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/post_tool_use_failure.py:17`, same pattern in all five files
+  - **Issue**: `json.load(sys.stdin)` is called on line 17 but `find_config()` is called on line 18. If stdin is empty or malformed, `json.load` raises and the exception is caught and logged silently. This is consistent across all five files and is unlikely to cause problems in practice, but it means a bad stdin payload silently drops the event with no indication to the caller beyond the log file.
+  - **Suggested fix**: This is an accepted pattern given the GP-7 "fail silently" requirement, but a distinct log message noting "bad stdin payload" vs. "server unreachable" would aid debugging. Not a blocking issue.
+file_path: cycles/008/findings/FI-008-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-180
+verdict: Pass
+content_hash: a5935ea6bd196b70793b8b99148e2f650ab5a7fb2abc76a75ab39bd7f254f581
+token_count: 264

@@ -1,0 +1,20 @@
+id: F-010-045
+type: finding
+cycle: 10
+reviewer: code-reviewer
+severity: minor
+title: WI-200 notes spec format does not match implementation
+description: |
+  - **File**: `specs/plan/notes/200.md:24`
+  - **Issue**: The notes file shows `f"Notification [{ntype}]: {event.message or ''}"` — using bare brackets without `type=` and referencing a non-existent field `event.message`. The implementation correctly uses `f"Notification [type={ntype}]: {event.notification_message or ''}"`, which matches the acceptance criterion example and the real field name. The notes file is now stale and misleading.
+  - **Suggested fix**: Update `specs/plan/notes/200.md` line 24 to match the actual implementation: `f"Notification [type={ntype}]: {event.notification_message or ''}"`.
+  
+  ---
+file_path: cycles/010/findings/F-010-045.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-010
+verdict: Pass
+content_hash: "16a0ff58a812155b351f27ce9cc27d79dfb8a33f071d52dc8dccffc8fa658ad5"
+token_count: 233

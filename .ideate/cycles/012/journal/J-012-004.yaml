@@ -1,0 +1,14 @@
+id: J-012-004
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 12
+title: "Work item 121: Hook server URL — dynamic port from config"
+content: |
+  Status: complete with rework
+  Rework: 2 minor findings fixed from incremental review.
+  M1: install.py:352 write_text missing encoding="utf-8" — added.
+  M3: Dead SERVER_URL module-level constant removed from all four hook scripts.
+  M2 (variable shadowing) and M4 (find_config traversal) noted as deferred.
+content_hash: "523c68bb0e8293e81ee6a7ea80b6475618ef1f5eefe5440af5ce2b4fd9ebdcb4"
+token_count: 121

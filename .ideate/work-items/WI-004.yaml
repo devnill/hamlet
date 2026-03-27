@@ -1,0 +1,25 @@
+id: WI-004
+type: work_item
+title: MCP Tools and Resources
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `hamlet_status` tool registered with MCP server
+  - Tool returns server status with event queue size and uptime
+  - "`hamlet://world` resource registered with MCP server"
+  - Resource returns world state summary (projects, agents, structures)
+  - Both handlers catch exceptions and return error responses
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 004
+  
+  Tools and resources need access to World State for status. Use dependency injection pattern.
+cycle_created: 1
+cycle_modified: null
+content_hash: ffaea8ae03c9e9ec19832b2415fbc5f830ee3ed3171a26f415042ee2f1738f1e
+token_count: 174
+file_path: .ideate/work-items/WI-004.yaml

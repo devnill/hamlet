@@ -1,0 +1,11 @@
+id: J-001-009
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 1
+title: "Work item 267: Notcurses ctypes binding layer"
+content: |
+  Status: complete
+  46 tests pass. Ported ctypes bindings from test project. NOTCURSES_AVAILABLE flag, 4 structs, 13 wrapper functions. Review incomplete (reviewer ran out of turns).
+content_hash: "71a2c343fd34cd3ee4fdf3878db93966a61d320917bbe81a117c998f45ab6d61"
+token_count: 86

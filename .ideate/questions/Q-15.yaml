@@ -1,0 +1,14 @@
+id: Q-15
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: Legend toggle is a no-op in graphical viewer
+cycle_created: 1
+cycle_modified: null
+content_hash: f709fcf55e5ec9dd75b08d42a3424679b9caed4b653badaf0c10e514d08b6b22
+token_count: 70
+file_path: .ideate/questions/Q-15.yaml

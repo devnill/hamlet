@@ -1,0 +1,19 @@
+id: FI-016-018
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: significant
+title: No test covers the kitty code path in `_view_command` or `main()`
+description: |
+  - **File**: `tests/test_cli.py`
+  - **Issue**: There is no test that asserts `_launch_kitty_viewer` is called when `resolve_renderer` returns `"kitty"`. The acceptance criterion "renderer=='kitty' calls KittyApp directly" is stated for `__main__.py`, but the wiring in both `_view_command` (`cli/__init__.py:221`) and the no-subcommand branch of `cli.main()` (`cli/__init__.py:282`) is untested.
+  - **Impact**: The conditional branches at lines 221–222 and 282–283 of `cli/__init__.py` have no test coverage. A regression in the branching logic would not be caught.
+  - **Suggested fix**: Add tests that mock `resolve_renderer` to return `"kitty"` and assert `_launch_kitty_viewer` is called with the correct URL, for both the `view` subcommand and the bare no-subcommand case.
+file_path: cycles/016/findings/FI-016-018.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-280
+verdict: Fail
+content_hash: "3f2c5964704027b47907659e9f354cb67c1a68874d241f0ba7ae84e4aeb59a01"
+token_count: 277

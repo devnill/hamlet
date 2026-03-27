@@ -1,0 +1,132 @@
+id: module_spec-terrain
+type: module_spec
+name: Terrain
+scope: |
+  The terrain module provides the global terrain map for the hamlet idle game. It is responsible for:
+  - Defining terrain types (water, mountains, forests, meadows, plains)
+  - Generating terrain deterministically from a seed
+  - Storing terrain in memory for fast lookups
+  - Providing terrain information for village placement, structure building, and rendering
+  
+  The terrain module is NOT responsible for:
+  - Entity positions (handled by PositionGrid)
+  - Village/structure/agent data (handled by WorldState)
+  - Rendering logic beyond providing terrain data (handled by WorldView)
+  - Persistence beyond storing the seed (handled by PersistenceFacade)
+provides:
+  - `TerrainType` (enum) — All valid terrain types with passability and display properties
+  - `TerrainConfig` (dataclass) — Configuration for terrain generation parameters
+  - `TerrainGenerator` (class) — Deterministic terrain generation from seed
+  - `TerrainGrid` (class) — In-memory terrain storage and lookup
+  - "### TerrainType"
+  - ```python
+  - "class TerrainType(Enum):"
+  - "\"\"\"Terrain types with inherent properties.\"\"\""
+  - WATER = "water"
+  - MOUNTAIN = "mountain"
+  - FOREST = "forest"
+  - MEADOW = "meadow"
+  - PLAIN = "plain"
+  - @property
+  - "def passable(self) -> bool:"
+  - "\"\"\"True if agents/structures can occupy this terrain.\"\"\""
+  - return self in (TerrainType.FOREST, TerrainType.MEADOW, TerrainType.PLAIN)
+  - @property
+  - "def symbol(self) -> str:"
+  - "\"\"\"ASCII symbol for TUI rendering.\"\"\""
+  - ...
+  - @property
+  - "def color(self) -> str:"
+  - "\"\"\"Rich color name for TUI rendering.\"\"\""
+  - ...
+  - ```
+  - "### TerrainConfig"
+  - ```python
+  - @dataclass
+  - "class TerrainConfig:"
+  - "\"\"\"Configuration for terrain generation.\"\"\""
+  - "seed: int | None = None  # None = generate random seed"
+  - "world_size: int = 200  # world is [-100, 100] x [-100, 100]"
+  - "water_frequency: float = 0.02  # noise frequency for water"
+  - "mountain_frequency: float = 0.015  # noise frequency for mountains"
+  - "forest_threshold: float = 0.4  # noise value threshold for forest"
+  - "meadow_threshold: float = 0.6  # noise value threshold for meadow"
+  - "water_threshold: float = -0.3  # noise values below this are water"
+  - "mountain_threshold: float = 0.7  # noise values above this are mountains"
+  - ```
+  - "### TerrainGenerator"
+  - ```python
+  - "class TerrainGenerator:"
+  - "\"\"\"Generates terrain deterministically from a seed.\"\"\""
+  - "def __init__(self, config: TerrainConfig | None = None) -> None:"
+  - "\"\"\"Initialize with config. If config.seed is None, generates random seed.\"\"\""
+  - self._config = config or TerrainConfig()
+  - self._seed = self._config.seed or random.randint(0, 2**31 - 1)
+  - "# Noise generator initialized with seed"
+  - @property
+  - "def seed(self) -> int:"
+  - "\"\"\"The seed used for terrain generation.\"\"\""
+  - return self._seed
+  - "def generate_terrain(self, position: Position) -> TerrainType:"
+  - "\"\"\"Generate terrain type for a single position."
+  - Uses multi-octave Perlin noise with the configured frequencies and thresholds.
+  - "Deterministic: same seed + position always returns same terrain type."
+  - "\"\"\""
+  - ...
+  - def generate_chunk(
+  - self,
+  - "bounds: Bounds"
+  - ") -> Iterator[tuple[Position, TerrainType]]:"
+  - "\"\"\"Generate terrain for all positions within bounds."
+  - Yields (position, terrain_type) tuples for each cell in the bounding box.
+  - Efficient for bulk terrain queries.
+  - "\"\"\""
+  - ...
+  - "def is_passable(self, position: Position) -> bool:"
+  - "\"\"\"Check if position is passable (not water or mountain).\"\"\""
+  - return self.generate_terrain(position).passable
+  - ```
+  - "### TerrainGrid"
+  - ```python
+  - "class TerrainGrid:"
+  - "\"\"\"In-memory terrain storage with on-demand generation.\"\"\""
+  - "def __init__(self, generator: TerrainGenerator) -> None:"
+  - "\"\"\"Initialize with a terrain generator for on-demand generation.\"\"\""
+  - self._generator = generator
+  - "self._cache: dict[Position, TerrainType] = {}"
+  - "def get_terrain(self, position: Position) -> TerrainType:"
+  - "\"\"\"Return terrain type at position."
+  - Returns cached terrain if available, otherwise generates and caches.
+  - "\"\"\""
+  - "if position not in self._cache:"
+  - self._cache[position] = self._generator.generate_terrain(position)
+  - return self._cache[position]
+  - "def get_terrain_in_bounds(self, bounds: Bounds) -> dict[Position, TerrainType]:"
+  - "\"\"\"Return terrain for all positions within bounds."
+  - Uses chunk generation for efficiency, caches results.
+  - "\"\"\""
+  - ...
+  - "def is_passable(self, position: Position) -> bool:"
+  - "\"\"\"Check if position is passable.\"\"\""
+  - return self.get_terrain(position).passable
+  - "def clear_cache(self) -> None:"
+  - "\"\"\"Clear all cached terrain. Used when seed changes.\"\"\""
+  - self._cache.clear()
+  - @property
+  - "def seed(self) -> int:"
+  - "\"\"\"Return the generator's seed.\"\"\""
+  - return self._generator.seed
+  - ```
+requires:
+  - "`Position` (from: `world_state.types`) — Coordinate type for terrain lookups"
+  - "`Bounds` (from: `world_state.types`) — Bounding box for bulk terrain queries"
+  - No persistence dependency — seed storage handled by WorldStateManager
+boundary_rules:
+  - Terrain is **read-only** after generation. No terrain modification API.
+  - Terrain generation is **deterministic** given a seed. Same seed + position = same terrain.
+  - TerrainGrid **caches** terrain but does not persist it. Cache is rebuilt on restart.
+  - The seed is **persisted** in `world_metadata` table with key `terrain_seed`.
+  - Terrain checks for structure placement are done at `WorldStateManager.create_structure()` level, not inside PositionGrid.
+  - Village placement searches for passable terrain via `TerrainGrid.is_passable()`.
+content_hash: "301eec2759e0180d55ced0a2f5487b7cb60771441dc409fd102591be71f1b995"
+token_count: 1402

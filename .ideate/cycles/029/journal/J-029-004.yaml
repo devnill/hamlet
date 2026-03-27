@@ -1,0 +1,11 @@
+id: J-029-004
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 29
+title: "Cycle 1 — Work item 242: Threshold-Based Terrain Classification"
+content: |
+  Status: complete
+  Implemented `_classify_terrain()` method with elevation-first then moisture-based classification. Updated threshold defaults to forest_threshold=0.5, meadow_threshold=0.0 to fix ordering issue. Modified `_generate_with_noise()` to use unified elevation from `_warped_fbm()` and moisture from `_fbm()` with seed offset. Added 7 new tests for classification logic. Review passed.
+content_hash: e97a546323268238f2af5b83aac7a53a1b74c697d49c1f1d094707b01fbcf044
+token_count: 144

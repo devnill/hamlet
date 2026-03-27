@@ -1,0 +1,17 @@
+id: FI-003-121
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `append_event_log()` silently dropped events when manager was None
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:189-190`
+  - **Fix applied**: Now raises `RuntimeError("Cannot append event log: facade not started")`.
+file_path: cycles/003/findings/FI-003-121.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-079
+verdict: Fail
+content_hash: b4b1f53bb43e6dd7c0969fe95a9d46794f6edbc6e88b49ce6f4efa021a00d916
+token_count: 120

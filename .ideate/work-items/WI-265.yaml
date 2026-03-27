@@ -1,0 +1,78 @@
+id: WI-265
+type: work_item
+title: Add hamlet settings CLI command
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File src/hamlet/cli/commands/settings_cmd.py exists
+  - hamlet settings (no args) prints all current settings as key=value pairs
+  - hamlet settings get <key> prints the value for a single key
+  - hamlet settings set <key> <value> updates the config file and prints confirmation
+  - hamlet settings set validates the value before writing (type checking, range checking)
+  - "hamlet settings set for nested terrain keys uses dot notation: hamlet settings set terrain.seed 42"
+  - Invalid key names print an error listing valid keys
+  - settings subcommand is registered in CLI parser with help text
+  - Command returns 0 on success, 1 on error
+module: null
+domain: null
+notes: |
+  # WI-265: Add hamlet settings CLI command
+  
+  ## Implementation Notes
+  
+  ### New file: src/hamlet/cli/commands/settings_cmd.py
+  
+  Create a module with three functions:
+  
+  1. `settings_list()` — Load Settings, print all fields as `key = value`. For the `terrain` dict, print each sub-key as `terrain.key = value`.
+  
+  2. `settings_get(key)` — Load Settings, look up the field. Support dot notation for terrain sub-keys (`terrain.seed`). Print just the value. Return 1 if key not found.
+  
+  3. `settings_set(key, value)` — Load Settings, parse value to the appropriate type (int, float, str, bool, None). For terrain sub-keys, update the terrain dict. Call `_validate()` on the modified Settings. Call `save()`. Print confirmation: `{key}: {old_value} -> {new_value}`.
+  
+  Type inference for `settings set`:
+  - If the existing value is `int`, parse as int
+  - If the existing value is `float`, parse as float
+  - If value is `"true"`/`"false"` (case-insensitive), parse as bool
+  - If value is `"null"`/`"none"` (case-insensitive), set to None
+  - Otherwise keep as string
+  
+  Valid top-level keys: all fields of `Settings` dataclass. Use `dataclasses.fields(Settings)` to enumerate them dynamically.
+  
+  Error handling:
+  - Unknown key → print valid keys, return 1
+  - Invalid value type → print expected type, return 1
+  - Validation failure → print the ValueError message, return 1
+  
+  ### CLI registration (cli/__init__.py)
+  
+  Add `settings` subparser with sub-subcommands:
+  ```
+  hamlet settings              → list all
+  hamlet settings get <key>    → get one
+  hamlet settings set <key> <value>  → set one
+  ```
+  
+  Use the deferred import shim pattern consistent with other commands:
+  ```python
+  def _settings_command(args) -> int:
+      from hamlet.cli.commands.settings_cmd import settings_command
+      return settings_command(args)
+  ```
+  
+  ### Key settings to highlight in help text
+  
+  The help text should note which settings are most commonly changed:
+  - `mcp_port` — daemon HTTP port
+  - `min_village_distance` — minimum spacing between village centers
+  - `zombie_threshold_seconds` — seconds before idle agents turn zombie
+  - `tick_rate` — simulation ticks per second
+  - `terrain.*` — terrain generation parameters
+cycle_created: 1
+cycle_modified: null
+content_hash: e1a337845e01820ec72c205421d69b300c87fb73a89e2793ae63c57b1985080a
+token_count: 782
+file_path: .ideate/work-items/WI-265.yaml

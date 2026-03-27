@@ -1,0 +1,49 @@
+id: WI-279
+type: work_item
+title: Multi-resolution zoom for Kitty
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "ZoomLevel IntEnum: CLOSE=0 (16x16), MEDIUM=1 (8x8), FAR=2 (1x1 character)"
+  - "ZoomConfig frozen dataclass: level, tile_pixels, render_mode (\"sprite\" or \"character\")"
+  - get_zoom_config returns correct config for each level
+  - next_zoom cycles CLOSE->MEDIUM->FAR->CLOSE
+  - prev_zoom cycles FAR->MEDIUM->CLOSE->FAR
+  - Tests verify cycling and wrapping for both directions
+  - "Tests verify tile_pixels: CLOSE=16, MEDIUM=8, FAR=1"
+module: null
+domain: null
+notes: |
+  # WI-279: Multi-resolution zoom for Kitty
+  
+  ## Context
+  Replaces `gui/notcurses/zoom.py`. Removes notcurses blitter constants, uses `render_mode` string instead.
+  
+  ## Implementation
+  ```python
+  class ZoomLevel(IntEnum):
+      CLOSE = 0   # 16x16 sprites
+      MEDIUM = 1  # 8x8 sprites
+      FAR = 2     # 1x1 character cell
+  
+  @dataclass(frozen=True)
+  class ZoomConfig:
+      level: ZoomLevel
+      tile_pixels: int
+      render_mode: str  # "sprite" or "character"
+  ```
+  
+  Cycling: `next_zoom` and `prev_zoom` use modular arithmetic on IntEnum values.
+  
+  ## Differences from notcurses zoom
+  - No `NCBLIT_*` constants
+  - `render_mode` is a plain string, not a C enum
+  - No dependency on bindings module
+cycle_created: 1
+cycle_modified: null
+content_hash: bfbde4c504ef74d17b26647b6759df4103a51aa2b16314a09b26b3d2cabd87cd
+token_count: 353
+file_path: .ideate/work-items/WI-279.yaml

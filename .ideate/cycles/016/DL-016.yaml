@@ -1,0 +1,89 @@
+id: DL-016
+type: decision_log
+cycle: 16
+content: |
+  # Decision Log — Cycle 016
+  
+  ## Planning Decisions
+  
+  ### D1: Pivot from notcurses to Kitty graphics protocol
+  - **Decision**: Abandon notcurses ctypes backend, replace with pure Python Kitty graphics protocol using terminal escape sequences.
+  - **Rationale**: notcurses 3.0.17 segfaults with Python 3.14 on ARM64 macOS. Internal `input_thread` corrupts mimalloc allocator after 2-5 seconds. All mitigations failed.
+  - **Implications**: All notcurses WI-267–274 code deleted. Design Constraint 1 updated with pure Python requirement.
+  
+  ### D2: Renderer infrastructure carries forward unchanged
+  - **Decision**: RendererProtocol, SymbolConfig, ZoomLevel enum, detect/resolve pattern all remain.
+  - **Rationale**: GP-4 (Modularity) validated — swapping backends required only the backend layer to change.
+  
+  ### D3: Image lifecycle via Kitty protocol numeric IDs
+  - **Decision**: Sprites uploaded once, assigned numeric ID, displayed by reference, deleted by ID. Replaces ncvisual/plane lifecycle.
+  - **Rationale**: Fixes cycle 015 Q-12 (SpriteSheet invalidation). Frozen SpriteHandle cannot be invalidated.
+  
+  ### D4: State fetching in-process, no subprocess isolation
+  - **Decision**: KittyApp fetches state directly via urllib, not via subprocess.
+  - **Rationale**: No C library means no memory corruption risk. Subprocess isolation was notcurses-specific.
+  
+  ### D5: Cycle 015 findings addressed within pivot scope
+  - **Decision**: Q-10, Q-11, Q-12, Q-15, Q-20 all fixed in this cycle.
+  - **Rationale**: Pivot required rewriting the renderer; fixing findings in same scope avoided carrying them forward.
+  
+  ## Execution Decisions
+  
+  ### D6: notcurses deleted entirely, not deprecated (WI-275)
+  - **Decision**: Full deletion of gui/notcurses/ and all associated tests.
+  - **Rationale**: Failed experiment with no path to recovery.
+  
+  ### D7: Pixel coordinates multiplied by tile_pixels (WI-278 rework)
+  - **Decision**: Cell coords sx/sy multiplied by tile_pixels before encode_image_display.
+  - **Rationale**: Kitty protocol X/Y are pixel offsets, not cell indices. Caught by incremental review C1.
+  
+  ### D8: Public is_uploaded() method replaces private attribute access (WI-278 rework)
+  - **Decision**: SpriteManager.is_uploaded(image_id) added; renderer uses it instead of _uploaded_ids.
+  - **Rationale**: Encapsulation fix caught by incremental review S2.
+  
+  ## Open Questions
+  
+  ### OQ-1: Sprite upload pipeline not wired
+  - **Question**: get_upload_sequence() is never called. When will it be wired?
+  - **Source**: code-reviewer S1, gap-analyst G1
+  - **Impact**: Sprites never display regardless of zoom level. No runtime impact (no PNGs exist).
+  
+  ### OQ-2: No sprite PNG assets
+  - **Question**: When will sprite assets be created?
+  - **Source**: gap-analyst G2, cycle 015 OQ-5
+  - **Impact**: SNES visual experience per GP-3 cannot be evaluated.
+  
+  ### OQ-3: SpriteHandle.uploaded field misleading
+  - **Question**: Should uploaded be removed from SpriteHandle?
+  - **Source**: code-reviewer M1
+  - **Impact**: Always False; is_uploaded() is the correct API.
+  
+  ### OQ-4: get_upload_sequence raises KeyError on stale handle
+  - **Source**: code-reviewer M2
+  - **Impact**: Crash after cleanup/reload cycle. Fix: use .get() with fallback.
+  
+  ### OQ-5: encode_image_display hardcodes placement_id p=1
+  - **Source**: code-reviewer M3
+  - **Impact**: Same image at two positions — second overwrites first.
+  
+  ### OQ-6: Domain questions not updated
+  - **Source**: gap-analyst G3
+  - **Impact**: Q-10, Q-11, Q-12, Q-15 still marked open in visualization questions.
+  
+  ### OQ-7: test.py at project root imports deleted notcurses
+  - **Source**: gap-analyst G4
+  - **Impact**: ImportError if run. Untracked scratch file.
+  
+  ### OQ-8: Process Constraint 3 inconsistency
+  - **Source**: spec-adherence M1
+  - **Impact**: Says tile-based graphics excluded from MVP, but Kitty backend delivers them.
+  
+  ## Cross-References
+  
+  ### CR1: Sprite pipeline — present but dormant
+  Code-reviewer S1 + gap-analyst G1 + G2: upload never called, no PNGs exist, placement ID collides. All three must be resolved together when sprite art begins.
+  
+  ### CR2: SpriteHandle.uploaded redundancy
+  Code-reviewer M1 + incremental WI-277 M2: uploaded field and is_uploaded() coexist. Remove field before wiring sprite pipeline.
+content_hash: "9293a08af22834876e024bd59340204c52b14dddddbb5d4931032c41104c79eb"
+token_count: 1088

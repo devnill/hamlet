@@ -1,0 +1,56 @@
+id: WI-108
+type: work_item
+title: Consolidate structure rules to single source of truth
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - A single `STRUCTURE_RULES` dict is defined in `src/hamlet/simulation/config.py`
+  - "`STRUCTURE_RULES` maps `StructureType` to `{\"thresholds\": list[int], \"materials\": list[str]}`"
+  - Canonical thresholds from world_state/manager.py STAGE_THRESHOLDS are used
+  - `STAGE_THRESHOLDS` and `MATERIAL_STAGES` removed from `world_state/manager.py`
+  - `world_state/manager.py` imports and uses `STRUCTURE_RULES` from `hamlet.simulation.config`
+  - `simulation/structure_updater.py` imports `STRUCTURE_RULES` instead of defining its own
+  - `STRUCTURE_RULES` included in `__all__` of `simulation/config.py`
+module: null
+domain: null
+notes: |
+  # Work Item 108: Consolidate structure rules to single source of truth
+  
+  ## Problem
+  Two conflicting definitions of structure thresholds and material progressions:
+  - `world_state/manager.py`: `STAGE_THRESHOLDS` + `MATERIAL_STAGES` (used for create_structure)
+  - `simulation/structure_updater.py`: `STRUCTURE_RULES` with different threshold values
+  
+  Example conflict: FORGE thresholds are [300, 1500, 3000] in manager vs [150, 750, 1500] in updater.
+  
+  ## Solution
+  Canonical source: `simulation/config.py` (where other simulation config lives).
+  
+  New dict in `simulation/config.py`:
+  ```python
+  STRUCTURE_RULES: dict[StructureType, dict] = {
+      StructureType.HOUSE:     {"thresholds": [100, 500, 1000],   "materials": ["wood", "wood", "stone", "brick"]},
+      StructureType.WORKSHOP:  {"thresholds": [150, 750, 1500],   "materials": ["wood", "wood", "stone", "brick"]},
+      StructureType.LIBRARY:   {"thresholds": [200, 1000, 2000],  "materials": ["wood", "wood", "stone", "brick"]},
+      StructureType.FORGE:     {"thresholds": [300, 1500, 3000],  "materials": ["wood", "wood", "stone", "brick"]},
+      StructureType.TOWER:     {"thresholds": [500, 2500, 5000],  "materials": ["wood", "wood", "stone", "brick"]},
+      StructureType.ROAD:      {"thresholds": [50, 200, 400],     "materials": ["wood", "wood", "stone", "brick"]},
+      StructureType.WELL:      {"thresholds": [75, 300, 600],     "materials": ["wood", "wood", "stone", "brick"]},
+  }
+  ```
+  
+  Use world_state/manager.py values as canonical (they are higher, more conservative thresholds).
+  
+  Then update both consumers to import from this location.
+  
+  ## Notes
+  - `StructureType` import in simulation/config.py — may need to import from world_state.types; check for circular imports. If circular, move STRUCTURE_RULES to a shared `world_state/rules.py` module and import from there.
+  - Make sure to add `StructureType` to the imports and `STRUCTURE_RULES` to `__all__` in config.py
+cycle_created: 1
+cycle_modified: null
+content_hash: "0ef02b431301eb4cf9948faced194f89aac9059a3dd521d0ba2ad98ea2cef9fa"
+token_count: 734
+file_path: .ideate/work-items/WI-108.yaml

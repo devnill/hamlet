@@ -1,0 +1,10 @@
+id: C-07
+type: constraint
+category: design
+status: active
+description: Deterministic identity. Agent appearance (color) must be derived deterministically from agent type, not randomly assigned.
+cycle_created: 1
+cycle_modified: null
+content_hash: "0678266a224909c3c8f54c05ad9c5f97021593c884f2ba34930b1af42a40b0f6"
+token_count: 73
+file_path: .ideate/constraints/C-07.yaml

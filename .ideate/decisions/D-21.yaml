@@ -1,0 +1,13 @@
+id: D-21
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 16
+supersedes: null
+description: Fixture data for rendering integration tests captured from live daemon
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: c2c0cb18e36f89db0941bfb1b9643c81336daf7c10f8274b576e1917e4393363
+token_count: 73
+file_path: .ideate/decisions/D-21.yaml

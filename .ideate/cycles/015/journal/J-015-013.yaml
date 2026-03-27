@@ -1,0 +1,11 @@
+id: J-015-013
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 152: Fix deterministic agent color assignment"
+content: |
+  Status: complete with rework
+  Rework: 1 minor fix (load_from_persistence now re-derives color from TYPE_COLORS instead of restoring stale "white" from DB).
+content_hash: e6f4c91e3402e2d3e73cc2408c385a7f2b275e8fb80b28300218745aa7c9cd61
+token_count: 85

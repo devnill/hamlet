@@ -1,0 +1,89 @@
+id: WI-224
+type: work_item
+title: TUI/persistence/install test coverage for Q-15 gaps and hotfixes
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - A test in `tests/test_tui_world_view.py` verifies on_resize calls viewport.resize with event width and height
+  - A test in `tests/test_tui_world_view.py` verifies render() calls self._viewport.resize(w, h) when size > 0
+  - A test in `tests/test_cli_install.py` verifies is_plugin_active returns True when settings JSON contains a dict with "installPath" key
+  - A test in `tests/test_cli_install.py` verifies is_plugin_active returns False when no settings file exists
+  - A test in `tests/test_persistence_facade.py` verifies stop() calls write_queue.join() before cancelling the write task
+  - No test uses @pytest.mark.asyncio decorator
+module: null
+domain: null
+notes: |
+  # WI-224 Implementation Notes
+  
+  ## Context
+  
+  Test coverage gaps from Q-15 and two hotfixes applied outside the formal cycle:
+  1. WorldView.on_resize() — calls viewport.resize()
+  2. WorldView.render() — syncs viewport to self.size each frame
+  3. is_plugin_active() in install.py — tests for both JSON formats
+  4. PersistenceFacade.stop() — drains queue before cancelling task
+  
+  ## tests/test_tui_world_view.py
+  
+  ### on_resize test
+  
+  ```python
+  async def test_on_resize_calls_viewport_resize():
+      mock_viewport = MagicMock()
+      mock_world_state = AsyncMock()
+      view = WorldView(mock_world_state, mock_viewport)
+      event = Resize(Size(80, 24), Size(0, 0))
+      view.on_resize(event)
+      mock_viewport.resize.assert_called_once_with(80, 24)
+  ```
+  
+  ### render viewport sync test
+  
+  ```python
+  async def test_render_syncs_viewport_to_size():
+      mock_viewport = MagicMock()
+      mock_viewport.get_visible_bounds.return_value = BoundingBox(0, 0, 10, 10)
+      mock_world_state = AsyncMock()
+      view = WorldView(mock_world_state, mock_viewport)
+      view._size = Size(120, 40)  # set size directly
+      view.render()
+      mock_viewport.resize.assert_called_with(120, 40)
+  ```
+  
+  ## tests/test_cli_install.py
+  
+  ### is_plugin_active tests
+  
+  Find `is_plugin_active` in cli/commands/install.py or init.py. Test:
+  1. Create a temp settings JSON file with a plugin entry containing `"installPath"`. Assert True.
+  2. Pass a non-existent path. Assert False.
+  
+  ## tests/test_persistence_facade.py
+  
+  ### stop() drain test
+  
+  ```python
+  async def test_stop_drains_queue_before_cancel():
+      mock_queue = AsyncMock()
+      mock_queue.join = AsyncMock()
+      facade = PersistenceFacade()
+      facade._running = True
+      facade._write_queue = mock_queue
+      facade._write_task = asyncio.create_task(asyncio.sleep(100))
+      facade._db = AsyncMock()
+  
+      await facade.stop()
+  
+      # join() must have been called (queue drain)
+      mock_queue.join.assert_awaited_once()
+      # Task should be cancelled after drain
+      assert facade._write_task is None
+  ```
+cycle_created: 1
+cycle_modified: null
+content_hash: "34066448da20d4abfd402212528bbc3e3be0e1a803c4da7e1711d97aa1739f6f"
+token_count: 754
+file_path: .ideate/work-items/WI-224.yaml

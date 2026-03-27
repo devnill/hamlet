@@ -1,0 +1,18 @@
+id: F-009-041
+type: finding
+cycle: 9
+reviewer: code-reviewer
+severity: minor
+title: EventQueueProtocol defined but not used in any constructor annotation
+description: |
+  - **File**: `src/hamlet/protocols.py`
+  - **Issue**: `EventQueueProtocol` is defined per the spec but no `__init__` parameter in any consumer file uses it. `EventProcessor.__init__` takes `asyncio.Queue[dict[str, Any]]` directly.
+  - **Suggested fix**: Either annotate EventProcessor's queue parameter with `EventQueueProtocol | asyncio.Queue[dict[str, Any]]`, or note in the protocol's docstring that it exists for documentation/future use.
+file_path: cycles/009/findings/F-009-041.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-009
+verdict: Pass
+content_hash: "116377742038b66c5394e44708836f3413b7c1a4efd3f2702c726d2d5db454a4"
+token_count: 191

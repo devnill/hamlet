@@ -1,0 +1,17 @@
+id: FI-003-122
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `enqueue_write()` silently dropped writes when not running
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:176`
+  - **Fix applied**: Now raises `RuntimeError("Cannot enqueue write: facade not running")`.
+file_path: cycles/003/findings/FI-003-122.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-079
+verdict: Fail
+content_hash: "8d8756138e49fe8a44bfc71d2724a14f6461696fd0deeb6fa8ebb08930413d32"
+token_count: 116

@@ -1,0 +1,12 @@
+id: J-007-014
+type: journal_entry
+phase: execute
+date: "2026-03-15"
+cycle_created: 7
+title: "Work item 031: Define Data Model Types"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed — replaced deprecated datetime.utcnow() with datetime.now(UTC) across all dataclass default_factory usages.
+  Note: Position dataclass uses frozen=True for hashability per spec notes.
+content_hash: "381eeb4f46fffa359af90251cc01d098a605efff7f73796dbd2ae92f0bdb6e6a"
+token_count: 100

@@ -1,0 +1,18 @@
+id: FI-003-172
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Test assertion too broad for range message
+description: |
+  - **File**: `tests/test_settings.py:44`
+  - **Issue**: `assert "1" in msg and "65535" in msg` matches any message containing those digits, not specifically the range phrase.
+  - **Status**: Fixed — changed to `assert "between 1 and 65535" in msg`.
+file_path: cycles/003/findings/FI-003-172.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-112
+verdict: Pass
+content_hash: "5e4402884d67409aacc9855a5cf0c413e74471ba5c6d4ee9740023a302dd8e07"
+token_count: 137

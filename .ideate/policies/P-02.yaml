@@ -1,0 +1,13 @@
+id: P-02
+type: domain_policy
+domain: visualization
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: More events = more visual interest. Debounce similar actions, but otherwise allow rapid updates. The simulation runs at 30 FPS.
+cycle_created: 1
+cycle_modified: null
+content_hash: "39b392af57b3f3d947c704776e10ad6ef5a867db0bdc99b8890f19e5b62c6b7b"
+token_count: 92
+file_path: .ideate/policies/P-02.yaml

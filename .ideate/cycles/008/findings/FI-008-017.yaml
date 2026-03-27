@@ -1,0 +1,18 @@
+id: FI-008-017
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: try/except wraps infallible literal assignments in five branches
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:802-828`
+  - **Issue**: UserPromptSubmit (line 804), PreCompact (line 811), PostCompact (line 818), and StopFailure (line 825) each wrap `summary = "SomeLiteral"` — a bare string literal assignment — in try/except. These blocks can never raise. The try/except provides no protection and misleads readers into thinking there is meaningful logic inside.
+  - **Suggested fix**: Remove the try/except from these four branches. Assign `summary` directly, as done for Notification and Stop on lines 724 and 727.
+file_path: cycles/008/findings/FI-008-017.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Pass
+content_hash: "9a2b056bc3343ff0e82bb3f20df2733d1c788a582fb40c0b7427d68f7e81d6c3"
+token_count: 224

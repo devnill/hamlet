@@ -1,0 +1,11 @@
+id: J-009-006
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 109: Persist Agent.project_id to SQLite"
+content: |
+  Status: complete with rework
+  Rework: 2 critical findings fixed (C1: migration test version assertions changed from 1 to 2; C2: migration 2 SQL wrapped in BEGIN/COMMIT for atomicity). 2 significant findings fixed (S1: added migration 2 test verifying project_id column exists; S2: updated test_migrations_dict_not_empty to assert 2 in MIGRATIONS). 1 minor finding fixed (M1: updated stale comment on Agent.project_id field in types.py).
+content_hash: d5197d2959f2c5ab7399bcb790de1888b5d631126b844e050d03f6e0ae105e52
+token_count: 151

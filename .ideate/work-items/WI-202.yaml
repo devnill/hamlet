@@ -1,0 +1,99 @@
+id: WI-202
+type: work_item
+title: Update QUICKSTART.md for daemon/viewer split and hamlet_init skill
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "QUICKSTART.md describes /hamlet:init as the primary project initialization method"
+  - QUICKSTART.md describes `hamlet init` CLI as an alternative for non-plugin users
+  - QUICKSTART.md shows `hamlet daemon` and `hamlet` (or `hamlet view`) as two separate commands run in separate terminals
+  - QUICKSTART.md does not reference `.venv/bin/hamlet` or describe hamlet as a single combined TUI+server process
+  - QUICKSTART.md health-check curl command is present and accurate
+module: null
+domain: null
+notes: |
+  # WI-202: Update QUICKSTART.md
+  
+  ## Context
+  
+  QUICKSTART.md currently:
+  - Describes hamlet as a single process (`hamlet` opens TUI + HTTP server together) — this is no longer accurate
+  - References `.venv/bin/hamlet` — dev-only, not appropriate for the user-facing quickstart
+  - Doesn't mention `/hamlet:init` MCP skill at all
+  - Doesn't explain that daemon must be running before opening the viewer
+  
+  ## Target Flow
+  
+  The new QUICKSTART.md should walk through:
+  
+  ### Prerequisites
+  - Python 3.12+
+  - `pip install hamlet` (or `pip install -e .` for development installs)
+  
+  ### Step 1: Initialize your project (one-time per project)
+  
+  **If you have the hamlet Claude Code plugin installed:**
+  > Inside a Claude Code session, use the `/hamlet:init` skill to initialize this project. This creates `.hamlet/config.json` with a unique project ID.
+  
+  **Otherwise (CLI fallback):**
+  ```bash
+  hamlet init
+  ```
+  
+  ### Step 2: Connect Claude Code (one-time global setup)
+  
+  **If using the hamlet plugin:** hooks are registered automatically — skip this step.
+  
+  **Otherwise:**
+  ```bash
+  hamlet install
+  ```
+  Restart Claude Code after running this.
+  
+  ### Step 3: Start the daemon (run in a separate terminal or background)
+  ```bash
+  hamlet daemon
+  ```
+  
+  ### Step 4: Open the viewer (in your working terminal)
+  ```bash
+  hamlet
+  # or: hamlet view
+  ```
+  
+  The viewer connects to the running daemon. Agents appear in the village as you use Claude Code.
+  
+  ### Verifying the connection
+  ```bash
+  curl http://localhost:8080/hamlet/health
+  # {"status": "ok"}
+  ```
+  
+  If hamlet daemon isn't running, the curl will fail and hooks will fail silently without affecting Claude Code.
+  
+  ### Optional config
+  `~/.hamlet/config.json`:
+  ```json
+  {
+    "mcp_port": 8080,
+    "db_path": "~/.hamlet/world.db",
+    "tick_rate": 30.0
+  }
+  ```
+  
+  ## Key Points for Executor
+  
+  - Remove all references to `.venv/bin/hamlet` — the quickstart is for installed users
+  - Do NOT remove the `hamlet install` section — it's still needed for non-plugin users
+  - The `/hamlet:init` description should reference the MCP skill that the plugin registers (invoked as `/hamlet:init` in Claude Code)
+  - The skill creates `.hamlet/config.json` — explain briefly what this does (gives the project a unique ID so the daemon tracks it as its own village)
+  - `hamlet daemon` should be shown running in a separate terminal (or with `&` for background)
+  - `hamlet` with no arguments opens the viewer (connects to the daemon at http://localhost:8080 by default)
+cycle_created: 1
+cycle_modified: null
+content_hash: "7eb07beaa2ad874d5e73b1943fa35d510c3b4ad361e05e3391f770ab628a90ee"
+token_count: 827
+file_path: .ideate/work-items/WI-202.yaml

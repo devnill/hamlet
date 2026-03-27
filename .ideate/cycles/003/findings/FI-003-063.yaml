@@ -1,0 +1,18 @@
+id: FI-003-063
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `import time` unused
+description: |
+  - **File**: `src/hamlet/simulation/animation.py:4`
+  - **Issue**: `time` was imported but never referenced; `current_time` is received as a float parameter.
+  - **Fix**: Removed the import.
+file_path: cycles/003/findings/FI-003-063.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-044
+verdict: Pass
+content_hash: be11bc40f5c5b345bcf29e4f4f30bbf139298b15dc7025a89efdc9d7c7e413de
+token_count: 116

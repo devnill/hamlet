@@ -1,0 +1,12 @@
+id: J-021-021
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 201: Test WorldStateManager.handle_event Stop/end_turn IDLE transition"
+content: |
+  Status: complete with rework
+  Rework: 2 minor findings fixed (M1: added pre-condition assertion verifying agents start non-IDLE; M2: removed redundant inline datetime import).
+  Changes: tests/test_world_state_manager.py — added test_handle_event_stop_end_turn_sets_agents_idle.
+content_hash: d7d5f004c1992c60633e26602934644efebffddee31d94f6ffe4cc246e0f42b4
+token_count: 119

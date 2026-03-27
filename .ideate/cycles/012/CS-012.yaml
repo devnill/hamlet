@@ -1,0 +1,165 @@
+id: CS-012
+type: cycle_summary
+cycle: 12
+content: |
+  # Review Summary — Cycle 012
+  
+  ## Overview
+  
+  Cycle 012 (Terrain Generation Refinement) implemented biome regions, realistic water features, forest clustering, and terrain smoothing. The core terrain generation is complete and functional, but the map viewer integration is incomplete: 10 new TerrainConfig parameters are not exposed in the parameter panel, and the legend is inaccessible in map viewer mode. The cycle **does not pass** comprehensive review due to an unmet acceptance criterion and significant findings.
+  
+  ## Critical Findings
+  
+  None.
+  
+  ## Significant Findings
+  
+  ### S1: Water Bias Formula Documentation Inaccurate
+  - **Source**: code-reviewer
+  - **Finding**: The comment on line 651 of `terrain.py` states "Max +/-0.3 adjustment" but the formula `bias_strength * (-biome_char) * 0.5` with `bias_strength = region_blending * 0.3` produces a maximum of +/-0.15, not +/-0.3.
+  - **Impact**: Users configuring `region_blending=1.0` expect a maximum bias of 0.3 but actually get 0.15.
+  - **Relates to**: WI-254 (biome region generation)
+  - **Suggested fix**: Update the comment to reflect actual maximum bias, or adjust the multipliers to achieve the documented 0.3.
+  
+  ### S2: Missing Parameters in Parameter Panel (Unmet AC)
+  - **Source**: code-reviewer
+  - **Finding**: Ten TerrainConfig parameters added in WI-254, WI-255, and WI-256 are not in `TERRAIN_PARAMS` list in `parameter_panel.py`:
+    - region_scale, region_blending (WI-254)
+    - river_count, pond_count, min_pond_size, max_pond_size, water_percentage_target (WI-255)
+    - forest_water_adjacency_bonus, forest_region_bias_strength, forest_percentage_target (WI-256)
+  - **Impact**: WI-252 acceptance criterion "Parameter panel displays all configurable terrain parameters with current values" is not met. Users cannot adjust these parameters through the map viewer UI.
+  - **Relates to**: WI-252 (map viewer mode)
+  - **Suggested fix**: Add all parameters to `TERRAIN_PARAMS` with appropriate min/max/step values.
+  
+  ### S3: Outdated Settings Documentation
+  - **Source**: code-reviewer
+  - **Finding**: The docstring in `settings.py` shows an incomplete default configuration that does not include the new TerrainConfig parameters from WI-254, WI-255, and WI-256.
+  - **Impact**: Users looking at documented defaults see an incomplete list of parameters.
+  - **Relates to**: WI-251 (config persistence)
+  - **Suggested fix**: Update docstring to include all parameters or add note about additional parameters.
+  
+  ### S4: Bounds Calculation Duplication
+  - **Source**: code-reviewer
+  - **Finding**: `MapViewer.get_visible_bounds()` reimplements logic from `viewport/coordinates.py:get_visible_bounds()` instead of using the shared utility.
+  - **Impact**: Maintenance burden — changes must be made in two places.
+  - **Relates to**: WI-253 (zoom functionality)
+  - **Suggested fix**: Refactor to use shared utility function.
+  
+  ### G1: Legend Not Accessible in Map Viewer Mode
+  - **Source**: gap-analyst
+  - **Finding**: The LegendOverlay implemented for the main game TUI is not accessible in the map viewer (`MapApp`). The `/` key has no binding in map viewer mode.
+  - **Impact**: Users exploring terrain parameters cannot see what terrain symbols represent.
+  - **Relates to**: WI-249 (legend enhancement), WI-252 (map viewer mode)
+  - **Suggested fix**: Add legend toggle to `MapApp` or embed terrain symbol information in parameter panel/status bar.
+  
+  ### G2: Terrain Parameter Validation Missing
+  - **Source**: gap-analyst
+  - **Finding**: `TerrainConfig` accepts any numeric values without validation. Users can set extreme values (`region_scale=1`, `octaves=20`) or negative thresholds.
+  - **Impact**: Nonsensical configurations produce unexpected behavior or performance issues.
+  - **Relates to**: WI-250 (parameter system)
+  - **Suggested fix**: Add `__post_init__` validation with warnings/errors for out-of-range values.
+  
+  ## Minor Findings
+  
+  ### M1: Outdated Water/Mountain Frequency in Settings
+  - **Source**: code-reviewer
+  - **Finding**: Settings docstring includes `water_frequency` and `mountain_frequency` parameters that are not used in current TerrainConfig (uses threshold-based classification instead).
+  - **Suggested fix**: Update or remove legacy fields.
+  
+  ### M2: Empty Help Toggle in Map Viewer
+  - **Source**: gap-analyst
+  - **Finding**: `action_toggle_help()` in `map_app.py` is a no-op.
+  - **Suggested fix**: Implement help overlay or remove binding.
+  
+  ### M3: Noise Library Fallback Produces Incoherent Terrain
+  - **Source**: gap-analyst
+  - **Finding**: When `noise` library is unavailable, fallback produces scattered cells, not coherent regions — the original user problem.
+  - **Suggested fix**: Document that noise library is required for coherent terrain.
+  
+  ### M4: River Minimum Length Hardcoded
+  - **Source**: gap-analyst
+  - **Finding**: Rivers shorter than 3 cells are silently discarded. Threshold not configurable.
+  - **Suggested fix**: Add `min_river_length` parameter to TerrainConfig.
+  
+  ### M5: Map Viewer Does Not Show Save Status
+  - **Source**: gap-analyst
+  - **Finding**: `_dirty` flag tracks unsaved changes but is not displayed.
+  - **Suggested fix**: Add dirty indicator to status bar.
+  
+  ## Findings Requiring User Input
+  
+  ### Q-5: Map Viewer Legend Accessibility
+  - **Question**: Should the terrain legend be accessible in map viewer mode?
+  - **Context**: LegendOverlay exists for main game TUI but is not included in MapApp. Gap analysis G1 identified this.
+  - **Impact**: Users must memorize terrain symbols or exit map viewer to check legend.
+  - **Options**:
+    - a) Add legend toggle (`/` key) to MapApp — maintains consistency with main app
+    - b) Embed terrain symbol information in parameter panel — always visible
+    - c) Accept current state — users rely on memory or external documentation
+  
+  ### Q-6: Terrain Parameter Validation
+  - **Question**: Should TerrainConfig validate parameter ranges?
+  - **Context**: Parameters accept any numeric value. Gap analysis G2 identified this.
+  - **Impact**: Nonsensical configurations may cause performance issues or unexpected output.
+  - **Options**:
+    - a) Add `__post_init__` validation with warnings for out-of-range values
+    - b) Add validation with errors for invalid values
+    - c) Accept current state — document expected ranges but don't enforce
+  
+  ### Q-11: Missing Parameters in Parameter Panel
+  - **Question**: Should the parameter panel expose all TerrainConfig parameters?
+  - **Context**: Ten parameters are missing from TERRAIN_PARAMS. Code review S2 identified this as unmet acceptance criterion.
+  - **Impact**: Users cannot adjust region_scale, water features, or forest clustering through the map viewer UI.
+  - **Options**:
+    - a) Add all ten parameters to TERRAIN_PARAMS with appropriate ranges (recommended)
+    - b) Accept current state — parameters configurable only via config file
+  
+  ## Proposed Refinement Plan
+  
+  The review identified **1 unmet acceptance criterion** and **6 significant findings** (4 from code review, 2 from gap analysis). A refinement cycle is recommended to address:
+  
+  ### Priority 1: Unmet Acceptance Criterion
+  - **WI-252 AC3**: Add missing parameters to `TERRAIN_PARAMS` in `parameter_panel.py` (S2)
+  
+  ### Priority 2: Documentation Accuracy
+  - Fix water bias formula comment in `terrain.py` (S1)
+  - Update settings docstring with current parameters (S3)
+  
+  ### Priority 3: Code Quality
+  - Refactor bounds calculation to use shared utility (S4)
+  
+  ### Priority 4: Map Viewer Enhancement
+  - Add legend toggle to MapApp (G1)
+  - Consider parameter validation (G2) — may be deferred
+  
+  ### Estimated Scope
+  - 3-4 work items
+  - Complexity: Low (parameter additions) to Medium (validation)
+  - No architecture changes needed
+  
+  ## Reviewer Summary
+  
+  | Reviewer | Critical | Significant | Minor | Verdict |
+  |----------|----------|-------------|-------|---------|
+  | code-reviewer | 0 | 4 | 5 | Fail |
+  | spec-reviewer | 0 | 0 | 0 | Pass |
+  | gap-analyst | 0 | 2 | 4 | — |
+  | **Total** | **0** | **6** | **9** | **Fail** |
+  
+  ## Files Requiring Changes
+  
+  | File | Findings | Work Items Affected |
+  |------|----------|---------------------|
+  | `src/hamlet/tui/parameter_panel.py` | S2 (unmet AC) | WI-252 |
+  | `src/hamlet/world_state/terrain.py` | S1 (documentation) | WI-254 |
+  | `src/hamlet/config/settings.py` | S3 (documentation) | WI-251 |
+  | `src/hamlet/tui/map_viewer.py` | S4 (duplication) | WI-253 |
+  | `src/hamlet/tui/map_app.py` | G1, M2 (legend, help) | WI-252 |
+  
+  ## Verdict
+  
+  **Fail** — One acceptance criterion unmet (WI-252 AC3: parameter panel displays all config values). Six significant findings require attention before the cycle can pass comprehensive review.
+  
+  No refinement cycle is needed for critical findings (none exist), but the significant findings should be addressed. The core terrain generation is complete and correct; the gaps are in map viewer integration and documentation.
+content_hash: "4849af5e0cb79faa02c801e2a909f768948fc6c0ad0eff320c6208fe98e7ec9b"
+token_count: 2248

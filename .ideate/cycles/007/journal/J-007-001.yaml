@@ -1,0 +1,26 @@
+id: J-007-001
+type: journal_entry
+phase: refine
+date: "2026-03-21"
+cycle_created: 7
+title: Cycle 5 gap-analysis corrected; Phase 6d refinement
+content: |
+  Trigger: Premature convergence declaration corrected after actual gap-analyst findings arrived.
+  Cycle 5 gap-analysis.md was initially written manually with only minor findings. Three delayed gap-analyst agents returned significant findings after the convergence declaration was made. Findings verified against source and confirmed; convergence_achieved reset to false.
+  
+  Actual Cycle 5 findings: critical=0, significant=5, minor=2
+  
+  Significant findings:
+  - SG1: `__main__.py:115` error message says "hamlet" (launches viewer) not "hamlet daemon"
+  - SG2: `zombie_threshold_seconds` not in Settings; defaults to 300s silently
+  - SG3: `remote_state.py` fetch_state/fetch_events have no request timeout
+  - SG4: `cli/__init__.py` hardcodes localhost:8080 in three locations; ignores settings.mcp_port
+  - SG5: Village expansion builds roads but never founds new settlements (Principle 5 violation)
+  
+  New work items: WI-213 through WI-216
+  - WI-213: Fix daemon error message + CLI port hardcoding (SG1, SG4)
+  - WI-214: Wire zombie_threshold_seconds from Settings (SG2)
+  - WI-215: Add request timeout to RemoteStateProvider fetch methods (SG3)
+  - WI-216: Village expansion founds new settlements (SG5)
+content_hash: "34d61c0103d8eb18fd1b99e37dbc0db15ea656e5ad84e53865df99e212c194ec"
+token_count: 343

@@ -1,0 +1,17 @@
+id: FI-006-001
+type: finding
+cycle: 6
+reviewer: code-reviewer
+severity: minor
+title: _handle_notification() only logs when notification_message is non-None
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/inference/engine.py`
+  - **Issue**: The debug log is inside `if event.notification_message:`. A Notification event with None message produces no log. Minor — logging None values would be noisy and the field is typically populated.
+file_path: cycles/006/findings/FI-006-001.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-122
+verdict: Pass
+content_hash: f60c60a7b4b397a625e821a19492a81bba9be0009d4111cd5b70178e50f85c70
+token_count: 151

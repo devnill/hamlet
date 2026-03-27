@@ -1,0 +1,18 @@
+id: FI-003-092
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: __aexit__ could raise exceptions, leaking connection (GP7 violation)
+description: |
+  - **File**: `src/hamlet/persistence/connection.py:25-32`
+  - **Issue**: If cursor.close() raised, conn.close() was never called, leaking the connection handle.
+  - **Fix**: Wrapped each close in its own try/except to ensure cleanup always completes.
+file_path: cycles/003/findings/FI-003-092.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-072
+verdict: Pass
+content_hash: "3fbc2568df7302ee7cbe8d735734a1e337742de7fe95e01f67e4e5ff813a6c68"
+token_count: 144

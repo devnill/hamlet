@@ -1,0 +1,18 @@
+id: FI-003-118
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: Dual conflicting write loops caused race conditions
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:138-152` and `src/hamlet/persistence/queue.py:64-77`
+  - **Issue**: Both `PersistenceFacade._write_loop` and `WriteQueue._write_loop` ran simultaneously after `start()`, competing for queue items.
+  - **Fix applied**: Removed `WriteQueue._write_loop`, `start()`, and `stop()` methods. The facade is now the sole consumer of the queue. `WriteQueue` is now a simple wrapper around `asyncio.Queue` with public `task_done()` and `join()` methods.
+file_path: cycles/003/findings/FI-003-118.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-079
+verdict: Fail
+content_hash: "3e256e0f44359c2caa4191e87d49de78641da7587a4693c825b0955e9bb03848"
+token_count: 199

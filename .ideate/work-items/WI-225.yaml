@@ -1,0 +1,70 @@
+id: WI-225
+type: work_item
+title: Add get_nearest_village_to method to WorldStateManager and protocol
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "`WorldStateManager.get_nearest_village_to(x: int, y: int) -> Village | None` method exists"
+  - Method returns the Village whose center has the smallest Euclidean distance to (x, y), or None if no villages exist
+  - Method acquires self._lock to read self._state.villages
+  - "`WorldStateProtocol` declares `async def get_nearest_village_to(self, x: int, y: int) -> \"Village | None\": ...`"
+  - `RemoteWorldState.get_nearest_village_to(x, y)` computes nearest village from self._villages; returns None if empty
+  - A test verifies with two villages at (0,0) and (10,10), get_nearest_village_to(1,1) returns the village at (0,0)
+  - A test verifies with no villages, get_nearest_village_to(0,0) returns None
+module: null
+domain: null
+notes: |
+  # WI-225 Implementation Notes
+  
+  ## src/hamlet/world_state/manager.py
+  
+  Add method after `get_agents_in_view`:
+  
+  ```python
+  async def get_nearest_village_to(self, x: int, y: int) -> Village | None:
+      """Return the village whose center is nearest to (x, y), or None if no villages."""
+      import math
+      async with self._lock:
+          villages = list(self._state.villages.values())
+      if not villages:
+          return None
+      return min(villages, key=lambda v: math.hypot(v.center.x - x, v.center.y - y))
+  ```
+  
+  ## src/hamlet/protocols.py
+  
+  Add to WorldStateProtocol:
+  
+  ```python
+  async def get_nearest_village_to(self, x: int, y: int) -> "Village | None": ...
+  ```
+  
+  ## src/hamlet/tui/remote_world_state.py
+  
+  Add method (client-side calculation from cached state):
+  
+  ```python
+  async def get_nearest_village_to(self, x: int, y: int) -> Village | None:
+      """Return nearest village by Euclidean distance from cached villages."""
+      import math
+      if not self._villages:
+          return None
+      return min(self._villages, key=lambda v: math.hypot(v.center.x - x, v.center.y - y))
+  ```
+  
+  Note: `self._villages` is the cached list of villages from the most recent state poll.
+  
+  ## Tests in tests/test_world_state_manager.py
+  
+  1. Create WorldStateManager with mock persistence.
+  2. Create two villages at centers (0,0) and (10,10).
+  3. Assert `get_nearest_village_to(1,1)` returns the village at (0,0).
+  4. Assert `get_nearest_village_to(0,0)` with no villages returns None.
+cycle_created: 1
+cycle_modified: null
+content_hash: a54c7b8385095965172f75176c82ff6de4106d7964a6d52c9bc4f2545527a38d
+token_count: 632
+file_path: .ideate/work-items/WI-225.yaml

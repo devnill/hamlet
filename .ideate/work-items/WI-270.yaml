@@ -1,0 +1,37 @@
+id: WI-270
+type: work_item
+title: Settings and CLI integration for renderer selection
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "Settings has field renderer: str = \"auto\""
+  - Settings._validate() rejects values other than auto, textual, notcurses
+  - detect.py exports detect_renderer() and resolve_renderer()
+  - resolve_renderer returns cli_arg when not None, resolves auto via detect_renderer
+  - tests verify resolve_renderer precedence logic
+module: null
+domain: null
+notes: |
+  # WI-270: Settings and CLI integration for renderer selection
+  
+  ## Implementation Notes
+  
+  ### Settings changes
+  Add `renderer: str = "auto"` after terrain field.
+  Validate in `_validate()`: must be one of `{"auto", "textual", "notcurses"}`.
+  Update docstring example.
+  
+  ### detect.py
+  - `detect_renderer()`: try importing NOTCURSES_AVAILABLE, return "notcurses" if True else "textual"
+  - `resolve_renderer(cli_arg, settings_value)`: cli_arg wins if not None, "auto" calls detect_renderer(), otherwise use settings_value directly
+  
+  ### Note
+  The `--renderer` CLI argument and `_view_command` changes are in WI-273. This item only modifies settings.py and creates detect.py.
+cycle_created: 1
+cycle_modified: null
+content_hash: ec1d94461161850240b454bd6e3653a6b961fbc0f49fcbf07afb1d2395c94a26
+token_count: 327
+file_path: .ideate/work-items/WI-270.yaml

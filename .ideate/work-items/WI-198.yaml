@@ -1,0 +1,131 @@
+id: WI-198
+type: work_item
+title: Protocol interfaces for module boundaries
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - src/hamlet/protocols.py exists and defines WorldStateProtocol, InferenceEngineProtocol, PersistenceProtocol, EventQueueProtocol
+  - Each Protocol declares the public methods called by other modules with correct signatures
+  - SimulationEngine.__init__ world_state parameter is typed as WorldStateProtocol (not Any)
+  - MCPServer.__init__ world_state parameter is typed as WorldStateProtocol (not Any)
+  - EventProcessor.__init__ world_state, agent_inference, persistence parameters are typed with respective Protocols (not Any)
+  - AgentInferenceEngine.__init__ world_state parameter is typed as WorldStateProtocol (not Any)
+  - WorldStateManager.__init__ persistence parameter is typed as PersistenceProtocol (not Any)
+  - python -c "from hamlet.protocols import WorldStateProtocol, InferenceEngineProtocol, PersistenceProtocol, EventQueueProtocol" succeeds
+  - pytest passes with no runtime import errors
+module: null
+domain: null
+notes: |
+  # WI-198: Protocol interfaces for module boundaries
+  
+  ## Context
+  
+  Five classes accept collaborators typed as `Any` in their constructors: `SimulationEngine`, `MCPServer`, `EventProcessor`, `AgentInferenceEngine`, `WorldStateManager`. This prevents static analysis from catching interface mismatches. The fix is Protocol classes that define the expected interface structurally, avoiding circular imports.
+  
+  ## src/hamlet/protocols.py (create)
+  
+  ```python
+  """Structural Protocol interfaces for hamlet module boundaries.
+  
+  These Protocols define the interfaces that each major component expects from
+  its collaborators. They enable static type checking without circular imports.
+  """
+  from __future__ import annotations
+  from typing import TYPE_CHECKING, Any, AsyncIterator, Protocol
+  
+  if TYPE_CHECKING:
+      from hamlet.event_processing.internal_event import InternalEvent
+      from hamlet.world_state.types import Agent, Structure, Village, Project, Session
+      from hamlet.persistence.types import WriteOperation, WorldStateData
+  
+  
+  class WorldStateProtocol(Protocol):
+      """Interface that WorldStateManager consumers depend on."""
+  
+      async def handle_event(self, event: "InternalEvent") -> None: ...
+      async def get_or_create_project(self, project_id: str, project_name: str) -> "Project": ...
+      async def get_or_create_session(self, session_id: str, project_id: str) -> "Session": ...
+      async def get_or_create_agent(self, agent_id: str, session_id: str, project_id: str) -> "Agent": ...
+      async def update_agent(self, agent_id: str, **kwargs: Any) -> None: ...
+      async def add_work_units(self, agent_id: str, units: int) -> None: ...
+      def get_all_agents(self) -> list["Agent"]: ...
+      def get_all_structures(self) -> list["Structure"]: ...
+      def get_all_villages(self) -> list["Village"]: ...
+      def get_event_log(self) -> list[Any]: ...
+      def get_projects(self) -> dict[str, "Project"]: ...
+      def get_agents_by_session(self, session_id: str) -> list["Agent"]: ...
+      def get_village_by_project(self, project_id: str) -> "Village | None": ...
+  
+  
+  class InferenceEngineProtocol(Protocol):
+      """Interface that InferenceEngine consumers depend on."""
+  
+      async def process_event(self, event: "InternalEvent") -> None: ...
+      async def tick(self) -> list[str]: ...
+  
+  
+  class PersistenceProtocol(Protocol):
+      """Interface that PersistenceFacade consumers depend on."""
+  
+      async def start(self) -> None: ...
+      async def stop(self) -> None: ...
+      async def load_state(self) -> "WorldStateData": ...
+      async def log_event(self, event: "InternalEvent") -> None: ...
+      async def queue_write(self, operation: "WriteOperation") -> None: ...
+  
+  
+  class EventQueueProtocol(Protocol):
+      """Interface for an asyncio.Queue-compatible event queue."""
+  
+      async def put(self, item: Any) -> None: ...
+      async def get(self) -> Any: ...
+      def task_done(self) -> None: ...
+  ```
+  
+  ## Updating consumer files
+  
+  For each file, change the `Any`-typed parameter to the appropriate Protocol. Use `from __future__ import annotations` (already present in most files) plus a conditional import:
+  
+  ```python
+  from __future__ import annotations
+  from typing import TYPE_CHECKING
+  if TYPE_CHECKING:
+      from hamlet.protocols import WorldStateProtocol, PersistenceProtocol
+  ```
+  
+  Then in the constructor signature:
+  ```python
+  def __init__(self, world_state: WorldStateProtocol, ...):
+  ```
+  
+  **Note**: With `from __future__ import annotations`, annotation strings are not evaluated at runtime — the TYPE_CHECKING import does not cause circular imports.
+  
+  ### Files to update:
+  - `src/hamlet/simulation/engine.py`: `world_state: WorldStateProtocol`, `agent_inference: InferenceEngineProtocol`
+  - `src/hamlet/mcp_server/server.py`: `world_state: WorldStateProtocol`
+  - `src/hamlet/event_processing/event_processor.py`: `world_state: WorldStateProtocol`, `agent_inference: InferenceEngineProtocol`, `persistence: PersistenceProtocol`
+  - `src/hamlet/inference/engine.py`: `world_state: WorldStateProtocol`
+  - `src/hamlet/world_state/manager.py`: `persistence: PersistenceProtocol`
+  
+  ## Verify no circular imports
+  
+  After changes, run:
+  ```
+  python -c "from hamlet.protocols import WorldStateProtocol"
+  python -c "from hamlet.world_state.manager import WorldStateManager"
+  python -c "from hamlet.inference.engine import AgentInferenceEngine"
+  python -m hamlet --help"
+  ```
+  All should succeed without ImportError.
+  
+  ## Run full pytest
+  
+  `pytest` must pass with no new failures. The Protocol changes are annotation-only; no runtime behavior changes.
+cycle_created: 1
+cycle_modified: null
+content_hash: af78e178aeaec64312211efea0dbfd856b0193ab365a8fe4f6becf15a702a3d8
+token_count: 1468
+file_path: .ideate/work-items/WI-198.yaml

@@ -1,0 +1,18 @@
+id: FI-003-139
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `test_viewport_manager.py` fixture configures `world_state._state` directly
+description: |
+  - **File**: `tests/test_viewport_manager.py:21-24`
+  - **Issue**: Fixture sets `world_state._state.villages/agents/structures`. `ViewportManager` now calls the async accessor methods.
+  - **Suggested fix**: Replace with `AsyncMock(return_value=[])` for each accessor.
+file_path: cycles/003/findings/FI-003-139.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-104
+verdict: Pass
+content_hash: "548f6308acda61188a5218239c183f80ecc0bf49f9185ee71d87e090f966b388"
+token_count: 151

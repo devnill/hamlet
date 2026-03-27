@@ -1,0 +1,11 @@
+id: J-016-018
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 4 — Work item 172: Add python3 availability guard to start.sh"
+content: |
+  Status: complete
+  Added `command -v python3` guard before the import check in mcp/start.sh python3 fallback. If python3 is absent, emits "python3 not found" diagnostic to stderr and exits 1. Also changed mcp not-found message to use `python3 -m pip install mcp`. No findings in incremental review.
+content_hash: e1cac01b21fb76bb317d391892bf401918ec451d1f2c6f943d39b21b85292f11
+token_count: 121

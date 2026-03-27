@@ -1,0 +1,12 @@
+id: J-003-014
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 254: Biome Region Generation"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (water bias formula inverted — changed `(biome_char + 1.0) * 0.5` to `(-biome_char) * 0.5` so wet regions get higher water bias).
+  Macro-scale noise (low frequency) defines biome regions. Each region has dominant terrain type tendency. Region blending creates gradual transitions. Performance: generation under 500ms for 200x200 world.
+content_hash: a821c010141ebe7298ba1d067c77025f027fd3d293a53d31c40e453e16af5b45
+token_count: 139

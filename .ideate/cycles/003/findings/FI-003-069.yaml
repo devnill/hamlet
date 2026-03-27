@@ -1,0 +1,19 @@
+id: FI-003-069
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Integer type annotations not enforced at runtime
+description: |
+  - **File**: `src/hamlet/viewport/coordinates.py:13-35`
+  - **Issue**: Dataclasses declare int fields but Python doesn't enforce at runtime. Float inputs propagate silently.
+  - **Impact**: Downstream rendering receives float screen positions; TUI APIs require integer cell coordinates.
+  - **Suggested fix**: Add `__post_init__` coercion or validation to each dataclass.
+file_path: cycles/003/findings/FI-003-069.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-051
+verdict: Fail
+content_hash: "539ba03ab0062a52b99a5d493484d531bd0fb8dcf4d043878be2c19b7554ae3f"
+token_count: 169

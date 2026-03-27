@@ -1,0 +1,18 @@
+id: FI-003-173
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: No test for negative mcp_port
+description: |
+  - **File**: `tests/test_settings.py`
+  - **Issue**: Negative values were not tested.
+  - **Status**: Fixed — added `test_validate_rejects_negative_mcp_port` and `test_validate_rejects_bool_mcp_port`.
+file_path: cycles/003/findings/FI-003-173.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-112
+verdict: Pass
+content_hash: ecff3613befe8efb7d4d374f4a3a8e2facf7b6ea15d40c51678ade11e3b7a643
+token_count: 121

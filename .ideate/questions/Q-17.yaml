@@ -1,0 +1,14 @@
+id: Q-17
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: SpriteHandle.uploaded field is always False and misleading
+cycle_created: 1
+cycle_modified: null
+content_hash: "2606f2b6de4a69004c5903e70c2c56a99e99dba0651b76c7d0264b4e56dc495f"
+token_count: 74
+file_path: .ideate/questions/Q-17.yaml

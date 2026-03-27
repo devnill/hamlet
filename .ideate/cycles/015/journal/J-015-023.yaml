@@ -1,0 +1,11 @@
+id: J-015-023
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 164: Fix EXECUTOR agent type color"
+content: |
+  Status: complete
+  EXECUTOR changed from "red" to "orange1" in inference/types.py, tui/symbols.py, and tui/legend.py. No tests required updating.
+content_hash: "75280d328810de3df3d9419a8779d2f2cd28e9bb459e0e34e7a0b9156735a9d3"
+token_count: 80

@@ -1,0 +1,17 @@
+id: FI-003-152
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `.get()` with redundant fallback instead of direct lookup
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:305`, `src/hamlet/inference/engine.py:252`
+  - **Issue**: `TYPE_COLORS.get(key, "white")` — the fallback is always the same as `TYPE_COLORS[AgentType.GENERAL]`, so a missing key silently defaults rather than raising a KeyError.
+file_path: cycles/003/findings/FI-003-152.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-107
+verdict: Pass
+content_hash: "331a81b269fc5575b070e22854dc0da56b2483134279230128d600d541b9775e"
+token_count: 147

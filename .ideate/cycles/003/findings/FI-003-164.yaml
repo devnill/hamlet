@@ -1,0 +1,18 @@
+id: FI-003-164
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `_engine_with_window` helper did not populate `input_log`
+description: |
+  - **File**: `tests/test_type_inference.py:63`
+  - **Issue**: Helper pre-populated `events` only; `input_log` defaulted to `[]`. All TESTER refinement code was silently bypassed in every existing test.
+  - **Suggested fix**: Populate `input_log` in parallel with `events` (using empty strings when no tool_inputs provided).
+file_path: cycles/003/findings/FI-003-164.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-110
+verdict: Pass
+content_hash: c5d41a86664929fd5877a91d8f2e825e79fb3e04be9dab186ada0dbc02de8d30
+token_count: 160

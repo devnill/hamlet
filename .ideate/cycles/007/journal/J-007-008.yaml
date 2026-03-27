@@ -1,0 +1,11 @@
+id: J-007-008
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 7
+title: "Cycle 4 — Work item 209: Fix WorldView initial paint"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed (removed redundant @pytest.mark.asyncio decorators from test_tui_world_view.py).
+content_hash: d9131aee9935e094951d06dcef16f486d0aa60e1baeb0f39110a3428d0044448
+token_count: 77

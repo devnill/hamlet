@@ -1,0 +1,12 @@
+id: J-013-004
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 13
+title: "Work item 124: Fix find_config() traversal"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed from incremental review.
+  M1: data.get("project_id", _cwd_hash()) replaced with data["project_id"] in all four hooks (dead code after project_id guard).
+content_hash: f1b655e07dab07115ae549c6951bd12c62d1409a93c5c8b1dfe77e36eb134559
+token_count: 95

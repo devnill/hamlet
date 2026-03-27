@@ -1,0 +1,11 @@
+id: J-011-003
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 11
+title: "Work item 118: Minor display and code fixes"
+content: |
+  Status: complete with rework
+  Four fixes applied: (1) EXECUTOR legend entry changed from green to red, matching symbols.py and types.py. (2) duration_ms truthy check was already correct from WI-114 rework. (3) PLANNER reserved comment added to inference/rules.py TYPE_RULES block. (4) stdio MCP transport removed from server.py — deleted _run_server method, asyncio.create_task call, stdio_server import, and _run_task handling. Minor rework: stale stop() docstring updated.
+content_hash: "9dde7b6940dcb743d517d39de7682a46d66e5ae3b6b68f5ef203507dc441af2e"
+token_count: 159

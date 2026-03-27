@@ -1,0 +1,17 @@
+id: FI-003-123
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Unused `TYPE_CHECKING` block
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:18-19`
+  - **Fix applied**: Removed.
+file_path: cycles/003/findings/FI-003-123.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-079
+verdict: Fail
+content_hash: "4ae8d503682687d2cbf3ba054823f44e902f8da32ee84d5fec04b24ea04c4ae2"
+token_count: 91

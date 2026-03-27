@@ -1,0 +1,18 @@
+id: FI-003-008
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `MCPServer` not wired into app orchestrator
+description: |
+  - **File**: `src/hamlet/mcp_server/server.py`
+  - **Issue**: MCPServer is never instantiated or started from an app entry point. Criterion "Server runs as background task alongside TUI and simulation" cannot be verified from code in scope.
+  - **Resolution**: Out of scope for work item 005. Will be addressed in the app integration work item.
+file_path: cycles/003/findings/FI-003-008.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-005
+verdict: Fail
+content_hash: d4fab814ead13b67d7a9bebee907292108e1c578e77b7176763e3061cd5d991e
+token_count: 162

@@ -1,0 +1,18 @@
+id: FI-003-137
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `handle_event` type annotation uses `Any` instead of `InternalEvent`
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:610`
+  - **Issue**: Signature is `handle_event(self, event: Any)`. `InternalEvent` is the concrete type from `hamlet.event_processing.internal_event`.
+  - **Suggested fix**: Import `InternalEvent` and update annotation.
+file_path: cycles/003/findings/FI-003-137.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-104
+verdict: Pass
+content_hash: "44da4f83d1872f8ab8679e0960fc51fd72645cc224a0740488d8e367612e8c75"
+token_count: 149

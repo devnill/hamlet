@@ -1,0 +1,18 @@
+id: interviews/refine-13/_general
+type: interview
+cycle: 13
+source_path: steering/interviews/refine-13/_general.md
+entries:
+  - {id: IQ-013-001, question: What triggered this refinement session?, answer: New features, open questions from prior cycles, and hotfixes needing formal tracking., domain: null, seq: 1}
+  - {id: IQ-013-002, question: Which open questions do you want to address?, answer: Q-10 (Bash string tool_output), Q-15 (test coverage gaps), Q-13 (stop_reason behavioral differentiation), Q-14 (handle_event enum vs string dispatch). All four., domain: null, seq: 2}
+  - {id: IQ-013-003, question: Do the guiding principles still apply?, answer: Yes, all 11 principles unchanged., domain: null, seq: 3}
+  - {id: IQ-013-004, question: What new features do you have in mind?, answer: (1) The project title/status bar line should show the name of the village the viewport is currently centered on. (2) Structure size should be based on amount of work done — multi-cell footprint AND stage progression. New features create new structures, refinements/bug fixes extend existing ones. Size relative to work volume., domain: null, seq: 4}
+  - {id: IQ-013-005, question: "For the status bar: where should the village name appear?", answer: "The 'Project:' line in the status bar. Replace project name with the village name of the village currently centered in the viewport.", domain: null, seq: 5}
+  - {id: IQ-013-006, question: "For structures: what does 'size' mean in ASCII terms?", answer: Both multi-cell footprint AND stage progression. Multi-cell footprint is the priority., domain: null, seq: 6}
+  - {id: IQ-013-007, question: How should hamlet infer new feature vs bug fix/refinement?, answer: Start with work unit volume only — skip the distinction for now. Structure code to be modular so the work type classifier can be swapped in later., domain: null, seq: 7}
+  - {id: IQ-013-008, question: What should multi-cell structures look like visually?, answer: Rectangular border with interior using box-drawing characters. `+--+` / `|  |` / `+--+` style. Size scales with work units., domain: null, seq: 8}
+  - {id: IQ-013-009, question: "For the status bar: replace project name with village name, or show both?", answer: "Replace project name with village name. The 'Project:' line shows the name of the village the viewport is centered on.", domain: null, seq: 9}
+  - {id: IQ-013-010, question: When a structure grows and nearby agents are in the way?, answer: Hard footprint — structure claims all cells in its footprint. Agents in the way should move out when a structure needs to expand., domain: null, seq: 10}
+  - {id: IQ-013-011, question: What is the scope boundary?, answer: "Architecture, guiding principles, constraints all unchanged. Changing: world_state, simulation, tui, persistence, mcp_server serializers, protocols. Not changing: hook scripts, CLI commands, inference type rules.", domain: null, seq: 11}
+content_hash: f2f7a7014873e37663862731d21a2709d07471abfec20778ecad1b36d0252b53
+token_count: 743

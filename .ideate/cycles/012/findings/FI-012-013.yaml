@@ -1,0 +1,18 @@
+id: FI-012-013
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Pond size may not reach `max_pond_size`
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:1343-1426`
+  - **Issue**: The pond growing algorithm may not reach `max_pond_size` if the frontier depletes before reaching the target size.
+  - **Impact**: Ponds will often be below the `max_pond_size` when limited by terrain obstacles. This is acceptable as `max_pond_size` serves as an upper bound.
+file_path: cycles/012/findings/FI-012-013.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-255
+verdict: Pass
+content_hash: "62461394ecc02f234e543b0c46331abad57295986097ad01590db65b8d4cd3de"
+token_count: 168

@@ -1,0 +1,33 @@
+id: J-031-001
+type: journal_entry
+phase: refine
+date: "2026-03-22"
+cycle_created: 31
+title: Refine-16 planning completed
+content: |
+  Trigger: Cycle 012 review findings (1 unmet AC, 6 significant findings)
+  Principles changed: none
+  New work items: WI-258 through WI-263 (6 items)
+  
+  Review findings addressed:
+  - S1 (documentation): Fix water bias formula comment — WI-258
+  - S2 (unmet AC): Add missing parameters to parameter panel — WI-259
+  - S3 (documentation): Update settings docstring — WI-260
+  - S4 (code quality): Refactor bounds calculation — WI-261
+  - G1 (gap): Add legend toggle to MapApp — WI-262
+  - G2 (gap): Add parameter validation — WI-263
+  
+  User decisions:
+  - Q-5 (legend): Toggle with `/` key in MapApp
+  - Q-6 (validation): Warn but accept for out-of-range values
+  - Q-11 (missing params): Add all parameters to TERRAIN_PARAMS
+  
+  Open questions deferred:
+  - Q-7 (help toggle): Not addressed in this cycle
+  - Q-8 (river min length): Not addressed in this cycle
+  - Q-9 (save status): Not addressed in this cycle
+  - Q-10 (water bias): Addressed by WI-258
+  
+  All work items are independent and can run in parallel.
+content_hash: "3c9746f64de1e9c53c6d63e95cab7e4ee8f089c128df4d656a044211ebe280cf"
+token_count: 286

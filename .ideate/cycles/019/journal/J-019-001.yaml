@@ -1,0 +1,13 @@
+id: J-019-001
+type: journal_entry
+phase: refine
+date: "2026-03-20"
+cycle_created: 19
+title: "Refinement planning completed (refine-7: v0.4.0)"
+content: |
+  Trigger: New requirements
+  Principles changed: none
+  New work items: WI-179 through WI-186 (8 items)
+  Three-area refinement: (1) full Claude Code hook coverage — 11 new hook scripts covering all 26+ available hook types, every event feeding into visual character movement/animation for frenetic UI during busy sessions; (2) adaptive viewport — WorldView wired to call ViewportManager.resize() on mount and on Textual resize events using actual widget dimensions; (3) plugin update hygiene — `hamlet install` detects active plugin via installed_plugins.json and skips hook writing with a warning to prevent duplicate hook firing. Also fixes async:true on PreToolUse (blocking event — unsupported per docs, root cause of persistent load error). Version bump to 0.4.0 across all four locations.
+content_hash: "945b8eef133eaf7b763d1b2dcac390809a90d8b60555fbf5c501669c48df5e68"
+token_count: 240

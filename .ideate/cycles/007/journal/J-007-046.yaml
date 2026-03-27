@@ -1,0 +1,11 @@
+id: J-007-046
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 046: Integrate Simulation Components into Tick Loop"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (S1: process_expansion() method added to ExpansionManager; engine.py simplified to call it directly). 1 significant finding fixed (S2: per-village error isolation now in ExpansionManager.process_expansion). 1 minor finding fixed (M2: _tick_loop skips sleep when running=False to reduce shutdown latency).
+content_hash: cf65613131bc3b141a6c41c8ee24735b25ecb1a44ec623677ff3a725786999c3
+token_count: 138

@@ -1,0 +1,18 @@
+id: FI-003-009
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `asyncio.Task` missing generic parameter
+description: |
+  - **File**: `src/hamlet/mcp_server/server.py:34`
+  - **Issue**: Should be `asyncio.Task[None] | None`.
+  - **Resolution**: Fixed.
+file_path: cycles/003/findings/FI-003-009.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-005
+verdict: Fail
+content_hash: "4d1d5e5e05a8d1ce140d72e462aeede1fc359004aaef3de5da3fa8d0ba0eec86"
+token_count: 106

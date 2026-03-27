@@ -1,0 +1,38 @@
+id: module_spec-mcp-server
+type: module_spec
+name: MCP Server
+scope: |
+  This module owns the Model Context Protocol (MCP) server implementation. It is responsible for:
+  
+  - Receiving JSON-RPC messages from Claude Code hook scripts
+  - Validating incoming event payloads
+  - Pushing validated events to the async event queue
+  - Handling MCP protocol lifecycle (initialization, capabilities negotiation)
+  
+  This module is NOT responsible for:
+  
+  - Processing or interpreting event contents (Event Processing module)
+  - Inferring agent state (Agent Inference module)
+  - Storing events (World State module)
+provides:
+  - `MCPServer` class — Main MCP server instance
+  - - `async start()` — Start listening for connections
+  - - `async stop()` — Graceful shutdown
+  - - `get_event_queue() -> asyncio.Queue` — Returns the queue for event consumption
+  - `EventHandler` protocol — Interface for event handling
+  - "- `async handle_event(event: RawEvent) -> None`"
+  - "MCP tool/resource definitions (if exposing to Claude Code):"
+  - "- Tool: `hamlet_status` — Returns current server status"
+  - "- Resource: `hamlet://world` — Returns current world state summary"
+requires:
+  - `asyncio.Queue` (standard library) — Queue for passing events to Event Processing
+  - `mcp` package (Python MCP SDK) — MCP protocol implementation
+  - `RawEvent` type (from Event Processing module) — Event structure contract
+boundary_rules:
+  - "1. **No blocking operations.** The MCP server must not block on I/O or computation. All event handling must push to queue and return immediately."
+  - "2. **No business logic.** The server validates payload structure only. It does not interpret tool names, agent types, or world state."
+  - "3. **Fire-and-forget.** Events are pushed to queue; no response is sent back to hook scripts except acknowledgment."
+  - "4. **Thread safety.** The server runs in asyncio event loop; all queue operations must use async queue methods."
+  - "5. **Protocol compliance.** Must follow MCP specification for initialization, capabilities, and notification handling."
+content_hash: "8849cae671cf13e0471f8de06e25dd66c04670e719c67ac0ed01f42861e6f4d0"
+token_count: 508

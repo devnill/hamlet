@@ -1,0 +1,11 @@
+id: J-016-009
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 2 — Work item 170: Fix server_url plumbing and onboarding"
+content: |
+  Status: complete with rework
+  Rework: M1 (empty server_url in global config bypassed hardcoded default — added guard `url if url else default` in all four hooks). find_server_url() now three-tier: project config → global config → default. hamlet_init response includes next-steps guidance.
+content_hash: "13fdc7012f284a4dc0ffa5cce54b3a5f00869d065b984914536483e88be63f10"
+token_count: 117

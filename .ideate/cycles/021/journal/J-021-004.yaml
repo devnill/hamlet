@@ -1,0 +1,11 @@
+id: J-021-004
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 189: Test coverage — hook script unit tests"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed — removed dead run_hook() helper function that was defined but never called by any of the 15 tests.
+content_hash: "5a50101905eee6767f363332efb744780bfd2ca2bd4f64c712d0fc56017c7d9b"
+token_count: 85

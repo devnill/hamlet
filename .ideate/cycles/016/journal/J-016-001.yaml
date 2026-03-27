@@ -1,0 +1,13 @@
+id: J-016-001
+type: journal_entry
+phase: refine
+date: "2026-03-19"
+cycle_created: 16
+title: Refinement planning completed
+content: |
+  Trigger: Cycle 4 convergence achieved (0 critical, 0 significant). Requirement evolution.
+  Principles changed: none
+  New work items: WI-166 through WI-168
+  Transition hook delivery from manually installed inline hooks in ~/.claude/settings.json to the plugin system. Register hamlet in the claude-marketplace (devnill/hamlet, v0.1.0). Three independent items: (1) add async:true to hooks/hooks.json, (2) remove hooks from settings.json, (3) add marketplace entry.
+content_hash: ae4349cfd3398106a55537638bbba2c2f0abe349ba32ffc7cab38b8286f1841e
+token_count: 153

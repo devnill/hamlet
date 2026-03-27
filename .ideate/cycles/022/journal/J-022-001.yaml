@@ -1,0 +1,13 @@
+id: J-022-001
+type: journal_entry
+phase: refine
+date: "2026-03-20"
+cycle_created: 22
+title: "Refinement planning completed (refine-10: documentation update)"
+content: |
+  Trigger: user request
+  Principles changed: none
+  New work items: WI-202 to WI-203
+  Scope: documentation only — QUICKSTART.md and README.md Quick Start section. Updates reflect (1) /hamlet:init in-Claude MCP skill as primary project init path, (2) daemon/viewer two-process architecture (hamlet daemon + hamlet view). No code changes.
+content_hash: "2c46053eb6d9fed65874412e470a74f7550a02e9ab411b21ea7e8c3a02ebe895"
+token_count: 129

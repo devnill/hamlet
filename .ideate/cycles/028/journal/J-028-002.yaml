@@ -1,0 +1,11 @@
+id: J-028-002
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 28
+title: "Cycle 1 — Work item 232: TerrainType enum and TerrainConfig dataclass"
+content: |
+  Status: complete with rework
+  Created terrain.py with TerrainType enum (5 members), TerrainConfig dataclass, passable/symbol/color properties. Fixed docstring: "ASCII symbol" → "symbol" (forest uses Unicode ♣).
+content_hash: "109eb10c65cef27d72577b00e188e2bfb917fef9a5b34e2c04ce76e133e16939"
+token_count: 100

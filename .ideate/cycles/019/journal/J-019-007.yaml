@@ -1,0 +1,11 @@
+id: J-019-007
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 184: Adaptive viewport — wire WorldView to terminal size"
+content: |
+  Status: complete
+  Modified: src/hamlet/tui/world_view.py — added Resize import, on_mount calls viewport.resize(), on_resize handler added.
+content_hash: "0189956461e8581360c5e5b85d5f3673afa20fe92e3593b3bbc5501e5c05dc2c"
+token_count: 81

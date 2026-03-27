@@ -1,0 +1,16 @@
+id: J-012-001
+type: journal_entry
+phase: refine
+date: "2026-03-16"
+cycle_created: 12
+title: brrr Cycle 1 refinement completed
+content: |
+  Trigger: Cycle 004 review Fail — 1 critical, 3 significant findings
+  Principles changed: none
+  New work items: 119-121
+  Proxy-human decisions: OQ3 resolved (full fix: server_url in config), OQ7 resolved (add PLANNER to legend)
+  - WI-119: Visualization fixes (EXECUTOR in animation.py, PLANNER legend, dead colors.py, asyncio comment)
+  - WI-120: Validation schema fix + InternalEvent notification_message and stop_reason fields
+  - WI-121: Hook server URL dynamic port (install.py writes server_url; hooks read it)
+content_hash: "6b5f6ed2df978139ef7cc963af5bf70440bdcc723b261359ff0e3e3be3a2445a"
+token_count: 166

@@ -1,0 +1,18 @@
+id: FI-003-064
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `process_expansion` criterion not met — method absent from `ExpansionManager`
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:105`
+  - **Issue**: Criterion requires `expansion_manager.process_expansion()` to be called once per tick. `ExpansionManager` had no such method; the `hasattr` guard always took the fallback path, making the criterion dead code.
+  - **Resolution**: Fixed — `process_expansion(world_state)` method added to `ExpansionManager` in `expansion.py`, encapsulating the per-village loop with per-village error isolation. `engine.py` simplified to call `process_expansion` directly without the `hasattr` guard.
+file_path: cycles/003/findings/FI-003-064.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-046
+verdict: Fail
+content_hash: c5143c48e57b5cff7d062e375536947d6d73d51ba20b87d4fb9e3caa973af4c9
+token_count: 221

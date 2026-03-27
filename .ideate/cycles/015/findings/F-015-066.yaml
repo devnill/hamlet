@@ -1,0 +1,18 @@
+id: F-015-066
+type: finding
+cycle: 15
+reviewer: spec-reviewer
+severity: minor
+title: StructureType.ROAD has no symbol in SymbolConfig
+description: |
+  - **File**: `src/hamlet/gui/symbol_config.py`
+  - **Issue**: `StructureType.ROAD` exists in `world_state/types.py` but is not included in `StructureVisual.symbols`. The existing `symbols.py` also omits it (pre-existing gap), but the SymbolConfig extraction should have caught this.
+  - **Impact**: Road structures will KeyError in the renderer if encountered. The Textual backend handles this via a fallback in `get_structure_symbol()` that returns `"="`, but the notcurses renderer uses the config dict directly.
+file_path: cycles/015/findings/F-015-066.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-015
+verdict: Pass
+content_hash: "9a086639b4d41346609d8a1d424d9af037b113bbab07b23b16417b0b8d9ad09e"
+token_count: 205

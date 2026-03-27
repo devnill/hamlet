@@ -1,0 +1,19 @@
+id: FI-003-089
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: Direct access to `_world_state._state.projects` and `_state.agents` bypasses public API
+description: |
+  - **File**: `src/hamlet/tui/app.py:145,199`
+  - **Issue**: `self._world_state._state.projects` and `self._world_state._state.agents` accessed directly, bypassing `WorldStateManager` encapsulation and the internal `_lock`.
+  - **Impact**: Breaks encapsulation; accessing private state without the manager lock is unsafe if other coroutines are mutating it.
+  - **Fix applied**: Added `get_projects()` and `get_all_agents()` public methods to `WorldStateManager`; updated `_update_state` and `action_toggle_follow` to use them. `action_toggle_follow` made `async` to allow `await`.
+file_path: cycles/003/findings/FI-003-089.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-068
+verdict: Fail
+content_hash: ae5292b0fb7ee5b8b67542e8d5fe17614a1d79a77b45482f88a554cef83af8b9
+token_count: 231

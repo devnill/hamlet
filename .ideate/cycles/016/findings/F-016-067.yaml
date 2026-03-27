@@ -1,0 +1,19 @@
+id: F-016-067
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: significant
+title: Sprite upload pipeline is disconnected — `get_upload_sequence()` never called
+description: |
+  - **File**: `src/hamlet/gui/kitty/app.py`, `src/hamlet/gui/kitty/renderer.py`
+  - **Issue**: `SpriteManager.get_upload_sequence()` is defined in `sprites.py` but never called from the app or renderer. The renderer checks `is_uploaded()` before blitting sprites, but since sprites are never uploaded, this always returns False and the renderer falls back to character rendering. The sprite upload/display pipeline is structurally complete but not wired end-to-end.
+  - **Impact**: No runtime impact currently — no sprite PNG assets exist, so the system correctly degrades to characters at all zoom levels. However, when PNGs are added in a future cycle, the upload step must be wired into the render loop (upload on first use, then display on subsequent frames).
+  - **Suggested fix**: In the renderer's sprite rendering path, after calling `get_*_sprite()` and getting a non-None handle, check `is_uploaded()`. If False, call `sprite_manager.get_upload_sequence(handle)` and write the result to output before the display command. This is a future-cycle item since it has no current impact.
+file_path: cycles/016/findings/F-016-067.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-016
+verdict: null
+content_hash: "852d507bb3fa2fb222d9078cf1fcc42d0353b98d0a8c25e1868266cd88f446aa"
+token_count: 356

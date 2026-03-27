@@ -1,0 +1,11 @@
+id: J-034-005
+type: journal_entry
+phase: execute
+date: "2026-03-23"
+cycle_created: 34
+title: "Work item 286: Manual regression test"
+content: |
+  Status: complete
+  hamlet view --renderer kitty: launched, rendered terrain with ASCII tiles, no crash, no traceback. hamlet view (textual): no regression. hamlet doctor: printed Kitty diagnostics without error. 103 kitty tests pass. Minor: slight flicker at FAR zoom (full-screen redraw each frame) — deferred.
+content_hash: "8d09895e0c6e33eb288a15a676bb9998603065e42a5ac3e81cc5a87087cdcf3a"
+token_count: 117

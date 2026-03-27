@@ -1,0 +1,24 @@
+id: F-014-058
+type: finding
+cycle: 14
+reviewer: code-reviewer
+severity: significant
+title: Module-level `_shutdown_requested` flag is never reset between runs
+description: |
+  - **File**: `src/hamlet/cli/commands/daemon.py:17` and `:95`
+  - **Issue**: `_shutdown_requested` is a module-level boolean, set to `True` by the signal handler (`_signal_handler`, line 46) and read in the `while not _shutdown_requested` loop (line 95). It is never reset to `False` at the start of `_run_daemon`. If `daemon_command` is invoked more than once in the same Python process — as can happen in tests, programmatic use, or if a future supervisor restarts the daemon inline — the second call enters `_run_daemon`, and the `while not _shutdown_requested` loop exits immediately because the flag is still `True` from the previous run. The daemon appears to start and stop successfully (exit code 0) but does no work.
+  - **Impact**: In any test or embedding scenario that calls `daemon_command` twice, the second invocation silently exits without running. This also makes the function non-idempotent in a way that is invisible to the caller.
+  - **Suggested fix**: Reset the flag at the top of `_run_daemon` before entering the wait loop:
+    ```python
+    global _shutdown_requested
+    _shutdown_requested = False
+    ```
+    Add this as the first line of `_run_daemon` (after the `global` declaration on line 61).
+file_path: cycles/014/findings/F-014-058.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-014
+verdict: Pass
+content_hash: "09a7a18258c08a04ff656c279bace2e69f7249f41e02793076e1bac6c58c1567"
+token_count: 387

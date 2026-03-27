@@ -1,0 +1,18 @@
+id: FI-003-102
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `save_village` omitted required `created_at` and `updated_at`
+description: |
+  - **File**: `src/hamlet/persistence/saver.py:99`
+  - **Issue**: Both columns are `NOT NULL` in schema. `Village` dataclass lacked these fields.
+  - **Resolution**: Fixed — `created_at`/`updated_at` added to `Village` dataclass and included in dict.
+file_path: cycles/003/findings/FI-003-102.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "8206376e59ed84480704a175aadc38e190278f0276eb17c0ee7ab7446d9a2eb4"
+token_count: 142

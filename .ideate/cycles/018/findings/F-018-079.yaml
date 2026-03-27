@@ -1,0 +1,18 @@
+id: F-018-079
+type: finding
+cycle: 18
+reviewer: spec-reviewer
+severity: minor
+title: WI-290 empty-state fixture uses populated terrain response
+description: |
+  - **File**: `tests/test_kitty_integration.py` (TestEmptyStatePipeline)
+  - **Issue**: The empty-state test uses `daemon_terrain_response.json` (populated terrain) but `daemon_events_empty.json` (empty events). A fully empty daemon would have no pre-generated terrain either, but the terrain is generated server-side from the seed regardless of agent activity, so populated terrain with no agents is a valid state.
+  - **Principle**: P-15 (integration tests patch only HTTP transport) — adhered to correctly.
+file_path: cycles/018/findings/F-018-079.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-018
+verdict: Pass
+content_hash: "8d2997d7ecd45c907b276eb91d95a309447595a1fef93e038091ff8c32887c74"
+token_count: 205

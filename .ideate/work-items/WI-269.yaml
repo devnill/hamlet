@@ -1,0 +1,48 @@
+id: WI-269
+type: work_item
+title: Notcurses renderer implementation
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - NotcursesRenderer implements RendererProtocol
+  - render_frame renders terrain on stdplane, structures on child planes, agents on per-agent planes
+  - HUD renders status bar on top row, event log on bottom 5 rows
+  - Stale agent planes destroyed each frame
+  - _rich_color_to_rgb maps Rich color names to RGB tuples
+  - tests mock bindings and verify render call sequences
+module: null
+domain: null
+notes: |
+  # WI-269: Notcurses renderer implementation
+  
+  ## Implementation Notes
+  
+  ### Render frame flow
+  1. Erase stdplane
+  2. Get terminal dims via `plane_dim(stdplane)`
+  3. Render terrain: iterate visible bounds, `putstr(stdplane, y, x, symbol, fg=rgb)` per cell
+  4. Render structures: create/reuse 1x1 child planes, position via `move_plane`
+  5. Render agents: child planes keyed by `agent.id`, `move_plane` to position, write symbol
+  6. Destroy planes for agents no longer in frame
+  7. Render HUD: status on row 0, event log on bottom 5 rows
+  8. Increment spin_frame (mod 4)
+  
+  ### Coordinate translation
+  `screen_x = world_x - viewport.center.x + cols // 2` (same math as existing viewport)
+  
+  ### Color mapping
+  Static `_RICH_TO_RGB` dict mapping Rich color names to RGB tuples (cyan, yellow, orange1, dark_green, magenta, blue, white, green, red, grey50, etc.)
+  
+  ### Agent plane lifecycle
+  Each frame: build current agent ID set, destroy planes for missing IDs, create planes for new IDs, move existing planes.
+  
+  ### Tests
+  Mock `hamlet.gui.notcurses.bindings` entirely. Verify putstr/create_plane/move_plane call sequences.
+cycle_created: 1
+cycle_modified: null
+content_hash: e9627b290aa40d263996b3389ac2dac4e9d27801f89bf2c8668fcf248c7e08a8
+token_count: 445
+file_path: .ideate/work-items/WI-269.yaml

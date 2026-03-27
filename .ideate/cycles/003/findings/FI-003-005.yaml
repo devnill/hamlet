@@ -1,0 +1,18 @@
+id: FI-003-005
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Warning logged twice for invalid events
+description: |
+  - **File**: `src/hamlet/mcp_server/handlers.py:28`
+  - **Issue**: `validate_event` already logs at WARNING; handler added a second warning.
+  - **Fix**: Removed the duplicate `logger.warning` from the handler.
+file_path: cycles/003/findings/FI-003-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-003
+verdict: Pass
+content_hash: cec4fda68ff7d245779b9ef1a23172c7c78fb9cbf0e88f8b319ef9cc9bf51d7c
+token_count: 126

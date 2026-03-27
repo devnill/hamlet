@@ -1,0 +1,11 @@
+id: J-016-008
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 2 — Work item 169: Fix plugin execution issues"
+content: |
+  Status: complete with rework
+  Rework: S1 (start.sh shebang was #!/usr/bin/env bash but invoked via sh — changed to #!/bin/sh; script body already POSIX-compatible after $0 fix). Hook scripts already had +x. plugin.json paths verified correct. Author name updated to "devnill".
+content_hash: b45d45c88962ecfdd4c9f844cb1c24677e986cb3cef29cc1f0975adf4097af94
+token_count: 112

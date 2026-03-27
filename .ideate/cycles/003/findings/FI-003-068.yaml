@@ -1,0 +1,19 @@
+id: FI-003-068
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `get_visible_bounds` off-by-one for even viewport dimensions
+description: |
+  - **File**: `src/hamlet/viewport/coordinates.py:85-90`
+  - **Issue**: With even width (e.g., 10), half_w=5. Bounds span [center-5, center+5] = 11 cells. But world_to_screen maps world_x=center+5 to screen_x=10, which equals viewport_size.width — one past valid columns 0-9.
+  - **Impact**: Rendering code trusting is_visible will attempt to draw at screen_x==viewport_size.width.
+  - **Suggested fix**: `max_x = center.x + half_w - 1 + (viewport_size.width % 2)`, same for max_y.
+file_path: cycles/003/findings/FI-003-068.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-051
+verdict: Fail
+content_hash: "9aac95fd261a66d2c0e9978992c9d19210b524b590c9014939919ac6083232d8"
+token_count: 199

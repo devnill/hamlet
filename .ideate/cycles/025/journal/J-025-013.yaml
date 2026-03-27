@@ -1,0 +1,9 @@
+id: J-025-013
+type: journal_entry
+phase: hotfix
+date: "2026-03-20"
+cycle_created: 25
+title: RemoteWorldState interface gap (0.5.1)
+content: Fixed `RemoteWorldState` missing `get_viewport_center()` and `update_viewport_center()` — both called by `ViewportManager` but absent from the remote implementation. `get_viewport_center()` returns `None` (fallback to first village); `update_viewport_center()` is a no-op. Version bumped to 0.5.1.
+content_hash: "1c3a7b73d5edd9fbf74ecc289b11937975807e2b3df7859f3ee20d231a87bd79"
+token_count: 114

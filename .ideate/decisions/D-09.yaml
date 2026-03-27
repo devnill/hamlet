@@ -1,0 +1,13 @@
+id: D-09
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: inference/colors.py deleted as dead code
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "35060adc2a519537e0573765e5ef129b99e8531ace2134edac594193f5c28a1e"
+token_count: 66
+file_path: .ideate/decisions/D-09.yaml

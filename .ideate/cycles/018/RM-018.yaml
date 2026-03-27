@@ -1,0 +1,24 @@
+id: RM-018
+type: review_manifest
+cycle: 18
+content: |
+  # Review Manifest — Cycle 018
+  
+  ## Work Items This Cycle
+  
+  | # | Title | File Scope | Incremental Verdict | Findings (C/S/M) |
+  |---|-------|------------|---------------------|-------------------|
+  | WI-287 | Wire _update_state into refresh loop | src/hamlet/tui/app.py | Pass (rework: 1M) | 0/1/1 |
+  | WI-288 | Fix validation schema error field type | src/hamlet/mcp_server/validation.py, tests/test_mcp_validation.py | Pass | 0/0/0 |
+  | WI-289 | Add agent symbol assertion to Kitty integration test | tests/test_kitty_integration.py | Pass (rework: 1M) | 0/0/1 |
+  | WI-290 | Add empty-state Kitty integration test | tests/test_kitty_integration.py, tests/fixtures/daemon_state_empty.json, tests/fixtures/daemon_events_empty.json | Pass (rework: 1M) | 0/0/1 |
+  
+  ## Trigger
+  Live bugs (status bar dead code, validation schema mismatch) + cycle 017 test coverage gaps (agent symbol, empty state).
+  
+  ## Incremental Review Notes
+  - WI-287 S1 (noted, not fixed): _update_state only reachable in viewer mode (remote_provider set). Not a real issue — HamletApp is only used as viewer.
+  - WI-289 M1: Removed hardcoded position comment from test.
+  - WI-290 M1: Created daemon_events_empty.json for consistency with empty-state scenario.
+content_hash: "2a26e6eb4fe2eea95b7d724ac2fe497e3eb8bf6a2cd81d0ac1f3adfe6998a11e"
+token_count: 324

@@ -1,0 +1,18 @@
+id: FI-016-020
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `__main__.main()` declared `-> None` but calls `sys.exit()` directly instead of returning an int
+description: |
+  - **File**: `src/hamlet/__main__.py:153`
+  - **Issue**: `main()` in `__main__.py` returns `None` and calls `sys.exit()` internally, while `cli.main()` (called by `__main__.main()` at line 185) returns `int`. The two entry points have inconsistent conventions. `cli/__init__.py` correctly returns an integer and its caller does `sys.exit(cli_main(args))`. The `__main__.main()` approach hard-codes the exit rather than letting the caller decide.
+  - **Suggested fix**: This is a pre-existing inconsistency, not introduced by this WI, but it is worth noting. No immediate change required unless a caller needs the return value.
+file_path: cycles/016/findings/FI-016-020.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-280
+verdict: Fail
+content_hash: "7d801fcb5fc3b2068ec85a0fa6ca91ea726bbff2b99aaeecd2df6b64293071be"
+token_count: 244

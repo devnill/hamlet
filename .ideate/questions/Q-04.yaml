@@ -1,0 +1,14 @@
+id: Q-04
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: Viewport center persistence priority
+cycle_created: 1
+cycle_modified: null
+content_hash: "7d563d91fed7a654fde0e957e567e63ad0a7e384ce4fbe91203fb111ce1f8f49"
+token_count: 68
+file_path: .ideate/questions/Q-04.yaml

@@ -1,0 +1,18 @@
+id: FI-001-008
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: minor
+title: Unbounded queue without documentation
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py:28`
+  - **Issue**: The event queue is created without a maxsize, making it unbounded. While the docstring mentions "unbounded to prevent blocking," this could lead to memory exhaustion under high event throughput.
+  - **Suggested fix**: Add a configurable maxsize with a sensible default (e.g., 10000) and document the tradeoff. Alternatively, add a comment explaining why unbounded is acceptable for this use case.
+file_path: cycles/001/findings/FI-001-008.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: "0f725105154158d129608d3cc92aecd7b721665e3a51061dc6a66998a3f53aff"
+token_count: 194

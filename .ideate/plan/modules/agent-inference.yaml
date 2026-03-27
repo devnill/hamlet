@@ -1,0 +1,50 @@
+id: module_spec-agent-inference
+type: module_spec
+name: Agent Inference
+scope: |
+  This module owns the inference of agent lifecycle and type from tool usage patterns. It is responsible for:
+  
+  - Detecting agent spawning (inferred from concurrent tool usage)
+  - Detecting agent completion (inferred from PostToolUse patterns)
+  - Tracking parent-child relationships between agents
+  - Inferring agent type from tool frequency patterns
+  - Detecting idle/zombie state from last-seen timestamps
+  - Maintaining inference state (pending PreToolUse events, session tracking)
+  
+  This module is NOT responsible for:
+  
+  - Receiving events (Event Processing module)
+  - Storing agent state (World State module)
+  - Rendering agents (TUI module)
+provides:
+  - `AgentInferenceEngine` class — Main inference engine
+  - "- `async process_event(event: InternalEvent)` — Process an event"
+  - - `get_inference_state() -> InferenceState` — Current inference state (for debugging)
+  - `InferenceResult` dataclass — Result of inference
+  - "- `action: \"spawn\" | \"update\" | \"complete\" | \"idle\"`"
+  - "- `agent_id: str | None`"
+  - "- `parent_id: str | None`"
+  - "- `inferred_type: AgentType | None`"
+  - "- `position: Position | None`"
+  - `AgentType` enum — Inferred agent types
+  - - `RESEARCHER` — High Read/Grep/Glob frequency
+  - - `CODER` — High Write/Edit frequency
+  - - `EXECUTOR` — High Bash frequency
+  - - `ARCHITECT` — Mixed tool usage, planning patterns
+  - - `TESTER` — Test-related tool patterns
+  - - `GENERAL` — Default/fallback type
+requires:
+  - `InternalEvent` (from Event Processing module) — Input events
+  - `WorldState` (from World State module) — Query and update agents
+  - - `get_or_create_agent(session_id, parent_id) -> Agent`
+  - - `update_agent(agent_id, fields)`
+  - - `get_agents_by_session(session_id) -> List[Agent]`
+  - `AgentType.color` property — Deterministic color mapping
+boundary_rules:
+  - "1. **No persistent state.** Inference state (pending events, pattern windows) is in-memory only. World State owns persistent agent data."
+  - "2. **Probabilistic, not certain.** Inference is best-effort. False positives/negatives are acceptable per guiding principle 7."
+  - "3. **Deterministic color.** Agent color is derived deterministically from agent type, not randomly assigned."
+  - "4. **Session-scoped.** Agent identity is tied to session_id. Cross-session agent tracking is not supported."
+  - "5. **No blocking on World State.** All World State calls must be async and non-blocking."
+content_hash: "47d8ca6eb06de2655d03f024ea860c9f68cdb2e5c6c094ec9c04f2f551945e9a"
+token_count: 614

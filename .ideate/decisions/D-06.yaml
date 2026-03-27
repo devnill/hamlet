@@ -1,0 +1,13 @@
+id: D-06
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: EXECUTOR legend entry corrected to red
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "45bfcfbc64712c84f6295630ee33ae861eda819c2be0bf912ec7791957e31b15"
+token_count: 65
+file_path: .ideate/decisions/D-06.yaml

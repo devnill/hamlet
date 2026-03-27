@@ -1,0 +1,11 @@
+id: J-003-016
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 256: Forest Clustering Near Features"
+content: |
+  Status: complete
+  Forests preferentially spawn near water features (seeds near water get probability bonus). Forest density varies by biome region (region bias influences growth threshold). Forest groves use existing seeding and growth algorithm. Forests form coherent clusters. Forest percentage configurable via parameter.
+content_hash: "77b3989b50d34a45f029d76bdb5a281fb2b318ee6a3dc330d81eedbe7899b808"
+token_count: 122

@@ -1,0 +1,16 @@
+id: GP-11
+type: guiding_principle
+name: Low-Friction Setup
+status: active
+description: |
+  Getting started with Hamlet should require minimal steps. Prefer auto-detection over manual configuration. A new user should be able to install and see their first village within minutes, not hours.
+  
+  **Why:** User explicitly stated: "ensuring that the tool is low friction to set up." Complex setup creates adoption friction and discourages usage.
+  
+  **How to apply:** Hook installation should be a single command. Configuration should use sensible defaults with optional overrides. The app should auto-detect Claude Code installation and suggest hook paths. Error messages should guide users to fixes, not just report failures.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: bb73eeb9c4e0f1d4ca9c902bb3b310ff5a38353d8d0d9615ccfc4c2ec3091c10
+token_count: 210
+file_path: .ideate/principles/GP-11.yaml

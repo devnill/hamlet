@@ -1,0 +1,11 @@
+id: J-007-009
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 7
+title: "Cycle 4 — Work item 212: Fix legend overlay positioning"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed (removed redundant @pytest.mark.asyncio decorators from test_tui_legend.py). HelpOverlay received same CSS fix. Worker used `offset: 2 2` instead of `top/left` (correct Textual syntax).
+content_hash: "1d8eb08659909817826b815131055cdecaf456c0360e8d116037ec85b4b8acf6"
+token_count: 104

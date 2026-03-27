@@ -1,0 +1,18 @@
+id: FI-003-020
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `InferenceResult.agent_id` typed `str` instead of `str | None`
+description: |
+  - **File**: `src/hamlet/inference/types.py:36`
+  - **Issue**: Architecture spec defines `agent_id: str | None`. Making it non-optional with no default prevents construction when agent ID is unknown.
+  - **Resolution**: Fixed — changed to `agent_id: str | None = None`.
+file_path: cycles/003/findings/FI-003-020.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-021
+verdict: Fail
+content_hash: "6491ee6a46c0470671e0cad30fe45e220355a343022d17b8baec8bdd4035e593"
+token_count: 148

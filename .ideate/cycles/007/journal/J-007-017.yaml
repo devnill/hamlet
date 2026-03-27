@@ -1,0 +1,11 @@
+id: J-007-017
+type: journal_entry
+phase: execute
+date: "2026-03-15"
+cycle_created: 7
+title: "Work item 071: Persistence Data Structures"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed — db_path default now uses Path("~/.hamlet/world.db").expanduser() to correctly expand tilde at instantiation time. 1 minor finding fixed — replaced deprecated typing.Dict/List with built-in dict/list.
+content_hash: d8b1b8e38c6ed9307bac45de214d541a425999bb36652b90c16d64ae56ce91f9
+token_count: 108

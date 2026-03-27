@@ -1,0 +1,19 @@
+id: J-017-001
+type: journal_entry
+phase: refine
+date: "2026-03-19"
+cycle_created: 17
+title: Refinement planning completed (refine-6)
+content: |
+  Trigger: User request — address all open items from brrr session convergence report
+  Principles changed: none
+  New work items: WI-174 through WI-177
+  
+  Correction applied: "hamlet daemon/hamlet CLI don't exist" was a false finding — both commands are fully implemented in src/hamlet/cli/. No work item created.
+  
+  WI-174: Extract _cwd_hash, find_server_url, find_config, _log_error from all four hook scripts into hooks/hamlet_hook_utils.py. Each script imports via sys.path.insert. Eliminates ~200 lines of duplicated code.
+  WI-175: Delete four dead .sh wrapper files from hooks/ (not referenced by hooks.json).
+  WI-176: Change mcp/start.sh import check from "import mcp" to "from mcp.server import Server".
+  WI-177: Add optional server_url parameter to hamlet_init in mcp/server.py.
+content_hash: f8c5ad8576de5d3dc7fd01e971dc5f7decaf75d02ca9f1db049e4a33589c94c2
+token_count: 237

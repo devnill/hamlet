@@ -1,0 +1,13 @@
+id: D-13
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 16
+supersedes: null
+description: Notcurses integrated via custom ctypes bindings
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "849635394d9aedf5ad4ae9f9ea6caf15f6556f88b45878ba71a3ee420258ab2e"
+token_count: 68
+file_path: .ideate/decisions/D-13.yaml

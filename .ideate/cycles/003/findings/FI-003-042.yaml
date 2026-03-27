@@ -1,0 +1,18 @@
+id: FI-003-042
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Grid conflict comment unclear about state/grid inconsistency
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:88-91`
+  - **Issue**: Entities with grid conflicts remain in `self._state` without a grid slot; comment did not document this.
+  - **Fix**: Expanded comment explaining the intentional inconsistency.
+file_path: cycles/003/findings/FI-003-042.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-034
+verdict: Pass
+content_hash: "4376c9172c916edfeac1db4d8697fa213dd22e6c11463d2d0b9c434b00b42cad"
+token_count: 140

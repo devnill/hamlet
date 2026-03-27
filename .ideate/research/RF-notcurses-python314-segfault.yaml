@@ -1,0 +1,60 @@
+id: RF-notcurses-python314-segfault
+type: research_finding
+topic: Notcurses + Python 3.14 Segfault — Root Cause Analysis
+status: active
+date: null
+content: |
+  # Notcurses + Python 3.14 Segfault — Root Cause Analysis
+  
+  **Date**: 2026-03-22
+  **Status**: Unresolved — fundamental incompatibility
+  
+  ## Summary
+  
+  notcurses 3.0.17 segfaults when used with Python 3.14 on macOS ARM64 (M5). The crash occurs in Python's memory allocator (`pymalloc_alloc`, `PyNumber_Long`, `_PyObject_Malloc`) after notcurses's internal `input_thread` corrupts the heap. This is not caused by hamlet code — it's a notcurses + Python 3.14 ABI issue.
+  
+  ## Evidence
+  
+  Multiple crash reports all show the same pattern:
+  - notcurses spawns an internal `input_thread` via `libnotcurses-core.3.0.17.dylib`
+  - The `input_thread` polls for keyboard input via `poll()`
+  - After several seconds, Python's memory allocator crashes with EXC_BAD_ACCESS (KERN_INVALID_ADDRESS)
+  - The crash site varies: `_PyObject_Malloc`, `PyNumber_Long`, `_PyUnicode_FromASCII`, `json.decoder.raw_decode`
+  - The varying crash sites indicate heap corruption, not a specific code bug
+  
+  ## Attempted Mitigations (All Failed)
+  
+  1. **Disable notcurses signal handlers** (`NCOPTION_NO_QUIT_SIGHANDLERS | NCOPTION_NO_WINCH_SIGHANDLER`) — still crashes
+  2. **Move HTTP I/O to background thread** — still crashes (notcurses thread corrupts main thread's heap)
+  3. **Use urllib instead of aiohttp** — still crashes (any C extension triggers it)
+  4. **Move HTTP + JSON to subprocess** — still crashes (the parent's `int()` call crashes from heap corruption)
+  5. **Tab-separated output with pure string parsing** — still crashes (Python's own `int()` C implementation is corrupted)
+  
+  ## Root Cause
+  
+  notcurses 3.0.17's `input_thread` (spawned by `notcurses_init()`) uses memory in a way that is incompatible with Python 3.14's memory allocator on ARM64 macOS. Python 3.13 introduced a new memory allocator (mimalloc-based), and 3.14 continued this change. notcurses's thread writes to memory regions that Python's allocator considers owned, causing corruption that manifests as segfaults in random Python operations.
+  
+  ## Working Configurations
+  
+  - **notcurses + Python 3.14: raw ctypes test (no sustained loop)** — works for a few frames
+  - **notcurses + Python 3.14: 60-frame test loop (no subprocess)** — works
+  - **notcurses + Python 3.14: sustained app with state fetching** — crashes after 2-5 seconds
+  
+  The crash only occurs when notcurses runs concurrently with Python code that allocates memory (which is all Python code). Short-lived notcurses sessions (a few frames) may not trigger the corruption.
+  
+  ## Potential Solutions
+  
+  1. **Use Python 3.12 or 3.13** — the older memory allocator may not conflict with notcurses
+  2. **Wait for notcurses 3.1.0** — upstream has known issues with signal handling and threading
+  3. **Use a different terminal graphics library** — e.g., direct Kitty graphics protocol via escape sequences (no C library needed)
+  4. **Write the notcurses renderer in a separate non-Python process** — e.g., a small C program that reads state from stdin and renders via notcurses, with the Python process piping data to it
+  
+  ## Recommendation
+  
+  Option 4 (separate C renderer process) is the most architecturally sound but requires writing C code. Option 3 (Kitty protocol via escape sequences) avoids the problem entirely by not using a C library — Python generates ANSI escape sequences directly. This would work with any terminal that supports the Kitty graphics protocol (Ghostty, kitty, WezTerm) and is pure Python, avoiding all C extension conflicts.
+sources: []
+cycle_created: 1
+cycle_modified: null
+content_hash: "6f58f1893e6d5ed3f81cdd6f9fb1b93981036a8836d3b4a279bb6f855ecad6cb"
+token_count: 941
+file_path: .ideate/research/RF-notcurses-python314-segfault.yaml

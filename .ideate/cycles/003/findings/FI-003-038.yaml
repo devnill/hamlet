@@ -1,0 +1,18 @@
+id: FI-003-038
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Field named `type` shadows Python builtin
+description: |
+  - **File**: `src/hamlet/world_state/types.py:108`
+  - **Issue**: `Structure.type` shadows the builtin `type`. Minor type-checker confusion.
+  - **Suggested fix**: Could rename to `structure_type`, but this breaks the architecture contract. Left as-is to match spec.
+file_path: cycles/003/findings/FI-003-038.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-031
+verdict: Pass
+content_hash: "3a16ed6574aaefed30fdb37ce8fddd506a254c004acc1bb705541ce4263b1f3d"
+token_count: 140

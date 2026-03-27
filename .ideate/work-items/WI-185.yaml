@@ -1,0 +1,53 @@
+id: WI-185
+type: work_item
+title: Plugin update hygiene — hamlet install detects plugin and skips hooks
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - install_command() calls is_plugin_active() before writing hooks to settings.json
+  - is_plugin_active() reads ~/.claude/plugins/installed_plugins.json and returns True if any key contains "hamlet"
+  - is_plugin_active() returns False on any exception (file not found, JSON error, etc.)
+  - If plugin active, prints warning containing "hooks are already registered via the hamlet plugin"
+  - If plugin active, does NOT call install_hooks_to_settings() or save_settings()
+  - If plugin active, still writes server_url to ~/.hamlet/config.json and runs MCP server check
+  - If plugin active, returns 0
+  - If plugin NOT active, behavior is completely unchanged from current
+module: null
+domain: null
+notes: |
+  # WI-185 Notes: Plugin update hygiene
+  
+  ## Context
+  When both hamlet install and the plugin are active, hooks fire twice. install_command() should detect the plugin and skip hook installation.
+  
+  ## installed_plugins.json structure
+  Dict format: {"hamlet@marketplace": {"scope": "user", "installPath": "...", "version": "...", ...}}
+  Detection: any key containing "hamlet" with a non-empty installPath.
+  
+  ## Implementation
+  Add before hook installation section (after MCP server check and server_url write):
+  ```python
+  def is_plugin_active() -> bool:
+      path = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
+      try:
+          data = json.loads(path.read_text(encoding="utf-8"))
+          plugins = data.get("plugins", data)  # handle both wrapped and unwrapped
+          for key in plugins:
+              if "hamlet" in key.lower():
+                  entries = plugins[key] if isinstance(plugins[key], list) else [plugins[key]]
+                  if any(e.get("installPath") for e in entries):
+                      return True
+      except Exception:
+          pass
+      return False
+  ```
+  
+  The server_url write and MCP check still run before this detection. Hooks writing is skipped. Returns 0.
+cycle_created: 1
+cycle_modified: null
+content_hash: "39e5f0fbc390a85dc64621a033fe129272648d3a5580831a486973821cc6e56d"
+token_count: 557
+file_path: .ideate/work-items/WI-185.yaml

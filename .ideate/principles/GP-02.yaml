@@ -1,0 +1,16 @@
+id: GP-02
+type: guiding_principle
+name: Lean Client, Heavy Server
+status: active
+description: |
+  Hook scripts should do minimal processing — just enough to extract essential telemetry and send it to the MCP server. All state management, inference, and world simulation happen server-side. The client is a thin data collector.
+  
+  **Why:** User emphasized "the client should be as lean as possible, even if that means additional processing happens on the other side." Non-destructive hook integration is critical.
+  
+  **How to apply:** Hook scripts should contain no business logic. They extract agent name, tool name, and basic context, then immediately push to the server. No local state, no complex parsing.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: "87b4adc2e5aaffd5d336fdd171c42d6a6981e3b44e7258df5b84496a666a7aff"
+token_count: 207
+file_path: .ideate/principles/GP-02.yaml

@@ -1,0 +1,18 @@
+id: FI-012-015
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Inconsistent auto-calculation comments
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:98-100`
+  - **Issue**: Comments for `river_count` and `pond_count` don't mention `max(1, ...)`.
+  - **Suggested fix**: Update comments to include the `max(1, ...)` wrapper.
+file_path: cycles/012/findings/FI-012-015.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-255
+verdict: Pass
+content_hash: "203eb23826447960b60d62a60057038fde6e85349e3a183be7d21f2db72e890c"
+token_count: 134

@@ -1,0 +1,13 @@
+id: D-03
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: Structure Evolution Path
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "33dfd94570b56f70cf63de74c0279f2fe76567fc16953f509af5f9a46318808e"
+token_count: 62
+file_path: .ideate/decisions/D-03.yaml

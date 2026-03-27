@@ -1,0 +1,85 @@
+id: WI-123
+type: work_item
+title: Consolidate agent color maps — animation.py uses TYPE_COLORS as single source
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - simulation/animation.py does not define AGENT_BASE_COLORS as a dict literal
+  - simulation/animation.py imports TYPE_COLORS from hamlet.inference.types
+  - simulation/animation.py get_animation_color() derives base_color from TYPE_COLORS using the agent's inferred_type value (mapping world_state.types.AgentType to inference.types.AgentType by value)
+  - all seven agent types (RESEARCHER, CODER, PLANNER, EXECUTOR, ARCHITECT, TESTER, GENERAL) are still represented in the color source
+  - ZOMBIE_PULSE_COLOR constant remains in animation.py
+module: null
+domain: null
+notes: |
+  # WI-123: Consolidate agent color maps — animation.py uses TYPE_COLORS as single source
+  
+  ## Context
+  
+  After WI-119 deleted `inference/colors.py`, two independent authoritative color maps remain:
+  
+  1. `inference/types.py TYPE_COLORS` — keyed by `inference.types.AgentType`, used by `world_state/manager.py` and `inference/engine.py` to set `agent.color` when spawning/updating agents.
+  2. `simulation/animation.py AGENT_BASE_COLORS` — keyed by `world_state.types.AgentType`, used by `AnimationManager.get_animation_color()` to derive render color.
+  
+  The architecture states `simulation/animation.py` is the single source of truth for agent colors, but `TYPE_COLORS` in `inference/types.py` is what actually controls the stored `agent.color` field. Both tables currently agree, but any future color change must update both. Silent visual divergence occurs if only one is updated.
+  
+  ## Fix
+  
+  Make `animation.py` use `TYPE_COLORS` from `inference/types.py` instead of its own `AGENT_BASE_COLORS` dict literal.
+  
+  ### Two AgentType enums
+  
+  There are two separate AgentType enums:
+  - `world_state.types.AgentType` — used in `Agent.inferred_type` field and by animation.py
+  - `inference.types.AgentType` — used as keys in `TYPE_COLORS`
+  
+  Both have the same string values (e.g., `AgentType.RESEARCHER.value == "researcher"`). Map between them via `.value`.
+  
+  ### Changes to simulation/animation.py
+  
+  ```python
+  # Add import:
+  from hamlet.inference.types import AgentType as InfAgentType, TYPE_COLORS
+  
+  # Remove:
+  AGENT_BASE_COLORS: dict[AgentType, str] = { ... }  # entire dict literal
+  
+  # Update get_animation_color():
+  def get_animation_color(self, agent: Agent, state: AnimationState, current_time: float) -> str:
+      """Return the display color for an agent at the given time."""
+      try:
+          inf_type = InfAgentType(agent.inferred_type.value)
+          base_color = TYPE_COLORS.get(inf_type, "white")
+      except (ValueError, AttributeError):
+          base_color = "white"
+      if state.animation_type == "pulse":
+          if state.current_frame == 0:
+              return ZOMBIE_PULSE_COLOR
+          return base_color
+      return base_color
+  
+  # Update __all__ — remove AGENT_BASE_COLORS if present:
+  __all__ = ["AnimationState", "AnimationManager", "SPIN_SYMBOLS"]
+  ```
+  
+  ### Circular import check
+  
+  `inference/types.py` imports only from Python stdlib and does NOT import from `world_state`. It is safe for `animation.py` to import from `inference/types.py`.
+  
+  Current `animation.py` imports `from hamlet.world_state.types import Agent, AgentState, AgentType`. After this change it will ALSO import `from hamlet.inference.types import AgentType as InfAgentType, TYPE_COLORS`. No circular dependency is introduced.
+  
+  ## Key files
+  
+  - `src/hamlet/simulation/animation.py` — only file that changes
+  
+  ## Scope note
+  
+  `inference/types.py`, `inference/engine.py`, and `world_state/manager.py` are NOT touched. They already correctly use `TYPE_COLORS` from `inference/types.py`. After this change, `animation.py` also uses `TYPE_COLORS`, making it the single authoritative source.
+cycle_created: 1
+cycle_modified: null
+content_hash: "7905f59e0c2ed84cabd1bc7e87b8fd2b68a34b2f60a452a3a9c43134cf13b723"
+token_count: 997
+file_path: .ideate/work-items/WI-123.yaml

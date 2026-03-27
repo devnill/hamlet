@@ -1,0 +1,17 @@
+id: F-007-030
+type: finding
+cycle: 7
+reviewer: spec-reviewer
+severity: minor
+title: `test_found_village_seeds_initial_structures` asserts >= 1 structure, not 3
+description: |
+  - **File**: `tests/test_world_state_manager.py`
+  - The assertion accepts any non-zero structure count. `_seed_initial_structures` places LIBRARY, WORKSHOP, and FORGE. The weak assertion would pass even if seeding was partially broken. Noted in incremental review 219.
+file_path: cycles/007/findings/F-007-030.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-007
+verdict: Pass
+content_hash: "2bcc2dce4eac7fc20279bae6397e5ea690acd3376d3208ea4b0d964106a7a81b"
+token_count: 150

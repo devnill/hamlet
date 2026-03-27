@@ -1,0 +1,12 @@
+id: J-005-003
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 5
+title: "Cycle 7 — Work item 219: Seed initial structures for expansion outposts"
+content: |
+  Status: complete
+  _seed_initial_structures(new_village) called outside lock in found_village, following get_or_create_project pattern.
+  Test confirms at least one structure seeded after found_village call.
+content_hash: "14698f12399a19955cc134b959ad59426868af0c82f4316191251cc122f8f4fc"
+token_count: 98

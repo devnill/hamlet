@@ -1,0 +1,18 @@
+id: F-016-069
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `get_upload_sequence` raises KeyError on stale handle after cleanup
+description: |
+  - **File**: `src/hamlet/gui/kitty/sprites.py:155`
+  - **Issue**: After `cleanup()` clears `_png_data`, calling `get_upload_sequence(handle)` with a retained handle raises `KeyError`. Should return empty string for graceful degradation.
+  - **Suggested fix**: `data = self._png_data.get(handle.image_id)` with early return on None.
+file_path: cycles/016/findings/F-016-069.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-016
+verdict: null
+content_hash: ef5b8b9a182a20c3338134dbdb790934a00f992da95e198b0186ee7fa30f1317
+token_count: 163

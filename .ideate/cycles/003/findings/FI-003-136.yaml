@@ -1,0 +1,19 @@
+id: FI-003-136
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `handle_event` omits required `id` field in EventLogEntry
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:613`
+  - **Issue**: `EventLogEntry` dataclass has `id: str` as its first field. `handle_event` did not pass `id=`, causing `TypeError` caught by the `except` block — every event silently discarded.
+  - **Impact**: Event log always empty; no events ever persisted.
+  - **Suggested fix**: Add `id=str(uuid.uuid4())` — `uuid` already imported.
+file_path: cycles/003/findings/FI-003-136.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-104
+verdict: Pass
+content_hash: d66d638bd618620f483bfd537c6498762cef05649dae4a9e327e682779bf1403
+token_count: 175

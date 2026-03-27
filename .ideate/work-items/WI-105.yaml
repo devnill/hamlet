@@ -1,0 +1,52 @@
+id: WI-105
+type: work_item
+title: PersistenceFacade.log_event() method
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "`PersistenceFacade.log_event(event: InternalEvent)` method exists"
+  - `log_event` constructs an `EventLogEntry` from event fields and delegates to `self.append_event_log(entry)`
+  - `log_event` catches exceptions and logs at ERROR level without re-raising (GP-7)
+  - EventProcessor._route_event routes to `persistence.log_event` via existing `hasattr` check without changes to event_processor.py
+module: null
+domain: null
+notes: |
+  # Work Item 105: PersistenceFacade.log_event() method
+  
+  ## Problem
+  `EventProcessor._route_event` checks `hasattr(self._persistence, "log_event")` and routes to it if present, but `PersistenceFacade` has no `log_event` method. The persistence routing path is dead code.
+  
+  ## Fix
+  Add to `PersistenceFacade`:
+  
+  ```python
+  from hamlet.event_processing.internal_event import InternalEvent
+  
+  async def log_event(self, event: InternalEvent) -> None:
+      """Log an event to the event log. Called by EventProcessor."""
+      try:
+          entry = EventLogEntry(
+              timestamp=event.received_at,
+              session_id=event.session_id or "",
+              project_id=event.project_id or "",
+              hook_type=event.hook_type.value,
+              tool_name=event.tool_name,
+              summary=f"{event.hook_type.value}: {event.tool_name or ''}",
+          )
+          await self.append_event_log(entry)
+      except Exception:
+          logger.error("Failed to log event to persistence", exc_info=True)
+  ```
+  
+  ## Notes
+  - Check whether `append_event_log` is async or sync before deciding on `await`
+  - The `EventLogEntry` import path — verify the correct import location
+  - No changes to `event_processor.py` needed; the hasattr routing picks this up automatically
+cycle_created: 1
+cycle_modified: null
+content_hash: de9bcd1d24e37f654ae6c0dab0d809ca7c256d9817483df607cdc1a2c07001cb
+token_count: 493
+file_path: .ideate/work-items/WI-105.yaml

@@ -1,0 +1,12 @@
+id: J-021-017
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 199: Add end_turn to stop_reason IDLE transition guards"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed (M1: updated _handle_stop docstring to mention "end_turn" alongside "tool" and "stop").
+  Changes: inference/engine.py guard expanded to ("tool", "stop", "end_turn"); world_state/manager.py Stop branch guard expanded similarly; tests/test_inference_engine.py added test_stop_end_turn_reason_marks_idle.
+content_hash: "096249e1eed7a322bdc949c43071a22c72f935d8627ec5408887d21cbe456063"
+token_count: 140

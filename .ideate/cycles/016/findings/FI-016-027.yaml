@@ -1,0 +1,18 @@
+id: FI-016-027
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `detect.py` docstring has a misleading return description
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/gui/detect.py:39`
+  - **Issue**: The `resolve_renderer` docstring says `Returns: The resolved renderer name ("textual")` — the parenthetical `("textual")` implies the function always returns `"textual"`, which is wrong. It can return `"kitty"` or any caller-supplied `cli_arg`.
+  - **Suggested fix**: Change the Returns line to: `The resolved renderer name (e.g. "kitty", "textual").`
+file_path: cycles/016/findings/FI-016-027.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-282
+verdict: Pass
+content_hash: "3a10fd1ae3921801e32c0db4dfc0cbdb4aaada87723a62af42d90da99d6049b3"
+token_count: 189

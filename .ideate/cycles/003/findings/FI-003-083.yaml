@@ -1,0 +1,18 @@
+id: FI-003-083
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Redefines Textual's built-in `visible` reactive
+description: |
+  - **File**: `src/hamlet/tui/legend.py:21`
+  - **Issue**: `Widget.visible` is already a reactive property in Textual. The subclass redefines it as a new `reactive(False)`. The `watch_visible → self.display = value` workaround is correct, but the override behavior depends on Textual's reactive inheritance implementation and may be fragile across Textual versions.
+  - **Resolution**: Intentional — the spec explicitly requires a `visible` reactive property with default `False`. The `watch_visible` pattern correctly bridges to Textual's `display` flag. Out of scope to rename.
+file_path: cycles/003/findings/FI-003-083.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-066
+verdict: Pass
+content_hash: "937842c81c217484c0194dc6478bddc3055f0a18992afcbd0933cd52fb5e1ce4"
+token_count: 220

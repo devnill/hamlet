@@ -1,0 +1,13 @@
+id: D-04
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: EXECUTOR color changed to red; PLANNER to dark_green
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: cc833c39e6d7a2b3aab777f87e57dfec8be76e23166effd41d16599b13518476
+token_count: 69
+file_path: .ideate/decisions/D-04.yaml

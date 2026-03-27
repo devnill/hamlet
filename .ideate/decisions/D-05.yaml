@@ -1,0 +1,13 @@
+id: D-05
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 4
+supersedes: null
+description: Legend EXECUTOR color is incorrect
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "6d457e13c448a6f74e48821152314593188e8ddd18bf05bf584978331033768b"
+token_count: 64
+file_path: .ideate/decisions/D-05.yaml

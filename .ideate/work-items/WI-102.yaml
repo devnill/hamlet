@@ -1,0 +1,53 @@
+id: WI-102
+type: work_item
+title: Wire AgentInferenceEngine in __main__.py
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `AgentInferenceEngine` is imported from `hamlet.inference.engine`
+  - An `AgentInferenceEngine(world_state)` instance is created after `world_state` is initialized
+  - `EventProcessor` constructor receives `agent_inference=agent_inference`
+  - `SimulationEngine` constructor receives `agent_inference=agent_inference`
+  - Neither `EventProcessor` nor `SimulationEngine` receive `None` for `agent_inference`
+module: null
+domain: null
+notes: |
+  # Work Item 102: Wire AgentInferenceEngine in __main__.py
+  
+  ## Problem
+  `AgentInferenceEngine` is fully implemented but never instantiated in `__main__.py`. Both `EventProcessor` and `SimulationEngine` accept it as a parameter but receive `None`, making the inference subsystem a no-op.
+  
+  ## Fix
+  After `world_state` is initialized, before creating `event_processor`:
+  ```python
+  from hamlet.inference.engine import AgentInferenceEngine
+  
+  agent_inference = AgentInferenceEngine(world_state)
+  ```
+  
+  Pass it to both:
+  ```python
+  event_processor = EventProcessor(
+      event_queue=event_queue,
+      world_state=world_state,
+      agent_inference=agent_inference,
+      persistence=persistence,
+  )
+  
+  simulation = SimulationEngine(
+      world_state=world_state,
+      agent_inference=agent_inference,
+      ...
+  )
+  ```
+  
+  ## Notes
+  Check whether `AgentInferenceEngine` has a `start()` / `stop()` lifecycle method that needs to be called in the startup/shutdown sequence. If so, add it in the correct order (after `world_state`, before `event_processor`).
+cycle_created: 1
+cycle_modified: null
+content_hash: c21c50a4806f8b842d2e36c2968ab6b9c74155ff893185e61a7e66779e8292bd
+token_count: 436
+file_path: .ideate/work-items/WI-102.yaml

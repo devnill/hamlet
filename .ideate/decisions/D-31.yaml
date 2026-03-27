@@ -1,0 +1,13 @@
+id: D-31
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 16
+supersedes: null
+description: Terminal routing — tmux uses Textual, capable terminals use notcurses
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: c965f23bb2859ea7a8cd6602c6f2c46e5bee70b49a27080b9a0377ac392bdb5e
+token_count: 73
+file_path: .ideate/decisions/D-31.yaml

@@ -1,0 +1,29 @@
+id: J-004-001
+type: journal_entry
+phase: refine
+date: "2026-03-22"
+cycle_created: 4
+title: refine-15 planning completed
+content: |
+  Trigger: User feedback on terrain generation aesthetics
+  Principles changed: none
+  New work items: WI-249 through WI-257 (9 items)
+  
+  User reported terrain generation produces "too busy" scattered terrain cells rather than coherent biome regions. Requested:
+  - Larger biome regions with realistic transitions
+  - Water features: rivers, ponds, lakes (not oceans)
+  - Forests clustering near water/features
+  - Configurable parameters for real-time tuning
+  - Map viewer mode with zoom capability
+  - Legend showing terrain types
+  
+  Work items organized in three phases:
+  - Phase 1 (parallel): Legend enhancement, parameter system, config persistence
+  - Phase 2 (sequential): Map viewer mode, zoom functionality
+  - Phase 3 (parallel after WI-254): Biome regions, water features, forest clustering, smoothing rules
+  
+  All work items modify existing files except:
+  - `src/hamlet/tui/map_viewer.py` (create)
+  - `src/hamlet/tui/parameter_panel.py` (create)
+content_hash: "6780bd750833217b1bff548ee89c11f36a34c89478b90d57faa1bf4943e768c0"
+token_count: 274

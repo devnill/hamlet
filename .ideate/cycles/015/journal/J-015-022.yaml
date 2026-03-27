@@ -1,0 +1,11 @@
+id: J-015-022
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 163: Wire mcp_port + /hamlet/health endpoint"
+content: |
+  Status: complete with rework
+  Rework: S1 (_run_viewer in __main__.py was calling _run_viewer() with hardcoded 8080; fixed to pass settings.mcp_port), M1 (validate_mcp_server_running silent fallback now logs a warning).
+content_hash: b9c119070dd51aef2e9789975388ea6c4fb725886e6ee009e547af4f7863edbe
+token_count: 100

@@ -1,0 +1,18 @@
+id: FI-003-171
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No test for defaults code path calling _validate()
+description: |
+  - **File**: `tests/test_settings.py`
+  - **Issue**: `test_load_defaults_pass_validation` was already present and exercises the defaults code path; this satisfied the criterion.
+  - **Status**: Satisfied by existing test.
+file_path: cycles/003/findings/FI-003-171.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-112
+verdict: Pass
+content_hash: "053a1891730a744863c048958ac69b5a5cd5e6d8e0de2b188427f3d84de8fc2c"
+token_count: 133

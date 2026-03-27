@@ -1,0 +1,18 @@
+id: FI-003-073
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `get_entities_in_bounds` does not exist on `SpatialIndex`
+description: |
+  - **File**: `src/hamlet/viewport/manager.py:121` and `:127`
+  - **Issue**: Both `get_agents_in_view` and `get_structures_in_view` called `self._spatial_index.get_entities_in_bounds(bounds)`. The actual method is named `query`. Every call raised `AttributeError`.
+  - **Resolution**: Fixed — both call sites changed to `self._spatial_index.query(bounds)`.
+file_path: cycles/003/findings/FI-003-073.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-055
+verdict: Fail
+content_hash: "503d9f1e34574fd3dcdd78bccc12338b2772a52ac81d73ddef3cdc7941be4f14"
+token_count: 167

@@ -1,0 +1,14 @@
+id: Q-18
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: get_upload_sequence raises KeyError on stale handle after cleanup
+cycle_created: 1
+cycle_modified: null
+content_hash: "02c44626a82848c8c987734d55c5680f6dad723751f1f7fbefb804745306a178"
+token_count: 76
+file_path: .ideate/questions/Q-18.yaml

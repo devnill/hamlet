@@ -1,0 +1,17 @@
+id: F-005-017
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: `ZOMBIE_THRESHOLD_SECONDS` class variable was a misleading dead name — FIXED
+description: |
+  - **File**: `src/hamlet/inference/engine.py`
+  - **Fix**: `ZOMBIE_THRESHOLD_SECONDS` class variable removed. The live threshold is `self._zombie_threshold_seconds` (constructor parameter, default 300). One test referencing the removed constant updated to use `engine._zombie_threshold_seconds` instead.
+file_path: cycles/005/findings/F-005-017.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-005
+verdict: Pass
+content_hash: "6681bc1b5b39be9394a3cffcdc58a6d075a40a66b6083226f4bad30e0469b8c0"
+token_count: 159

@@ -1,0 +1,11 @@
+id: J-009-008
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 103: Wire simulation subsystems in __main__.py"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (S1: SimulationConfig constructed with no arguments, ignoring settings.tick_rate — changed to SimulationConfig(tick_rate=settings.tick_rate)).
+content_hash: cb3124020190d7acd1e99003c8169a5431f1175940bbc12f04b92423984b6067
+token_count: 96

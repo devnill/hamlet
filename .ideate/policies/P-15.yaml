@@ -1,0 +1,13 @@
+id: P-15
+type: domain_policy
+domain: architecture
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: Integration tests for rendering pipelines (Kitty, or any future graphical backend) must patch only the HTTP transport call (e.g., `urllib.request.urlopen`) and let the full parse→dataclass→render chain execute. Mocking at the dataclass level bypasses `StateFetcher` and cannot catch type-mismatch crashes between the API response shape and the renderer's expectations.
+cycle_created: 1
+cycle_modified: null
+content_hash: bdbbc5b2b06d313293e39c2c274c7daf47920a3043ee102f82e7876b6ac63e9d
+token_count: 152
+file_path: .ideate/policies/P-15.yaml

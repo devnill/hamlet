@@ -1,0 +1,18 @@
+id: FI-003-114
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `config_json` returned as raw JSON string, not parsed
+description: |
+  - **File**: `src/hamlet/persistence/loader.py:111`
+  - **Issue**: Acceptance criterion 6 lists `config_json` alongside `agent_ids_json` as JSON fields to parse. `_load_projects` returned the raw TEXT string; `WorldStateManager` passes it to `Project(config=...)`, causing `TypeError` on any key access.
+  - **Fix applied**: `_load_projects` now parses `config_json` via `json.loads`, falling back to `{}` on `JSONDecodeError`, consistent with `_load_sessions`.
+file_path: cycles/003/findings/FI-003-114.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-078
+verdict: Fail
+content_hash: "6210b877fe6a133911865f655602d81dd9f760df38dbb97bf6c9127da5a64a26"
+token_count: 193

@@ -1,0 +1,11 @@
+id: J-019-009
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 186: Version bump to 0.4.0"
+content: |
+  Status: complete
+  Modified: pyproject.toml, .claude-plugin/plugin.json, src/hamlet/__init__.py, src/hamlet/cli/__init__.py
+content_hash: "10817a8f6fa0dfac43baaad457bb461a9defc2851c2abbbaad058986bac88088"
+token_count: 70

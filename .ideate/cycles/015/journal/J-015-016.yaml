@@ -1,0 +1,11 @@
+id: J-015-016
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 155: Fix zombie frame formula"
+content: |
+  Status: complete with rework
+  Rework: added tests for get_frames() and serialize_state() zombie path; fixed M1-M3 minor docstring/style issues.
+content_hash: bc8e58160eddd9a134d9c92cc8bd149d0a29a51e5d520935efd9396087718ac5
+token_count: 77

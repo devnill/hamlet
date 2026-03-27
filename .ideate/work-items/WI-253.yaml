@@ -1,0 +1,22 @@
+id: WI-253
+type: work_item
+title: Zoom Functionality for Map Viewer
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "Zoom levels: 1x (default), 2x, 4x, 8x"
+  - Plus/minus keys adjust zoom level
+  - Terrain cells scale appropriately (larger/smaller on screen)
+  - World coordinates scale with zoom (viewport shows larger area at higher zoom)
+  - Zoom level displayed in status bar
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: e105283106f3246dcaa9a08e473a77f1b866bdaa97f61b6c1885c8323fa7dd7b
+token_count: 137
+file_path: .ideate/work-items/WI-253.yaml

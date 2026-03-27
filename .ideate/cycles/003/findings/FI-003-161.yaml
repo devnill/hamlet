@@ -1,0 +1,18 @@
+id: FI-003-161
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No test for migration 2
+description: |
+  - **File**: `tests/test_persistence_migrations.py`
+  - **Issue**: No test verifies migration 2 adds the `project_id` column or updates version to 2.
+  - **Suggested fix**: Add dedicated test checking `PRAGMA table_info(agents)`.
+file_path: cycles/003/findings/FI-003-161.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-109
+verdict: Pass
+content_hash: "0fb4baac146036eed94d69afb0941b4ed45a29b30fc858725715478832ff7f4e"
+token_count: 128

@@ -1,0 +1,31 @@
+id: WI-063
+type: work_item
+title: WorldView Widget
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/tui/world_view.py` exists
+  - `WorldView` class inherits from `textual.widgets.Static`
+  - "`__init__(world_state: WorldStateManager, viewport: ViewportManager)` receives dependencies"
+  - `render()` method returns Rich Text with world display
+  - `on_mount()` sets up animation frame update interval (4 Hz)
+  - Builds display buffer by iterating over visible bounds
+  - Agents render as spin animation symbols when active, `@` when idle/zombie
+  - Structures render with type symbol and material color
+  - Empty cells render as `.` (period)
+  - Uses `viewport.get_visible_bounds()` for bounds
+  - Uses `world_state.get_agents_in_view(bounds)` and `get_structures_in_view(bounds)`
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 063
+  
+  The WorldView widget is the main rendering surface. It iterates over world positions within the viewport bounds and checks for entities at each position. Render priority: agents over structures over empty. Animation uses 4-frame spin: `-\|/`. Use Rich Text for color styling.
+cycle_created: 1
+cycle_modified: null
+content_hash: "1b238d2267e959c8084626f69cd206044b2852c1045859b5dc082852526120be"
+token_count: 315
+file_path: .ideate/work-items/WI-063.yaml

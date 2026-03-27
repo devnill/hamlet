@@ -1,0 +1,14 @@
+id: Q-23
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: TUI per-category degradation is coarser than Kitty per-item degradation
+cycle_created: 1
+cycle_modified: null
+content_hash: c28b5375624791bfde7a8e216a691ec1f93603c411a66c84a6ab7bba9aca0d7e
+token_count: 77
+file_path: .ideate/questions/Q-23.yaml

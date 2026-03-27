@@ -1,0 +1,18 @@
+id: FI-012-005
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Inconsistent Bounds Calculation Between Files
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/map_viewer.py:66-87` and `/Users/dan/code/hamlet/src/hamlet/viewport/coordinates.py:108-132`
+  - **Issue**: `MapViewer.get_visible_bounds()` reimplements the logic from `viewport/coordinates.py:get_visible_bounds()` instead of calling it. This creates two places to maintain the same logic.
+  - **Suggested fix**: Refactor `MapViewer.get_visible_bounds()` to use the utility function from coordinates.py to avoid duplication.
+file_path: cycles/012/findings/FI-012-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-253
+verdict: Pass
+content_hash: d297ece4ef2edd603a99d9dca896215592201929dfdd3a6bfc3a4584f8472d45
+token_count: 194

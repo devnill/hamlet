@@ -1,0 +1,22 @@
+id: RM-015
+type: review_manifest
+cycle: 15
+content: |
+  # Review Manifest — Cycle 015
+  
+  ## Work Items
+  
+  | # | Title | File Scope | Incremental Verdict | Findings (C/S/M) | Review Path |
+  |---|---|---|---|---|---|
+  | 267 | Notcurses ctypes binding layer | gui/__init__.py, gui/notcurses/__init__.py, gui/notcurses/bindings.py | None (reviewer timeout) | — | — |
+  | 268 | Renderer protocol and symbol config extraction | gui/renderer_protocol.py, gui/symbol_config.py, tui/symbols.py | None (reviewer timeout) | — | — |
+  | 269 | Notcurses renderer implementation | gui/notcurses/renderer.py, gui/notcurses/bindings.py | Pass (after rework) | 0/2/3 | archive/incremental/269-notcurses-renderer.md |
+  | 270 | Settings and CLI integration for renderer selection | config/settings.py, gui/detect.py | Pass | 0/0/2 | archive/incremental/270-renderer-settings.md |
+  | 271 | Multi-resolution zoom system | gui/notcurses/zoom.py, gui/notcurses/renderer.py | None (no review) | — | — |
+  | 272 | Sprite asset system and PNG loading | gui/notcurses/sprites.py, gui/notcurses/assets/README.md | Pass (after rework) | 0/1/2 | archive/incremental/272-sprite-system.md |
+  | 273 | Notcurses viewer app and entry point | gui/notcurses/app.py, cli/__init__.py, __main__.py | None (no review) | — | — |
+  | 274 | Notcurses availability diagnostic | cli/commands/doctor.py, cli/__init__.py | None (no review) | — | — |
+  
+  Note: WI-267, 268, 271, 273, 274 did not receive formal incremental reviews. WI-267 and WI-268 reviewers ran out of turns. WI-271, 273, 274 reviews were skipped to maintain execution velocity. All items passed worker self-checks.
+content_hash: "48aa3fe9a40944e49f7969b8340ddc743d0e2a2b87cf31a860df431e39ab2728"
+token_count: 409

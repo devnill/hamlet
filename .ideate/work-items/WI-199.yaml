@@ -1,0 +1,63 @@
+id: WI-199
+type: work_item
+title: Add end_turn to stop_reason IDLE transition guards
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "\"end_turn\" is included in the stop_reason guard in AgentInferenceEngine._handle_stop (alongside \"tool\" and \"stop\")"
+  - "\"end_turn\" is included in the stop_reason guard in WorldStateManager.handle_event Stop branch (alongside \"tool\" and \"stop\")"
+  - test_inference_engine.py contains a test for stop_reason="end_turn" asserting update_agent is called with state=AgentState.IDLE
+  - pytest passes
+module: null
+domain: null
+notes: |
+  # WI-199: Add end_turn to stop_reason IDLE transition guards
+  
+  ## Context
+  
+  WI-197 added stop_reason differentiation. The guards check `stop_reason in ("tool", "stop")` in two places:
+  
+  1. `src/hamlet/inference/engine.py` — `AgentInferenceEngine._handle_stop()` around line 363
+  2. `src/hamlet/world_state/manager.py` — `handle_event` Stop branch around line 879
+  
+  `"end_turn"` is Claude Code's normal session-end stop reason (seen in `tests/test_event_processor.py` line 449 fixture). Sessions ending with `"end_turn"` currently never transition agents to IDLE — they wait 300s for zombie TTL. This contradicts the intent of WI-197.
+  
+  ## Changes Required
+  
+  ### engine.py
+  In `_handle_stop`, change:
+  ```python
+  if event.stop_reason in ("tool", "stop"):
+  ```
+  to:
+  ```python
+  if event.stop_reason in ("tool", "stop", "end_turn"):
+  ```
+  
+  Note: `"end_turn"` should NOT evict pending tools (that's only for `"tool"` reason). The tool-eviction sub-branch already checks `event.stop_reason == "tool"` separately, so adding `"end_turn"` to the outer guard is safe.
+  
+  ### manager.py
+  In `handle_event` Stop branch, change:
+  ```python
+  if event.stop_reason in ("tool", "stop"):
+  ```
+  to:
+  ```python
+  if event.stop_reason in ("tool", "stop", "end_turn"):
+  ```
+  
+  ### test_inference_engine.py
+  Add a new test (no `@pytest.mark.asyncio` decorator — asyncio_mode=auto):
+  ```python
+  async def test_stop_end_turn_reason_marks_idle() -> None:
+      """stop_reason='end_turn' triggers IDLE transition."""
+  ```
+  The test should follow the same pattern as `test_stop_clean_reason_marks_idle` (which tests `stop_reason="stop"`).
+cycle_created: 1
+cycle_modified: null
+content_hash: f0fc7f5f9dcf5b312aedf749d65cf82e7be45c3bbde81d5f84c76301aa8adfb2
+token_count: 592
+file_path: .ideate/work-items/WI-199.yaml

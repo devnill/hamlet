@@ -1,0 +1,194 @@
+id: research-kitty-graphics-protocol
+type: research
+title: Kitty Graphics Protocol for Terminal Image Rendering in Python
+content: |
+  # Kitty Graphics Protocol for Terminal Image Rendering in Python
+  
+  **Date**: 2026-03-22
+  **Status**: Research complete
+  
+  ## Summary
+  
+  The Kitty graphics protocol (also called Terminal Graphics Protocol / TGP) is a well-specified escape-sequence-based protocol for rendering raster images in terminal emulators. It supports PNG transmission, cell-precise placement, z-index layering, animation frames, and image IDs for selective deletion -- all via pure escape sequences with no C library dependency. It is a viable replacement for the segfaulting notcurses backend. Three Python libraries exist (term-image, textual-kitty, textual-image), but for a custom game renderer at 30fps, direct escape sequence generation is likely more appropriate than any of them.
+  
+  ## Key Facts
+  
+  ### Escape Sequence Format
+  
+  - Uses APC (Application Programming Command) sequences: `\x1b_G<control data>;<payload>\x1b\\`
+  - Control data is comma-separated key=value pairs. Payload is base64-encoded image data.
+  - Example transmit-and-display: `\x1b_Ga=T,f=100,s=16,v=16,i=1,p=1,q=2;[base64 PNG data]\x1b\\`
+  
+  ### Control Data Keys (subset relevant to hamlet)
+  
+  | Key | Purpose | Values |
+  |-----|---------|--------|
+  | `a` | Action | `t` transmit, `T` transmit+display, `p` display previous, `d` delete, `q` query, `f` animation frame, `a` animation control |
+  | `f` | Format | `32` RGBA (default), `24` RGB, `100` PNG |
+  | `t` | Transmission medium | `d` direct/escape (default), `f` file, `t` temp file, `s` shared memory |
+  | `s` | Source width (pixels) | positive integer |
+  | `v` | Source height (pixels) | positive integer |
+  | `i` | Image ID | 1..4294967295 (must not be 0) |
+  | `p` | Placement ID | positive integer |
+  | `c` | Display columns (cells) | positive integer |
+  | `r` | Display rows (cells) | positive integer |
+  | `x` | Source rect left offset | pixels |
+  | `y` | Source rect top offset | pixels |
+  | `w` | Source rect width | pixels |
+  | `h` | Source rect height | pixels |
+  | `z` | Z-index | signed 32-bit integer; negative = under text |
+  | `m` | More data (chunking) | `1` = more chunks follow, `0` = last chunk |
+  | `q` | Quiet mode | `1` suppress OK responses, `2` suppress errors |
+  
+  ### Chunking
+  
+  - Payload chunks must be no larger than 4096 bytes (base64-encoded).
+  - All chunks except the last use `m=1`; the last uses `m=0`.
+  - All chunks except the last must have a size that is a multiple of 4.
+  - Must finish all chunks for one image before sending other graphics commands.
+  - A 16x16 PNG sprite is typically under 4096 bytes base64, so most sprites fit in a single chunk.
+  
+  ### Image Placement
+  
+  - Cursor position determines where the image top-left is placed (unless using virtual placements).
+  - Move cursor with standard ANSI sequences (`\x1b[<row>;<col>H`) before each placement.
+  - `c` and `r` keys scale the image to fit the specified number of cell columns/rows.
+  - Source sub-rectangles can be selected with `x`, `y`, `w`, `h` (useful for sprite sheets).
+  - Re-sending a placement with the same image ID and placement ID replaces the previous one without flicker.
+  
+  ### Z-Index Layering
+  
+  - The `z` key controls stacking order. Negative z renders under text; positive z renders over text.
+  - `z` values below `INT32_MIN/2` (-1,073,741,824) render under cells with non-default backgrounds.
+  - Overlapping images with same z-index: lower image ID renders underneath.
+  - Semi-transparent images blend when stacked.
+  - This directly supports the terrain/structure/agent layering requirement.
+  
+  ### Deleting Images
+  
+  - `\x1b_Ga=d,d=a\x1b\\` -- delete all images on visible screen
+  - `\x1b_Ga=d,d=i,i=<id>\x1b\\` -- delete all placements of image with given ID
+  - `\x1b_Ga=d,d=i,i=<id>,p=<pid>\x1b\\` -- delete specific placement
+  - `\x1b_Ga=d,d=A\x1b\\` -- delete all images including those not on screen
+  - Other `d=` values: `c`/`C` (by column), `p`/`P` (by cell position), `x`/`X`, `y`/`Y`, `z`/`Z` (by z-index range)
+  
+  ### Detection / Query
+  
+  - Send query: `\x1b_Gi=31337,s=1,v=1,a=q,t=d,f=24;AAAA\x1b\\`
+  - If terminal supports protocol, it responds with `\x1b_Gi=31337;OK\x1b\\`
+  - Pair with a DA (Device Attributes) query: if you get DA response but no graphics response, protocol is not supported.
+  - Environment variable `KITTY_WINDOW_ID` indicates kitty terminal specifically.
+  - `TERM_PROGRAM` can identify Ghostty, WezTerm, etc.
+  - For robust detection, the query-response method is definitive.
+  
+  ### Terminal Support
+  
+  | Terminal | Support Level | Notes |
+  |----------|--------------|-------|
+  | kitty | Full | Reference implementation, all features |
+  | Ghostty | Full | Complete TGP support |
+  | WezTerm | Largely complete | Some edge cases in animation; also supports iTerm2 protocol |
+  | Konsole | Partial | Basic image display |
+  | foot | No | Supports sixel only |
+  | iTerm2 | No native TGP | Has its own inline image protocol; does not implement Kitty protocol |
+  | Alacritty | No | No graphics protocol support |
+  | Terminal.app | No | macOS default; no graphics protocol |
+  
+  **Correction**: Earlier search results suggested iTerm2 supports Kitty protocol. Multiple more specific sources indicate iTerm2 uses its own proprietary inline image protocol, not TGP. This is a common point of confusion.
+  
+  ### Performance
+  
+  - Kitty achieves 60fps at 720p and 30fps at 1280p for full-frame video (demonstrated via tpix).
+  - For a tile-based game with small sprites (16x16), 30fps is well within capability.
+  - Transmit images once, then re-place them with `a=p` (put) -- avoids retransmission.
+  - Image storage quota: 320MB per buffer in kitty. Max texture size limited by GPU (typically 8192x8192).
+  - Key optimization: transmit all tile sprites once at startup with unique IDs, then each frame only sends placement commands (no pixel data), which are tiny escape sequences.
+  
+  ### Animation Support
+  
+  - Added in kitty 0.20.0.
+  - `a=f` transmits frame data; `a=a` controls animation playback.
+  - Frames can be deltas (only changed pixels), reducing bandwidth.
+  - For hamlet's use case (game loop rendering), manual frame-by-frame placement is more appropriate than the built-in animation system, which is designed for self-playing animated images.
+  
+  ### Terminal Resize
+  
+  - Images scroll with text automatically.
+  - When terminal is resized, images are not automatically repositioned -- the application must detect SIGWINCH and re-render.
+  - No built-in "pin to cell" that survives resize. The application must handle this.
+  - For a game renderer that re-renders every frame at 30fps, this is not a problem -- the next frame will place images at correct positions.
+  
+  ### Partial Updates
+  
+  - Can replace individual placements without clearing everything (same image ID + placement ID = replace).
+  - Can transmit new image data for an existing image ID (replaces old data, deletes old placements).
+  - For animation frames, can send only the changed region as a delta.
+  - For hamlet: each frame, delete all placements and re-place, or assign stable placement IDs and update positions. The latter avoids flicker.
+  
+  ### tmux Compatibility
+  
+  - tmux added native Kitty graphics protocol passthrough support in recent versions.
+  - Requires `set -g allow-passthrough on` in tmux config.
+  - Unicode placeholder method (U+10EEEE) provides an alternative that works in tmux, vim, and other host applications.
+  - Unicode placeholders were added in kitty 0.28.0.
+  - Known issue: Kitty graphics query responses can leak into tmux pane titles in some configurations.
+  
+  ### Python Libraries
+  
+  | Library | Version | Approach | Fits hamlet? |
+  |---------|---------|----------|-------------|
+  | term-image | 0.7.2 (Jun 2024) | Multi-protocol image display; Kitty + iTerm2 + Unicode fallback | Possibly, but designed for static image display, not game rendering |
+  | textual-kitty | 0.4.0 | Textual widget + Rich renderable for TGP | Designed for Textual apps; could work but adds abstraction over what hamlet needs |
+  | textual-image | 0.8.5 | Textual widget for TGP + Sixel | Similar to textual-kitty; Textual-centric |
+  | pixcat | Unknown | CLI + Python wrapper | Minimal; mostly a CLI tool |
+  
+  ## Recommendations
+  
+  **Option 1: Direct escape sequence generation (custom KittyRenderer)**
+  - Pros: No external dependency beyond Pillow (already used for sprites). Full control over placement, z-indexing, chunking, and frame timing. Matches the existing `RendererProtocol` interface. Pure Python, no C extensions. Can optimize for hamlet's specific tile-based rendering (transmit sprites once, place per frame).
+  - Cons: Must implement escape sequence generation, chunking, detection, and error handling from scratch. Estimated 300-500 lines of protocol code.
+  - When to use: This is the recommended approach for hamlet. The protocol is simple enough that a wrapper library adds more complexity than it removes for a game renderer.
+  
+  **Option 2: Use textual-kitty as rendering backend**
+  - Pros: Pre-built Textual widget handles protocol details. Fallback to Unicode rendering built in.
+  - Cons: Designed for static image display in Textual apps, not 30fps game rendering. Adds a dependency. Does not expose low-level control needed for z-indexing, sprite ID management, or per-frame placement updates. Hamlet already has a Textual TUI for non-graphical mode.
+  - When to use: Only if the rendering needs are limited to occasional image display, not continuous game frames.
+  
+  **Option 3: Use term-image**
+  - Pros: Most mature library (0.7.2). Supports multiple protocols with automatic detection.
+  - Cons: Designed for displaying images in terminals, not game-loop rendering. API is oriented around "show this image" not "place sprite #47 at cell (12,8) with z-index -1". Would require significant wrapping to fit hamlet's renderer protocol.
+  - When to use: If hamlet needed a simple "show a map image" feature rather than a tile-based sprite renderer.
+  
+  ## Risks
+  
+  - **Terminal fragmentation**: Ghostty and WezTerm implement "most" of the protocol but edge cases in z-indexing, animation, and delete behaviors may differ from kitty's reference implementation. Testing across terminals is necessary.
+  - **iTerm2 does not support TGP**: Users on iTerm2 would need to use the character-based fallback renderer. This is a common macOS terminal.
+  - **tmux passthrough is fragile**: The `allow-passthrough` setting is off by default in tmux. Users in tmux without this setting will see no images. Query detection must handle this gracefully and fall back.
+  - **30fps escape sequence throughput**: Each frame involves cursor positioning + placement commands for all visible tiles. For a 40x25 viewport at close zoom, that is 1000 placement commands per frame (33ms budget). Each placement is roughly 50-80 bytes. Total per frame: ~50-80KB of escape sequences. This is within terminal I/O capacity but should be benchmarked.
+  - **Sprite pre-transmission strategy is critical**: Transmitting PNG data every frame would be too slow. Sprites must be transmitted once (with image IDs) at startup, then each frame only sends placement commands (`a=p`). This is the standard approach but must be implemented correctly.
+  - **No macOS Terminal.app support**: The default macOS terminal has no graphics protocol support. Users must install kitty, Ghostty, or WezTerm. The existing Textual/character-based renderer remains the fallback.
+  - **Resize handling**: The 30fps render loop naturally handles resize (next frame uses new dimensions), but SIGWINCH must be caught to update viewport dimensions.
+  
+  ## Sources
+  
+  - [Kitty Graphics Protocol Official Specification](https://sw.kovidgoyal.net/kitty/graphics-protocol/)
+  - [Kitty Graphics Protocol RST source (GitHub)](https://github.com/kovidgoyal/kitty/blob/master/docs/graphics-protocol.rst)
+  - [DeepWiki - Kitty Graphics Protocol](https://deepwiki.com/kovidgoyal/kitty/3.2-graphics-protocol)
+  - [Kitty 60fps stress test discussion](https://github.com/kovidgoyal/kitty/discussions/5660)
+  - [Unicode placeholders PR](https://github.com/kovidgoyal/kitty/pull/5664)
+  - [Unicode placeholders discussion (tmux)](https://github.com/kovidgoyal/kitty/discussions/4021)
+  - [tmux Kitty graphics passthrough](http://www.mail-archive.com/tmux-git@googlegroups.com/msg02861.html)
+  - [term-image on PyPI](https://pypi.org/project/term-image/)
+  - [textual-kitty on PyPI](https://pypi.org/project/textual-kitty/)
+  - [textual-image on PyPI](https://pypi.org/project/textual-image/)
+  - [WezTerm Kitty image protocol issue](https://github.com/wezterm/wezterm/issues/986)
+  - [Ghostty TGP discussion](https://github.com/ghostty-org/ghostty/discussions/5350)
+  - [Kitty image stacking z-index issue](https://github.com/kovidgoyal/kitty/issues/6400)
+  - [notcurses query detection issue](https://github.com/dankamongmen/notcurses/issues/1998)
+  - Project file: `/Users/dan/code/hamlet/specs/steering/research/notcurses-python314-segfault.md`
+  - Project file: `/Users/dan/code/hamlet/src/hamlet/gui/renderer_protocol.py`
+  - Project file: `/Users/dan/code/hamlet/src/hamlet/gui/notcurses/zoom.py`
+  - Project file: `/Users/dan/code/hamlet/src/hamlet/gui/notcurses/sprites.py`
+  - Project file: `/Users/dan/code/hamlet/src/hamlet/gui/detect.py`
+content_hash: ba936610cc3b1d5a2bae96be3883bb397e75db33b13bf7c1cab8d9da93beca6d
+token_count: 3347

@@ -1,0 +1,18 @@
+id: FI-003-168
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `current_activity` read from viewport agents only
+description: |
+  - **File**: `src/hamlet/tui/app.py:150`
+  - **Issue**: `max(agents_list, ...)` uses `agents_list = get_agents_in_view(bounds)`. If all active agents are outside the viewport, current_activity shows blank even though agents are working.
+  - **Suggested fix**: Use `get_all_agents()` for the most-recent-agent selection.
+file_path: cycles/003/findings/FI-003-168.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-111
+verdict: Pass
+content_hash: d25a9315cec0d915eb1788deccfaa048079846f8c6761b6bc5616b4dd8224cb5
+token_count: 155

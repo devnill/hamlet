@@ -1,0 +1,18 @@
+id: FI-003-067
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `_tick_loop` sleeps full interval after `stop()` sets running=False
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:76`
+  - **Issue**: `await asyncio.sleep(...)` ran unconditionally after `_tick()`, delaying shutdown by up to one tick interval.
+  - **Resolution**: Fixed — sleep guarded by `if self._state.running`.
+file_path: cycles/003/findings/FI-003-067.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-046
+verdict: Fail
+content_hash: d70d7b5c69f5de1a347e95fd8c1cef44d8c30e67256a3f4941c488cdd219f636
+token_count: 141

@@ -1,0 +1,54 @@
+id: WI-221
+type: work_item
+title: Verify EVENT_SCHEMA string tool_output and add regression tests
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - EVENT_SCHEMA tool_output type includes "string" in the allowed types list
+  - InternalEvent.tool_output type annotation is `dict[str, Any] | str | None`
+  - EventProcessor.process_event passes string tool_output values through to InternalEvent without modification
+  - "A test in `tests/test_mcp_validation.py` validates a payload with `tool_output: \"some string\"` passes schema validation"
+  - A test in `tests/test_mcp_validation.py` validates payloads with object and null tool_output
+  - A test in `tests/test_event_processor.py` verifies `process_event` with string tool_output produces an InternalEvent where `event.tool_output == "the string"`
+module: null
+domain: null
+notes: |
+  # WI-221 Implementation Notes
+  
+  ## Context
+  
+  EVENT_SCHEMA in `src/hamlet/mcp_server/validation.py` already allows `["object", "string", "null"]`
+  for tool_output per the decomposer's analysis. InternalEvent.tool_output is already typed as
+  `dict[str, Any] | str | None`. The fix is in place — this work item adds regression tests.
+  
+  ## Work
+  
+  ### tests/test_mcp_validation.py
+  
+  Add three test cases:
+  1. Payload with `tool_output: "command output string"` — assert validation passes
+  2. Payload with `tool_output: {"stdout": "..."}` — assert validation passes
+  3. Payload with `tool_output: null` — assert validation passes
+  
+  Use the existing pattern for constructing valid payloads (find an existing test that builds a
+  full payload dict with jsonrpc, method, params).
+  
+  ### tests/test_event_processor.py
+  
+  Add a test that calls `process_event` with a raw dict containing `tool_output: "bash output"`
+  and asserts the returned InternalEvent has `event.tool_output == "bash output"`.
+  
+  ## Files
+  
+  - `src/hamlet/mcp_server/validation.py` — verify schema; fix if not already accepting strings
+  - `src/hamlet/event_processing/event_processor.py` — verify passthrough; fix if needed
+  - `tests/test_mcp_validation.py` — add three tool_output tests
+  - `tests/test_event_processor.py` — add string tool_output passthrough test
+cycle_created: 1
+cycle_modified: null
+content_hash: f66d512a48b926922344c6b7c4128309f2cee01417146019be743b1bd86f6529
+token_count: 577
+file_path: .ideate/work-items/WI-221.yaml

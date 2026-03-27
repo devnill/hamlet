@@ -1,0 +1,18 @@
+id: FI-003-065
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Fallback per-village loop had no per-village error isolation
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:114`
+  - **Issue**: A single failing village aborted processing of all subsequent villages in the tick with no per-village log.
+  - **Resolution**: Fixed — per-village try/except with `logger.exception(..., village.id)` now in `ExpansionManager.process_expansion`.
+file_path: cycles/003/findings/FI-003-065.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-046
+verdict: Fail
+content_hash: "15c2ce4c8266d20ced14a96781faa5b6c6b3aef6ccae5defb2ae76b1ff38c718"
+token_count: 157

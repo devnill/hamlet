@@ -1,0 +1,19 @@
+id: FI-003-011
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No tests exist for this module
+description: |
+  - **File**: `src/hamlet/event_processing/internal_event.py`
+  - **Issue**: Zero test files for this module. The `__post_init__` validation has no test coverage.
+  - **Impact**: Contract mismatches (e.g., S1) go undetected until integration.
+  - **Suggested fix**: Create `tests/test_event_processing/test_internal_event.py`.
+file_path: cycles/003/findings/FI-003-011.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-011
+verdict: Fail
+content_hash: da2171bff3b06ddc292b319966674707c79bbab47f9cbb03ffc6fc400be22bde
+token_count: 153

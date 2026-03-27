@@ -1,0 +1,15 @@
+id: FI-003-052
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `STAGE_THRESHOLDS` and `MATERIAL_STAGES` missing from `__all__`
+description: "- **Resolution**: Fixed — added to `__all__`."
+file_path: cycles/003/findings/FI-003-052.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-037
+verdict: Fail
+content_hash: "70880c8930b88e2a21313656cbef8cd636cdf167041c876b7d1e4778bf79dbd5"
+token_count: 91

@@ -1,0 +1,18 @@
+id: FI-003-070
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: BoundingBox fields have no type annotations
+description: |
+  - **File**: `src/hamlet/viewport/coordinates.py:29-35`
+  - **Issue**: min_x, min_y, max_x, max_y defined without `: int` annotations.
+  - **Suggested fix**: Add `: int` to each field.
+file_path: cycles/003/findings/FI-003-070.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-051
+verdict: Fail
+content_hash: "350846ec79d5f242c5964759dbe380da3551346c594996dcc3a039df7b1744fc"
+token_count: 120

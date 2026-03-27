@@ -1,0 +1,18 @@
+id: FI-003-060
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: _config stored but never used
+description: |
+  - **File**: `src/hamlet/simulation/structure_updater.py:31`
+  - **Issue**: SimulationConfig is accepted in __init__ but no fields are read.
+  - **Resolution**: Intentional — config is available for future use (e.g., work_unit_scale). Out of scope for this work item.
+file_path: cycles/003/findings/FI-003-060.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-043
+verdict: Pass
+content_hash: "5aa92f6a09dd37a12a6f2fc894bf5ab7ace66960580679bddc0cf51a7598b561"
+token_count: 137

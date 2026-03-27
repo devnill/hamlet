@@ -1,0 +1,19 @@
+id: FI-012-011
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: critical
+title: `water_percentage_target` parameter implemented (FIXED)
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:1428-1523`
+  - **Issue**: The `water_percentage_target` acceptance criterion was initially not implemented.
+  - **Fix**: Added `_enforce_water_percentage()` method that adjusts water content to match target percentage by removing isolated water cells when over target, or expanding water bodies when under target. Integrated into the terrain pipeline at Step 10.
+  - **Impact**: Users can now control water percentage via the `water_percentage_target` parameter in `TerrainConfig`.
+file_path: cycles/012/findings/FI-012-011.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-255
+verdict: Pass
+content_hash: "1173e0cd95cb5548230120d2f4e872f3bf64aa74b69ba682224d6411704cc91e"
+token_count: 216

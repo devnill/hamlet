@@ -1,0 +1,18 @@
+id: FI-003-075
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `run_async` override drops parent keyword parameters
+description: |
+  - **File**: `src/hamlet/tui/app.py:132`
+  - **Issue**: Override doesn't accept `**kwargs` so parent parameters (headless, size, etc.) are silently ignored.
+  - **Suggested fix**: `async def run_async(self, **kwargs) -> None: await super().run_async(**kwargs)`.
+file_path: cycles/003/findings/FI-003-075.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-061
+verdict: Pass
+content_hash: "992a9ba53e10de6cfbe32c9fd8c1bb76555baa4ee9b3d13923fe77b870333a5e"
+token_count: 142

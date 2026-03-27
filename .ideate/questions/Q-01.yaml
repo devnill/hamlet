@@ -1,0 +1,14 @@
+id: Q-01
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: Animation Timing Constants
+cycle_created: 1
+cycle_modified: null
+content_hash: d7f393a472b4413473301aea08d7a4cb921f7420aeb1b1c87258352ccee7e542
+token_count: 66
+file_path: .ideate/questions/Q-01.yaml

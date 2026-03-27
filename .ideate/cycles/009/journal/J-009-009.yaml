@@ -1,0 +1,11 @@
+id: J-009-009
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 110: TESTER inference rules"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed (S1: added 5 TESTER detection tests covering happy path, 50% boundary, below threshold, no Bash events, unittest keyword; S2: updated _engine_with_window helper to populate input_log so TESTER refinement is exercised in all tests, not bypassed). 1 pre-existing broken test fixed (S3: test_infer_type_first_matching_rule_wins had wrong event counts — 7/12 < 0.6 threshold; fixed to 6 Read + 4 Task = 10 events where both RESEARCHER and ARCHITECT match). 1 minor finding fixed (M2: replaced str(tool_input) with dict.get("command") for cleaner keyword matching).
+content_hash: e639aa7f898ada30b2e5d1519d4a46260dc11ee3354b5718243076c7685bb8ce
+token_count: 196

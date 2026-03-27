@@ -1,0 +1,28 @@
+id: WI-073
+type: work_item
+title: Migration System
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/persistence/migrations.py` exists
+  - `MIGRATIONS` dict maps version number to SQL script
+  - "Migration 1 creates full schema: schema_version, projects, sessions, villages, agents, structures, event_log, world_metadata tables"
+  - "`async run_migrations(db: DatabaseConnection)` applies pending migrations"
+  - Reads current version from `schema_version` table
+  - Applies migrations in version order
+  - "Creates indexes: `idx_agents_village`, `idx_agents_session`, `idx_structures_village`, `idx_event_log_timestamp`, `idx_sessions_project`"
+  - Each migration is atomic (single transaction)
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 073
+  
+  Migrations are numbered starting at 1. Version 1 creates all tables and indexes. Future migrations add columns or tables. Each migration runs in a transaction. The schema_version table stores the highest applied migration number.
+cycle_created: 1
+cycle_modified: null
+content_hash: "80ef797facd027f43ff835ccae8c8568e87cd16db1c09504204e2c6d161978f6"
+token_count: 282
+file_path: .ideate/work-items/WI-073.yaml

@@ -1,0 +1,14 @@
+id: J-033-007
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 33
+title: "Work item 280: Detection, settings, CLI updates for Kitty"
+content: |
+  Status: complete with rework
+  Rework: 0 critical, 2 significant, 1 minor findings fixed from incremental review.
+  C1 (KittyApp not found) was a dependency timing issue — resolved by WI-281 creating app.py.
+  Significant: Added "kitty" to test_view_renderer_argument_choices; added tests for kitty code path in _view_command and main().
+  Minor: Fixed stale docstring in resolve_renderer.
+content_hash: "926f37e80838f799f4ed5597e35c46906afd4725e8db8239d1ef31a1194f51b5"
+token_count: 141

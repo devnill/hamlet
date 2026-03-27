@@ -1,0 +1,19 @@
+id: RM-017
+type: review_manifest
+cycle: 17
+content: |
+  # Review Manifest — Cycle 017
+  
+  ## Work Items
+  
+  | # | Title | File Scope | Incremental Verdict | Findings (C/S/M) | Work Item Path | Review Path |
+  |---|---|---|---|---|---|---|
+  | 283 | Parse API responses into dataclass objects in Kitty StateFetcher | src/hamlet/gui/kitty/state_fetcher.py (modify) | None | — | work-items.yaml#283 | — |
+  | 284 | Fix KittyApp dict access patterns to use dataclass attributes | src/hamlet/gui/kitty/app.py (modify) | None | — | work-items.yaml#284 | — |
+  | 285 | Kitty viewer functional integration tests with realistic API fixtures | tests/test_kitty_integration.py (create), tests/fixtures/daemon_state_response.json (create), tests/fixtures/daemon_events_response.json (create), tests/fixtures/daemon_terrain_response.json (create) | None | — | work-items.yaml#285 | — |
+  | 286 | Manual regression test — Kitty viewer end-to-end smoke test | (verification only) | None | — | work-items.yaml#286 | — |
+  
+  ## Notes
+  No incremental reviews were produced this cycle — work items were executed in the main session rather than via ideate:execute subagents.
+content_hash: "4debb66be06c27084d40121ad20cb10642d0779575c0454b93e7e659ff024873"
+token_count: 288

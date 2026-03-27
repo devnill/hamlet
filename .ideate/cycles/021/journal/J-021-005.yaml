@@ -1,0 +1,11 @@
+id: J-021-005
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 190: CLAUDE.md for the hamlet project"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed — updated hook script pattern section to document two variants (cwd-aware v0.4.0+ hooks vs original 4 hooks).
+content_hash: "22622beebad7aaaed4f28684c2026c152206c32f4733abfc57ee6604a474bd8e"
+token_count: 86

@@ -1,0 +1,18 @@
+id: FI-003-100
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `save_agent` used `project_id` but schema requires `village_id`
+description: |
+  - **File**: `src/hamlet/persistence/saver.py:63`
+  - **Issue**: `agents` table has `village_id` not `project_id`. Agent dataclass also lacked `village_id`.
+  - **Resolution**: Fixed — `village_id` field added to `Agent` dataclass; `WorldStateManager.get_or_create_agent` sets it from village; saver uses `agent.village_id`.
+file_path: cycles/003/findings/FI-003-100.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "316e8925b21bea9e176aa9c18792501964d639da9f84064ab46fbd2c9598805b"
+token_count: 161

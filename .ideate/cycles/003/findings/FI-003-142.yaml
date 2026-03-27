@@ -1,0 +1,19 @@
+id: FI-003-142
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `Any` used in `facade.py` but never imported
+description: |
+  - **File**: `src/hamlet/persistence/facade.py`
+  - **Issue**: `queue_write` and related methods use `Any` annotations throughout, but `from typing import Any` was absent. Under `from __future__ import annotations` annotations are lazy strings at runtime, so crashes are deferred — but mypy, pyright, and any runtime `get_type_hints()` call will fail.
+  - **Impact**: Static analysis broken; runtime inspection raises `NameError`.
+  - **Suggested fix**: Add `from typing import Any`.
+file_path: cycles/003/findings/FI-003-142.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-105
+verdict: Pass
+content_hash: a5106b5bafd95d71076100d085c473bfe95647c76c26e029e65beeddb5e0ddbc
+token_count: 196

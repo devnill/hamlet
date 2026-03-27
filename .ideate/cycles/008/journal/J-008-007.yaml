@@ -1,0 +1,11 @@
+id: J-008-007
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 8
+title: "Work item 095: Application Wiring and Orchestration"
+content: |
+  Status: complete
+  Modified __main__.py and app.py to wire all components: PersistenceFacade, WorldStateManager, MCPServer, EventProcessor, SimulationEngine, ViewportManager, HamletApp. Proper startup/shutdown order with graceful degradation (GP-7).
+content_hash: e4d29e1f5b8b252e0fafb89f946abb2bfaf1cd14173dd1850e661d9db60b87f3
+token_count: 105

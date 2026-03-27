@@ -1,0 +1,19 @@
+id: FI-008-023
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: `SessionStart` passes empty strings to `get_or_create_project` and `get_or_create_session` when fields are absent
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:732-737`
+  - **Issue**: `event.project_id or ""` and `event.project_name or ""` are passed verbatim. `get_or_create_project("")` will create a project with `id=""` and register it under the empty-string key. Subsequent events for real projects will not collide, but a phantom project and village with id `""` will pollute state and persist to SQLite. `get_or_create_session("", "")` has the same problem.
+  - **Impact**: Corrupt state if `SessionStart` events arrive without `project_id` populated (e.g., a malformed event). The phantom entities remain for the lifetime of the process and survive across restarts.
+  - **Suggested fix**: Add a guard before calling these helpers: if `not event.project_id` or `not event.session_id`, log a warning and skip the visual effect rather than creating empty-keyed entities.
+file_path: cycles/008/findings/FI-008-023.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: d2064a160c02deef2a5e50949c59215007e58977d682d99f166e2ea9d645c7e4
+token_count: 312

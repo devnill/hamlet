@@ -1,0 +1,11 @@
+id: J-008-013
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 8
+title: "Work item 108: Consolidate structure rules"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (C1: update_structure called with positional dict — changed to keyword arguments in structure_updater.py:42). 1 significant finding fixed (S1: replaced hardcoded fallback defaults with None guard + warning in manager.py create_structure and add_work_units). 2 minor findings fixed (M2: added re-export comment in config.py; M3 documented in code). Canonical location: world_state/rules.py (circular import prevention).
+content_hash: "67a228fd577910561d1dcf03ea98ff2067da5c99dbb94cf89c4a6a3d5f1837d9"
+token_count: 161

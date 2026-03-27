@@ -1,0 +1,15 @@
+id: F-017-076
+type: finding
+cycle: 17
+reviewer: spec-reviewer
+severity: minor
+title: TUI and Kitty per-item degradation granularity differs
+description: "`tui/remote_world_state.py:189-206` (`RemoteWorldState.refresh()`) calls `_parse_agent`, `_parse_structure`, `_parse_village` directly in list comprehensions without per-item exception handling. A single malformed item causes the outer `except Exception` block to fire, discarding the entire category. The Kitty `StateFetcher` uses `_try_parse` per item, so valid items survive even when a neighbor is malformed. This asymmetry is not a spec violation — WI-283 only required Kitty to implement graceful degradation, and the TUI was out of scope for this cycle."
+file_path: cycles/017/findings/F-017-076.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-017
+verdict: Pass
+content_hash: "8df7696ea4a69e9608ad23cfac0701da89b7a51eb44bdbdf66b4eff5518e35ab"
+token_count: 218

@@ -1,0 +1,13 @@
+id: P-12
+type: domain_policy
+domain: architecture
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: "Hook types that can interrupt Claude Code processing (PreToolUse, PreCompact) must not have `\"async\": true` in `hooks.json`. Setting async on a blocking hook causes a Claude Code load error. All other hook types are fire-and-forget and should use `\"async\": true`."
+cycle_created: 1
+cycle_modified: null
+content_hash: "5c066886abfa50e8ef981a7d5f1702f97a596e2df199a8460202d2862df67b0f"
+token_count: 126
+file_path: .ideate/policies/P-12.yaml

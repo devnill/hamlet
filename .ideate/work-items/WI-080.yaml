@@ -1,0 +1,111 @@
+id: WI-080
+type: work_item
+title: Persistence Layer Core Tests - Facade, Connection, Migrations
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File tests/test_persistence_facade.py exists with test class TestPersistenceFacade
+  - TestPersistenceFacade.test_start_initializes_all_components passes
+  - TestPersistenceFacade.test_stop_drains_queue_and_closes_connection passes
+  - TestPersistenceFacade.test_checkpoint_drains_and_wal_checkpoint passes
+  - TestPersistenceFacade.test_enqueue_write_adds_operation passes
+  - TestPersistenceFacade.test_enqueue_write_drops_when_full passes - verifies QueueFull silently dropped per GP-7
+  - File tests/test_persistence_connection.py exists with test class TestDatabaseConnection
+  - TestDatabaseConnection.test_context_manager_opens_wal_mode passes
+  - TestDatabaseConnection.test_transaction_lifecycle passes
+  - File tests/test_persistence_migrations.py exists with test class TestMigrations
+  - TestMigrations.test_run_migrations_creates_all_tables passes
+  - TestMigrations.test_run_migrations_idempotent passes
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 080 - Persistence Layer Core Tests
+  
+  ## Scope
+  
+  Test the persistence layer core: PersistenceFacade lifecycle, DatabaseConnection context manager, and migrations.
+  
+  ## Testing Patterns
+  
+  ### Async Database Tests
+  
+  Use `pytest-asyncio` with `@pytest.mark.asyncio` decorator. For database tests, use a temporary database file:
+  
+  ```python
+  @pytest.fixture
+  async def temp_db():
+      import tempfile
+      with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+          db_path = f.name
+      db = DatabaseConnection(db_path)
+      await db.__aenter__()
+      yield db
+      await db.__aexit__(None, None, None)
+      os.unlink(db_path)
+  ```
+  
+  ### Testing WAL Mode
+  
+  Verify `PRAGMA journal_mode` returns 'wal' after connection opens:
+  
+  ```python
+  await db.execute("PRAGMA journal_mode")
+  row = await db.fetchone()
+  assert row[0] == "wal"
+  ```
+  
+  ### Testing Transactions
+  
+  Verify begin_transaction/commit/rollback work:
+  
+  ```python
+  await db.begin_transaction()
+  await db.execute("INSERT ...")
+  await db.rollback()  # or commit()
+  # Verify state
+  ```
+  
+  ### Testing Facade Lifecycle
+  
+  Use mocks to avoid real database for facade tests:
+  
+  ```python
+  @pytest.fixture
+  def facade():
+      config = PersistenceConfig(db_path=":memory:")
+      return PersistenceFacade(config)
+  ```
+  
+  ### GP-7 Error Handling
+  
+  Verify errors are logged, not raised:
+  
+  ```python
+  with patch('hamlet.persistence.facade.logger') as mock_logger:
+      facade.enqueue_write(operation)  # When queue full
+      mock_logger.debug.assert_called()
+  ```
+  
+  ## Key Test Scenarios
+  
+  1. **Facade.start()** - Creates db, runs migrations, starts write loop
+  2. **Facade.stop()** - Drains queue, closes connection
+  3. **Facade.checkpoint()** - Joins queue, runs PRAGMA wal_checkpoint
+  4. **Connection.__aenter__** - Opens with WAL mode
+  5. **Connection transaction lifecycle** - begin, execute, commit/rollback
+  6. **Migrations** - Creates all tables, idempotent
+  
+  ## Dependencies
+  
+  - pytest
+  - pytest-asyncio
+  - aiosqlite (for integration tests)
+  - unittest.mock for mocking
+cycle_created: 1
+cycle_modified: null
+content_hash: "5b7e50047478c0ec2fa010080fcb5fb1ea3b763684830cb9c4ed268003df7c1c"
+token_count: 825
+file_path: .ideate/work-items/WI-080.yaml

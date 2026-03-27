@@ -1,0 +1,11 @@
+id: J-011-006
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 11
+title: "Work item 115: Village initialization"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (C1: _seed_initial_structures was called while holding self._lock, causing potential deadlock when create_structure re-acquires the lock — restructured both get_or_create_project and get_or_create_agent to set village_to_seed inside the lock then call _seed_initial_structures after the lock releases). 2 minor findings (M1, M2) noted in review, deferred.
+content_hash: f86d69963ef47e6416fca1003b51f4bd090a7cca663f63ed0fb497b056419f40
+token_count: 144

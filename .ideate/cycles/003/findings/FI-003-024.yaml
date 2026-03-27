@@ -1,0 +1,18 @@
+id: FI-003-024
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: Session inserted into state before spawn detection — new-session spawn never fires
+description: |
+  - **File**: `src/hamlet/inference/engine.py:61-67`
+  - **Issue**: `_handle_pre_tool_use` inserted the session into `state.sessions` before calling `_detect_spawn`. Inside `_detect_spawn`, the new-session branch (`if not session`) checked for a missing session — but the session was already present, so the branch was never taken. For brand-new sessions `active_tools == 0` also, so `_detect_spawn` always returned `None` via `_handle_pre_tool_use`. No primary agents were ever spawned.
+  - **Resolution**: Fixed — `_detect_spawn` now called before session insertion in `_handle_pre_tool_use`.
+file_path: cycles/003/findings/FI-003-024.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-023
+verdict: Fail
+content_hash: "231fedcd6797a2ab8370732ebe3b963239df64169277fe6b965ba917ef537c2f"
+token_count: 233

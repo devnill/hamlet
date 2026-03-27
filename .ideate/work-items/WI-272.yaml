@@ -1,0 +1,43 @@
+id: WI-272
+type: work_item
+title: Sprite asset system and PNG loading
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - SpriteManager with load_sprite, get_terrain_sprite, get_structure_sprite, get_agent_sprite, cleanup
+  - "Naming convention: terrain_{type}_{size}.png, structure_{type}_{stage}_{size}.png, agent_{type}_{frame}_{size}.png"
+  - Missing sprites return None without exceptions
+  - cleanup destroys all loaded ncvisuals
+  - assets/README.md documents naming conventions and palette constraints
+module: null
+domain: null
+notes: |
+  # WI-272: Sprite asset system and PNG loading
+  
+  ## Implementation Notes
+  
+  ### Naming convention
+  PNGs in `src/hamlet/gui/notcurses/assets/`:
+  - `terrain_{type}_{size}.png` (e.g., terrain_water_16.png)
+  - `structure_{type}_{stage}_{size}.png`
+  - `agent_{type}_{frame}_{size}.png`
+  
+  ### SpriteManager
+  - `load_sprite(path, w, h)` — calls `bindings.visual_from_file`, returns SpriteSheet (ncvisual=None on failure)
+  - `get_terrain_sprite(type, zoom)` — compute filename, cache lookup, load
+  - Missing sprites return None — no exceptions
+  - `cleanup()` — destroy all ncvisuals
+  
+  ### Graceful degradation
+  Core design principle: works with zero PNGs. Renderer falls back to characters.
+  
+  ### assets/README.md
+  Document naming conventions, size requirements (16x16 and 8x8), RGBA format, 16-32 color palette.
+cycle_created: 1
+cycle_modified: null
+content_hash: a72217959b4b7ad26795df672dac7a31dad0f812933a869f38f4f55fb847d571
+token_count: 370
+file_path: .ideate/work-items/WI-272.yaml

@@ -1,0 +1,13 @@
+id: P-07
+type: domain_policy
+domain: data-model
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: Any code path that calls `_seed_initial_structures` must first release `self._lock`. asyncio locks are not reentrant; `_seed_initial_structures` internally acquires the lock via `create_structure`, so calling it while holding the lock causes deadlock.
+cycle_created: 1
+cycle_modified: null
+content_hash: "821329b4e970e1375f70286bc5d1a396fcce45ea992d80df91d4218478e6db8f"
+token_count: 122
+file_path: .ideate/policies/P-07.yaml

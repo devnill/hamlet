@@ -1,0 +1,69 @@
+id: CS-008
+type: cycle_summary
+cycle: 8
+content: |
+  # Review Summary — Cycle 008
+  
+  ## Overview
+  
+  Cycle 008 reviews v0.4.0: 11 new hook scripts, hooks.json updated to 15 hook types, event schema and daemon extended for all new types, adaptive viewport resize, plugin install detection, and version bump. All eight work items passed incremental review after rework. The capstone identified two significant cross-cutting issues — both fixed before this verdict — and one significant test-coverage gap that remains open. The implementation is functionally complete; the remaining deferred items are quality and coverage concerns.
+  
+  **Verdict: Pass** (significant findings fixed during review; remaining significant gap deferred with documentation).
+  
+  ---
+  
+  ## Critical Findings
+  
+  None.
+  
+  ---
+  
+  ## Significant Findings
+  
+  - [code-reviewer] Five WI-180 hook scripts (`post_tool_use_failure.py`, `user_prompt_submit.py`, `pre_compact.py`, `post_compact.py`, `stop_failure.py`) omitted `os.chdir(cwd)` and called `find_server_url()`/`find_config()` from the wrong directory, producing wrong `project_id` in multi-project setups. **Fixed during review.** — relates to: P-6, WI-180
+  - [gap-analyst] `HOOK_SCRIPTS` dict in `install.py` listed only 4 of 15 hook types. Non-plugin users running `hamlet install` received no coverage of 11 new hooks; `hamlet uninstall` also failed to clean them up. **Fixed during review.** — relates to: WI-185, cross-cutting
+  
+  ---
+  
+  ## Minor Findings
+  
+  - [code-reviewer / spec-reviewer] `stop_failure.py` sends `"error"` as a nested object — borderline P-8 (flat params policy). Schema permits it; pipeline accepts it. Deferred. — relates to: P-8, WI-180
+  - [code-reviewer / spec-reviewer] Several `handle_event` branches in `manager.py` wrap infallible f-string assignments in `try/except`. Pattern adds noise without catching real errors. Deferred. — relates to: WI-183
+  - [gap-analyst] `is_plugin_active()` uses `"hamlet" in key.lower()` substring match — risk of false positive if another installed plugin contains "hamlet" in its key. Deferred. — relates to: WI-185
+  - [gap-analyst] `notification_type` field is declared in schema and sent by `notification.py` but not extracted in `event_processor.py` or stored in `InternalEvent`. Value silently discarded. Pre-existing from cycle 005. — relates to: cross-cutting
+  
+  ---
+  
+  ## Suggestions
+  
+  - [code-reviewer] Add a parametrized test over all 15 `HookType` values for `process_event` to catch future schema/enum divergence automatically.
+  - [gap-analyst] Add tests covering: each new HookType round-trips through `process_event`; `handle_event` for SessionStart, SessionEnd, SubagentStart, TaskCompleted; `on_resize` forwards dimensions to `viewport.resize`; `is_plugin_active` returns correct values for both JSON formats and the no-file case.
+  - [code-reviewer] Strengthen `is_plugin_active` match from substring to exact key or `installPath` contains `/hamlet/`.
+  
+  ---
+  
+  ## Findings Requiring User Input
+  
+  None — all findings can be resolved from existing context. The deferred items (M1 nested error object, M2 try/except pattern, notification_type, is_plugin_active match) are tracked as open questions in the decision log.
+  
+  ---
+  
+  ## Open Significant Gap: Test Coverage (Not Fixed)
+  
+  The 11 new `HookType` values, 11 new `handle_event` branches, `on_resize` handler, and `is_plugin_active` function have no tests. This was identified as S2 in the code-quality review and G2 in the gap analysis. It was not fixed this cycle because it spans multiple test files and requires non-trivial fixtures. It is the primary risk carried forward.
+  
+  **Impact**: Regressions in session/agent lifecycle, structure work accumulation, viewport resize, and plugin detection will not be caught automatically.
+  
+  ---
+  
+  ## Proposed Refinement Plan
+  
+  One significant gap (test coverage) warrants a focused refinement cycle if test coverage is a stated project requirement. Scope would be narrow:
+  
+  - WI-new-1: Add parametrized `process_event` tests for all 15 HookType values
+  - WI-new-2: Add `handle_event` branch tests for SessionStart, SessionEnd, SubagentStart, TaskCompleted
+  - WI-new-3: Add `on_resize` and `on_mount` viewport tests; add `is_plugin_active` tests
+  
+  If the project is pre-production and test coverage is acceptable to defer, no refinement cycle is required. The implementation meets all behavioral requirements. The existing test suite continues to cover pre-v0.4.0 functionality correctly.
+content_hash: ab7b62080cfa97cb1a5ae243fd715f7cc6bbf4a6e3cda348d4e354c073fbb930
+token_count: 1127

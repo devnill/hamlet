@@ -1,0 +1,18 @@
+id: FI-003-028
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `AgentType.EXECUTOR` does not exist in `world_state/types.AgentType`
+description: |
+  - **File**: `src/hamlet/world_state/types.py:10-18`
+  - **Issue**: `world_state/types.AgentType` had no `EXECUTOR` member (had `PLANNER` instead). The inference engine inferred `inference/types.AgentType.EXECUTOR` and passed it to `update_agent` which stores a value of the wrong enum class on `Agent.inferred_type` — a `world_state/types.AgentType` field. Any downstream comparison would silently never match.
+  - **Resolution**: Fixed — `EXECUTOR = "executor"` added to `world_state/types.AgentType`. Engine now imports `WSAgentType = world_state/types.AgentType` and converts via `WSAgentType(inferred.value)` before calling `update_agent`.
+file_path: cycles/003/findings/FI-003-028.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-024
+verdict: Fail
+content_hash: "77e7aeab87feb922594df40e3d368689f00315466eae1a4bca767313ec7c538a"
+token_count: 243

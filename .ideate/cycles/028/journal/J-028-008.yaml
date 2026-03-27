@@ -1,0 +1,11 @@
+id: J-028-008
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 28
+title: "Cycle 1 — Work item 238: Persistence integration for terrain seed"
+content: |
+  Status: complete
+  Verified terrain seed persistence. Added tests for seed generation, persistence call verification, existing seed restoration, and terrain determinism across restart simulation.
+content_hash: a3dc96792be3b0fb5a0eaef85b6e24bac45129ba86903c8c52662a05267a793c
+token_count: 94

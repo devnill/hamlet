@@ -1,0 +1,13 @@
+id: P-11
+type: domain_policy
+domain: architecture
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: When a new hook script is added, `HOOK_SCRIPTS` in `install.py` must be updated to include the new hook type and its script filename. The dict must match the entries in `hooks.json`. Non-plugin users rely on `hamlet install` to register hooks via settings.json; omissions cause silent degraded experience with no error.
+cycle_created: 1
+cycle_modified: null
+content_hash: da2669adb4914743c147d2ed768375dea9a5896018cc574b4ed0590456a9a570
+token_count: 139
+file_path: .ideate/policies/P-11.yaml

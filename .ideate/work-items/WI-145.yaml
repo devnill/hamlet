@@ -1,0 +1,69 @@
+id: WI-145
+type: work_item
+title: Add test coverage for new code
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - test_remote_state.py covers RemoteStateProvider start/stop/check_health (mock aiohttp)
+  - test_remote_world_state.py covers refresh, get_all_agents, get_animation_frame, get_event_log with fixture state dicts
+  - test_cli_daemon.py covers daemon_command flag parsing and --port override
+  - test_cli_init.py covers happy path (creates config), existing-config prompt cancel, EOFError branch
+  - test_tui_app.py updated to include ? toggle_help binding assertion
+module: null
+domain: null
+notes: |
+  # WI-145: Add test coverage for new code
+  
+  ## Context
+  All 13 work items from cycle 1 (WI-125 through WI-137) shipped with zero test coverage. This work item addresses the most critical gaps.
+  
+  ## Tests to Create
+  
+  ### `tests/test_remote_state.py`
+  Test `RemoteStateProvider`:
+  - `test_check_health_returns_true_on_200` — mock aiohttp GET returning 200
+  - `test_check_health_returns_false_on_exception` — mock raises ConnectionError
+  - `test_check_health_before_start_returns_false` — call check_health before start()
+  - `test_fetch_state_returns_dict` — mock GET /hamlet/state returning JSON
+  - `test_fetch_events_returns_list` — mock GET /hamlet/events returning {"events": [...]}
+  
+  ### `tests/test_remote_world_state.py`
+  Test `RemoteWorldState`:
+  - `test_get_all_agents_empty_before_refresh` — before refresh, returns []
+  - `test_get_all_agents_after_refresh` — mock provider, call refresh, check deserialized agents
+  - `test_get_animation_frame_returns_default` — unknown agent_id returns 0
+  - `test_get_animation_frame_returns_value` — known agent_id returns correct frame
+  - `test_get_event_log_returns_oldest_first` — [:limit] slicing
+  - `test_get_event_log_respects_limit` — returns at most N events
+  - `test_refresh_retains_stale_on_exception` — provider raises, cached state unchanged
+  
+  ### `tests/test_cli_daemon.py`
+  Test `daemon_command`:
+  - `test_daemon_parser_registered` — CLI parser includes "daemon" subcommand
+  - `test_daemon_port_override` — --port flag sets port correctly
+  
+  ### `tests/test_cli_init.py`
+  Test `init_command`:
+  - `test_init_creates_config` — creates .hamlet/config.json with project_id, project_name, server_url
+  - `test_init_does_not_overwrite_on_cancel` — existing config + user enters 'n' → no overwrite
+  - `test_init_overwrites_on_confirm` — existing config + user enters 'y' → new config written
+  - `test_init_eoferror_cancels` — non-interactive (EOFError) → no overwrite
+  
+  ### `tests/test_tui_app.py` (extend)
+  - Add `test_action_toggle_help` — `?` toggles HelpOverlay display
+  - Add `test_help_overlay_hidden_on_start` — HelpOverlay display is False initially
+  
+  ## Notes
+  - Follow existing test patterns in `tests/test_tui_app.py` for Textual app testing (use `app.run_test()`, `pilot.press()`)
+  - For CLI tests, follow pattern in `tests/test_cli_install.py` if it exists
+  - Mock aiohttp in Remote* tests using `unittest.mock.patch` or `pytest-mock`
+  - Tests should be runnable with `pytest tests/` from project root
+  - Read existing test files first to understand the testing patterns used
+cycle_created: 1
+cycle_modified: null
+content_hash: "63a463fb81c2051479bdc5d826c7bfe58aa7f35f8a0913831a677d7b79ea27a8"
+token_count: 823
+file_path: .ideate/work-items/WI-145.yaml

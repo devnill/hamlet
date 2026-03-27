@@ -1,0 +1,53 @@
+id: module_spec-event-processing
+type: module_spec
+name: Event Processing
+scope: |
+  This module owns the transformation of raw hook events into normalized internal events. It is responsible for:
+  
+  - Consuming raw events from the MCP server queue
+  - Normalizing event format and structure
+  - Adding sequence numbers and processing timestamps
+  - Enriching events with derived data (project context, session context)
+  - Routing normalized events to Agent Inference and World State modules
+  
+  This module is NOT responsible for:
+  
+  - Receiving events from network (MCP Server module)
+  - Inferring agent lifecycle (Agent Inference module)
+  - Storing or displaying events (World State module)
+provides:
+  - `EventProcessor` class — Main event processing pipeline
+  - - `async start()` — Begin consuming from queue
+  - - `async stop()` — Graceful shutdown
+  - "- `async process_event(raw: RawEvent) -> InternalEvent` — Transform single event"
+  - `InternalEvent` dataclass — Normalized event structure
+  - "- `id: str` — UUID"
+  - "- `sequence: int` — Monotonic sequence number"
+  - "- `received_at: datetime`"
+  - "- `session_id: str`"
+  - "- `project_id: str`"
+  - "- `project_name: str`"
+  - "- `hook_type: HookType`"
+  - "- `tool_name: str | None`"
+  - "- `tool_input: dict | None`"
+  - "- `tool_output: dict | None`"
+  - "- `success: bool | None`"
+  - "- `duration_ms: int | None`"
+  - "- `raw_payload: dict` — Original payload for debugging"
+  - `EventRouter` interface — Routes events to subscribers
+  - "- `subscribe(callback: EventCallback)` — Register event consumer"
+  - "- `unsubscribe(callback: EventCallback)` — Remove event consumer"
+requires:
+  - `asyncio.Queue` (standard library) — Input queue from MCP Server
+  - `RawEvent` (from MCP Server module) — Input event format
+  - `WorldState.update_session(session_id, project_id)` — Update session tracking
+  - `AgentInference.process_event(event)` — Infer agent state from events
+  - `Persistence.write_event(event)` — Persist event to log
+boundary_rules:
+  - "1. **No network I/O.** This module processes events in memory only. Network operations are in MCP Server."
+  - "2. **No state mutation except routing.** Events are transformed and routed; world state changes happen in World State module."
+  - "3. **Deterministic transformation.** Same raw event always produces same internal event. No randomness."
+  - "4. **Ordering guarantee.** Events are processed in order received. Sequence numbers are monotonic."
+  - "5. **Fail-fast on corruption.** If an event cannot be normalized, log error and discard. Do not crash the pipeline."
+content_hash: f30da4da244f93ba61424d631fde02d87927a7af6396528634b9aa7bbfdf0e85
+token_count: 627

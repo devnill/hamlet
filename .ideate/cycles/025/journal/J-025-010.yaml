@@ -1,0 +1,11 @@
+id: J-025-010
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 25
+title: "Cycle 3 — Work item 207: Fix _install idempotency guard and missing edge-case tests"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (service_command bare dict access removed → dispatch.get() with guard). 1 minor finding fixed (test assertion strengthened for already-running case).
+content_hash: "72a416ae0263b4816c67b5e1d02f10a9dd9442ce9e1e80dfb8fa99e5e5fc17d1"
+token_count: 104

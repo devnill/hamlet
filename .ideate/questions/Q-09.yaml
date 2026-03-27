@@ -1,0 +1,14 @@
+id: Q-09
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: Dual authoritative color maps will diverge silently
+cycle_created: 1
+cycle_modified: null
+content_hash: "31c7edb88225a2d9051c775bb36b6892ef8b0df1f1c75c81a8e62c2a37105c0c"
+token_count: 72
+file_path: .ideate/questions/Q-09.yaml

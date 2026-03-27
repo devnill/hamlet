@@ -1,0 +1,18 @@
+id: FI-003-132
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `Any` used in `facade.py` without import (pre-existing, out of scope)
+description: |
+  - **File**: `src/hamlet/persistence/facade.py`
+  - **Issue**: `queue_write` uses `Any` type annotations but `Any` is never imported from `typing`. Pre-existing defect, not introduced by this work item.
+  - **Suggested fix**: Add `from typing import Any` to facade.py imports (addressed by work item 105 rework).
+file_path: cycles/003/findings/FI-003-132.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-101
+verdict: Pass
+content_hash: "9ae7c0d124b657d9ea22aecd4f9d5d2a3fdbd29189baeafc0c87328c43c66e31"
+token_count: 159

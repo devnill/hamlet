@@ -1,0 +1,64 @@
+id: WI-187
+type: work_item
+title: Test coverage — event pipeline round-trip for all 15 HookType values
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - tests/test_event_processor.py contains a parametrized test covering all 15 HookType values via process_event()
+  - Each parametrized case asserts InternalEvent.hook_type matches the expected HookType enum member
+  - tests/test_world_state_manager.py contains a test for handle_event() with HookType.SessionStart that verifies get_or_create_project and get_or_create_session are called
+  - tests/test_world_state_manager.py contains a test for handle_event() with HookType.SessionEnd that verifies agents in that session have state == AgentState.IDLE
+  - tests/test_world_state_manager.py contains a test for handle_event() with HookType.SubagentStart that verifies get_or_create_agent is called
+  - tests/test_world_state_manager.py contains a test for handle_event() with HookType.TaskCompleted that verifies add_work_units is called
+  - pytest tests/test_event_processor.py tests/test_world_state_manager.py passes with no failures
+module: null
+domain: null
+notes: |
+  # WI-187: Test coverage — event pipeline round-trip for all 15 HookType values
+  
+  ## Context
+  
+  WI-182 extended the HookType enum to 15 values and WI-183 added 11 new handle_event() branches. None of these are covered by tests. This work item adds the missing coverage.
+  
+  ## test_event_processor.py additions
+  
+  Add a parametrized test using `@pytest.mark.parametrize` over all 15 HookType string values. For each, construct a minimal raw dict with required fields (`session_id`, `project_id`, `hook_type`, `timestamp`) plus relevant optional fields. Call `process_event(raw)` and assert `event.hook_type == HookType.<member>`.
+  
+  Existing test file uses `AsyncMock` fixtures and `pytest-asyncio`. Follow the same pattern.
+  
+  Optional fields to include per type:
+  - PreToolUse/PostToolUse: `tool_name`, `tool_input`
+  - Notification: `notification_message`
+  - Stop: `stop_reason`
+  - SessionStart: `source`
+  - SessionEnd: `reason`
+  - SubagentStart/SubagentStop: `agent_id`, `agent_type`
+  - TeammateIdle: `task_id`, `task_subject`, `teammate_name`
+  - TaskCompleted: `task_id`, `task_subject`, `task_description`, `teammate_name`
+  - PostToolUseFailure: `tool_name`, `is_interrupt`
+  - UserPromptSubmit: `prompt`
+  - StopFailure: `error`
+  
+  ## test_world_state_manager.py additions
+  
+  The existing test file uses a `mock_persistence` fixture. Reuse it. Construct `InternalEvent` directly (not via process_event) for these tests.
+  
+  **SessionStart test**: Create an InternalEvent with `hook_type=HookType.SessionStart`, `project_id="p1"`, `project_name="P1"`, `session_id="s1"`. Call `await manager.handle_event(event)`. Assert `manager.get_projects()` contains `"p1"` and `manager.get_all_agents()` is empty (no agents created yet).
+  
+  **SessionEnd test**: First create a session and an agent via `get_or_create_session("s1", "p1")` and `get_or_create_agent("a1", "s1", "p1")`. Then dispatch `HookType.SessionEnd` event with `session_id="s1"`. After, assert all agents with `session_id == "s1"` have `state == AgentState.IDLE`.
+  
+  **SubagentStart test**: Dispatch `HookType.SubagentStart` event with `session_id="s1"`, `agent_id="a1"`, `agent_type="coder"`. Assert `manager.get_all_agents()` contains an agent with `id="a1"`.
+  
+  **TaskCompleted test**: Create a project, village, session, and agent. Ensure the agent has a `village_id`. Dispatch `HookType.TaskCompleted` event. Assert `add_work_units` is called (check structures changed or directly spy on the method).
+  
+  ## Note on HookType.SessionStart guard
+  
+  The manager.handle_event SessionStart branch guards with `if event.project_id and event.session_id:`. Ensure test provides non-empty values for both or the entities won't be created.
+cycle_created: 1
+cycle_modified: null
+content_hash: e756d952ecdbe2911f5b242c3660b5830d527933b04ca9601b0e8654e321e399
+token_count: 993
+file_path: .ideate/work-items/WI-187.yaml

@@ -1,0 +1,62 @@
+id: WI-278
+type: work_item
+title: Kitty renderer implementation
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - KittyRenderer satisfies RendererProtocol (render_frame + cleanup methods)
+  - Constructor accepts output IO[str], cols, rows, optional symbol_config and sprite_manager
+  - "render_frame renders in layer order: clear, terrain, structures, agents, HUD"
+  - Structure rendering uses symbols.get(struct.type, "?") — ROAD and all types render without KeyError (fixes Q-10)
+  - Terrain rendering handles both empty and populated terrain_data without error (fixes Q-11)
+  - Agent rendering uses SymbolConfig colors; zombie agents use zombie_color
+  - _RICH_TO_RGB dict maps all 13 Rich color names to RGB tuples
+  - "At FAR zoom: entities rendered as characters via ANSI escape sequences"
+  - "At MEDIUM/CLOSE zoom: sprite blitting attempted, falls back to characters when sprite is None"
+  - Status bar on row 0, event log on bottom 5 rows
+  - Tests verify render with empty data, ROAD structure, terrain data, zombie agent
+module: null
+domain: null
+notes: |
+  # WI-278: Kitty renderer implementation
+  
+  ## Context
+  Implements `RendererProtocol` using terminal escape sequences. Fixes Q-10 (ROAD symbol) and Q-11 (terrain rendering).
+  
+  ## Output model
+  Writes escape sequences to `IO[str]` (sys.stdout in prod, StringIO in tests).
+  
+  ### Cursor positioning
+  - Home: `\x1b[H`
+  - Position: `\x1b[{row};{col}H` (1-based)
+  - FG color: `\x1b[38;2;{r};{g};{b}m`
+  - BG color: `\x1b[48;2;{r};{g};{b}m`
+  - Reset: `\x1b[0m`
+  
+  ## Layer order
+  1. Clear screen
+  2. Terrain background (terrain_data items → world_to_screen → symbol + color)
+  3. Structures (SymbolConfig with `.get(type, "?")` fallback — **fixes Q-10**)
+  4. Agents (@ symbol, type color, zombie_color for zombie state)
+  5. HUD: status bar (row 0), event log (bottom 5 rows)
+  
+  ## Zoom behavior
+  - `FAR`: Characters via ANSI escape sequences
+  - `MEDIUM`/`CLOSE`: Attempt sprite blit via `encode_image_display`. If sprite_manager is None or sprite not found, fall back to character rendering
+  
+  ## _RICH_TO_RGB
+  Port the 13-entry color map from notcurses renderer: cyan, yellow, orange1, dark_green, magenta, blue, white, green, red, grey50, grey85, dark_orange, chartreuse.
+  
+  ## Testing
+  Use `io.StringIO` as output. After render_frame, read string and verify:
+  - No KeyError for ROAD structures
+  - Forest terrain symbol appears when terrain_data provided
+  - Zombie agent uses green color
+cycle_created: 1
+cycle_modified: null
+content_hash: "00d3d4b63ceaf3df57f73516d85580560771a1059afe941ceeea888cc4604023"
+token_count: 642
+file_path: .ideate/work-items/WI-278.yaml

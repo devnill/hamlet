@@ -1,0 +1,13 @@
+id: D-19
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: KittyApp fetches state in-process via urllib; no subprocess isolation
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "720a7844c879953e90861b34b3862c2a647ff35ced586ca3d90a9ebc80fd4757"
+token_count: 73
+file_path: .ideate/decisions/D-19.yaml

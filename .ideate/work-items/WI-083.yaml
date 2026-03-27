@@ -1,0 +1,130 @@
+id: WI-083
+type: work_item
+title: Simulation Engine Core Tests - Engine, AgentUpdater, StructureUpdater
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File tests/test_simulation_engine.py exists with test class TestSimulationEngine
+  - TestSimulationEngine.test_start_creates_background_task passes
+  - TestSimulationEngine.test_tick_increments_tick_count passes
+  - TestSimulationEngine.test_tick_calls_agent_updater passes
+  - TestSimulationEngine.test_tick_error_in_handler_logged continues - GP-7
+  - File tests/test_agent_updater.py exists with test class TestAgentUpdater
+  - TestAgentUpdater.test_active_agent_stays_active passes
+  - TestAgentUpdater.test_idle_agent_after_60_seconds passes
+  - TestAgentUpdater.test_zombie_agent_after_threshold passes
+  - File tests/test_structure_updater.py exists with test class TestStructureUpdater
+  - TestStructureUpdater.test_stage_advances_at_threshold passes
+  - TestStructureUpdater.test_material_updates_with_stage passes
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 083 - Simulation Engine Core Tests
+  
+  ## Scope
+  
+  Test SimulationEngine tick loop and lifecycle, AgentUpdater state transitions, StructureUpdater stage advancement.
+  
+  ## Testing Patterns
+  
+  ### SimulationEngine Tests
+  
+  Mock WorldStateManager and other dependencies:
+  
+  ```python
+  @pytest.fixture
+  def engine():
+      world_state = Mock()
+      world_state._state.agents = {}
+      world_state._state.structures = {}
+      return SimulationEngine(world_state)
+  ```
+  
+  Test lifecycle:
+  
+  ```python
+  async def test_start():
+      await engine.start()
+      assert engine._task is not None
+      assert engine._state.running
+  
+  async def test_stop():
+      await engine.start()
+      await engine.stop()
+      assert engine._task is None
+      assert not engine._state.running
+  ```
+  
+  Test tick behavior:
+  
+  ```python
+  async def test_tick():
+      with patch.object(engine, '_agent_updater') as mock_updater:
+          await engine._tick()
+          mock_updater.update_agents.assert_called_once()
+  ```
+  
+  Test error handling (GP-7):
+  
+  ```python
+  async def test_tick_error_continues():
+      engine._agent_updater.update_agents.side_effect = Exception("boom")
+      await engine._tick()  # Should not raise
+      # Verify engine still running
+  ```
+  
+  ### AgentUpdater Tests
+  
+  Test state transitions:
+  
+  ```python
+  def test_active_stays_active():
+      agent = Mock()
+      agent.last_seen = datetime.now(UTC)
+      agent.state = AgentState.ACTIVE
+  
+      updater.update_agents([agent], world_state)
+      assert agent.state == AgentState.ACTIVE
+  
+  def test_idle_after_threshold():
+      agent.last_seen = datetime.now(UTC) - timedelta(seconds=61)
+      agent.state = AgentState.ACTIVE
+  
+      updater.update_agents([agent], world_state)
+      assert agent.state == AgentState.IDLE
+  ```
+  
+  ### StructureUpdater Tests
+  
+  Test stage advancement:
+  
+  ```python
+  def test_stage_advance():
+      structure = Mock()
+      structure.stage = 0
+      structure.work_units = 100  # Threshold for house
+      structure.type = StructureType.HOUSE
+  
+      updater.update_structures([structure], world_state)
+      assert structure.stage == 1
+      assert structure.material == "stone"
+  ```
+  
+  ## Key Test Scenarios
+  
+  1. **Engine lifecycle** - Start, stop, task management
+  2. **Tick loop** - Calls all updaters
+  3. **Tick errors** - Logged, continue (GP-7)
+  4. **Agent state transitions** - Active -> Idle -> Zombie
+  5. **Agent timing** - Thresholds respected
+  6. **Structure stage advance** - At thresholds
+  7. **Structure material** - Updates with stage
+  8. **Structure complete** - Stage 3 no change
+cycle_created: 1
+cycle_modified: null
+content_hash: "96f0c1be43eb9ec00d7e4c438f548690fd7644ba1d0708f7fa72c15739db310d"
+token_count: 928
+file_path: .ideate/work-items/WI-083.yaml

@@ -1,0 +1,13 @@
+id: D-14
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 16
+supersedes: null
+description: Three zoom levels in notcurses renderer with blitter modes
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: f974498a01310c5442dddac22ea55e4aa220fc3b4193648aa7fd7b722cc54770
+token_count: 70
+file_path: .ideate/decisions/D-14.yaml

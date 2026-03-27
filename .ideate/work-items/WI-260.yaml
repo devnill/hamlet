@@ -1,0 +1,42 @@
+id: WI-260
+type: work_item
+title: Update Settings Docstring
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Docstring shows complete TerrainConfig example with all parameters
+  - Or docstring includes note pointing to TerrainConfig for full parameter list
+module: null
+domain: null
+notes: |
+  # WI-260: Update Settings Docstring
+  
+  ## Objective
+  Update the Settings class docstring to reflect current TerrainConfig parameters.
+  
+  ## Finding Addressed
+  S3: Settings docstring shows incomplete default configuration, missing new terrain parameters.
+  
+  ## File Scope
+  - `src/hamlet/config/settings.py` — Settings class docstring
+  
+  ## Implementation Notes
+  The docstring example at lines 13-34 shows an incomplete terrain configuration.
+  
+  Options:
+  1. Add all TerrainConfig parameters to the docstring example
+  2. Add a note that the terrain config accepts many more parameters (see TerrainConfig)
+  
+  Recommended: Option 2 — keeps docstring concise while pointing users to full parameter list.
+  
+  ## Acceptance Criteria
+  - Docstring shows complete terrain configuration example OR
+  - Docstring includes note pointing to TerrainConfig for full parameter list
+cycle_created: 1
+cycle_modified: null
+content_hash: d0e3f2b0728991bb05f8a6a8a0071343c81ea05877a0a4e1f4b34d5a07c18458
+token_count: 322
+file_path: .ideate/work-items/WI-260.yaml

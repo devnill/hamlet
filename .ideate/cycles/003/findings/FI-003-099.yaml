@@ -1,0 +1,18 @@
+id: FI-003-099
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `save_session` used `agent_ids` instead of `agent_ids_json`
+description: |
+  - **File**: `src/hamlet/persistence/saver.py:49`
+  - **Issue**: Schema column is `agent_ids_json TEXT NOT NULL`. Raw list stored without serialization.
+  - **Resolution**: Fixed — key renamed to `agent_ids_json`, value JSON-serialized with `json.dumps()`.
+file_path: cycles/003/findings/FI-003-099.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "3091819f10b74495b91fd6d89f93fc321edd41afb287482828d62aa27191acd9"
+token_count: 143

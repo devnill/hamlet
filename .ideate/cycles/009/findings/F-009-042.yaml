@@ -1,0 +1,18 @@
+id: F-009-042
+type: finding
+cycle: 9
+reviewer: code-reviewer
+severity: minor
+title: Dual IDLE transition is idempotent but redundant
+description: |
+  - **File**: `src/hamlet/inference/engine.py:363-383` and `src/hamlet/world_state/manager.py:879-893`
+  - **Issue**: For `stop_reason in ("tool", "stop")`, both `AgentInferenceEngine._handle_stop` and `WorldStateManager.handle_event` call `update_agent(agent_id, state=AgentState.IDLE)`. Both calls are correct individually, but the work is done twice per event.
+  - **Suggested fix**: Consider removing the Stop IDLE-marking from `WorldStateManager.handle_event` and letting the engine be the sole owner — but this requires the work item spec to be updated, since criterion 3 explicitly requires the manager path. Defer.
+file_path: cycles/009/findings/F-009-042.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-009
+verdict: Pass
+content_hash: "22e1decfa27bc5d7599fa8558d5df272052f7a33916b1ce4106a65b1011c55c1"
+token_count: 232

@@ -1,0 +1,23 @@
+id: WI-257
+type: work_item
+title: Terrain Smoothing and Transition Rules
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - CA smoothing rules apply to all terrain types (not just water/mountain)
+  - Forests expand into adjacent passable terrain with 5+ forest neighbors
+  - Isolated forests (fewer than 2 forest neighbors) contract to meadow
+  - Transition rules create gradual boundaries between similar biomes
+  - Sharp boundaries occur where appropriate (water/land)
+  - Smoothing passes configurable via parameter
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: eb5e541322a6926d777e86faada29d76299782c3e617253107a86ac462d684e6
+token_count: 171
+file_path: .ideate/work-items/WI-257.yaml

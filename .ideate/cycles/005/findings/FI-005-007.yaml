@@ -1,0 +1,18 @@
+id: FI-005-007
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: Dead module-level SERVER_URL constant in all four hooks
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/pre_tool_use.py:12`, `/Users/dan/code/hamlet/hooks/post_tool_use.py:12`, `/Users/dan/code/hamlet/hooks/notification.py:11`, `/Users/dan/code/hamlet/hooks/stop.py:11`
+  - **Issue**: `SERVER_URL = "http://localhost:8080/hamlet/event"` is present in all four files but is never referenced anywhere after this work item's changes. `main()` uses the local `server_url` returned by `find_server_url()`. The constant is dead code and a future reader could be confused about which value is actually used.
+  - **Suggested fix**: Remove the `SERVER_URL` module-level constant from all four hook files.
+file_path: cycles/005/findings/FI-005-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-121
+verdict: Pass
+content_hash: "3beaeb769260c8684af2cf21138b8d58714d5ba326acf0af1cac7b9528f9a859"
+token_count: 236

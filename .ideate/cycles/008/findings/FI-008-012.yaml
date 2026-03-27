@@ -1,0 +1,18 @@
+id: FI-008-012
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: No tests cover any of the 11 new hook type values in validation
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_mcp_validation.py`
+  - **Issue**: All three tests in `TestValidation` use only `"PreToolUse"` as the `hook_type`. None of the 11 new enum values (e.g. `SessionStart`, `SubagentStart`, `UserPromptSubmit`) are validated against the schema. A typo in the enum list at `validation.py:29` for any new value would not be caught.
+  - **Suggested fix**: Add a parameterised test over all 15 enum values asserting `result.valid is True`, and one asserting `result.valid is False` for an invalid value. A simple `@pytest.mark.parametrize("hook_type", [m.value for m in HookType])` pattern would suffice.
+file_path: cycles/008/findings/FI-008-012.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-182
+verdict: Pass
+content_hash: af1ce0843c6983f5e19666f8f06cab40d54400c73c53f03116c72f020635ddbb
+token_count: 240

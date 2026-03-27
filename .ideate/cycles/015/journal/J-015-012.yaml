@@ -1,0 +1,11 @@
+id: J-015-012
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 151: Add POST /hamlet/event endpoint"
+content: |
+  Status: complete
+  Already implemented — POST endpoint and hooks already using HTTP POST correctly.
+content_hash: be427cf865d00bed4b9b8c1c8d16f3883b5cd565f554bbe8edf564e0531b2e96
+token_count: 68

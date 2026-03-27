@@ -1,0 +1,61 @@
+id: WI-213
+type: work_item
+title: Fix daemon error message and CLI port hardcoding
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - The error message at `__main__.py` viewer health-check failure path says "hamlet daemon" not "hamlet"
+  - "`cli/__init__.py` `view` parser `--url` default reads from Settings: default is `f\"http://localhost:{settings.mcp_port}\"`"
+  - `_view_command` in `cli/__init__.py` loads Settings and uses `settings.mcp_port` when `--url` is not provided
+  - `main()` fallback path in `cli/__init__.py` (no subcommand) loads Settings and uses `settings.mcp_port` to construct the base URL
+  - Existing CLI tests pass; a new test asserts `hamlet view` (no --url) uses settings.mcp_port, not hardcoded 8080
+module: null
+domain: null
+notes: |
+  # WI-213 Implementation Notes
+  
+  ## Context
+  
+  Two related user-facing correctness issues identified in Cycle 5 gap analysis:
+  
+  1. **Wrong error message**: `src/hamlet/__main__.py:115` says "Start the daemon first with: hamlet" but `hamlet` (no args) launches the *viewer*, not the daemon. The daemon requires `hamlet daemon`.
+  
+  2. **Hardcoded port in CLI**: `src/hamlet/cli/__init__.py` has three locations that hardcode `http://localhost:8080`:
+     - Line 102: `view` parser `--url` default
+     - Line 145: `_view_command` fallback
+     - Line 170: `main()` no-subcommand fallback
+  
+     `__main__.py:149` already correctly reads `settings.mcp_port` — the CLI wrappers do not.
+  
+  ## Fix
+  
+  ### `__main__.py`
+  
+  Change line 115 from:
+  ```python
+  "       Start the daemon first with: hamlet",
+  ```
+  to:
+  ```python
+  "       Start the daemon first with: hamlet daemon",
+  ```
+  
+  ### `cli/__init__.py`
+  
+  The `view` parser default and the two code paths need to load `Settings` and use `settings.mcp_port`.
+  
+  For the `view` parser, the `--url` default should not be hardcoded at parse time. Instead, load Settings in `_view_command` and use `settings.mcp_port` when `--url` was not explicitly provided. One approach: keep the argparse default as `None`, then resolve in `_view_command`.
+  
+  For `main()` fallback (line 170): load Settings and construct the URL.
+  
+  ## Caution
+  
+  Loading `Settings` eagerly in `main()` will import hamlet's config machinery on every CLI invocation. This is acceptable — settings loading is already done on daemon startup. But keep the import deferred inside the function to avoid import-time side effects.
+cycle_created: 1
+cycle_modified: null
+content_hash: "4d782b49bc01f925772d3f72e193519ebc59bb2c7b73454e971238686d6f087f"
+token_count: 633
+file_path: .ideate/work-items/WI-213.yaml

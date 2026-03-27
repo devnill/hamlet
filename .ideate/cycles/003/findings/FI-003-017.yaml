@@ -1,0 +1,18 @@
+id: FI-003-017
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `PendingTool` missing `session_id`, `started_at`, `estimated_agent_id` fields
+description: |
+  - **File**: `src/hamlet/inference/types.py:42`
+  - **Issue**: Architecture spec defines five fields; implementation had three with a non-spec `timestamp` field instead of `started_at`. `estimated_agent_id` is load-bearing for correlating PostToolUse back to an agent.
+  - **Resolution**: Fixed — `session_id` added as required field, `timestamp` renamed to `started_at`, `estimated_agent_id: str | None = None` added.
+file_path: cycles/003/findings/FI-003-017.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-021
+verdict: Fail
+content_hash: "2993d28558877c7acd5a45e20455d580972c640b9d1a9ae3851f88f250f38949"
+token_count: 188

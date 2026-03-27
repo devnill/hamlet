@@ -1,0 +1,17 @@
+id: FI-003-156
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Re-export in simulation/config.py not documented
+description: |
+  - **File**: `src/hamlet/simulation/config.py:6`
+  - **Suggested fix**: Add comment: `# Re-exported; consumers may import STRUCTURE_RULES from simulation.config`
+file_path: cycles/003/findings/FI-003-156.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-108
+verdict: Pass
+content_hash: c041a5e819e8803777ad517393352baf10d29de8e537048ddd512bfaf98d968f
+token_count: 116

@@ -1,0 +1,19 @@
+id: FI-003-135
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `settings.tick_rate` ignored in `SimulationConfig()` construction
+description: |
+  - **File**: `src/hamlet/__main__.py:90`
+  - **Issue**: `SimulationConfig()` constructed with defaults only. `Settings.tick_rate` is already loaded and available. `SimulationConfig` accepts `tick_rate` as constructor arg. User-configured tick rate is always overridden to 30.0 fps.
+  - **Impact**: Violates acceptance criterion 2 ("using settings values where available").
+  - **Suggested fix**: `SimulationConfig(tick_rate=settings.tick_rate)`.
+file_path: cycles/003/findings/FI-003-135.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-103
+verdict: Pass
+content_hash: "9f6c99543662c66d5f4ac091ac7ebbc9171a05a603e45fd6425a18c096e5a6b8"
+token_count: 193

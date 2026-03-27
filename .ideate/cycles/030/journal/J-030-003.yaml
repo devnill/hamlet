@@ -1,0 +1,11 @@
+id: J-030-003
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 30
+title: "Cycle 2 — Work item 248: Document Ridge Boundary Behavior"
+content: |
+  Status: complete
+  Added clarifying comment at terrain.py:974-977 explaining that ridge positions extending outside bounds are truncated at the boundary. Comment explains the `if pos in terrain` check ensures only positions within bounds are marked as MOUNTAIN.
+content_hash: "3d6a2f15c848ed5f39a1eb1900235afa7f7c0a0b040132c672bbc350ecff4341"
+token_count: 109

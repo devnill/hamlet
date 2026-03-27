@@ -1,0 +1,20 @@
+id: F-008-033
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `stop_failure.py` sends nested `error` object — borderline P-8
+description: |
+  - **File**: `hooks/stop_failure.py:29–32`
+  
+  - **Issue**: The `params` dict contains `"error": {"type": ..., "reason": ...}` — a nested sub-object. Policy P-8 specifies "flat params format (no nested 'data' sub-object)". The schema in `validation.py:49` explicitly permits `"error": {"type": ["object", "null"]}` and `InternalEvent` stores it as `dict[str, Any] | None`, so the pipeline accepts it. However, this is the only hook that sends a nested value other than `tool_input`/`tool_output`. If the policy intent covers all nested structures, this is a violation; at minimum it is undocumented asymmetry.
+  
+  - **Suggested fix**: Either flatten the error into `error_type` and `error_reason` top-level params and update the schema and `InternalEvent` accordingly, or add an explicit comment citing why nested `error` is permitted as an exception to P-8.
+file_path: cycles/008/findings/F-008-033.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-008
+verdict: Fail
+content_hash: d472ccacbb809b75a0ec586962a40ed184ac95a098a11f3c424247881e6d0f1d
+token_count: 298

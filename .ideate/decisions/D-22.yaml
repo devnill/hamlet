@@ -1,0 +1,13 @@
+id: D-22
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: All dict-access patterns removed from KittyApp after StateFetcher typed correctly
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: c9f521b820154d9d92090e2dd29765c7d4ed1900f658b5ecd252c0bb537f9cc9
+token_count: 76
+file_path: .ideate/decisions/D-22.yaml

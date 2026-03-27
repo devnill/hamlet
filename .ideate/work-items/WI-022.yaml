@@ -1,0 +1,26 @@
+id: WI-022
+type: work_item
+title: Agent Inference Engine Skeleton
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `AgentInferenceEngine` class in `src/hamlet/inference/engine.py`
+  - `__init__` accepts `world_state` dependency
+  - "`async process_event(event: InternalEvent)` routes to hook-type handlers"
+  - `_handle_pre_tool_use`, `_handle_post_tool_use`, `_handle_notification`, `_handle_stop` placeholder methods
+  - `get_inference_state()` returns current state
+  - Module exports `AgentInferenceEngine`
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 022
+  
+  Define WorldState protocol for type hints. Placeholder handlers will be implemented in subsequent work items.
+cycle_created: 1
+cycle_modified: null
+content_hash: a0bbe14fe982814d21f92017703109abb5b2d80e01663c0e4f4ba09c2f30816b
+token_count: 203
+file_path: .ideate/work-items/WI-022.yaml

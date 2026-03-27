@@ -1,0 +1,13 @@
+id: J-025-001
+type: journal_entry
+phase: refine
+date: "2026-03-20"
+cycle_created: 25
+title: Metrics summary (refine-11)
+content: |
+  Agents spawned: 1 (architect)
+  Total wall-clock: ~245s
+  Models used: opus (architect)
+  Slowest agent: architect — 245057ms
+content_hash: "840e5d596dad570746b749f84c86a19ea83c044d24213974c350a24fa6a446b7"
+token_count: 67

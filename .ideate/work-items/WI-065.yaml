@@ -1,0 +1,28 @@
+id: WI-065
+type: work_item
+title: EventLog Widget
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/tui/event_log.py` exists
+  - `EventLog` class inherits from `textual.widgets.Static`
+  - "Reactive property: `events` (list of EventLogEntry)"
+  - "Reactive property: `max_lines` (default 5)"
+  - "`render()` method formats events as \"[HH:MM:SS] summary\" lines"
+  - Shows most recent `max_lines` events
+  - Auto-scrolls to show latest (most recent at bottom)
+  - Empty state shows "No events" message
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 065
+  
+  Events are formatted with timestamp as HH:MM:SS. The main app updates `events` reactive property from World State. Textual automatically re-renders when reactive properties change. Display newest events at the bottom of the log.
+cycle_created: 1
+cycle_modified: null
+content_hash: "68082788eea36b5ab904888d8cebf4fbafebe4b60aa9fa1cba4538dd30d3d392"
+token_count: 233
+file_path: .ideate/work-items/WI-065.yaml

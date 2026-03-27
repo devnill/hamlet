@@ -1,0 +1,89 @@
+id: WI-117
+type: work_item
+title: Move TOOL_TO_STRUCTURE to world_state/rules.py
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - TOOL_TO_STRUCTURE dict is defined in src/hamlet/world_state/rules.py
+  - TOOL_TO_STRUCTURE is added to __all__ in world_state/rules.py
+  - inference/engine.py imports TOOL_TO_STRUCTURE from world_state.rules (not defined locally)
+  - "The local TOOL_TO_STRUCTURE definition at engine.py:28-35 is removed"
+  - All StructureType references in TOOL_TO_STRUCTURE use the world_state.types.StructureType enum
+module: null
+domain: null
+notes: |
+  # WI-117: Move TOOL_TO_STRUCTURE to world_state/rules.py
+  
+  ## Context
+  
+  WI-108 (Cycle 003) claimed to consolidate structure rules into `world_state/rules.py`. It moved `STRUCTURE_RULES` and `STRUCTURE_WORK_REQUIRED` successfully but left `TOOL_TO_STRUCTURE` as a local module-level dict in `inference/engine.py:28-35`. This violates GP-4 (Modularity): the canonical location for structure mappings is `world_state/rules.py`, not the inference engine.
+  
+  ## Current state
+  
+  `inference/engine.py:28-35`:
+  ```python
+  TOOL_TO_STRUCTURE: dict[str, str] = {
+      "Read": "library",
+      "Write": "workshop",
+      "Edit": "workshop",
+      ...
+  }
+  ```
+  
+  `world_state/rules.py`:
+  ```python
+  __all__ = ["STRUCTURE_RULES"]
+  
+  STRUCTURE_RULES = {
+      StructureType.LIBRARY: {...},
+      ...
+  }
+  ```
+  
+  ## Fix
+  
+  **Step 1**: In `world_state/rules.py`, add the `TOOL_TO_STRUCTURE` dict. It must reference `StructureType` enum values (from `world_state.types`), not raw strings:
+  
+  ```python
+  from .types import StructureType
+  
+  TOOL_TO_STRUCTURE: dict[str, StructureType] = {
+      "Read": StructureType.LIBRARY,
+      "Glob": StructureType.LIBRARY,
+      "Grep": StructureType.LIBRARY,
+      "Write": StructureType.WORKSHOP,
+      "Edit": StructureType.WORKSHOP,
+      "Bash": StructureType.FORGE,
+      "Task": StructureType.FORGE,
+      # ... include all entries from the current engine.py dict
+  }
+  ```
+  
+  Add `"TOOL_TO_STRUCTURE"` to `__all__`.
+  
+  **Step 2**: In `inference/engine.py`, remove the local `TOOL_TO_STRUCTURE` definition and add an import:
+  
+  ```python
+  from hamlet.world_state.rules import TOOL_TO_STRUCTURE
+  ```
+  
+  **Step 3**: Verify all usages of `TOOL_TO_STRUCTURE` in `engine.py` still work after the type change (if values were strings before, they are now `StructureType` enum values — `add_work_units` in `manager.py` accepts `StructureType`, so this should be correct or may require updating the lookup).
+  
+  ## Key locations
+  
+  - `engine.py:28-35` — local TOOL_TO_STRUCTURE definition (remove)
+  - `engine.py` — import section (add import from world_state.rules)
+  - `world_state/rules.py` — add TOOL_TO_STRUCTURE dict and __all__ entry
+  - `world_state/types.py` — StructureType enum (reference for valid values)
+  
+  ## Note on WI-114 dependency
+  
+  This work item depends on WI-114 to avoid modifying `engine.py` simultaneously with active_tools/project-creation fixes. Both touch different sections of the file but should not run concurrently in a non-worktree setup.
+cycle_created: 1
+cycle_modified: null
+content_hash: bc2e767b5d7103f8bd8679c271bc345debc9a278c12e632c17750ba937f53ec2
+token_count: 800
+file_path: .ideate/work-items/WI-117.yaml

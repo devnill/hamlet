@@ -1,0 +1,30 @@
+id: WI-079
+type: work_item
+title: Persistence Facade and Checkpoint
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/persistence/__init__.py` exports `Persistence`, `PersistenceConfig`, `WorldStateData`
+  - "`Persistence` class with `__init__(config: PersistenceConfig)`"
+  - `async start() -> None` initializes database, runs migrations, starts write queue
+  - `async stop() -> None` stops write queue and closes database
+  - `async load_state() -> WorldStateData` delegates to StateLoader
+  - `async save_<entity>(entity)` methods delegate to EntitySaver
+  - `async checkpoint() -> None` flushes write queue and runs WAL checkpoint
+  - `async close() -> None` is alias for stop()
+  - `get_default_db_path() -> Path` function returns `~/.hamlet/world.db`
+  - Creates `.hamlet` directory if it doesn't exist
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 079
+  
+  The Persistence facade is the main entry point. It holds DatabaseConnection, WriteQueue, WriteExecutor, StateLoader, EntitySaver, and EventLogManager. Start creates the write loop task, stop cancels it and waits for completion. Checkpoint drains the queue and runs `PRAGMA wal_checkpoint`.
+cycle_created: 1
+cycle_modified: null
+content_hash: acb052caf979b5800068021042ec34c34684dcc4ddf35e282d1d5dba7a6bfe87
+token_count: 325
+file_path: .ideate/work-items/WI-079.yaml

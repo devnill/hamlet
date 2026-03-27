@@ -1,0 +1,13 @@
+id: J-021-013
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 198: Protocol interfaces for module boundaries"
+content: |
+  Status: complete with rework
+  Rework: 3 critical findings fixed (C1: PersistenceProtocol.queue_write had wrong single-arg signature — fixed to match 3-arg real signature; C2: WorldStateProtocol.get_or_create_agent had wrong parameters — fixed to match (session_id, parent_id=None); C3: 5 WorldStateProtocol methods declared sync but are async — get_all_agents, get_all_structures, get_all_villages, get_event_log, get_projects now all have async def).
+  Created: src/hamlet/protocols.py with WorldStateProtocol, InferenceEngineProtocol, PersistenceProtocol, EventQueueProtocol.
+  Updated 5 consumer files to use Protocol types in TYPE_CHECKING blocks: simulation/engine.py, mcp_server/server.py, event_processing/event_processor.py, inference/engine.py, world_state/manager.py.
+content_hash: "1dbda1de11c373b8cccb359aeee9fd947223b2c0b5f12047f269d1a47fb28672"
+token_count: 238

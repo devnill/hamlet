@@ -1,0 +1,11 @@
+id: J-001-005
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 1
+title: "Work item 273: Notcurses viewer app and entry point"
+content: |
+  Status: complete
+  NotcursesApp with 30fps loop, input dispatch, follow mode, zoom, legend. CLI --renderer flag added to view subparser. _run_viewer_notcurses entry point added. 22 tests pass (19 app + 3 CLI).
+content_hash: c79244fa6601d6c00ca3e2ab3d7d9b459d7f87c85cb1d5074a49d6cfce86dd6b
+token_count: 95

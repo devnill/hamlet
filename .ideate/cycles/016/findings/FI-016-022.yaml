@@ -1,0 +1,19 @@
+id: FI-016-022
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: significant
+title: `_handle_input` blocking read on partial arrow-key escape sequence
+description: |
+  - **File**: `src/hamlet/gui/kitty/app.py:213`
+  - **Issue**: After confirming `seq1 == "["` (guarded by `select`), the code calls `sys.stdin.read(1)` unconditionally with no `select` guard. This is a blocking call. If a terminal emulator sends `ESC` and `[` as separate bytes with any inter-byte gap, or sends `ESC [` as a meta-key prefix without a third byte, the read blocks until the user presses another key, stalling the entire render loop indefinitely.
+  - **Impact**: On terminals that emit partial sequences or use `ESC [` for a different purpose, the render loop freezes at the blocking read, violating the 30 FPS requirement.
+  - **Suggested fix**: Add a `select.select([sys.stdin], [], [], 0.05)` check before the `sys.stdin.read(1)` on line 213. If not ready within the timeout, discard the partial sequence and return.
+file_path: cycles/016/findings/FI-016-022.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-281
+verdict: Fail
+content_hash: f902faa47669caf1b5cf86b0cabae389360f2f02ee9bbb71fd9f7252d97ba067
+token_count: 290

@@ -1,0 +1,11 @@
+id: J-007-048
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 055: ViewportManager Auto-Follow and Visibility Queries"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (C1: SpatialIndex method called as get_entities_in_bounds instead of query — both visibility methods were broken with AttributeError). 1 minor finding fixed (M1: revert path in update() now uses set_center() mutator instead of direct field assignment).
+content_hash: "3760143ec69e01d289d02aa70dd5b58ab852f6733262cd1068b5ef234895bdff"
+token_count: 125

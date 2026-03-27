@@ -1,0 +1,18 @@
+id: FI-003-096
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `begin_transaction`/`commit` wrapper around `executescript` is incorrect
+description: |
+  - **File**: `src/hamlet/persistence/migrations.py:119`
+  - **Issue**: SQLite's `executescript` issues an implicit `COMMIT` before running if there is an active transaction, negating any `begin_transaction()` call made before it. The migration appeared atomic but only because `executescript` provides its own transaction handling — not because of the wrapper.
+  - **Fix**: Removed the `begin_transaction()`/`commit()` calls. `executescript` manages atomicity for the migration script directly. Added a comment explaining the behavior.
+file_path: cycles/003/findings/FI-003-096.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-073
+verdict: Pass
+content_hash: "5b975ea8096d40300ae56a48586ccc1137591bf1a1993978acc2c3a56cc23f8c"
+token_count: 217

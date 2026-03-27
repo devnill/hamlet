@@ -1,0 +1,35 @@
+id: CS-016
+type: cycle_summary
+cycle: 16
+content: |
+  # Review Summary
+  
+  ## Overview
+  Cycle 016 replaced the notcurses ctypes backend with a pure Python Kitty graphics protocol backend across 8 work items (WI-275–282). All 169 Kitty-related tests pass. No critical findings. The implementation is structurally complete and addresses all cycle 015 findings. One significant observation: the sprite upload pipeline exists in code but is not wired end-to-end — this has no runtime impact since no sprite PNG assets exist, and the system correctly degrades to character rendering.
+  
+  ## Significant Findings
+  - [code-reviewer] S1: Sprite upload pipeline disconnected — `get_upload_sequence()` never called from app or renderer; `is_uploaded()` always returns False; sprites never display at MEDIUM/CLOSE zoom — relates to: WI-277/278, GP-7 (graceful degradation works correctly, but the sprite path is dormant)
+  
+  ## Minor Findings
+  - [code-reviewer] M1: `SpriteHandle.uploaded` field is always False and misleading — relates to: WI-277
+  - [code-reviewer] M2: `get_upload_sequence` raises KeyError on stale handle after cleanup — relates to: WI-277, GP-7
+  - [code-reviewer] M3: `encode_image_display` hardcodes placement ID p=1 — relates to: WI-276
+  - [spec-reviewer] M1: Process Constraint 3 still lists tile-based graphics as excluded — relates to: cross-cutting
+  - [gap-analyst] G1: Sprite upload pipeline dormant (same root cause as code-reviewer S1) — relates to: WI-277/278
+  - [gap-analyst] G2: No sprite PNG assets — SNES visual experience not evaluable — relates to: GP-3
+  - [gap-analyst] G3: Domain questions Q-10/Q-11/Q-12/Q-15 not marked resolved — relates to: cross-cutting
+  - [gap-analyst] G4: test.py at project root imports deleted notcurses module — relates to: WI-275
+  
+  ## Suggestions
+  - [code-reviewer] Remove `uploaded` field from SpriteHandle (redundant with is_uploaded())
+  - [code-reviewer] Add graceful return in get_upload_sequence for stale handles
+  - [spec-reviewer] Update Process Constraint 3 to reflect delivered Kitty backend
+  - [gap-analyst] Delete test.py scratch file
+  
+  ## Findings Requiring User Input
+  None — all findings can be resolved from existing context.
+  
+  ## Proposed Refinement Plan
+  No critical or significant findings require a refinement cycle. The sprite upload wiring (S1) is a future-cycle item that should be addressed when sprite PNG assets are created. The project is ready for user evaluation.
+content_hash: "9c44a653fff1658ce755decea0dec78898584b150e1c3df9cf129dc4316e390f"
+token_count: 613

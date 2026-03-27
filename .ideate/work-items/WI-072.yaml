@@ -1,0 +1,29 @@
+id: WI-072
+type: work_item
+title: Database Connection Management
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/persistence/connection.py` exists
+  - `DatabaseConnection` class wraps `aiosqlite.Connection`
+  - `async __aenter__()` and `async __aexit__()` for context manager protocol
+  - `async execute(sql, params)` method executes a query
+  - `async executemany(sql, params_list)` method executes batch queries
+  - `async fetchone()` and `async fetchall()` methods return query results
+  - `async begin_transaction()` and `async commit()` for explicit transactions
+  - Connection opened with `WAL` mode for concurrent read/write support
+  - Connection uses `aiosqlite.connect(db_path)` with isolation level None
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 072
+  
+  WAL mode (`PRAGMA journal_mode=WAL`) allows concurrent reads while writing. Isolation level None means we manage transactions explicitly. The context manager ensures proper cleanup on exit.
+cycle_created: 1
+cycle_modified: null
+content_hash: "032cbdf137ad306e1e0c6ccb303823aa5850c650e836952165f123bd6ebc78e7"
+token_count: 277
+file_path: .ideate/work-items/WI-072.yaml

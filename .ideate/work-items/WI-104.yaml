@@ -1,0 +1,68 @@
+id: WI-104
+type: work_item
+title: WorldStateManager.handle_event() and public state accessors
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "`WorldStateManager.handle_event(event: InternalEvent)` method exists"
+  - `handle_event` appends an `EventLogEntry` to `self._state.event_log` under the lock
+  - `WorldStateManager.get_all_structures()` returns `list[Structure]`
+  - `WorldStateManager.get_all_villages()` returns `list[Village]`
+  - `simulation/engine.py` `_tick()` replaces direct `_state` access with public method calls
+  - `viewport/manager.py` replaces all `_state` accesses with public accessors
+  - `mcp_server/handlers.py` replaces `world_state._state` access with public methods
+  - `simulation/expansion.py` replaces `_state` access with public accessors
+  - No references to `._state` on WorldStateManager remain outside `world_state/manager.py`
+module: null
+domain: null
+notes: |
+  # Work Item 104: WorldStateManager.handle_event() and public state accessors
+  
+  ## Problem
+  Several modules bypass `WorldStateManager` by accessing `._state` directly:
+  - `simulation/engine.py`: reads `_state.agents`, `_state.structures`
+  - `viewport/manager.py`: reads `_state.villages`, `_state.agents`, `_state.structures`
+  - `mcp_server/handlers.py`: reads `_state.projects`, `_state.agents`, `_state.structures`
+  - `simulation/expansion.py`: reads `_state.villages`
+  
+  Also, `EventProcessor` routes to `world_state.handle_event` via hasattr, but the method doesn't exist.
+  
+  ## New Methods to Add to WorldStateManager
+  
+  ```python
+  async def handle_event(self, event: InternalEvent) -> None:
+      """Add event to in-memory event log. Called by EventProcessor."""
+      entry = EventLogEntry(
+          timestamp=event.received_at,
+          session_id=event.session_id or "",
+          project_id=event.project_id or "",
+          hook_type=event.hook_type.value,
+          tool_name=event.tool_name,
+          summary=f"{event.hook_type.value}: {event.tool_name or ''}",
+      )
+      async with self._lock:
+          self._state.event_log.append(entry)
+          if len(self._state.event_log) > 100:  # keep last 100
+              self._state.event_log = self._state.event_log[-100:]
+  
+  async def get_all_structures(self) -> list[Structure]:
+      async with self._lock:
+          return list(self._state.structures.values())
+  
+  async def get_all_villages(self) -> list[Village]:
+      async with self._lock:
+          return list(self._state.villages.values())
+  ```
+  
+  ## Replacing _state accesses
+  For each callsite, replace with the appropriate public method. Some methods (like `get_all_agents()`) may already exist — verify before adding duplicates.
+  
+  If callers are synchronous (e.g., in render paths), use the existing pattern of reading state under the lock or accepting a snapshot. Check existing patterns in the codebase before adding new ones.
+cycle_created: 1
+cycle_modified: null
+content_hash: "23026aea7f9b431994258dcb64f52497422d4fb04e15383cae8501f3e9606e2b"
+token_count: 746
+file_path: .ideate/work-items/WI-104.yaml

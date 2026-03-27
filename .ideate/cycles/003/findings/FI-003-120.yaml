@@ -1,0 +1,17 @@
+id: FI-003-120
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `load_state()` returned empty data when loader was None
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:183-184`
+  - **Fix applied**: Now raises `RuntimeError("Cannot load state: facade not started")`.
+file_path: cycles/003/findings/FI-003-120.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-079
+verdict: Fail
+content_hash: f71bca82c8138f48508e3da25683900f4e6ddd74b3a58a9644b44f60cb19cd7a
+token_count: 115

@@ -1,0 +1,18 @@
+id: F-005-016
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: significant
+title: `AgentUpdater` overwrites `AgentState.ZOMBIE` with `IDLE` on every tick — FIXED
+description: |
+  - **File**: `src/hamlet/simulation/agent_updater.py:38`
+  - **Issue**: `update_agents()` had no guard for `AgentState.ZOMBIE`. All agents loaded from persistence start as ZOMBIE with old `last_seen` timestamps, so on tick 1 every agent got `new_state = IDLE`, overwriting ZOMBIE. Then the inference engine re-marked them ZOMBIE. The two subsystems fought each other on every tick.
+  - **Fix**: ZOMBIE guard added — `if agent.state == AgentState.ZOMBIE: continue` at the start of the loop body. ZOMBIE lifecycle is now exclusively owned by `AgentInferenceEngine._update_zombie_states()`. Test `test_zombie_agent_is_skipped` added to `tests/test_agent_updater.py` to enforce the invariant.
+file_path: cycles/005/findings/F-005-016.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-005
+verdict: Pass
+content_hash: e747723fdc2db2539898407720c03714bdce945a7b0b03eca5cea4e56c160da6
+token_count: 257

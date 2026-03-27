@@ -1,0 +1,49 @@
+id: WI-179
+type: work_item
+title: New hook scripts — agent/session lifecycle
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - hooks/session_start.py exists, is executable, has
+  - hooks/session_end.py exists, is executable, sends hook_type "SessionEnd" with reason field
+  - hooks/subagent_start.py exists, is executable, sends hook_type "SubagentStart" with agent_id and agent_type fields
+  - hooks/subagent_stop.py exists, is executable, sends hook_type "SubagentStop" with agent_id, agent_type, last_assistant_message fields
+  - hooks/teammate_idle.py exists, is executable, sends hook_type "TeammateIdle" with task_id, task_subject, teammate_name fields
+  - hooks/task_completed.py exists, is executable, sends hook_type "TaskCompleted" with task_id, task_subject, task_description, teammate_name fields
+  - All 6 scripts import from hamlet_hook_utils via sys.path.insert(0, str(Path(__file__).parent))
+  - All 6 scripts call find_config() and find_server_url(), exit 0 in finally block
+  - All 6 scripts use urllib.request with 1-second timeout and exit 0 on any exception
+module: null
+domain: null
+notes: |
+  # WI-179 Notes: New hook scripts — agent/session lifecycle
+  
+  ## Context
+  v0.4.0 adds all available Claude Code hook types. These 6 scripts cover agent and session lifecycle events: SessionStart, SessionEnd, SubagentStart, SubagentStop, TeammateIdle, TaskCompleted.
+  
+  ## Pattern
+  Follow hooks/notification.py exactly. Key points:
+  - sys.path.insert(0, str(Path(__file__).parent)) before hamlet_hook_utils import
+  - Read stdin: hook_input = json.load(sys.stdin)
+  - session_id from hook_input.get("session_id", "")
+  - Event-specific fields from hook_input directly (not nested under "data")
+  - Per docs: SubagentStart/Stop have agent_id, agent_type at top level of stdin
+  - find_config() uses cwd — pass hook_input.get("cwd") or os.getcwd()
+  - POST with urllib.request, timeout=1, exit 0 in finally
+  
+  ## stdin field locations (per Claude Code docs)
+  All fields are at the top level of the stdin JSON object:
+  - SessionStart: session_id, cwd, hook_event_name, source
+  - SessionEnd: session_id, cwd, hook_event_name, reason
+  - SubagentStart: session_id, cwd, hook_event_name, agent_id, agent_type
+  - SubagentStop: session_id, cwd, hook_event_name, agent_id, agent_type, last_assistant_message
+  - TeammateIdle: session_id, cwd, hook_event_name, task_id, task_subject, teammate_name
+  - TaskCompleted: session_id, cwd, hook_event_name, task_id, task_subject, task_description, teammate_name
+cycle_created: 1
+cycle_modified: null
+content_hash: fc5a20dae64f9f93b2288d9554e34f0cbd437c434598dcf7813ebc8135c85e97
+token_count: 659
+file_path: .ideate/work-items/WI-179.yaml

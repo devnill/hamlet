@@ -1,0 +1,19 @@
+id: FI-013-002
+type: finding
+cycle: 13
+reviewer: code-reviewer
+severity: significant
+title: No way to restore None (auto) for nullable fields
+description: |
+  - **File**: `src/hamlet/tui/parameter_panel.py:177-195`
+  - **Issue**: `river_count`, `pond_count`, `water_percentage_target`, `forest_percentage_target` default to `None` (auto), but once changed, no UI mechanism to reset to None.
+  - **Impact**: Usability gap, not a correctness bug.
+  - **Suggested fix**: Future work — add a reset/auto button to the parameter panel.
+file_path: cycles/013/findings/FI-013-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: null
+verdict: Pass
+content_hash: "7a9b4f52da719557a18ef5e129138024533a3fb0dfb7c46cf1270130b385c68d"
+token_count: 169

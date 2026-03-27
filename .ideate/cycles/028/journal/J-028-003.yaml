@@ -1,0 +1,11 @@
+id: J-028-003
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 28
+title: "Cycle 1 — Work item 236: Terrain symbols and colors for TUI"
+content: |
+  Status: complete with rework
+  Added TERRAIN_SYMBOLS, TERRAIN_COLORS dicts and get_terrain_symbol/color functions to symbols.py. Fixed docstring: "ASCII symbol" → "symbol" (matches TerrainType change).
+content_hash: "35cf2117f6cc758a3d965df348a7c75496615303063dba40cd4a32699e028442"
+token_count: 95

@@ -1,0 +1,19 @@
+id: FI-001-002
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: critical
+title: Event queue never populated
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py:28`
+  - **Issue**: The `_event_queue` is created but nothing ever calls `put()` on it. The entire purpose of the MCPServer is to receive events and push them to this queue.
+  - **Impact**: Consumers calling `get_event_queue().get()` will block forever because no events are ever added.
+  - **Suggested fix**: Implement the notification handler that validates and pushes events to the queue (see C1).
+file_path: cycles/001/findings/FI-001-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: "9c925a383a05687d1831ae770fa3c9f6eaa757c6f9811751820c9879f9727766"
+token_count: 188

@@ -1,0 +1,11 @@
+id: J-028-009
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 28
+title: "Cycle 1 — Work item 239: RemoteWorldState terrain methods"
+content: |
+  Status: complete with rework
+  Added get_terrain_at and is_passable methods to RemoteWorldState, added /terrain/{x}/{y} HTTP endpoint to daemon. Fixed: added missing tests for fetch_terrain in test_remote_state.py.
+content_hash: "1b11824e8f37c6c6546433f1e1837af3e765e92f487900c0641871f52bf0f8e0"
+token_count: 97

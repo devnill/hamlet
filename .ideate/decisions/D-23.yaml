@@ -1,0 +1,13 @@
+id: D-23
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 16
+supersedes: null
+description: Manual smoke test added as explicit gated work item for Kitty viewer
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: eadc12f88c2f15cb4517cb2f5d028d4ff9fa220efe12960c0f35ef21b960c9a5
+token_count: 73
+file_path: .ideate/decisions/D-23.yaml

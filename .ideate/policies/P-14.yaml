@@ -1,0 +1,13 @@
+id: P-14
+type: domain_policy
+domain: architecture
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: When a module-level boolean flag is set by a signal handler and read inside a loop in a named function, that function must reset the flag to its initial value at entry (before the loop). Without a reset, a second invocation of the function in the same Python process inherits the flag state from the previous run and may exit immediately without performing any work.
+cycle_created: 1
+cycle_modified: null
+content_hash: "8911c563c3cd7d480859e56fc22aed2eb4abdf4169716f84ba98594c72e97e0d"
+token_count: 151
+file_path: .ideate/policies/P-14.yaml

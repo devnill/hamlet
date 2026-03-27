@@ -1,0 +1,28 @@
+id: FI-008-007
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: `stop_failure.py` does not unpack the error dict — sends raw value, not `{type, reason}`
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/stop_failure.py:28`
+  - **Issue**: The acceptance criterion states the script must send an `error` field structured as a dict with `type` and `reason` sub-fields. The script does `hook_input.get("error", {})` and sends whatever the input provides verbatim. If the upstream Claude Code hook delivers `error` as something other than `{"type": ..., "reason": ...}` (or as a string), the server receives an ill-shaped payload. Nothing in the script enforces or validates the `type`/`reason` structure.
+  - **Impact**: The MCP server may receive a malformed `error` field. Any server-side code that does `params["error"]["type"]` will raise `KeyError` or `TypeError` on unexpected input shapes.
+  - **Suggested fix**: Extract and normalise explicitly:
+    ```python
+    raw_error = hook_input.get("error", {})
+    if not isinstance(raw_error, dict):
+        raw_error = {}
+    "error": {
+        "type": raw_error.get("type", ""),
+        "reason": raw_error.get("reason", ""),
+    }
+    ```
+file_path: cycles/008/findings/FI-008-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-180
+verdict: Fail
+content_hash: ad3d1ff1c6bba3600aad105d3a4e2c2a7c016abf40373f51639406885b81547d
+token_count: 348

@@ -1,0 +1,23 @@
+id: WI-255
+type: work_item
+title: Realistic Water Features
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "Rivers: Linear water features following elevation gradients"
+  - "Ponds: Small isolated water bodies (5-15 cells)"
+  - "Lakes: Large connected water bodies with organic shapes"
+  - Water features connect naturally (rivers flow into lakes where terrain permits)
+  - Water percentage configurable via parameter
+  - Lake detection and expansion work with new region system
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: "83d77ffaadef9ef38532c1f8637a5df4ce3309743764288a9325060f0a30d6ab"
+token_count: 160
+file_path: .ideate/work-items/WI-255.yaml

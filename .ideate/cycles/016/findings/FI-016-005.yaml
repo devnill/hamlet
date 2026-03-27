@@ -1,0 +1,18 @@
+id: FI-016-005
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: No test for `get_upload_sequence` with unknown `image_id`
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_kitty_sprites.py`
+  - **Issue**: There is no test covering the `KeyError` path described in M1 (calling `get_upload_sequence` on a handle whose PNG data was removed by `cleanup`). The error path is untested, and the behavior is currently a crash.
+  - **Suggested fix**: Add a test that calls `cleanup()` and then `get_upload_sequence(handle)`, asserting the expected behavior (empty string return or explicit exception).
+file_path: cycles/016/findings/FI-016-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-277
+verdict: Pass
+content_hash: a5ad1ad051a93827249ba8f565f25e9c79fa96e1fedf535c72487f4c1aa194c3
+token_count: 195

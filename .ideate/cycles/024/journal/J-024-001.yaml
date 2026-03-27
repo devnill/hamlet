@@ -1,0 +1,13 @@
+id: J-024-001
+type: journal_entry
+phase: refine
+date: "2026-03-20"
+cycle_created: 24
+title: "Refinement planning completed (refine-11: service management)"
+content: |
+  Trigger: user request
+  Principles changed: none
+  New work items: WI-204 to WI-205
+  Scope: macOS launchd service management (`hamlet service` subcommand group) and daemon port conflict detection. No architecture changes. Documentation unchanged.
+content_hash: "191f16f7ea13ee2a2216cf03661261bf19335c169064e003cd6d9fccce5aa9fd"
+token_count: 106

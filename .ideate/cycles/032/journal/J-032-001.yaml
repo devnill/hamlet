@@ -1,0 +1,13 @@
+id: J-032-001
+type: journal_entry
+phase: refine
+date: "2026-03-22"
+cycle_created: 32
+title: Refinement planning completed (refine-19)
+content: |
+  Trigger: notcurses Python 3.14 segfault (fundamental incompatibility) + cycle 015 review findings
+  Principles changed: GP-3 updated (notcurses → Kitty), Design Constraint 1 updated (added pure Python requirement)
+  New work items: WI-275 through WI-282 (8 items)
+  Summary: Replace notcurses ctypes backend with pure Python Kitty graphics protocol backend. Delete gui/notcurses/ entirely (failed experiment). Create gui/kitty/ with protocol layer, sprites, renderer, zoom, app, state fetcher. Address all cycle 015 findings: Q-10 (ROAD symbol crash), Q-11 (terrain not connected), Q-12 (SpriteSheet invalidation), Q-15 (legend no-op), Q-20 (architecture.md).
+content_hash: "47699430b1d98b44e7f7625aa75b476018c1d6c816381d0fdac6596b43623111"
+token_count: 204

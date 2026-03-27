@@ -1,0 +1,18 @@
+id: J-006-001
+type: journal_entry
+phase: refine
+date: "2026-03-21"
+cycle_created: 6
+title: Cycle 6 Phase 6d refinement
+content: |
+  Trigger: Cycle 6 review found 3 significant findings (not converged).
+  Significant findings:
+  - S1 (code-quality): process_expansion runs every tick with no cooldown — unbounded memory + write queue growth
+  - SG1 (gap-analysis): WorldStateProtocol missing 5 methods (found_village, create_structure, update_structure, get_agents_in_view, get_structures_in_view)
+  - SG2 (gap-analysis): found_village does not seed initial structures for expansion outposts
+  New work items: WI-217 through WI-219
+  - WI-217: Add Village.has_expanded flag + per-village expansion cooldown (S1)
+  - WI-218: Add 5 missing methods to WorldStateProtocol + remove hasattr guard (SG1)
+  - WI-219: Seed initial structures for expansion outposts in found_village (SG2)
+content_hash: "41ccc95cb3cb83a9d7c9b75bdb997ca05a9be476eda2c69afa7132a7e6143332"
+token_count: 221

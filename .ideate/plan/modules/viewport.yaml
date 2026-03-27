@@ -1,0 +1,58 @@
+id: module_spec-viewport
+type: module_spec
+name: Viewport
+scope: |
+  This module owns the coordinate system and viewport management. It is responsible for:
+  
+  - Maintaining world coordinate system
+  - Tracking viewport position and size
+  - Translating between world and screen coordinates
+  - Managing scroll state and auto-follow behavior
+  - Determining which entities are visible in the current view
+  - Handling user scroll input
+  
+  This module is NOT responsible for:
+  
+  - Storing entity positions (World State module)
+  - Rendering (TUI module)
+  - Game logic (Simulation module)
+provides:
+  - `ViewportManager` class — Viewport state and operations
+  - - `get_viewport() -> ViewportState`
+  - "- `set_center(position: Position) -> None`"
+  - "- `scroll(delta_x: int, delta_y: int) -> None`"
+  - "- `resize(width: int, height: int) -> None`"
+  - "- `world_to_screen(world_pos: Position) -> Position`"
+  - "- `screen_to_world(screen_pos: Position) -> Position`"
+  - - `get_visible_bounds() -> BoundingBox`
+  - "- `is_visible(world_pos: Position) -> bool`"
+  - "- `auto_follow(agent_id: str) -> None`"
+  - - `get_agents_in_view() -> List[str]`
+  - - `get_structures_in_view() -> List[str]`
+  - `ViewportState` dataclass — Current viewport state
+  - "- `center: Position` — World coordinates at viewport center"
+  - "- `size: Size` — Viewport dimensions in cells"
+  - "- `follow_mode: \"center\" | \"free\"` — Auto-follow or manual scroll"
+  - "- `follow_target: str | None` — Agent ID to follow (if follow_mode is \"center\")"
+  - `Position` dataclass — Coordinate position
+  - "- `x: int`"
+  - "- `y: int`"
+  - `BoundingBox` dataclass — Axis-aligned bounding box
+  - "- `min_x: int`"
+  - "- `min_y: int`"
+  - "- `max_x: int`"
+  - "- `max_y: int`"
+requires:
+  - `WorldState` (from World State module) — Query entity positions
+  - - `get_agent(agent_id) -> Agent`
+  - - `get_village(village_id) -> Village`
+  - - `get_all_villages() -> List[Village]`
+  - `asyncio` — For async position queries
+boundary_rules:
+  - "1. **No state mutation.** Viewport only reads positions; it never modifies World State."
+  - "2. **Screen-space coordinates.** All rendering coordinates are computed by this module. TUI never converts directly."
+  - "3. **Deterministic translation.** Same world position + same viewport state = same screen position."
+  - "4. **No entity knowledge.** Viewport knows positions, not entity types. TUI determines rendering based on entity type."
+  - "5. **Integer coordinates.** All coordinates are integer cell positions. No sub-cell positioning."
+content_hash: "8635889e682748cf6afb9e97af367e218e69cb694709aa5f08d099652a854eea"
+token_count: 615

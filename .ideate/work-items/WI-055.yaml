@@ -1,0 +1,28 @@
+id: WI-055
+type: work_item
+title: ViewportManager Auto-Follow and Visibility Queries
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "`scroll(delta_x: int, delta_y: int) -> None` method scrolls viewport (switches to free mode)"
+  - "`set_center(position: Position) -> None` method sets explicit center (switches to free mode)"
+  - "`auto_follow(agent_id: str) -> None` method enables follow mode for agent"
+  - `async update() -> None` method updates center if in follow mode
+  - `async get_agents_in_view() -> List[str]` method returns visible agent IDs
+  - `async get_structures_in_view() -> List[str]` method returns visible structure IDs
+  - "Follow mode: if agent no longer exists, revert to village center"
+  - "Free mode: scroll operations do not auto-update center"
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 055
+  
+  Auto-follow checks if the followed agent still exists in World State. If not, it clears follow_target and centers on the primary village. The update() method is called each frame by the TUI when in follow mode.
+cycle_created: 1
+cycle_modified: null
+content_hash: "80cf51427ad31f23096687a63c55c435a7c18f1f826e9c2b16255c92329d93af"
+token_count: 292
+file_path: .ideate/work-items/WI-055.yaml

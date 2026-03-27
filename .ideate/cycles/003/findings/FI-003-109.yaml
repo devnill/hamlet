@@ -1,0 +1,18 @@
+id: FI-003-109
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `delete` operations never executed — always upserted instead
+description: |
+  - **File**: `src/hamlet/persistence/writer.py:36-51`
+  - **Issue**: `WriteOperation.operation` field (`Literal["insert","update","delete"]`) was never consulted. Delete operations silently upserted the entity instead of removing it.
+  - **Resolution**: Fixed — `_execute_write` now checks `op.operation == "delete"` first and dispatches to `_delete_entity(op)` which issues `DELETE FROM {table} WHERE id = ?` using `_TABLE_MAP`.
+file_path: cycles/003/findings/FI-003-109.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-076
+verdict: Fail
+content_hash: "51ffa3a7f7dc8b886780100839a684513141a7372c15174396206adea466d3d9"
+token_count: 189

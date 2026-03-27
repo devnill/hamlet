@@ -1,0 +1,81 @@
+id: WI-116
+type: work_item
+title: Infrastructure — health endpoint and mcp_port wiring
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "GET /hamlet/health returns JSON {\"status\":\"ok\"} with HTTP 200"
+  - MCPServer.__init__ accepts a port parameter (default 8080)
+  - aiohttp TCPSite uses self.port not the hardcoded literal 8080
+  - __main__.py constructs MCPServer with settings.mcp_port as the port argument
+  - hamlet install server check passes when server is running on the configured port
+module: null
+domain: null
+notes: |
+  # WI-116: Infrastructure — health endpoint and mcp_port wiring
+  
+  ## Context
+  
+  Two small independent infrastructure bugs:
+  
+  ### Bug 1: /hamlet/health missing
+  
+  `install.py:28` defines `MCP_HEALTH_URL = "http://localhost:8080/hamlet/health"`. The server at `server.py:88` registers only `"/hamlet/event"`. The health route does not exist. `validate_mcp_server_running()` always returns False, forcing users to manually type `y` even when Hamlet is running.
+  
+  ### Bug 2: settings.mcp_port never used
+  
+  `Settings.mcp_port` is validated (range 1-65535, bool excluded, by WI-112) but never consumed. `aiohttp.web.TCPSite(runner, "localhost", 8080)` at `server.py:95` hardcodes port 8080. Users cannot change the port via config. `MCPServer.__init__` does not accept a port parameter.
+  
+  ## Fix for /hamlet/health
+  
+  In `server.py`, in the method that builds the aiohttp application (around line 88 where `"/hamlet/event"` is added), add a second route:
+  
+  ```python
+  async def _handle_health(self, request: web.Request) -> web.Response:
+      return web.json_response({"status": "ok"})
+  ```
+  
+  Register it:
+  ```python
+  app.router.add_get("/hamlet/health", self._handle_health)
+  ```
+  
+  ## Fix for mcp_port wiring
+  
+  Modify `MCPServer.__init__` to accept `port: int = 8080`:
+  
+  ```python
+  def __init__(self, event_queue: asyncio.Queue, port: int = 8080):
+      self._port = port
+      ...
+  ```
+  
+  Change the TCPSite line from:
+  ```python
+  aiohttp.web.TCPSite(runner, "localhost", 8080)
+  ```
+  To:
+  ```python
+  aiohttp.web.TCPSite(runner, "localhost", self._port)
+  ```
+  
+  In `__main__.py`, find where `MCPServer` is constructed and pass `port=settings.mcp_port`:
+  ```python
+  mcp_server = MCPServer(event_queue=event_queue, port=settings.mcp_port)
+  ```
+  
+  ## Key locations
+  
+  - `server.py:88` — router.add_route for hamlet/event
+  - `server.py:95` — TCPSite hardcoded port
+  - `server.py` — `MCPServer.__init__` signature
+  - `__main__.py` — MCPServer construction call
+  - `install.py:28` — `MCP_HEALTH_URL` (no change needed; it already points to the right path)
+cycle_created: 1
+cycle_modified: null
+content_hash: "888672ac764bd790bcb52e9eefecff889c9d47ab3fab6b23c365b6be92a84728"
+token_count: 683
+file_path: .ideate/work-items/WI-116.yaml

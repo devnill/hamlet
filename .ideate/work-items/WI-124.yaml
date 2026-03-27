@@ -1,0 +1,70 @@
+id: WI-124
+type: work_item
+title: Fix find_config() traversal — skip global config without project_id
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - find_config() in all four hook scripts skips any config file that does not contain a project_id key
+  - find_config() continues traversal upward after skipping a non-project config
+  - find_config() still returns (project_id, project_name) when a config file with project_id is found
+  - find_config() falls back to (_cwd_hash(), Path.cwd().name) when no project config is found at any level
+module: null
+domain: null
+notes: |
+  # WI-124: Fix find_config() traversal — skip global config without project_id
+  
+  ## Context
+  
+  WI-121 wrote `server_url` to `~/.hamlet/config.json` (the global Hamlet config). The `find_config()` function in all four hook scripts traverses from the current working directory upward, checking each ancestor directory for `.hamlet/config.json`.
+  
+  For most users, `~` (home directory) is an ancestor of their project directory. The traversal will reach `~/.hamlet/config.json` before hitting the filesystem root. That file contains `server_url` but no `project_id` or `project_name`. When `find_config()` opens it:
+  
+  ```python
+  return data.get("project_id", _cwd_hash()), data.get("project_name", parent.name)
+  ```
+  
+  `data.get("project_id", _cwd_hash())` returns the cwd hash (correct), but `data.get("project_name", parent.name)` returns `parent.name` where `parent` is the home directory path — e.g., `"dan"` — instead of the project name. Users without a per-project `.hamlet/config.json` will see their home directory basename as the project name in the TUI.
+  
+  ## Fix
+  
+  Add a guard in `find_config()` to skip config files that have no `project_id` key:
+  
+  ```python
+  def find_config():
+      """Traverse from cwd up to root looking for .hamlet/config.json with project_id."""
+      current = Path.cwd()
+      for parent in [current, *current.parents]:
+          config_path = parent / ".hamlet" / "config.json"
+          if config_path.exists():
+              try:
+                  data = json.loads(config_path.read_text())
+                  if "project_id" not in data:
+                      continue  # skip global server config (e.g., ~/.hamlet/config.json)
+                  return data.get("project_id", _cwd_hash()), data.get("project_name", parent.name)
+              except Exception:
+                  pass
+      return _cwd_hash(), Path.cwd().name
+  ```
+  
+  The key change: `if "project_id" not in data: continue` — skip any config file that is not a project config. The traversal continues upward and ultimately falls back to `(_cwd_hash(), Path.cwd().name)` as before.
+  
+  ## Key files
+  
+  - `hooks/pre_tool_use.py` — update find_config()
+  - `hooks/post_tool_use.py` — update find_config()
+  - `hooks/notification.py` — update find_config()
+  - `hooks/stop.py` — update find_config()
+  
+  ## Note
+  
+  `find_server_url()` (added by WI-121) is NOT affected — it reads directly from `~/.hamlet/config.json` without traversal. Only `find_config()` needs the guard.
+  
+  All four hook scripts have identical `find_config()` implementations. Apply the same change to all four.
+cycle_created: 1
+cycle_modified: null
+content_hash: be39b6b5d84b7c7ce554c38814e534f55246a0ec566e3eafd3269cd9aca55419
+token_count: 826
+file_path: .ideate/work-items/WI-124.yaml

@@ -1,0 +1,105 @@
+id: WI-086
+type: work_item
+title: TUI Widget Tests - StatusBar, EventLog, Legend
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File tests/test_tui_status_bar.py exists with test class TestStatusBar
+  - TestStatusBar.test_render_shows_agent_count passes
+  - TestStatusBar.test_render_shows_project_name passes
+  - File tests/test_tui_event_log.py exists with test class TestEventLog
+  - TestEventLog.test_render_shows_timestamped_events passes
+  - TestEventLog.test_render_limits_to_max_lines passes
+  - File tests/test_tui_legend.py exists with test class TestLegendOverlay
+  - TestLegendOverlay.test_render_contains_agent_legend passes
+  - TestLegendOverlay.test_render_contains_structure_legend passes
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 086 - TUI Widget Tests
+  
+  ## Scope
+  
+  Test StatusBar, EventLog, and LegendOverlay widgets using Textual's testing patterns.
+  
+  ## Testing Patterns
+  
+  ### Textual Widget Tests
+  
+  Use Textual's built-in testing:
+  
+  ```python
+  from textual.testing import TestApp
+  
+  async def test_status_bar():
+      class TestStatusApp(TestApp):
+          def compose(self):
+              yield StatusBar()
+  
+      async with TestStatusApp().run_test() as pilot:
+          status = pilot.app.query_one(StatusBar)
+          status.agent_count = 5
+          await pilot.pause()
+          # Verify render output
+  ```
+  
+  Test reactive properties:
+  
+  ```python
+  def test_reactive_update():
+      bar = StatusBar()
+      bar.agent_count = 10
+      assert bar.agent_count == 10
+  ```
+  
+  ### StatusBar Tests
+  
+  Test render output contains expected text:
+  
+  ```python
+  async def test_render_shows_counts():
+      # After mounting
+      text = status_bar.render()
+      assert "Agents: 5" in text
+      assert "Structures: 3" in text
+  ```
+  
+  ### EventLog Tests
+  
+  Test event list management:
+  
+  ```python
+  def test_event_limit():
+      log = EventLog()
+      log.events = [f"Event {i}" for i in range(150)]
+      # Should only show last 100
+  ```
+  
+  ### LegendOverlay Tests
+  
+  Test visibility toggle:
+  
+  ```python
+  def test_visibility():
+      legend = LegendOverlay()
+      legend.visible = True
+      assert legend.display
+  ```
+  
+  ## Key Test Scenarios
+  
+  1. **StatusBar render** - Shows agent/structure counts
+  2. **StatusBar project name** - Displays correctly
+  3. **StatusBar viewport pos** - Shows coordinates
+  4. **EventLog render** - Timestamps and summaries
+  5. **EventLog limiting** - Max lines respected
+  6. **Legend render** - All sections present
+  7. **Legend visibility** - Toggle works
+cycle_created: 1
+cycle_modified: null
+content_hash: f751f70c10fae80f26f267475b4c3c34816189bc3cbfdc3c532e180d20e65e50
+token_count: 661
+file_path: .ideate/work-items/WI-086.yaml

@@ -1,0 +1,19 @@
+id: FI-008-018
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: No tests for any of the 11 new `handle_event` branches
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_world_state_manager.py`
+  - **Issue**: Zero tests were added for `handle_event`. The class `TestWorldStateManager` covers only CRUD and loading operations. None of the 11 new `HookType` branches have test coverage verifying summary content, EventLogEntry creation, state mutations, or try/except behaviour. This is unchanged from the prior review's S2 finding.
+  - **Impact**: Acceptance criteria 1 through 7 cannot be verified automatically. Regressions in any branch go undetected.
+  - **Suggested fix**: Add a `TestHandleEvent` class covering at minimum: (a) each new HookType produces an `EventLogEntry` with a non-empty summary; (b) `SessionStart` with empty fields skips `get_or_create_project`; (c) `SessionStart` with valid fields calls both helpers; (d) `SessionEnd` sets matching agents to `AgentState.IDLE`; (e) `SubagentStart` calls `get_or_create_agent`; (f) `TaskCompleted` with a qualifying agent calls `add_work_units` with 10 units; (g) `TaskCompleted` with no qualifying agent skips silently; (h) an exception inside a branch is caught and not re-raised.
+file_path: cycles/008/findings/FI-008-018.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: "57ae97daadf84b9be41c82e1c18a274b708e19cb3d339e1198a81ca2cf74998f"
+token_count: 358

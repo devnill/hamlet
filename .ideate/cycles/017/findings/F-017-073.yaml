@@ -1,0 +1,18 @@
+id: F-017-073
+type: finding
+cycle: 17
+reviewer: code-reviewer
+severity: minor
+title: `_try_parse` captures all exceptions including programming errors
+description: |
+  - **File**: `src/hamlet/gui/kitty/state_fetcher.py:20-25`
+  - **Issue**: `_try_parse` catches bare `Exception`, which swallows `AttributeError`, `TypeError`, and other bugs that would indicate a programming error rather than malformed data. A `ValueError` (from bad enum values) is the expected failure mode; silently discarding `AttributeError` could mask future regressions in `_parse_agent` itself.
+  - **Suggested fix**: Consider catching `(ValueError, KeyError)` specifically, or log the exception at DEBUG level before returning None.
+file_path: cycles/017/findings/F-017-073.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-017
+verdict: Pass
+content_hash: fb063747f3e45affbb26034f039bbf0ccc89521ecb3f0107d08eff62b7ffee5a
+token_count: 215

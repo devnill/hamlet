@@ -1,0 +1,11 @@
+id: J-001-002
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 1
+title: notcurses runtime segfault investigation
+content: |
+  Status: blocked
+  notcurses 3.0.17 segfaults with Python 3.14 on ARM64 macOS. Internal input_thread corrupts Python's memory allocator after 2-5 seconds. All mitigations failed (signal handlers, threading, subprocess IPC). Decision: pivot to Kitty graphics protocol (pure Python escape sequences, no C library). Renderer infrastructure (RendererProtocol, SymbolConfig, zoom, sprites) carries forward.
+content_hash: "88073021f245a86ce348d375a50cbf2f7b0bf8188c6b439f51495753f91cd869"
+token_count: 140

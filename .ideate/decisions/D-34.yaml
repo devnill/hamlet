@@ -1,0 +1,13 @@
+id: D-34
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: Parse helpers shared between TUI and Kitty backends via cross-module import
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "318ed3a661e79264f438e26c54e2c540af577802486d772f80dd147ab6680d4a"
+token_count: 74
+file_path: .ideate/decisions/D-34.yaml

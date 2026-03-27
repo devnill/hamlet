@@ -1,0 +1,18 @@
+id: FI-003-071
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: set_center assigned center before clearing follow state
+description: |
+  - **File**: `src/hamlet/viewport/state.py:22-26`
+  - **Issue**: In `set_center`, `self.center` was assigned before `follow_mode`/`follow_target` were cleared, inconsistent with `scroll` which clears mode first. Harmless but increases cognitive load.
+  - **Suggested fix**: Reorder to clear follow fields first, then assign center. Applied.
+file_path: cycles/003/findings/FI-003-071.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-052
+verdict: Pass
+content_hash: "76fa53837bc344dae06f34199a928af7bba734de0e5dd91abbbd7aaec3c0b457"
+token_count: 162

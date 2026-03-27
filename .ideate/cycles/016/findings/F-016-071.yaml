@@ -1,0 +1,18 @@
+id: F-016-071
+type: finding
+cycle: 16
+reviewer: spec-reviewer
+severity: minor
+title: constraints.md Process Constraint 3 still lists "Tile-based graphics (replacing ASCII)" as excluded
+description: |
+  - **File**: `specs/steering/constraints.md`
+  - **Issue**: The constraint says tile-based graphics are excluded from MVP, but the Kitty backend delivers exactly that (PNG sprites via Kitty protocol). Design Constraint 1 was correctly updated, but Process Constraint 3 was not.
+  - **Impact**: Minor inconsistency between constraints. Design Constraint 1 is authoritative.
+file_path: cycles/016/findings/F-016-071.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-016
+verdict: null
+content_hash: ed5bc205b43e9ade06a80f6fbe3d8eda2ada4f47d88a6fafa4b210b83871217f
+token_count: 182

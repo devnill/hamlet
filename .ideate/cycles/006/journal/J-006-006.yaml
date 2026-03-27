@@ -1,0 +1,12 @@
+id: J-006-006
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 6
+title: "Cycle 6 — Work item 213: Fix daemon error message and CLI port hardcoding"
+content: |
+  Status: complete with rework
+  Rework: 2 minor findings fixed (_run_viewer default parameter removed; test for main() no-subcommand branch added).
+  __main__.py error message now says "hamlet daemon"; CLI view command and main() fallback use settings.mcp_port.
+content_hash: a19605cf27a115a0ccad7c2b6e99926b449efe1a6c6e2c920aef0123fabf408d
+token_count: 112

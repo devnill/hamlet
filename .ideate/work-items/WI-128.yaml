@@ -1,0 +1,58 @@
+id: WI-128
+type: work_item
+title: Create plugin manifest files
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `.claude-plugin/plugin.json` exists and is valid JSON
+  - `plugin.json` contains keys `name` ("hamlet"), `version` ("0.1.0"), `description` (non-empty), `mcpServers` ("./.claude-plugin/mcp.json")
+  - File `.claude-plugin/mcp.json` exists and is valid JSON
+  - `mcp.json` has `mcpServers.hamlet-config.command` == `"sh"` and `mcpServers.hamlet-config.args` == `["${CLAUDE_PLUGIN_ROOT}/mcp/start.sh"]`
+module: null
+domain: null
+notes: |
+  # WI-128: Create plugin manifest files
+  
+  ## Context
+  Static JSON files that declare hamlet as a Claude Code plugin. No logic — just correctly structured JSON conforming to the plugin manifest schema.
+  
+  ## Files to Create
+  
+  ### `.claude-plugin/plugin.json`
+  ```json
+  {
+    "name": "hamlet",
+    "version": "0.1.0",
+    "description": "Visualize Claude Code agent activity as a roguelike idle game.",
+    "author": {
+      "name": "hamlet"
+    },
+    "license": "MIT",
+    "mcpServers": "./.claude-plugin/mcp.json"
+  }
+  ```
+  
+  ### `.claude-plugin/mcp.json`
+  ```json
+  {
+    "mcpServers": {
+      "hamlet-config": {
+        "command": "sh",
+        "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/start.sh"]
+      }
+    }
+  }
+  ```
+  
+  ## Notes
+  - `mcpServers` in `plugin.json` is a relative path string, not an inline object. Claude Code resolves it relative to the plugin root.
+  - The MCP server key name `"hamlet-config"` will appear as a prefix in tool names when the plugin is installed.
+  - The plugin root during development is the hamlet repo root. During plugin install, Claude Code copies to `~/.claude/plugins/cache/marketplace/<marketplace>/hamlet/0.1.0/` and `${CLAUDE_PLUGIN_ROOT}` resolves to that path.
+cycle_created: 1
+cycle_modified: null
+content_hash: "6580f16ffaa056574dad941745bf0c76f4ef09e598e8af50fd11e70514e578d1"
+token_count: 480
+file_path: .ideate/work-items/WI-128.yaml

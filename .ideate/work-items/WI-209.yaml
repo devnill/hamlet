@@ -1,0 +1,77 @@
+id: WI-209
+type: work_item
+title: Fix WorldView initial paint (remove premature resize in on_mount)
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `WorldView.on_mount()` does NOT call `self._viewport.resize()`
+  - `WorldView.on_resize()` remains the sole handler for updating viewport dimensions
+  - A test in `test_tui_world_view.py` verifies that `on_mount` does not call `viewport.resize`
+  - A test verifies that `on_resize` calls `viewport.resize` with the event dimensions
+  - All existing `test_tui_world_view.py` tests continue to pass
+module: null
+domain: null
+notes: |
+  # WI-209 Implementation Notes: Fix WorldView initial paint
+  
+  ## Problem
+  
+  `WorldView.on_mount()` calls `self._viewport.resize(self.size.width, self.size.height)`.
+  At mount time in Textual, `self.size` has not been set by the layout pass. It returns a
+  partial/incorrect value (observed as a very small height, e.g. 2 rows), which overwrites
+  `ViewportState`'s reasonable default of `Size(80, 24)`.
+  
+  The correct terminal size arrives via an `on_resize` event after the first layout pass
+  (`WorldView.on_resize` is already implemented and calls `self._viewport.resize()`).
+  But this fires only after the first render, which uses the wrong size.
+  
+  ## Fix
+  
+  Remove the `resize()` call from `on_mount`. The `on_resize` handler is the correct and
+  sufficient place to sync viewport dimensions.
+  
+  ```python
+  # src/hamlet/tui/world_view.py
+  
+  def on_mount(self) -> None:
+      """Set up 4Hz animation frame updates and 30FPS render refresh."""
+      self.set_interval(1 / 4, self._update_animation_frame)
+      # REMOVED: self._viewport.resize(self.size.width, self.size.height)
+      # on_resize fires after the layout pass with the correct terminal size.
+  ```
+  
+  The `on_resize` handler remains unchanged:
+  
+  ```python
+  def on_resize(self, event: Resize) -> None:
+      """Update viewport dimensions when terminal is resized."""
+      self._viewport.resize(event.size.width, event.size.height)
+  ```
+  
+  ## Why this is safe
+  
+  - `ViewportState` defaults to `Size(80, 24)` — a standard terminal size that will be used
+    for the brief period before the first `on_resize` event.
+  - Textual fires a `Resize` event for each widget after the first layout pass, so the correct
+    size will be applied before the first full render cycle.
+  - No other code reads the viewport size before `on_resize` fires in a way that would
+    produce incorrect output.
+  
+  ## File to modify
+  
+  `src/hamlet/tui/world_view.py` — remove line 39 (`self._viewport.resize(...)`).
+  
+  ## Tests to add/update
+  
+  In `tests/test_tui_world_view.py`:
+  1. Add a test verifying `on_mount` does NOT call `viewport.resize` (mock the viewport,
+     call `on_mount`, assert `resize` was not called).
+  2. Add or verify a test that `on_resize` calls `viewport.resize(event.size.width, event.size.height)`.
+cycle_created: 1
+cycle_modified: null
+content_hash: cfc4ce211995b8a8d4e3f8a9f38f369c9287dc8f225b1893cb75b2471c0ed2aa
+token_count: 744
+file_path: .ideate/work-items/WI-209.yaml

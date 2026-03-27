@@ -1,0 +1,18 @@
+id: FI-003-080
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: "Bare `except: pass` in `_update_animation_frame` swallowed errors silently"
+description: |
+  - **File**: `src/hamlet/tui/world_view.py:43`
+  - **Issue**: Any failure in `get_agents_in_view` or `get_structures_in_view` was silently discarded with no logging. Widget continued rendering stale data with no diagnostic signal.
+  - **Fix**: Changed to `except Exception as exc` with `_log.warning(...)` and reset `_agents`/`_structures` to empty lists on failure.
+file_path: cycles/003/findings/FI-003-080.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-063
+verdict: Pass
+content_hash: "98d05e4bc492fc5b0edc7b6c58a9cf84eeb74a890c12af8eec9be8694e441e8b"
+token_count: 175

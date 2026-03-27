@@ -1,0 +1,18 @@
+id: FI-008-003
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `os` module not imported in any of the 6 scripts
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/session_start.py:3-7` (same in all 6)
+  - **Issue**: If the fix for C1 is applied using `os.chdir()`, the `os` module must be imported. It is currently absent from all 6 files. The reference pattern `notification.py` also omits `os`, but `notification.py` does not need the `cwd` field.
+  - **Suggested fix**: Add `import os` alongside the other stdlib imports when applying the C1 fix.
+file_path: cycles/008/findings/FI-008-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-179
+verdict: Fail
+content_hash: e2737698d63b162656e549366d51a63671db85f989fbeb0e4b7a15c725d6213b
+token_count: 183

@@ -1,0 +1,58 @@
+id: WI-182
+type: work_item
+title: Extend event schema for new hook types
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - HookType enum has 15 members including all 11 new types
+  - InternalEvent has optional fields agent_id, agent_type, source, reason, task_id, task_subject, task_description, teammate_name, error, is_interrupt, prompt_text (all defaulting to None)
+  - EVENT_SCHEMA hook_type enum list contains all 15 values
+  - EVENT_SCHEMA params properties include agent_id, agent_type, source, reason, task_id, task_subject, task_description, teammate_name, error, is_interrupt, prompt as optional fields
+  - EventProcessor.process_event() extracts new fields from raw params and passes to InternalEvent constructor
+  - python -c "from hamlet.event_processing.internal_event import HookType; assert len(HookType) == 15" exits 0
+module: null
+domain: null
+notes: |
+  # WI-182 Notes: Extend event schema for new hook types
+  
+  ## Context
+  The HookType enum, InternalEvent dataclass, EVENT_SCHEMA, and EventProcessor all need updating for the 11 new hook types.
+  
+  ## HookType location
+  HookType is defined in src/hamlet/event_processing/internal_event.py (not world_state/types.py).
+  
+  ## New InternalEvent fields
+  All optional (default None), added after existing fields:
+  - agent_id: str | None = None
+  - agent_type: str | None = None  
+  - source: str | None = None
+  - reason: str | None = None
+  - task_id: str | None = None
+  - task_subject: str | None = None
+  - task_description: str | None = None
+  - teammate_name: str | None = None
+  - error: dict[str, Any] | None = None
+  - is_interrupt: bool | None = None
+  - prompt_text: str | None = None  (maps from raw "prompt" key)
+  
+  ## EventProcessor extraction
+  In the from_raw_params() method or equivalent, add:
+  agent_id=params.get("agent_id"),
+  agent_type=params.get("agent_type"),
+  source=params.get("source"),
+  reason=params.get("reason"),
+  task_id=params.get("task_id"),
+  task_subject=params.get("task_subject"),
+  task_description=params.get("task_description"),
+  teammate_name=params.get("teammate_name"),
+  error=params.get("error"),
+  is_interrupt=params.get("is_interrupt"),
+  prompt_text=params.get("prompt"),
+cycle_created: 1
+cycle_modified: null
+content_hash: "3d308305617445b58be72504c8edc6414b8cb69240bcbfc6d4d564cdeefced73"
+token_count: 581
+file_path: .ideate/work-items/WI-182.yaml

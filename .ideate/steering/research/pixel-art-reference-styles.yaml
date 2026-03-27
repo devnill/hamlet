@@ -1,0 +1,401 @@
+id: research-pixel-art-reference-styles
+type: research
+title: Pixel Art Reference Styles
+content: |
+  # Pixel Art Reference Styles
+  
+  Research into the visual art styles of three reference games to inform sprite design
+  for hamlet's village simulation idle game.
+  
+  **Date:** 2026-03-22
+  **Status:** Complete
+  
+  ---
+  
+  ## 1. Core Keeper (Pugstorm, 2024)
+  
+  **Genre context:** Top-down mining/farming sandbox set entirely underground.
+  
+  ### Tile Size and Resolution
+  
+  - The world grid uses **16x16 tile cells** for spatial partitioning (mob spawning,
+    chunk boundaries).
+  - Sprites appear to use a relatively coarse pixel density -- community discussions
+    describe the game as having "large pixels" compared to peers like Stardew Valley.
+  - The base art resolution is estimated at **16x16 per tile**, with characters
+    occupying roughly 16x16 to 16x24 pixel footprints before upscaling.
+  - The game internally renders as a 3D scene (sprites on planes), which enables its
+    advanced lighting pipeline.
+  
+  ### Color Palette
+  
+  - Runs in **8-bit color mode by default** (16.7 million available colors) with an
+    optional 16-bit color depth setting that affects lighting/shader fidelity.
+  - Each biome has a **distinct color identity**: earthy browns and oranges (Clay Caves),
+    lush greens (Azeos' Wilderness), deep blues (Sunken Sea), warm golds (Meadow).
+  - Palette leans heavily on **saturated, warm neons and glowing oranges** contrasted
+    against dark cave backgrounds. The darkness-to-color contrast is the defining
+    visual feature.
+  - A community-extracted palette guide exists on Steam, suggesting the effective
+    working palette per biome is **~20-30 colors** despite the technical color depth.
+  
+  ### Terrain Rendering
+  
+  - **Cave walls:** Dense, dark tiles with subtle texture variation. Unexplored areas
+    are pure black, creating strong figure-ground contrast.
+  - **Ground/floors:** Each biome has distinct ground tiles -- dirt, stone, grass, sand,
+    coral. Ground tiles use 2-4 color variations with subtle noise patterns.
+  - **Water (Sunken Sea):** Animated blue tiles with transparency effects, lighter
+    edges where water meets land.
+  - **Vegetation (Azeos' Wilderness):** One of the few bright biomes. Trees and plants
+    rendered as individual sprites placed on ground tiles, with shadow sprites beneath.
+  - **Transitions:** Biome edges blend through intermediate tile variants rather than
+    hard cuts.
+  
+  ### Buildings and Structures
+  
+  - Player-built structures use a **modular tile system** -- walls, floors, doors, and
+    furniture are individual placeable tiles.
+  - Structures read clearly against the dark underground background due to high
+    contrast.
+  - Workbenches, furnaces, and crafting stations are **single-tile or 2x2 tile
+    sprites** with clear silhouettes.
+  - No roof system (underground setting eliminates the need).
+  
+  ### Characters and NPCs
+  
+  - Characters are small, **chibi-proportioned** sprites with oversized heads relative
+    to body (~40% head).
+  - Simple 4-directional or 8-directional movement animations.
+  - Equipment visually changes the character sprite (armor, weapons visible).
+  - NPCs use the same proportional style, distinguished by color and accessories.
+  - Animation is minimal but fluid -- walk cycles, tool swings, idle bobbing.
+  
+  ### Notable Visual Techniques
+  
+  - **Dynamic lighting is the signature technique.** Light sources cast colored,
+    physically-modeled light that bounces off surfaces and takes surface color into
+    account. This transforms simple pixel art into atmospheric scenes.
+  - **Fog of war:** Unexplored areas are pitch black, revealed areas remain dimly lit,
+    creating a strong exploration incentive.
+  - **Glow effects:** Items, crystals, and light sources emit soft radial glows that
+    bleed beyond their tile boundaries.
+  - **No visible outlines** on most sprites -- silhouette readability comes from the
+    dark background contrast instead.
+  - **Minimal dithering** -- relies on lighting engine rather than pixel-level shading
+    techniques.
+  
+  ### What Makes It Distinctive
+  
+  The dark underground setting with dynamic colored lighting. Simple pixel art is
+  elevated dramatically by the lighting system. Every biome feels different primarily
+  through color temperature and light behavior rather than artistic complexity.
+  
+  ---
+  
+  ## 2. Stardew Valley (ConcernedApe, 2016)
+  
+  **Genre context:** Farming simulation RPG with top-down perspective. The closest
+  genre match to hamlet's village simulation.
+  
+  ### Tile Size and Resolution
+  
+  - **Base tile size: 16x16 pixels**, confirmed directly by ConcernedApe.
+  - The game **upscales tiles to 64x64** for display (4x zoom), giving the chunky,
+    readable pixel art look.
+  - Native resolution before scaling is approximately **400x224** (varies by zoom
+    level), displayed at standard monitor resolutions.
+  - All world objects snap to the 16x16 grid. Larger objects (buildings, trees) are
+    composed of multiple 16x16 tiles.
+  
+  ### Color Palette
+  
+  - Uses a **disciplined palette of 16-32 colors per sprite**, with ConcernedApe
+    noting that exceeding 32 colors per sprite "should have a very good reason."
+  - Overall palette is **warm and saturated**: dominant golds, rich greens, warm
+    browns, bright blues for water.
+  - Key palette colors include: Miami Blue (#59C9F1), Firebrick (#B52121), Royal
+    Brown (#6B3710), Deep Topaz (#DDA059), Candlelight Yellow (#FFD921), Dark Fern
+    (#15560b), and Mandalay (#b18816).
+  - Seasons dramatically shift the palette: spring is pastel green/pink, summer is
+    deep green/gold, fall is orange/red/brown, winter is blue/white/grey.
+  - The palette creates a **unified, cohesive world feel** -- everything looks like
+    it belongs together because of color discipline.
+  - Early development had a "washed-out" palette; the final version is notably more
+    saturated and warm.
+  
+  ### Terrain Rendering
+  
+  - **Grass:** Multiple tile variants with subtle color variation. Seasonal grass
+    changes color entirely (green in spring/summer, orange in fall, snow-covered in
+    winter). Decorative grass tufts are separate animated sprites.
+  - **Water:** Animated tiles with 2-3 frame shimmer. Darker at edges, lighter in
+    center. Distinct beach/shoreline transition tiles.
+  - **Dirt/paths:** Autotiling system -- path tiles automatically connect to adjacent
+    paths with appropriate corner and edge pieces.
+  - **Mountains/cliffs:** Rendered as dark elevated terrain with visible face/edge
+    tiles. Trees and rocks placed on top as separate sprites.
+  - **Trees:** Multi-tile sprites (typically 48x96 pixel canopy area). Seasonal
+    variation (leaf color, bare in winter). Cast small shadow sprites. Shake animation
+    when struck.
+  - **Farms/fields:** Tilled soil is a distinct darker tile; crops grow as animated
+    sprites placed on top of soil tiles.
+  
+  ### Buildings and Structures
+  
+  - Buildings are **multi-tile compositions**, typically 3-5 tiles wide and 3-4 tiles
+    tall.
+  - Use a **3/4 overhead perspective** -- you see the front face and roof
+    simultaneously.
+  - Roofs use warm colors (brown, red, blue shingles) with 2-3 color shading to
+    suggest depth.
+  - Doors and windows are clear focal points with high contrast against walls.
+  - Interior buildings use the same tile system but with indoor-specific tilesets
+    (wood floors, wallpaper, furniture).
+  - Each building has a **distinct silhouette** -- the blacksmith, store, saloon, and
+    houses are all immediately recognizable from shape alone.
+  
+  ### Characters and NPCs
+  
+  - **Player/NPC overworld sprites: 16x32 pixels** (1 tile wide, 2 tiles tall).
+  - **Chibi proportions:** Head is roughly 1/3 of total height, large enough for
+    readable facial features (eyes, hair color).
+  - **Walk cycle: 4 frames per direction**, 4 directions = 16 movement frames total.
+  - Additional animation frames for: Flower Dance (frames 40-47), wedding sprites
+    (frames 36-38 female, 48-50 male), and various event-specific poses.
+  - **Portrait system:** Separate 64x64 pixel portraits for dialogue, with multiple
+    expressions per character. These are much more detailed than overworld sprites.
+  - NPCs are distinguished by **hair color, clothing color, and accessories** --
+    silhouette alone often sufficient for recognition.
+  - Minimal animation -- characters bob slightly when idle, simple 4-frame walks.
+  
+  ### Notable Visual Techniques
+  
+  - **Basic anti-aliasing** on curves and diagonals -- single intermediate-color
+    pixels smooth edges.
+  - **Dithered gradients** used sparingly for sky backgrounds and some terrain
+    transitions.
+  - **No black outlines** on sprites -- objects are defined by color contrast against
+    backgrounds and adjacent tiles.
+  - **Shadow sprites** placed beneath trees, buildings, and characters (small dark
+    ellipses).
+  - **Layered rendering:** Buildings have a "front" layer that renders over the player
+    when walking behind, creating depth.
+  - **Seasonal palette swaps** recolor entire tilesets rather than redrawing -- efficient
+    technique for massive visual variety.
+  - **Consistent light source:** Implied top-left lighting across all sprites, creating
+    uniform shading direction.
+  
+  ### What Makes It Distinctive
+  
+  The warm, saturated, disciplined palette combined with the 16x16 grid at 4x zoom
+  creates a chunky, readable, inviting world. The seasonal palette system gives
+  enormous visual variety from relatively few base assets. Every pixel counts at 16x16
+  -- shapes must communicate through silhouette and color, not detail.
+  
+  ---
+  
+  ## 3. The Legend of Zelda: A Link to the Past (Nintendo, 1991)
+  
+  **Genre context:** SNES top-down action-adventure. The gold standard for 16-bit
+  top-down pixel art.
+  
+  ### Tile Size and Resolution
+  
+  - **SNES native resolution: 256x224 pixels.**
+  - **Base tile unit: 8x8 pixels**, but most visual tiles are composed as **16x16
+    meta-tiles** (2x2 arrangements of 8x8 tiles).
+  - Collision detection operates at the 8x8 sub-tile level, allowing half-tile
+    precision for gameplay while visual tiles read as 16x16.
+  - The game cartridge was **8 Mbit (1 MB)**, double the SNES standard of 4 Mbit,
+    enabling the expansive overworld and dual Light/Dark World.
+  - Remarkable compression: PNG exports of the complete Light World overworld are
+    larger than the entire game ROM.
+  
+  ### Color Palette
+  
+  - SNES supports **256 colors on screen** from a master palette of 32,768 colors
+    (15-bit RGB).
+  - Sprites use **4 bits per pixel (4bpp)**, allowing **15 colors + 1 transparency**
+    per palette (16 slots, slot 0 = transparent).
+  - Many tiles use a **compressed 8-color mode** (3bpp equivalent) to save ROM space,
+    with a leading bit added at runtime to index into the full 16-color palette.
+  - The Light World uses a **bright, warm, saturated palette**: vivid greens for grass,
+    warm browns for earth, bright blues for water, warm stone grays.
+  - The Dark World uses a **cooler, more muted palette**: purple-tinged greens, darker
+    browns, more ominous blues -- achieved largely through palette swaps of the same
+    tile art.
+  - Per-area palette changes create distinct moods: Death Mountain is grey/brown,
+    the Lost Woods is deep green, Kakariko Village is warm earth tones.
+  
+  ### Terrain Rendering
+  
+  - **Grass:** Simple 2-3 color tiles with subtle pattern variation. Live grass and
+    dead grass are palette swaps of the same tile art -- they are **never placed
+    adjacent to each other** (always separated by dirt or cliffs) to avoid needing
+    additional edge transition tiles.
+  - **Water:** Animated 2-frame tiles with highlight shimmer. River/lake edges use
+    dedicated shoreline transition tiles. Waterfalls are multi-tile animated sprites.
+  - **Mountains/cliffs:** Rendered as elevated terrain with visible cliff faces.
+    Diagonal cliff walls require **5 unique 8x8 tiles** due to the constraint of the
+    tile grid.
+  - **Trees/forests:** Individual trees are ~16x24 sprites. Dense forests are formed
+    by repeating tree canopy tiles. The Lost Woods uses darker palette variants of
+    standard tree tiles.
+  - **Flowers** are always carefully positioned above a sprig of grass or in specific
+    patterns -- deliberate placement rules maintain visual consistency.
+  
+  ### Buildings and Structures
+  
+  - **3/4 overhead perspective** with a distinctive technique: the **backside of
+    structures is visible but rendered shorter than the front side**. This allows
+    Link to jump to lower levels while keeping the view unobstructed.
+  - Buildings in Kakariko Village are **3-5 tiles wide, 3-4 tiles tall**, using warm
+    brown/cream stone walls with darker roof tiles.
+  - Doors are single-tile dark rectangles -- high contrast entry points.
+  - Interiors use completely separate tilesets from the overworld, with their own
+    palettes optimized for indoor scenes.
+  - Dungeon structures use more geometric, angular designs with heavy use of
+    stone/brick tile patterns.
+  
+  ### Characters and NPCs
+  
+  - **Link's sprite: approximately 16x24 pixels** (one tile wide, 1.5 tiles tall).
+  - **Chibi proportions with exaggerated head:** Head is nearly 50% of sprite height,
+    which is necessary for readability at the small sprite size.
+  - Link has dedicated sprite sheets for **multiple directional facings and actions**
+    (walking, sword swing, shield, pushing, pulling, falling, swimming).
+  - NPCs are similarly proportioned but simpler -- fewer animation frames, often
+    just 2-frame idle animations.
+  - Enemies range from single-tile (soldiers, slimes) to multi-tile bosses,
+    all maintaining the same proportional style.
+  - **4bpp format** for all character sprites with 15 usable colors per palette.
+  
+  ### Notable Visual Techniques
+  
+  - **Palette swapping** is the primary technique for visual variety. The Dark World
+    reuses Light World tile art with different color palettes, effectively doubling
+    the visual content at minimal ROM cost.
+  - **No visible black outlines** on most sprites -- a darker shade of the sprite's
+    own color is used for edges (e.g., dark green outlines on green bushes, dark
+    brown on brown buildings).
+  - **Implied 3/4 perspective** throughout -- consistent across all art assets,
+    creating a unified sense of depth.
+  - **Tile compression trick:** Limiting tiles to 8 colors instead of 16 halved
+    storage per tile, with runtime decompression restoring full palette indexing.
+  - **Layer-based depth:** SNES background layers used to create parallax and
+    overlap effects (trees over pathways, bridges over water).
+  - **Minimal dithering** -- the SNES palette was rich enough that smooth gradients
+    within a 15-color palette were achievable without heavy dithering.
+  - **Animated water and environmental tiles** use simple 2-frame alternation for
+    subtle movement that brings the world to life.
+  
+  ### What Makes It Distinctive
+  
+  Masterful economy. Every pixel and every palette slot serves a purpose. The dual
+  Light/Dark World trick (same geometry, different palettes) is the ultimate
+  expression of palette-driven visual design. The consistent 3/4 perspective and
+  self-colored outlines (not black) create a soft, painterly quality unusual for
+  16-bit games.
+  
+  ---
+  
+  ## Common Threads and Recommendations for Hamlet
+  
+  ### Consistent Across All Three Games
+  
+  1. **16x16 base tile grid.** All three games use 16x16 as the fundamental tile
+     unit (ALttP composes 16x16 from 8x8 sub-tiles, but the visual unit is 16x16).
+     This is the industry standard for top-down pixel art games and should be
+     hamlet's base unit.
+  
+  2. **Chibi character proportions.** Characters across all three have oversized
+     heads (33-50% of sprite height) for readability at small sizes. Hamlet NPCs
+     should follow suit: 16x16 or 16x24 sprites with head occupying the top third
+     to half.
+  
+  3. **Disciplined, limited palettes.** None of these games throw unlimited colors
+     at sprites. Stardew caps at 16-32 per sprite, ALttP at 15 per palette.
+     Recommendation: **target 12-20 colors per sprite/tileset group**.
+  
+  4. **No heavy black outlines.** All three games avoid thick black outlines.
+     Stardew and ALttP use self-colored edges (darker shade of the object's own
+     color). Core Keeper relies on background contrast. Recommendation: use
+     **darkened self-color for edges**, not black.
+  
+  5. **Warm, saturated base palette.** All three lean warm -- greens, golds, browns,
+     with blue reserved primarily for water. The village simulation genre especially
+     benefits from inviting, warm color temperatures.
+  
+  6. **Simple animation cycles.** Walk cycles are 4 frames per direction. Idle
+     animations are 1-2 frames. Environmental animation (water shimmer, grass sway)
+     is 2-3 frames. Hamlet can achieve a polished look with minimal frame counts.
+  
+  7. **3/4 overhead perspective.** Stardew and ALttP both use a slight 3/4 view
+     (you see the front face of buildings and a bit of the top/roof). Core Keeper
+     is more purely top-down. For a village sim, 3/4 perspective better communicates
+     building identity.
+  
+  8. **Layered depth cues.** All three use sprites rendering over/under the player
+     to create depth. Trees, roofs, and tall objects have "front" layers. Small
+     shadow sprites beneath objects ground them in the scene.
+  
+  ### Recommended Art Direction for Hamlet
+  
+  | Parameter | Recommendation | Rationale |
+  |-----------|---------------|-----------|
+  | Base tile | 16x16 pixels | Industry standard, proven at all three references |
+  | Display scale | 3x or 4x | Stardew uses 4x; 3x gives slightly more screen real estate |
+  | Character size | 16x24 or 16x32 | 16x24 for compact (ALttP), 16x32 for expressive (Stardew) |
+  | Head ratio | 35-45% of height | Necessary for readability; all three references use this |
+  | Colors per sprite | 12-20 | Enough for shading depth, few enough for cohesion |
+  | Outline style | Self-colored (dark variant) | Softer than black outlines; used by ALttP and Stardew |
+  | Walk frames | 4 per direction | Standard across all references |
+  | Perspective | 3/4 overhead | Best for communicating building/village identity |
+  | Palette temperature | Warm (green, gold, brown base) | All three references lean warm; inviting for village sim |
+  | Water animation | 2-3 frame shimmer | Simple but effective across all references |
+  | Terrain transitions | Dedicated edge/corner tiles | ALttP and Stardew both use explicit transition tiles |
+  | Lighting | Ambient with implied direction | Top-left light source (Stardew) or dynamic (Core Keeper) |
+  
+  ### Priority Techniques to Adopt
+  
+  1. **Palette-driven variety** (from ALttP): Design tilesets that can be recolored
+     for biome/season variation. A single tree tileset palette-swapped for
+     spring/summer/fall/winter is far more efficient than four separate tree designs.
+  
+  2. **Strong silhouette design** (from Stardew): At 16x16, shape matters more than
+     detail. Every building, tree type, and NPC should be identifiable by silhouette
+     alone.
+  
+  3. **Warm-to-cool contrast** (from all three): Use warm tones for inhabited/safe
+     areas (villages, farms) and cooler tones for wilderness/danger. This naturally
+     guides player attention.
+  
+  4. **Atmospheric lighting as mood** (from Core Keeper): Even without a full dynamic
+     lighting engine, time-of-day palette shifts (bright midday, golden evening,
+     blue-tinted night) add enormous atmosphere cheaply.
+  
+  5. **Consistent implied perspective** (from ALttP): Pick 3/4 overhead and commit to
+     it everywhere. Inconsistent perspective is the most common amateur pixel art
+     mistake.
+  
+  ---
+  
+  ## Sources
+  
+  - [Steam Community: Core Keeper Palette for Pixel Art](https://steamcommunity.com/sharedfiles/filedetails/?id=2834903795)
+  - [Core Keeper Wiki: Biomes](https://core-keeper.fandom.com/wiki/Biomes)
+  - [ConcernedApe confirming 16x16 tile size (Twitter)](https://x.com/concernedape/status/722879648758018048)
+  - [Stardew Valley Forums: Sprite Sizes](https://forums.stardewvalley.net/threads/sprite-sizes-character-sheets-pixel-art.5597/)
+  - [Stardew Valley Wiki: Modding NPC Data](https://wiki.stardewvalley.net/Modding:NPC_data)
+  - [Stardew Valley Color Scheme](https://www.schemecolor.com/stardew-valley.php)
+  - [ConcernedApe Interview: Getting Started with Pixel Art](https://mentalnerd.com/blog/getting-started-pixel-art-interview/)
+  - [Ken Vermette: ALttP Tileset and Sprite Trivia](https://kver.wordpress.com/2016/10/08/a-link-to-the-tileset-sprite-trivia/)
+  - [Speccy Nostalgia: ALttP Technical Analysis](https://speccynostalgia.wordpress.com/2017/06/07/the-legend-of-zelda-a-link-to-the-past/)
+  - [The Spriters Resource: ALttP](https://www.spriters-resource.com/snes/legendofzeldaalinktothepast/)
+  - [GameDev.net: ALttP Art Style Discussion](https://www.gamedev.net/forums/topic/637392-the-legend-of-zelda-a-link-to-the-past-art-style/)
+  - [Sprite-AI: 2D Pixel Art Style Guide](https://www.sprite-ai.art/blog/2d-pixel-art-style-guide)
+  - [ArtStation: Core Keeper Character Sheet](https://www.artstation.com/artwork/wJX2P9)
+  - [PCGamesN: Core Keeper Visual Overhaul Update](https://www.pcgamesn.com/core-keeper/update-steam-survival-game-zelda)
+content_hash: b63e0b352ba7ee52a70b5575523fad12691e27ec6f051511eaa665f3f15dc571
+token_count: 5293

@@ -1,0 +1,19 @@
+id: FI-013-005
+type: finding
+cycle: 13
+reviewer: code-reviewer
+severity: significant
+title: Default water_threshold triggered spurious warning
+description: |
+  - **File**: `src/hamlet/world_state/terrain.py:127-130`
+  - **Issue**: Original validation checked all 4 thresholds against `[0, 1]`, but `water_threshold` defaults to `-0.25` (a valid noise threshold). Every default `TerrainConfig()` would log a warning.
+  - **Impact**: Log pollution on every terrain generation.
+  - **Suggested fix**: Applied — separated `water_threshold` validation to use `[-1, 1]` range.
+file_path: cycles/013/findings/FI-013-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: null
+verdict: Pass
+content_hash: c77d2c50e8c7dc7022156c544b0bc972e0f4f1ca8254ba2aa902e2dc717cb764
+token_count: 179

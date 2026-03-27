@@ -1,0 +1,19 @@
+id: FI-008-019
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: `TeammateIdle` state mutation is a permanent no-op
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:770`
+  - **Issue**: `getattr(agent, "name", None) == teammate_name` is used to match agents, but the `Agent` dataclass (defined in `/Users/dan/code/hamlet/src/hamlet/world_state/types.py:91-106`) has no `name` field. `getattr` always returns `None`, so the comparison is always `False`. No agent will ever be set to `IDLE` by this handler regardless of input. This was M2 in the prior review but is upgraded here because `TeammateIdle` is one of the 11 new event types required by acceptance criterion 4 (the criterion covers `SessionEnd`, but the same stated intent of setting agents to IDLE applies — and a handler that literally never mutates state is incorrect behaviour).
+  - **Impact**: `TeammateIdle` produces no visual change under any circumstances, defeating its purpose entirely.
+  - **Suggested fix**: Match on `event.agent_id` instead: `if agent.id == event.agent_id`. If `event.agent_id` is absent, match on `session_id` as a fallback (consistent with how other handlers locate agents). Remove the `getattr` call.
+file_path: cycles/008/findings/FI-008-019.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: "155a488484d7a2af25bc91138c6dca84b764094850e60fa812004cb3adb31115"
+token_count: 352

@@ -1,0 +1,18 @@
+id: FI-003-029
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `session.agent_ids[-1]` updates wrong agent in multi-agent sessions
+description: |
+  - **File**: `src/hamlet/inference/engine.py:209`
+  - **Issue**: Used `agent_ids[-1]` (most recently spawned child) instead of `agent_ids[0]` (primary agent). The tool window aggregates events for the full session, so inferred type belongs to the primary agent.
+  - **Resolution**: Fixed — changed to `agent_ids[0]`.
+file_path: cycles/003/findings/FI-003-029.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-024
+verdict: Fail
+content_hash: "9338a0b0bcecc45ee8932abbdc4c59c1cb1192925f97ec49cb63302efbba0c02"
+token_count: 160

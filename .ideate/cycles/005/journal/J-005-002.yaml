@@ -1,0 +1,24 @@
+id: J-005-002
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 5
+title: Cycle 7 review complete — CONVERGENCE ACHIEVED
+content: |
+  critical: 0, significant: 0, minor: 2
+  Condition A: PASS (critical=0, significant=0). Condition B: PASS (Principle Violations: None.).
+  Convergence achieved after 7 cycles.
+  
+  Work items completed this cycle:
+  - WI-217: Village.has_expanded flag + expansion cooldown — prevents unbounded per-tick expansion re-triggering
+  - WI-218: 5 missing methods added to WorldStateProtocol; hasattr guards removed; RemoteWorldState stubs corrected
+  - WI-219: _seed_initial_structures called outside lock for expansion outposts (LIBRARY/WORKSHOP/FORGE seeded)
+  
+  Additional fixes applied within cycle review:
+  - `_serialize_village` now includes `has_expanded` in JSON response
+  - `_parse_village` in RemoteWorldState now deserializes `has_expanded`
+  - `test_found_village_idempotency_inner_guard` rewritten to exercise actual has_expanded code path
+  - `test_create_road_between_skips_without_create_structure` removed (tested deleted behavior)
+  - `@pytest.mark.asyncio` decorators removed from test_persistence_migrations.py
+content_hash: "9125656836df13fccf5d403804ac5676f77627165b50364a2917a4069288ebe4"
+token_count: 294

@@ -1,0 +1,19 @@
+id: FI-013-001
+type: finding
+cycle: 13
+reviewer: code-reviewer
+severity: significant
+title: Threshold range minimums conflict with TerrainConfig validation
+description: |
+  - **File**: `src/hamlet/tui/parameter_panel.py:33-36`
+  - **Issue**: `water_threshold` min is `-1.0` but `__post_init__` originally warned outside `[0, 1]`. Fixed in rework by separating `water_threshold` validation to use `[-1, 1]` range.
+  - **Impact**: Users dragging water_threshold negative would trigger spurious warnings.
+  - **Suggested fix**: Applied — `water_threshold` now validated against `[-1, 1]`.
+file_path: cycles/013/findings/FI-013-001.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: null
+verdict: Pass
+content_hash: d4a4ecfbcc3ea3e426dd5493194b53c6182deb91ea178c85176c6d01ed7cec0f
+token_count: 183

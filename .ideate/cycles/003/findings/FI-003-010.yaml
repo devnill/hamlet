@@ -1,0 +1,19 @@
+id: FI-003-010
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Undocumented `sequence=0` rejection contradicts the architecture contract
+description: |
+  - **File**: `src/hamlet/event_processing/internal_event.py:73`
+  - **Issue**: `__post_init__` raises `ValueError` when `sequence < 1`. The architecture contract defines `sequence: number` only as a "Monotonic counter" with no lower-bound constraint. The spec notes say "Validation ensures hook_type is valid and id is non-empty" — no mention of sequence validation.
+  - **Impact**: Any caller initializing sequence counter at 0 receives unexpected `ValueError` on first event construction.
+  - **Suggested fix**: Remove the `sequence < 1` check entirely.
+file_path: cycles/003/findings/FI-003-010.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-011
+verdict: Fail
+content_hash: "28ee2c1ed127ca6506f59dcfbd72e5dea96ce789e7476971ee9f940b56529a44"
+token_count: 223

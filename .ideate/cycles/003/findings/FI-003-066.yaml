@@ -1,0 +1,18 @@
+id: FI-003-066
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Spec requires per-village agent/structure retrieval; implementation retrieves globally
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:84`
+  - **Issue**: Acceptance criterion says "Retrieves villages, then agents and structures per village." Implementation retrieves all agents globally. Component interfaces accept flat lists, so functionally equivalent.
+  - **Resolution**: Not changed — functionally correct for current component interfaces.
+file_path: cycles/003/findings/FI-003-066.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-046
+verdict: Fail
+content_hash: "8742553a0c3ebb3ce987e7155c3128eb88ab0c8af4b3c288d83d97b7944870f5"
+token_count: 174

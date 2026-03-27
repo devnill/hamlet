@@ -1,0 +1,25 @@
+id: RM-013
+type: review_manifest
+cycle: 13
+content: |
+  # Review Manifest — Cycle 013
+  
+  ## Work Items
+  
+  | # | Title | File Scope | Incremental Verdict | Findings (C/S/M) | Notes Path | Review Path |
+  |---|---|---|---|---|---|---|
+  | WI-258 | Fix Water Bias Formula Documentation | world_state/terrain.py | Pass | 0/0/0 | plan/notes/258.md | archive/incremental/wi-258-review.md |
+  | WI-259 | Add Missing Parameters to Parameter Panel | tui/parameter_panel.py | Pass | 0/2/1 | plan/notes/259.md | archive/incremental/wi-259-review.md |
+  | WI-260 | Update Settings Docstring | config/settings.py | Pass | 0/0/0 | plan/notes/260.md | archive/incremental/wi-260-review.md |
+  | WI-261 | Refactor Bounds Calculation | tui/map_viewer.py | Pass | 0/0/0 | plan/notes/261.md | archive/incremental/wi-261-review.md |
+  | WI-262 | Add Legend Toggle to MapApp | tui/map_app.py, tui/legend.py | Pass | 0/0/1 | plan/notes/262.md | archive/incremental/wi-262-review.md |
+  | WI-263 | Add Parameter Validation to TerrainConfig | world_state/terrain.py | Pass | 0/1/0 | plan/notes/263.md | archive/incremental/wi-263-review.md |
+  
+  ## Summary
+  - 6 work items, all Pass
+  - 0 critical, 3 significant (2 in WI-259, 1 in WI-263), 2 minor findings
+  - WI-263 significant finding (spurious water_threshold warning) was fixed during rework
+  - WI-259 S1 (threshold range conflict) resolved by WI-263 rework
+  - WI-259 S2 (no None reset for auto fields) deferred as usability gap
+content_hash: "5b34591e4ac418306823363da872fa36c52df0a6eba94cf0f1c2c7b0f2ce869f"
+token_count: 364

@@ -1,0 +1,18 @@
+id: FI-003-094
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: assert used as connection guard
+description: |
+  - **File**: `src/hamlet/persistence/connection.py:36,41,46,51,56,61`
+  - **Issue**: assert statements are stripped with -O flag; AssertionError is wrong exception type for API boundary violations.
+  - **Fix**: Replaced all asserts with explicit `if conn is None: raise RuntimeError(...)` guards.
+file_path: cycles/003/findings/FI-003-094.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-072
+verdict: Pass
+content_hash: cc28f3450dfe4511d4f1fc337e0d14a346911e03f0884ae2762d1ce93a4622d5
+token_count: 147

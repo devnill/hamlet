@@ -1,0 +1,18 @@
+id: FI-012-003
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: No Explicit Status Bar Sync on Mount
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/map_app.py:147-149`
+  - **Issue**: The `on_mount` method sets up periodic refresh but does not call `_update_status_bar()` to ensure initial zoom level sync. While the StatusBar defaults to zoom=1 (matching MapViewer.zoom default), there's no explicit synchronization.
+  - **Suggested fix**: Add `_update_status_bar()` call in `on_mount()` to ensure consistent initial state.
+file_path: cycles/012/findings/FI-012-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-253
+verdict: Pass
+content_hash: c2b361004bf5e2583ba68b8fb5616bb3adf84ad47e5c7990b63cfa65830406f6
+token_count: 179

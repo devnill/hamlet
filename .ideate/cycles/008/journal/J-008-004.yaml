@@ -1,0 +1,11 @@
+id: J-008-004
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 8
+title: "Work item 092: Hook Installation Command"
+content: |
+  Status: complete
+  Created src/hamlet/cli/ module with install/uninstall commands. Auto-detects Claude Code settings, creates backups, validates MCP server, outputs clear messages (GP-11).
+content_hash: "6d35327fc8108542eb297f946b217d711181cafc418a10b6b26169b04a4173ee"
+token_count: 87

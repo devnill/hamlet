@@ -1,0 +1,18 @@
+id: FI-003-170
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: mcp_port type check error message misleading for wrong type
+description: |
+  - **File**: `src/hamlet/config/settings.py:33`
+  - **Issue**: When `mcp_port` is a string, the error said "must be between 1 and 65535" — a range message for a type error. After rework, type check raises "must be an integer" and range check raises "must be between 1 and 65535".
+  - **Status**: Fixed — split into two distinct checks with appropriate messages.
+file_path: cycles/003/findings/FI-003-170.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-112
+verdict: Pass
+content_hash: "8ae94f6c2a81f1e188296d3eea4ce328062e14e64eaeea45fd1a2a1736c2dabd"
+token_count: 171

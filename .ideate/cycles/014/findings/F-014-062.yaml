@@ -1,0 +1,18 @@
+id: F-014-062
+type: finding
+cycle: 14
+reviewer: code-reviewer
+severity: minor
+title: `_install` idempotency guard returns exit code 0 when plist exists but service is not running
+description: |
+  - **File**: `src/hamlet/cli/commands/service.py:79`
+  - **Issue**: When the plist exists but the service is not running, `_install` prints a message and returns `0`. Exit code 0 conventionally means success. A script that runs `hamlet service install && hamlet service start` would see the `0` from install, proceed to `start`, and start the service — which may be the intended behaviour. However, there is no way for a script to distinguish "newly installed" from "already installed but not running" using exit codes alone. This is a usability and scripting concern.
+  - **Suggested fix**: Return a non-zero exit code (e.g., `2`) for the "already installed but not running" case to allow callers to distinguish it from a clean install, or document that `0` is intentional for idempotent install semantics.
+file_path: cycles/014/findings/F-014-062.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-014
+verdict: Pass
+content_hash: ce2e9fc2cab1adfcd7bf1a06111c8c99bc2f07138395995674f48c6aecd13c2e
+token_count: 290

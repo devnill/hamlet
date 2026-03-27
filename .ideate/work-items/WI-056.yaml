@@ -1,0 +1,27 @@
+id: WI-056
+type: work_item
+title: Viewport Package Exports
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/viewport/__init__.py` exists
+  - Exports `Position`, `Size`, `BoundingBox` from `coordinates`
+  - Exports `ViewportState` from `state`
+  - Exports `SpatialIndex` from `spatial_index`
+  - Exports `ViewportManager` from `manager`
+  - All exports are in `__all__` list
+  - Package can be imported as `from hamlet.viewport import ViewportManager, Position, BoundingBox`
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 056
+  
+  This is the public interface for the viewport module. Import all types and classes from submodules and re-export them.
+cycle_created: 1
+cycle_modified: null
+content_hash: "86187c318e7d65eeac675b1e15707a128c03fa7c5a0431d8558184eb536a5d38"
+token_count: 200
+file_path: .ideate/work-items/WI-056.yaml

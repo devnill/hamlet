@@ -1,0 +1,19 @@
+id: FI-016-021
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: significant
+title: Legend overlay tests absent — Q-15 fix is unverified
+description: |
+  - **File**: `tests/test_kitty_app.py`
+  - **Issue**: The spec names Q-15 (legend overlay renders content) as a specific fix to be spot-checked. There are zero tests for `_render_legend`. The acceptance criterion "Legend overlay renders bordered box with key bindings and symbol meanings" is entirely untested: no test verifies that the method produces output containing box-drawing characters, key binding strings, or terrain symbols from `default_config()`.
+  - **Impact**: A regression to the legend — empty buf, wrong border characters, missing terrain section — would not be caught by the test suite.
+  - **Suggested fix**: Add a test that constructs `KittyApp`, calls `_render_legend()` while capturing `sys.stdout`, and asserts the output contains `"┌"`, `"Key Bindings"`, `"Terrain Symbols"`, and at least one terrain symbol (e.g., `"~"` for water).
+file_path: cycles/016/findings/FI-016-021.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-281
+verdict: Fail
+content_hash: ec0d88363b8eb2ebae9700f1aaeb7a96c0dd87e51ae3a9f61f624e16c6edd09f
+token_count: 295

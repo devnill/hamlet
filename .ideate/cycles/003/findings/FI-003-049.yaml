@@ -1,0 +1,18 @@
+id: FI-003-049
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `session is None` path creates agent not trackable by future calls
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:313`
+  - **Issue**: When session is None, agent is created but not appended to `session.agent_ids`, so subsequent `get_or_create_agent` calls for the same session_id will create a second agent.
+  - **Resolution**: Fixed — added `logger.warning` when session is None to surface the misuse. Normal flow always calls `get_or_create_session` first so this path is abnormal.
+file_path: cycles/003/findings/FI-003-049.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-036
+verdict: Fail
+content_hash: "6926882b7d7d4858c17420b63bff04856155752afb07b88d4b0504a4e63acfb2"
+token_count: 184

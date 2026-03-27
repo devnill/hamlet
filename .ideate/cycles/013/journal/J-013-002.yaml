@@ -1,0 +1,12 @@
+id: J-013-002
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 13
+title: "Work item 122: Consume notification_message and stop_reason downstream"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed from incremental review.
+  S1: world_state/manager.py handle_event() summary branches changed from field-presence guards to unconditional hook-type routing with or '' fallback. M1/M2 (no log when field is None) noted as minor, acceptable behavior.
+content_hash: c68fcde8d77ce2f4572f98c42feba6c5e0add93f35a918cda3f682fd71353738
+token_count: 126

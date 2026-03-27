@@ -1,0 +1,18 @@
+id: FI-003-085
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `action_toggle_follow` direct access to `WorldStateManager._state`
+description: |
+  - **File**: `src/hamlet/tui/app.py:152`
+  - **Issue**: Reads `_world_state._state.agents` without acquiring the async lock. Reviewer flagged as a race condition.
+  - **Resolution**: Not a real race in asyncio (single-threaded, no `await` in the method), but `list()` snapshot was already used. Added comment documenting asyncio safety reasoning.
+file_path: cycles/003/findings/FI-003-085.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-067
+verdict: Fail
+content_hash: "2b150c58270bffe724ba6d620c94b7bb90383c8cdb625ad2c887634ede6a23a6"
+token_count: 167

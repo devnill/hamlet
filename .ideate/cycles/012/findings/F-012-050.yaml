@@ -1,0 +1,30 @@
+id: F-012-050
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Inconsistent Bounds Calculation
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/map_viewer.py:66-87`
+  - **Issue**: `MapViewer.get_visible_bounds()` reimplements the logic from `viewport/coordinates.py:get_visible_bounds()` instead of using the shared utility function. This creates two places to maintain the same bounds calculation logic.
+  - **Impact**: If bounds calculation needs to change, developers must update both locations. The current implementations appear equivalent but duplication invites divergence.
+  - **Suggested fix**: Refactor `MapViewer.get_visible_bounds()` to import and call the utility function from coordinates.py:
+    ```python
+    from hamlet.viewport.coordinates import get_visible_bounds, BoundingBox
+    # ...
+    def get_visible_bounds(self) -> "BoundingBox":
+        from hamlet.viewport.coordinates import Size
+        viewport_size = Size(self._viewport_width, self._viewport_height)
+        center = Position(self.center_x, self.center_y)
+        return get_visible_bounds(center, viewport_size, self.zoom)
+    ```
+  
+  ---
+file_path: cycles/012/findings/F-012-050.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-012
+verdict: Fail
+content_hash: "1ee782a7089ec8ad466a7e21ed5108686d1cfaa183526c6f2e70bd7356e03f89"
+token_count: 329

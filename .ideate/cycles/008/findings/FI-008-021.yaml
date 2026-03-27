@@ -1,0 +1,18 @@
+id: FI-008-021
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: Event log pruning uses list reassignment rather than in-place truncation
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:827`
+  - **Issue**: `self._state.event_log = self._state.event_log[-100:]` replaces the list object. Any reference captured before this line points to the discarded list. Current callers are safe because `get_event_log` copies via `list(...)`, but the pattern is fragile. Unchanged from prior review M3.
+  - **Suggested fix**: Replace with `del self._state.event_log[:-100]` to truncate in place.
+file_path: cycles/008/findings/FI-008-021.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: ee25c5512730ff4d8dcd65df4b693d10783eaaa1d7a2c8f37c4c6752af22162b
+token_count: 198

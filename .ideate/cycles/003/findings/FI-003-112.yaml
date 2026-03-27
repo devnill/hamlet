@@ -1,0 +1,18 @@
+id: FI-003-112
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Error log message conflated UUID with DB row id
+description: |
+  - **File**: `src/hamlet/persistence/event_log.py:31`
+  - **Issue**: `"Failed to insert event log entry %s"` with `entry.id` (a string UUID) was ambiguous against the integer AUTOINCREMENT DB row id.
+  - **Fix applied**: Changed to log `session_id` and `hook_type` as actionable debugging context.
+file_path: cycles/003/findings/FI-003-112.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-077
+verdict: Fail
+content_hash: "58b69009af5cd23841ea02f53566f0d4c261f6b8a225f130c73f170a6af138a1"
+token_count: 150

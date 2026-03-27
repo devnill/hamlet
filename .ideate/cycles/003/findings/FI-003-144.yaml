@@ -1,0 +1,18 @@
+id: FI-003-144
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `log_event` parameter typed as `Any` instead of `InternalEvent`
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:174`
+  - **Issue**: Signature `async def log_event(self, event) -> None:` — no annotation on `event`. Spec requires `InternalEvent`.
+  - **Suggested fix**: Import `InternalEvent` and annotate.
+file_path: cycles/003/findings/FI-003-144.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-105
+verdict: Pass
+content_hash: b1a50b7af172b590eb235f00321585685b11d3de27e2b451b6a7e694d28d2045
+token_count: 139

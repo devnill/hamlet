@@ -1,0 +1,53 @@
+id: WI-248
+type: work_item
+title: Document Ridge Boundary Behavior
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "Comment added at terrain.py:974-977 explaining ridge truncation behavior"
+  - Comment explains that ridge positions extending outside bounds are skipped
+module: null
+domain: null
+notes: |
+  # WI-248: Document Ridge Boundary Behavior
+  
+  ## Context
+  
+  During review of WI-244 (Mountain Ridge Generation), a significant finding was that ridge positions extending outside the requested bounds are silently skipped. This is correct behavior but should be documented.
+  
+  ## Implementation Notes
+  
+  ### Location
+  - `src/hamlet/world_state/terrain.py` — add comment at lines 974-977
+  
+  ### Comment to Add
+  
+  At the ridge integration section in `get_terrain_in_bounds()`:
+  
+  ```python
+  # Step 4: Mark ridge positions as MOUNTAIN
+  for ridge in ridges:
+      for pos in ridge:
+          # Only mark positions within bounds; ridges extending outside
+          # bounds are truncated at the boundary
+          if pos in terrain:
+              terrain[pos] = TerrainType.MOUNTAIN
+  ```
+  
+  ### Rationale
+  
+  Ridge chains are generated from heightmap peaks which may be near the boundary. The midpoint displacement algorithm can produce ridge chains that extend outside the requested bounds. Checking `if pos in terrain` ensures we only mark positions we actually generated terrain for.
+  
+  This truncation is intentional: we generate terrain for the requested bounds, and ridge chains that cross the boundary are clipped to the bounds. This prevents KeyError when accessing the terrain dictionary.
+  
+  ### Tests
+  
+  No new tests needed — this is documentation only.
+cycle_created: 1
+cycle_modified: null
+content_hash: "6a99775815bd1e2cbe2899144fcf3b1520754d949a7e126bae1eb9a825808b72"
+token_count: 447
+file_path: .ideate/work-items/WI-248.yaml

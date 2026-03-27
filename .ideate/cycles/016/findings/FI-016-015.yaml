@@ -1,0 +1,27 @@
+id: FI-016-015
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `render_mode` typed as `str` with no enforcement
+description: |
+  - **File**: `src/hamlet/gui/kitty/zoom.py:16`
+  - **Issue**: The field comment says `"sprite" or "character"` but the type is plain `str`. Nothing prevents callers constructing a `ZoomConfig` with an invalid `render_mode` value (e.g., `"pixel"`). Given that the set of valid values is small and closed, a `Literal["sprite", "character"]` annotation would make the constraint machine-checkable.
+  - **Suggested fix**:
+    ```python
+    from typing import Literal
+  
+    @dataclass(frozen=True)
+    class ZoomConfig:
+        level: ZoomLevel
+        tile_pixels: int
+        render_mode: Literal["sprite", "character"]
+    ```
+file_path: cycles/016/findings/FI-016-015.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-279
+verdict: Pass
+content_hash: b6b090cc70be148e01d36205701b4453fb95a08dec67950152287e183336eef1
+token_count: 233

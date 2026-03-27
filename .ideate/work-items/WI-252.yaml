@@ -1,0 +1,24 @@
+id: WI-252
+type: work_item
+title: Map Viewer Mode with Parameter Adjustment
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "New CLI flag: hamlet --map-viewer or hamlet map-viewer launches map viewer mode"
+  - Map viewer shows terrain without agents/structures
+  - Parameter panel displays current terrain config values
+  - Parameter changes trigger terrain regeneration
+  - Terrain regenerates with same seed when parameters change
+  - UI shows current seed and allows seed randomization
+  - Save button persists parameters to config file
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: "9e3f67665d252d5ee0c7466738aa1b728de07021de5c41a15f1987ac7f8fe517"
+token_count: 176
+file_path: .ideate/work-items/WI-252.yaml

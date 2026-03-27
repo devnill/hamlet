@@ -1,0 +1,24 @@
+id: WI-013
+type: work_item
+title: Event Router Interface
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/event_processing/event_router.py` exists
+  - `EventCallback` type alias defined as `Callable[[InternalEvent], Awaitable[None]]`
+  - `EventRouter` abstract base class with `subscribe` and `unsubscribe` methods
+  - All methods are async
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 013
+  
+  Abstract interface. Concrete implementation in `EventProcessor`. Subscribers receive all processed events and can filter internally.
+cycle_created: 1
+cycle_modified: null
+content_hash: "64338526abe3f7504deed9295b067e81e8c3533745dedf98b87970e62111092c"
+token_count: 172
+file_path: .ideate/work-items/WI-013.yaml

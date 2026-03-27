@@ -1,0 +1,18 @@
+id: FI-016-026
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `_toggle_follow` stores empty string as follow target, breaking toggle-off
+description: |
+  - **File**: `src/hamlet/gui/kitty/app.py:234`
+  - **Issue**: `first.get("id", "")` returns `""` when the agent dict has no `"id"` key. The truthiness check `if self._follow_target` at line 229 evaluates `""` as `False`, so a second `f` keypress enters the `elif` branch instead of the `if` branch, and follow mode cannot be toggled off.
+  - **Suggested fix**: After assigning `self._follow_target`, add `if not self._follow_target: self._follow_target = None` so the toggle invariant is maintained.
+file_path: cycles/016/findings/FI-016-026.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-281
+verdict: Fail
+content_hash: "658fe057bbb40a12ff0cd6c569e5f449421b008bcbfb9df318b4a1169ce1b576"
+token_count: 209

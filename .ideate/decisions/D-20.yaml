@@ -1,0 +1,13 @@
+id: D-20
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 16
+supersedes: null
+description: Kitty protocol pixel coordinates require multiplication by tile_pixels
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "8e520cbe90363311548433c76d5641c4c9a6b2357dab08d14771b701b28b6d24"
+token_count: 73
+file_path: .ideate/decisions/D-20.yaml

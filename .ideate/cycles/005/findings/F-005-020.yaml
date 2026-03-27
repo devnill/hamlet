@@ -1,0 +1,19 @@
+id: F-005-020
+type: finding
+cycle: 5
+reviewer: gap-analyst
+severity: minor
+title: `hamlet service install` absent from QUICKSTART.md and README.md
+description: |
+  - **File**: `QUICKSTART.md`, `README.md`
+  - **Issue**: The `hamlet service install` command (macOS launchd integration) exists in the CLI but is not documented in either user-facing document.
+  - **Impact**: Users must discover this feature by running `hamlet service --help`.
+  - **Suggested fix**: Add a brief section on `hamlet service install/uninstall` in QUICKSTART.md.
+file_path: cycles/005/findings/F-005-020.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-005
+verdict: null
+content_hash: "643feb82173036fdb03f3c43bba5b64354097fa42a942b4f0f343f1286a58925"
+token_count: 173

@@ -1,0 +1,120 @@
+id: WI-130
+type: work_item
+title: Create plugin MCP server
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `mcp/server.py` exists and is a valid Python script
+  - `mcp/server.py` creates an MCP server using the `mcp` library with stdio transport
+  - Server registers one tool named `hamlet_init`
+  - `hamlet_init` creates `.hamlet/config.json` in `Path.cwd()` with `project_id` (UUID4), `project_name` (cwd name), and `server_url`
+  - `hamlet_init` returns existing config contents without overwriting if `.hamlet/config.json` already exists
+  - `hamlet_init` returns a string describing what was created or found
+  - File `mcp/start.sh` exists and is executable
+  - `mcp/start.sh` uses `${CLAUDE_PLUGIN_ROOT}` to locate `mcp/server.py`
+  - `mcp/start.sh` prefers `uv run` if available, falls back to `python3`
+module: null
+domain: null
+notes: |
+  # WI-130: Create plugin MCP server
+  
+  ## Context
+  A lightweight standalone Python MCP server (stdio transport) that exposes the `hamlet_init` tool. This server has no import dependency on the hamlet Python package — it is self-contained in `mcp/`. It is started by Claude Code as the `hamlet-config` MCP server.
+  
+  ## Files to Create
+  
+  ### `mcp/start.sh`
+  ```bash
+  #!/usr/bin/env bash
+  SCRIPT_DIR="${CLAUDE_PLUGIN_ROOT}/mcp"
+  if command -v uv >/dev/null 2>&1; then
+      exec uv run --script "${SCRIPT_DIR}/server.py"
+  else
+      exec python3 "${SCRIPT_DIR}/server.py"
+  fi
+  ```
+  
+  ### `mcp/server.py`
+  ```python
+  #!/usr/bin/env python3
+  """Hamlet plugin MCP server — exposes hamlet_init tool."""
+  import json
+  import uuid
+  from pathlib import Path
+  
+  from mcp.server import Server
+  from mcp.server.stdio import stdio_server
+  from mcp.types import Tool, TextContent
+  import asyncio
+  
+  app = Server("hamlet-config")
+  
+  @app.list_tools()
+  async def list_tools():
+      return [
+          Tool(
+              name="hamlet_init",
+              description=(
+                  "Initialize hamlet for the current project. Creates .hamlet/config.json "
+                  "in the current working directory with a unique project_id and project_name. "
+                  "Run this once per project before using hamlet."
+              ),
+              inputSchema={"type": "object", "properties": {}, "required": []}
+          )
+      ]
+  
+  @app.call_tool()
+  async def call_tool(name: str, arguments: dict):
+      if name != "hamlet_init":
+          raise ValueError(f"Unknown tool: {name}")
+  
+      cwd = Path.cwd()
+      config_dir = cwd / ".hamlet"
+      config_path = config_dir / "config.json"
+  
+      if config_path.exists():
+          existing = json.loads(config_path.read_text())
+          return [TextContent(
+              type="text",
+              text=f"Hamlet config already exists at {config_path}:\n{json.dumps(existing, indent=2)}\nNo changes made."
+          )]
+  
+      config_dir.mkdir(exist_ok=True)
+      config = {
+          "project_id": str(uuid.uuid4()),
+          "project_name": cwd.name,
+          "server_url": "http://localhost:8080/hamlet/event"
+      }
+      config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+  
+      return [TextContent(
+          type="text",
+          text=f"Created {config_path}:\n{json.dumps(config, indent=2)}"
+      )]
+  
+  async def main():
+      async with stdio_server() as (read_stream, write_stream):
+          await app.run(read_stream, write_stream, app.create_initialization_options())
+  
+  if __name__ == "__main__":
+      asyncio.run(main())
+  ```
+  
+  ## Notes
+  - The `mcp` Python library is already a dependency of hamlet (`mcp>=1.0.0` in pyproject.toml). However, since the plugin MCP server is standalone (not importing from hamlet package), `uv run --script` needs `mcp` available. When `uv run` is used, it may need inline script dependencies. Alternatively, the script can use the system Python if `mcp` is globally installed. The `uv run --script` form supports `# /// script` metadata for dependencies — consider adding:
+    ```python
+    # /// script
+    # dependencies = ["mcp>=1.0.0"]
+    # ///
+    ```
+    at the top of `server.py` so `uv run --script` auto-installs `mcp`.
+  - The tool has an empty `inputSchema` — hamlet_init takes no arguments; it uses `Path.cwd()` which is the Claude Code session's working directory.
+  - Both `mcp/start.sh` and `mcp/server.py` must be executable.
+cycle_created: 1
+cycle_modified: null
+content_hash: "7b1e7b46d6ac2080b1691f411fa1eae89123fa771298d8087b2ade0fcc31ed53"
+token_count: 1115
+file_path: .ideate/work-items/WI-130.yaml

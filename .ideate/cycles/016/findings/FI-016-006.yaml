@@ -1,0 +1,18 @@
+id: FI-016-006
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: Double size-snapping in `get_terrain_sprite`, `get_structure_sprite`, `get_agent_sprite`
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/gui/kitty/sprites.py:111-113, 121-123, 132-134`
+  - **Issue**: Each of the three `get_*_sprite` methods calls `_snap_size(size)` to compute `snapped`, then passes `snapped` to `load_sprite(filename, snapped)`. Inside `load_sprite`, `_snap_size` is called again on the already-snapped value. The double call is harmless because `_snap_size` is idempotent, but it obscures the logic and adds unnecessary work.
+  - **Suggested fix**: Pass the already-snapped size directly to the internal path in `load_sprite`, or skip the snap call in the callers and let `load_sprite` handle it as documented.
+file_path: cycles/016/findings/FI-016-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-277
+verdict: Pass
+content_hash: ed4d11ef188831768984572101a18dd743572d3cec44b914d1a62260288b2bcd
+token_count: 246

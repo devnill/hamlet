@@ -1,0 +1,15 @@
+id: FI-003-106
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `config_json` stored as raw dict without serialization
+description: "- **Resolution**: Fixed — `json.dumps(project.config)` used."
+file_path: cycles/003/findings/FI-003-106.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "0672672ec5a39c70a47ce9ee5b1846a8697c04cd1b64526ae54a9730e9744cbe"
+token_count: 93

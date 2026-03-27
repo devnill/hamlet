@@ -1,0 +1,18 @@
+id: F-004-011
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: `ZOMBIE_THRESHOLD_SECONDS` is a hardcoded class constant, not driven by settings
+description: |
+  - **File**: `src/hamlet/inference/engine.py:37`
+  - **Issue**: The despawn threshold is correctly wired from `settings.zombie_despawn_seconds`, but the zombification threshold is a hardcoded class constant of 300 s. A user who lowers `zombie_despawn_seconds` expecting faster cleanup will be surprised that zombification itself still takes 300 s.
+  - **Suggested fix**: Accept a `zombie_threshold_seconds` constructor parameter alongside `despawn_threshold_seconds`, defaulting to 300.
+file_path: cycles/004/findings/F-004-011.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-004
+verdict: Fail
+content_hash: "1473bd68ad6c9234e61e5dd404a7ddf0c0d4f8b3646da84a57ba41b59522f2bc"
+token_count: 205

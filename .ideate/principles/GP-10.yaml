@@ -1,0 +1,16 @@
+id: GP-10
+type: guiding_principle
+name: Scrollable World, Visible Agents
+status: active
+description: |
+  The user can scroll the world view. Agents should remain visible on screen when possible, with the view automatically scrolling to follow workers as they move beyond the current viewport center.
+  
+  **Why:** User specified: "the screen should sometimes need to scroll as the workers move beyond the center as the village as it become a city."
+  
+  **How to apply:** Implement viewport panning. When agents move near the edge, optionally auto-scroll to keep them visible. The global map can extend beyond the visible area; scrolling reveals other villages.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: f53b447275146a9e9e0698db964bdef2cc21c3156ee47a303040e1fa7880b599
+token_count: 194
+file_path: .ideate/principles/GP-10.yaml

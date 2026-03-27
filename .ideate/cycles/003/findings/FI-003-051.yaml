@@ -1,0 +1,15 @@
+id: FI-003-051
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No tests for any of the seven new methods or constants
+description: "- **Resolution**: Fixed — created `tests/test_structure_management.py` covering: `STAGE_THRESHOLDS` and `MATERIAL_STAGES` correctness, `create_structure` initial state (stage/material/work_required), village back-reference population, `get_structure` and `get_structures_by_village`, `add_work_units` agent total increment, stage advancement at threshold (work_units reset, material update), stage-3 accumulation guard."
+file_path: cycles/003/findings/FI-003-051.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-037
+verdict: Fail
+content_hash: "97309057a225093c2fa375df8abe2d51286629218906b6c397e7ec23dfc51d5b"
+token_count: 184

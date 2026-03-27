@@ -1,0 +1,18 @@
+id: F-004-012
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: `HelpOverlay` `width` CSS does not match content width
+description: |
+  - **File**: `src/hamlet/tui/help_overlay.py:13`
+  - **Issue**: `HelpOverlay` declares `width: 51` but its border string is 40 characters wide. The unused 11 columns show as blank terminal space.
+  - **Suggested fix**: Set `HelpOverlay` CSS `width: 40` to match its actual content.
+file_path: cycles/004/findings/F-004-012.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-004
+verdict: Fail
+content_hash: fa7a47c29cb80c2dc7a3c40938c9c3b9bbb54e0323486dcceb1beaac369e4d69
+token_count: 147

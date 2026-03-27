@@ -1,0 +1,13 @@
+id: D-07
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: PLANNER agent type marked reserved — no inference rule added
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: ed3d3c0cc4f9e9cd5332941494cb7a16ff99a81386865985b042e39cdc60414b
+token_count: 71
+file_path: .ideate/decisions/D-07.yaml

@@ -1,0 +1,109 @@
+id: WI-087
+type: work_item
+title: TUI Integration Tests - WorldView, HamletApp
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File tests/test_tui_world_view.py exists with test class TestWorldView
+  - TestWorldView.test_render_shows_agents_at_positions passes
+  - TestWorldView.test_render_shows_structures_at_positions passes
+  - TestWorldView.test_render_agent_active_shows_spin passes
+  - File tests/test_tui_app.py exists with test class TestHamletApp
+  - TestHamletApp.test_compose_yields_all_widgets passes
+  - TestHamletApp.test_action_scroll_left_calls_viewport passes
+  - TestHamletApp.test_action_toggle_legend_toggles_visibility passes
+  - TestHamletApp.test_update_state_updates_status_bar passes
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 087 - TUI Integration Tests
+  
+  ## Scope
+  
+  Test WorldView rendering and HamletApp integration using Textual's testing framework.
+  
+  ## Testing Patterns
+  
+  ### WorldView Tests
+  
+  Mock world state:
+  
+  ```python
+  @pytest.fixture
+  def world_view():
+      viewport = Mock()
+      world_state = Mock()
+      return WorldView(viewport, world_state)
+  ```
+  
+  Test render with agents:
+  
+  ```python
+  def test_render_agents():
+      agent = Mock(
+          position=Position(10, 10),
+          state=AgentState.ACTIVE,
+          color="cyan"
+      )
+      world_state.get_agents_in_view.return_value = [agent]
+  
+      text = world_view.render()
+      assert "-" in text or "|" in text  # Spin symbol
+  ```
+  
+  ### HamletApp Tests
+  
+  Use TestApp for full integration:
+  
+  ```python
+  async def test_app():
+      class TestHamletApp(HamletApp):
+          def __init__(self):
+              super().__init__(Mock(), Mock())
+  
+      async with TestHamletApp().run_test() as pilot:
+          # Test actions
+          await pilot.press("h")
+          await pilot.pause()
+  ```
+  
+  Test actions:
+  
+  ```python
+  async def test_scroll_action():
+      with patch.object(app._viewport, 'scroll') as mock_scroll:
+          await pilot.press("h")
+          mock_scroll.assert_called_with(-1, 0)
+  ```
+  
+  Test state updates:
+  
+  ```python
+  async def test_update_state():
+      with patch.object(app, '_world_state') as mock_ws:
+          mock_ws.get_agents_in_view.return_value = [Mock(), Mock()]
+          await app._update_state()
+  
+          status = app.query_one(StatusBar)
+          assert status.agent_count == 2
+  ```
+  
+  ## Key Test Scenarios
+  
+  1. **WorldView render agents** - Symbols at positions
+  2. **WorldView render structures** - Structure symbols
+  3. **WorldView empty cells** - Dots for floor
+  4. **WorldView animation** - Spin symbols for active
+  5. **App compose** - All widgets mounted
+  6. **App scroll actions** - hjkl bindings
+  7. **App toggle legend** - Visibility toggled
+  8. **App toggle follow** - Follow mode switched
+  9. **App update state** - Status bar updated
+cycle_created: 1
+cycle_modified: null
+content_hash: dfd6488b71d78c6b1d50c103b0fdbd2929f65e98a2c3255e7db576a612a2599b
+token_count: 733
+file_path: .ideate/work-items/WI-087.yaml

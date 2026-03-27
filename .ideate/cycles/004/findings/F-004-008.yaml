@@ -1,0 +1,24 @@
+id: F-004-008
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: significant
+title: `despawn_agent` does not remove the agent from `Session.agent_ids`
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:542`
+  - **Issue**: `despawn_agent` removes the agent from `self._state.agents` and from `village.agent_ids`, but never removes it from the `Session` object's `agent_ids` list in `self._state.sessions`. After despawn the dead agent id remains in `session.agent_ids`.
+  - **Impact**: Two failure modes. First, `get_or_create_agent` checks `session.agent_ids[0]` to return the existing primary agent — after despawn it looks up a now-deleted id in `self._state.agents`, finds nothing, then creates a brand-new agent instead of recognising this as a new spawn, producing phantom duplicate agents in a restarted session. Second, if `_handle_stop` iterates `session.agent_ids` after the zombie TTL path already ran `despawn_agent`, the second call is a no-op in memory but still reaches `_persistence.delete_agent`, firing a redundant DB DELETE.
+  - **Suggested fix**: Inside the `async with self._lock` block in `despawn_agent`, after removing from `village.agent_ids`, also clean up the session:
+    ```python
+    session = self._state.sessions.get(agent.session_id)
+    if session and agent_id in session.agent_ids:
+        session.agent_ids.remove(agent_id)
+    ```
+file_path: cycles/004/findings/F-004-008.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-004
+verdict: Fail
+content_hash: "305b2e67a616d27133d22f7dd52966bfa66e6bd4cfac2593a9480b3a7fbf9149"
+token_count: 383

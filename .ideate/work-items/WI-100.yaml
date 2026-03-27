@@ -1,0 +1,81 @@
+id: WI-100
+type: work_item
+title: HTTP endpoint on MCPServer
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `aiohttp` is added to `dependencies` in `pyproject.toml`
+  - `MCPServer.start()` starts an `aiohttp.web.Application` HTTP server listening on port 8080
+  - HTTP server accepts POST requests at `/hamlet/event`
+  - POST handler validates JSON body using `validate_event()` and enqueues valid params dict to `_event_queue`
+  - Invalid payloads return HTTP 400 with JSON error body; logged at WARN level
+  - "Valid payloads return HTTP 200 with JSON `{\"status\": \"ok\"}`"
+  - Non-POST methods to `/hamlet/event` return HTTP 405
+  - The stdio MCP transport continues to function unchanged alongside the HTTP listener
+  - `MCPServer.stop()` shuts down the HTTP server in addition to the MCP server task
+  - If the HTTP port is already in use, error is logged but application continues (GP-7)
+module: null
+domain: null
+notes: |
+  # Work Item 100: HTTP endpoint on MCPServer
+  
+  ## Problem
+  Hook scripts in `hooks/*.py` send HTTP POST requests to `http://localhost:8080/hamlet/event`. The MCPServer uses stdio transport (MCP SDK's `stdio_server()`), not HTTP. No HTTP server exists in the codebase. Events from hooks cannot reach the server.
+  
+  ## Solution
+  Add an `aiohttp` HTTP server alongside the existing stdio MCP server. Both run concurrently as asyncio tasks.
+  
+  ## Implementation
+  
+  ### pyproject.toml
+  Add `aiohttp>=3.9.0` to `dependencies`.
+  
+  ### mcp_server/server.py
+  In `MCPServer.start()`:
+  ```python
+  import aiohttp.web
+  
+  async def _handle_hamlet_event(request):
+      try:
+          body = await request.json()
+      except Exception:
+          return aiohttp.web.json_response({"error": "invalid JSON"}, status=400)
+  
+      result = validate_event(body)
+      if not result.is_valid:
+          logger.warning("Invalid event: %s", result.error)
+          return aiohttp.web.json_response({"error": result.error}, status=400)
+  
+      await self._event_queue.put(result.payload["params"])
+      return aiohttp.web.json_response({"status": "ok"})
+  
+  app = aiohttp.web.Application()
+  app.router.add_post("/hamlet/event", _handle_hamlet_event)
+  runner = aiohttp.web.AppRunner(app)
+  await runner.setup()
+  site = aiohttp.web.TCPSite(runner, "localhost", 8080)
+  try:
+      await site.start()
+      self._http_runner = runner
+  except OSError as e:
+      logger.error("HTTP server failed to start on port 8080: %s (continuing)", e)
+  ```
+  
+  In `MCPServer.stop()`:
+  ```python
+  if self._http_runner:
+      await self._http_runner.cleanup()
+  ```
+  
+  ## Notes
+  - Port 8080 is hardcoded for now; future work could make it configurable via Settings
+  - If port 8080 is in use, log the error but continue — GP-7 graceful degradation
+  - The `/hamlet/health` endpoint referenced in `cli/commands/install.py` can remain a future enhancement; item 100 does not need to add it
+cycle_created: 1
+cycle_modified: null
+content_hash: "22fbdd128958ef063d4e5488f722cfe1b5b3041d0e7629015a34a9fd1c4677e3"
+token_count: 749
+file_path: .ideate/work-items/WI-100.yaml

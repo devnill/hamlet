@@ -1,0 +1,11 @@
+id: J-018-003
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 18
+title: "Cycle 1 — Work item 175: Remove dead .sh wrapper files from hooks/"
+content: |
+  Status: complete
+  Deleted pre_tool_use.sh, post_tool_use.sh, notification.sh, stop.sh. None were referenced by hooks.json or any active config.
+content_hash: "7e081da0f956aecc7b35d9ea46c6dcd242aa639f00ca0b8d64fbff4e907341ed"
+token_count: 82

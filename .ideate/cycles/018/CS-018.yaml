@@ -1,0 +1,38 @@
+id: CS-018
+type: cycle_summary
+cycle: 18
+content: |
+  # Review Summary — Cycle 018
+  
+  ## Overview
+  Cycle 018 fixed two live bugs (StatusBar dead code, validation schema rejecting PostToolUseFailure events) and closed two cycle 017 test coverage gaps (agent symbol assertion, empty-state pipeline test). All four work items are complete and all tests pass. No critical or significant findings. Three reviewers ran out of turns; reviews were completed by the coordinator from incremental review findings.
+  
+  ## Critical Findings
+  
+  None.
+  
+  ## Significant Findings
+  
+  None.
+  
+  ## Minor Findings
+  
+  - [code-reviewer] M1: `_update_state` only reachable in viewer mode (remote_provider set). No practical impact — HamletApp is only used as viewer — relates to: WI-287
+  - [spec-reviewer] M1: Empty-state test uses populated terrain fixture; valid because terrain is generated from seed independent of agent activity — relates to: WI-290
+  - [gap-analyst] G1: No test verifies `_update_state` is called from `_refresh_remote_state`; a regression removing the fix would be invisible to automated tests — relates to: WI-287
+  - [gap-analyst] G2: Cycle 017 minor findings (M1, M3, G3-G5) remain deferred — relates to: cross-cutting
+  - [gap-analyst] G3: Ideate project shows zero agents despite hooks posting events; investigation incomplete — relates to: cross-cutting
+  
+  ## Suggestions
+  
+  - [gap-analyst] Promote `_parse_agent`, `_parse_structure`, `_parse_village` to a shared module (carried from cycle 017)
+  
+  ## Findings Requiring User Input
+  
+  None — all findings can be resolved from existing context.
+  
+  ## Proposed Refinement Plan
+  
+  No critical or significant findings require a refinement cycle. The cycle 018 fixes are correct and complete. The minor findings (test regression guard, deferred cycle 017 minors, ideate zero-agent investigation) can be addressed in a future housekeeping cycle when prioritized by the user.
+content_hash: "55d4ff256af92ada4b59aa1943065387f842796d72dc70a528d61e7103f67130"
+token_count: 482

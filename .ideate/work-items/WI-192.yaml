@@ -1,0 +1,73 @@
+id: WI-192
+type: work_item
+title: Public API docstrings for five core modules
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Every public method (not prefixed with _) in WorldStateManager has a docstring
+  - Every public method in AgentInferenceEngine has a docstring
+  - Every public method in EventProcessor has a docstring
+  - Every public method in MCPServer has a docstring
+  - Every public method in PersistenceFacade has a docstring
+  - No existing docstrings are removed
+  - python -c "from hamlet.world_state.manager import WorldStateManager; help(WorldStateManager)" succeeds without errors
+  - pytest passes (no regressions from docstring-only changes)
+module: null
+domain: null
+notes: |
+  # WI-192: Public API docstrings for five core modules
+  
+  ## Context
+  
+  Five core modules have public methods lacking docstrings or with stale minimal docstrings. Adding them improves LLM agent effectiveness and makes `help()` output useful.
+  
+  ## Scope
+  
+  Focus on these five files only. Do not modify logic. Only add or update docstring text.
+  
+  ### src/hamlet/world_state/manager.py
+  Largest file (~900 lines). Key public methods to document:
+  - `handle_event(event: InternalEvent)` — current docstring is minimal. Update to describe dispatch behavior: routes by HookType, creates entities for SessionStart, marks agents IDLE for SessionEnd, awards work units for TaskCompleted, logs summaries for all branches.
+  - `get_or_create_project(project_id, project_name)` — add if missing
+  - `get_or_create_session(session_id, project_id)` — add if missing
+  - `get_or_create_agent(agent_id, session_id, project_id)` — add if missing
+  - `update_agent(agent_id, **kwargs)` — add if missing
+  - `add_work_units(agent_id, units)` — add if missing
+  - `get_agents_by_session(session_id)` — add if missing
+  - `get_village_by_project(project_id)` — add if missing
+  - `load_from_persistence(data)` — add if missing
+  - `get_agents_in_view(viewport)` — add if missing
+  - `get_structures_in_view(viewport)` — add if missing
+  
+  For methods that acquire `self._lock`, note it in the docstring: "Acquires self._lock."
+  
+  ### src/hamlet/inference/engine.py
+  - `process_event(event: InternalEvent)` — describe dispatch: spawn detection, type inference, zombie scheduling, work attribution
+  - `tick()` — describe: zombie detection pass, returns list of zombified agent IDs
+  - `get_inference_state()` — describe return value
+  
+  ### src/hamlet/event_processing/event_processor.py
+  - `process_event(raw: dict)` — describe: validates, normalizes to InternalEvent, fans out to registered handlers
+  - `add_handler(handler)` / `remove_handler(handler)` — add if missing
+  
+  ### src/hamlet/mcp_server/server.py
+  - `start()` — describe: starts aiohttp server, registers routes
+  - `stop()` — describe: graceful shutdown
+  
+  ### src/hamlet/persistence/facade.py
+  - `start()` — describe: opens SQLite connection, runs migrations, starts write queue
+  - `stop()` — describe: flushes write queue, closes connection
+  - `load_state()` — describe: returns WorldStateData for warm start
+  - `log_event(event: InternalEvent)` — describe: enqueues event log entry
+  - `queue_write(operation: WriteOperation)` — describe: enqueues a write operation
+  
+  ## Convention
+  Use Google-style docstrings with Args/Returns/Raises where applicable. One-line docstrings are fine for simple getters. For complex methods, use the multi-line format.
+cycle_created: 1
+cycle_modified: null
+content_hash: af4eefb051ce2a117683e6ddcc6d893c5cc25420ce3e26fe7fc7c7987e24ef10
+token_count: 878
+file_path: .ideate/work-items/WI-192.yaml

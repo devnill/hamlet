@@ -1,0 +1,12 @@
+id: J-012-002
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 12
+title: "Work item 119: Visualization fixes"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed from incremental review.
+  S1: tui/legend.py:78 zombie color changed from [green] to [bright_green] to match ZOMBIE_PULSE_COLOR constant in animation.py. M1 (TYPE_COLORS duplication) noted as pre-existing, deferred.
+content_hash: "7c1e7ba6ee94e20ee4b135c687354c4e58015aa23bda06dbd23143c80087a2e2"
+token_count: 109

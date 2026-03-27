@@ -1,0 +1,18 @@
+id: FI-003-074
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Revert path in `update()` bypassed `ViewportState` mutator methods
+description: |
+  - **File**: `src/hamlet/viewport/manager.py:107`
+  - **Issue**: When follow target is gone, code directly assigned `follow_mode`, `follow_target`, and `center` instead of using `set_center()` which handles all three atomically.
+  - **Resolution**: Fixed — revert path now calls `self._state.set_center(...)`.
+file_path: cycles/003/findings/FI-003-074.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-055
+verdict: Fail
+content_hash: c473b83892ac46f10382dc97e18e8396c7380f84132cd364fbfaaaff01c31e1c
+token_count: 157

@@ -1,0 +1,18 @@
+id: F-009-039
+type: finding
+cycle: 9
+reviewer: code-reviewer
+severity: minor
+title: test_hooks.py — TestStop does not assert stop_reason field in outgoing payload
+description: |
+  - **File**: `tests/test_hooks.py` (TestStop class)
+  - **Issue**: The test sends `{"data": {"reason": "stop"}}` and asserts only `body["params"]["hook_type"] == "Stop"`. The `stop_reason` field extracted from the hook input and forwarded in params is not verified.
+  - **Suggested fix**: Add `assert body["params"]["stop_reason"] == "stop"` or similar assertion.
+file_path: cycles/009/findings/F-009-039.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-009
+verdict: Pass
+content_hash: "7277cb7d0b0c8d00eaf474d29bd554affbe875c3020787580f991a2bca5fb42d"
+token_count: 178

@@ -1,0 +1,11 @@
+id: J-004-004
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 4
+title: "Cycle 1 — Work item 221: Verify EVENT_SCHEMA string tool_output"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed — removed pre-existing @pytest.mark.asyncio decorators from test_event_processor.py. No source changes needed (code already correct). Three regression tests added to test_mcp_validation.py.
+content_hash: "1b82e245cbf1e4e6c565a20b571c9f7d4dd223e3a45d92ea2252c459cc94a6c7"
+token_count: 107

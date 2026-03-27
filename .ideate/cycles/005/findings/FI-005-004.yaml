@@ -1,0 +1,18 @@
+id: FI-005-004
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: `tool_output` schema type is `["object", "null"]` but may need to accept strings
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/validation.py:35`
+  - **Issue**: `tool_output` is constrained to `object | null`. Claude Code tool output is sometimes a plain string (e.g. Bash stdout). If hook scripts forward the raw output without wrapping it in an object, the schema will reject valid payloads silently (the payload is discarded via `ValidationResult(valid=False)`).
+  - **Suggested fix**: Widen the type to `["object", "string", "null"]`, or confirm via the architecture that all hook scripts always coerce output to an object before posting.
+file_path: cycles/005/findings/FI-005-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-120
+verdict: Pass
+content_hash: "8d4d1f456cc33158b71518a13b967221486b70b21af09cdc0c4706fbd612c96d"
+token_count: 229

@@ -1,0 +1,30 @@
+id: FI-001-001
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: critical
+title: No event handlers registered
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py:47-52`
+  - **Issue**: The `start()` method creates a `Server` instance but never registers any handlers. Per the module specification, the server needs handlers for `list_tools`, `call_tool`, and `notifications/message` (specifically `hamlet/event`). Without these, the server receives MCP messages but cannot process them.
+  - **Impact**: The server is non-functional. Events from hook scripts will be received but ignored, and the event queue will never be populated.
+  - **Suggested fix**: Register handlers after creating the Server instance. The module spec provides example code:
+    ```python
+    @server.list_tools()
+    async def list_tools():
+        return [Tool(name="hamlet_status", description="Get server status")]
+    
+    @server.set_notification_handler("hamlet/event")
+    async def handle_event(params):
+        # Validate schema, push to queue
+        if validate_event(params):
+            await event_queue.put(params)
+    ```
+file_path: cycles/001/findings/FI-001-001.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: ff91ecd51884921dfbacce265ab7ba21f98367d669eb68b481a4fe244435c5fa
+token_count: 324

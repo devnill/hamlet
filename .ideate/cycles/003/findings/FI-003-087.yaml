@@ -1,0 +1,17 @@
+id: FI-003-087
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Unused `Position` import in `action_toggle_follow`
+description: |
+  - **File**: `src/hamlet/tui/app.py:145`
+  - **Resolution**: Fixed — import removed.
+file_path: cycles/003/findings/FI-003-087.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-067
+verdict: Fail
+content_hash: cbac2bf0c20cfbad1c2f128413f063b79acbd5e49a6f9b51a18a82c905170b74
+token_count: 97

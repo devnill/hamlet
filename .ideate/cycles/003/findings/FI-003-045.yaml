@@ -1,0 +1,18 @@
+id: FI-003-045
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `update_agent` signature does not match spec
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:319`
+  - **Issue**: Spec requires `update_agent(agent_id, **fields)` (keyword args). Implementation used `update_agent(agent_id, fields: dict)` (positional dict). Callers writing `update_agent(id, state=x)` would raise TypeError.
+  - **Resolution**: Fixed — signature changed to `**fields: Any`. `agent_updater.py` caller updated to `update_agent(agent.id, state=new_state)`.
+file_path: cycles/003/findings/FI-003-045.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-036
+verdict: Fail
+content_hash: "5599d985c8399f2a815445622d8ae68be2c20c9108424a97a551ef436315c3b9"
+token_count: 182

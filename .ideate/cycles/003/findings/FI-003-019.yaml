@@ -1,0 +1,18 @@
+id: FI-003-019
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `ToolWindow` stores name strings instead of timestamped event tuples
+description: |
+  - **File**: `src/hamlet/inference/types.py:62`
+  - **Issue**: Architecture spec defines `events: List[Tuple[str, datetime]]` with `window_size: timedelta`. Implementation used `tool_names: list[str]` and integer `max_size`. Type inference pseudocode iterates event tuples.
+  - **Resolution**: Fixed — `events: list[tuple[str, datetime]]` and `window_size: timedelta` used.
+file_path: cycles/003/findings/FI-003-019.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-021
+verdict: Fail
+content_hash: "35c498b3fb9460245a8c70b9d1f2a57379df1daca67e2d61c471002e99a39a9d"
+token_count: 174

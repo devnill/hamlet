@@ -1,0 +1,18 @@
+id: FI-003-146
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Work-unit formula branch entirely untested
+description: |
+  - **File**: `tests/test_type_inference.py`
+  - **Issue**: `_make_event` had no `duration_ms` parameter — every test exercised only the `else 1` branch. The `max(1, duration_ms // 100)` formula had zero coverage.
+  - **Suggested fix**: Add `duration_ms` to `_make_event`; add tests for 500ms→5, 99ms→1, None→1.
+file_path: cycles/003/findings/FI-003-146.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-106
+verdict: Pass
+content_hash: "3cd7c1382fe255ad4c475f8da254663332a851c92310c98b5ddd3a19ebf229f2"
+token_count: 153

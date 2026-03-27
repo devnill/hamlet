@@ -1,0 +1,13 @@
+id: P-10
+type: domain_policy
+domain: architecture
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: When a symbol is deleted or removed from a source module — whether by deleting the module entirely or by removing an export from it — the `tests/` directory must be grep-checked for imports of that symbol before the work item is considered complete. A source-only caller audit is insufficient.
+cycle_created: 1
+cycle_modified: null
+content_hash: fb479e4b29452a1780a7b1cbf0fd316c149b088d9ea7d1569b8627537fee6ed6
+token_count: 133
+file_path: .ideate/policies/P-10.yaml

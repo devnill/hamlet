@@ -1,0 +1,12 @@
+id: J-001-001
+type: journal_entry
+phase: refine
+date: "2026-03-22"
+cycle_created: 1
+title: Kitty graphics protocol pivot planned
+content: |
+  Trigger: notcurses 3.0.17 + Python 3.14 segfault (unfixable C extension incompatibility)
+  Principles changed: none
+  Decision: replace notcurses ctypes backend with Kitty graphics protocol (pure Python escape sequences). Renderer infrastructure (RendererProtocol, SymbolConfig, zoom, sprites, app architecture) carries forward. Only the backend implementation changes. Next step: /ideate:refine in a fresh session to decompose work items.
+content_hash: "0b2d988e5d074cd88c303531c4fcdaa2cd8ae5577b183efa2e2560f86b7d82e7"
+token_count: 148

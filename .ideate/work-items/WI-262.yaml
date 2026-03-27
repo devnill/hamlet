@@ -1,0 +1,60 @@
+id: WI-262
+type: work_item
+title: Add Legend Toggle to MapApp
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - MapApp has `/` keybinding that toggles legend overlay
+  - Legend overlay displays terrain symbols (water, mountain, forest, meadow, plain)
+  - Legend is hidden by default, shown when toggled
+module: null
+domain: null
+notes: |
+  # WI-262: Add Legend Toggle to MapApp
+  
+  ## Objective
+  Make terrain symbols accessible in map viewer mode.
+  
+  ## Finding Addressed
+  G1: Legend not accessible in map viewer mode. Users cannot see terrain symbols while exploring parameters.
+  
+  ## File Scope
+  - `src/hamlet/tui/map_app.py` — MapApp class
+  - `src/hamlet/tui/legend.py` — LegendOverlay (may need minor modifications)
+  
+  ## Implementation Notes
+  The LegendOverlay widget exists in `legend.py` and displays terrain symbols for the main game TUI.
+  
+  Add to MapApp:
+  1. Import LegendOverlay
+  2. Add legend overlay instance (hidden by default)
+  3. Add `/` keybinding: `action_toggle_legend`
+  4. Toggle legend visibility on keypress
+  
+  Reference: Main game TUI (`app.py`) uses `/` to toggle legend.
+  
+  ```python
+  from hamlet.tui.legend import LegendOverlay
+  
+  # In __init__:
+  self._legend_overlay = LegendOverlay()
+  self._legend_visible = False
+  
+  # Add keybinding:
+  def action_toggle_legend(self) -> None:
+      self._legend_visible = not self._legend_visible
+      # Show/hide legend overlay
+  ```
+  
+  ## Acceptance Criteria
+  - `/` keybinding toggles legend overlay in MapApp
+  - Legend displays terrain symbols (water, mountain, forest, meadow, plain)
+  - Legend is hidden by default
+cycle_created: 1
+cycle_modified: null
+content_hash: aca3b3ea7197d5f0f38374cd57cb246f770918d99d8d535cc02ac243e78ac786
+token_count: 427
+file_path: .ideate/work-items/WI-262.yaml

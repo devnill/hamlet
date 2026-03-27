@@ -1,0 +1,18 @@
+id: FI-003-016
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `InferenceState` missing `pending_tools` and `last_seen` fields
+description: |
+  - **File**: `src/hamlet/inference/types.py:72`
+  - **Issue**: Architecture spec defines four fields; implementation had only `sessions` and `tool_windows`. Missing `pending_tools: dict[str, PendingTool]` and `last_seen: dict[str, datetime]` are required by engine pseudocode in `agent-inference.md`.
+  - **Resolution**: Fixed — both fields added.
+file_path: cycles/003/findings/FI-003-016.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-021
+verdict: Fail
+content_hash: "191b63240eba3d5aab9d6b5efeeead0176f06443a984b844646776ca1357afd6"
+token_count: 167

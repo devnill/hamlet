@@ -1,0 +1,19 @@
+id: F-015-065
+type: finding
+cycle: 15
+reviewer: spec-reviewer
+severity: minor
+title: architecture.md not updated with GUI module
+description: |
+  - **File**: `specs/plan/architecture.md`
+  - **Issue**: The component map in architecture.md does not include the new `gui/` module tree. The architecture document still shows only the TUI module as the rendering layer. The new notcurses backend, renderer protocol, symbol config, and detect modules are not documented.
+  - **Impact**: Future workers reading architecture.md will not know the GUI module exists.
+  - **Suggested fix**: Add a GUI MODULE section to the component map showing the renderer protocol, notcurses backend, symbol config, and detect modules.
+file_path: cycles/015/findings/F-015-065.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-015
+verdict: Pass
+content_hash: c64b0f426c50b193aaa170f0a5508b8e7e18c9c38d92d74e1572012def226a66
+token_count: 216

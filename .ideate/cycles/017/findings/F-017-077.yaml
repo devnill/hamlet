@@ -1,0 +1,15 @@
+id: F-017-077
+type: finding
+cycle: 17
+reviewer: spec-reviewer
+severity: minor
+title: `_parse_*` helpers imported across convention boundary
+description: "`tui/remote_world_state.py:30` declares `__all__ = [\"RemoteWorldState\"]`. The three parse helpers carry the `_` prefix and are not exported. `gui/kitty/state_fetcher.py:13-17` imports them directly. This is legal Python and is exactly what the spec requires for this cycle. If these helpers are intended as shared infrastructure, a future cycle could promote them to a shared `world_state/parsers.py` module or add them to `__all__`."
+file_path: cycles/017/findings/F-017-077.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-017
+verdict: Pass
+content_hash: "1ea01e4863fa88e0957f51c53bb3a7a8013eb745f24d9b11f8d44d95f57e4c89"
+token_count: 187

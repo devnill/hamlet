@@ -1,0 +1,10 @@
+id: C-02
+type: constraint
+category: scope
+status: active
+description: Observability is secondary. The primary interface is an idle game. Observability is a future benefit, not a driving design requirement.
+cycle_created: 1
+cycle_modified: null
+content_hash: f563b4236ad8ed4a80e56805aa2d64829fe056a1509e76544284e70ba01b67a2
+token_count: 76
+file_path: .ideate/constraints/C-02.yaml

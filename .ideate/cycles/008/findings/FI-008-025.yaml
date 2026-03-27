@@ -1,0 +1,19 @@
+id: FI-008-025
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: `SubagentStop` and `PostToolUseFailure` produce no visual trigger
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:759-792`
+  - **Issue**: `SubagentStop` (line 759) and `PostToolUseFailure` (line 791) only construct a summary string. Neither produces any state mutation or visual effect. Per GP-1, every new hook type should feed into visual activity. `SubagentStop` is the symmetrical counterpart to `SubagentStart`; an agent stopping is a meaningful lifecycle event that should at minimum set the agent's state to `IDLE`. `PostToolUseFailure` is a signal that work has been attempted and failed — a natural candidate for a small visual marker.
+  - **Impact**: Two of the 11 new event types produce zero visual output, violating GP-1.
+  - **Suggested fix**: For `SubagentStop`, look up agents by `session_id` and set the matched agent to `AgentState.IDLE` (mirroring `SessionEnd` logic). For `PostToolUseFailure`, consider calling `add_work_units` with a reduced unit count (e.g., 1–2 units) to show failed-but-attempted work, or at minimum set the agent to a transient visual state.
+file_path: cycles/008/findings/FI-008-025.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: e4351140e646a361433faf4a98a95158633a24f6e01c80e9db11b572c6c936c5
+token_count: 335

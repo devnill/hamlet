@@ -1,0 +1,13 @@
+id: D-28
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: Restart-required settings excluded from hot-reload
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: bbcf3f67bce771acca52b041459651243b001f696e4faee835056301cdf8d31e
+token_count: 68
+file_path: .ideate/decisions/D-28.yaml

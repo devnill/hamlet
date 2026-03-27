@@ -1,0 +1,13 @@
+id: P-13
+type: domain_policy
+domain: architecture
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: Settings that require subsystem initialization (`mcp_port`, `db_path`, `terrain`) must be excluded from the daemon's periodic config reload. Changes to these fields must be detected, logged as warnings, and deferred until the daemon is restarted. Hot-applying them without restarting the affected subsystem leaves the daemon in an inconsistent state.
+cycle_created: 1
+cycle_modified: null
+content_hash: "2c57a43dd320315ea956fb60054a7c995b051e2fd4faecdcad1aaed65c9270f6"
+token_count: 147
+file_path: .ideate/policies/P-13.yaml

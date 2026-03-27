@@ -1,0 +1,18 @@
+id: FI-006-004
+type: finding
+cycle: 6
+reviewer: code-reviewer
+severity: minor
+title: Unreachable fallback in data.get("project_id", _cwd_hash())
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/pre_tool_use.py:42` (identical at `post_tool_use.py:42`, `notification.py:38`, `stop.py:38`)
+  - **Issue**: The `if "project_id" not in data: continue` guard on the preceding line guarantees that `project_id` is present in `data` when execution reaches line 42. The `.get("project_id", _cwd_hash())` fallback is therefore dead code: `_cwd_hash()` is evaluated eagerly on every successful project config hit and its result is never used.
+  - **Suggested fix**: Replace `data.get("project_id", _cwd_hash())` with `data["project_id"]` since the key's presence is already asserted by the guard.
+file_path: cycles/006/findings/FI-006-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-124
+verdict: Pass
+content_hash: "81c09c39f9520683ad615faabae6ea2c0aeb0d3f922fa379798498e0aba3433f"
+token_count: 239

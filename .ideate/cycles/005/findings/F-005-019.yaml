@@ -1,0 +1,19 @@
+id: F-005-019
+type: finding
+cycle: 5
+reviewer: gap-analyst
+severity: minor
+title: `WorldStateProtocol` missing four method declarations
+description: |
+  - **File**: `src/hamlet/protocols.py`
+  - **Issue**: `WorldStateProtocol` does not declare `get_agents_in_view`, `get_structures_in_view`, `update_structure`, or `create_structure`. These methods are called at runtime (`app.py:164,169`, `structure_updater.py:42`, `expansion.py:106`).
+  - **Impact**: No runtime failure in current paths (StructureUpdater runs only in daemon mode; expansion uses `hasattr` guard). Static type checkers will miss protocol violations.
+  - **Suggested fix**: Add the four method stubs to `WorldStateProtocol`. Add no-op stubs for `update_structure` and `create_structure` to `RemoteWorldState`.
+file_path: cycles/005/findings/F-005-019.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-005
+verdict: null
+content_hash: "8fe7ee2232010eeb529d1de3d9ee25dce623d93540c6d8aaadd1237ab75cb964"
+token_count: 232

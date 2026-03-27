@@ -1,0 +1,17 @@
+id: FI-003-124
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Hardcoded `max_entries` for EventLogManager
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:69-71`
+  - **Fix applied**: Now uses `getattr(self._config, 'event_log_max_entries', 10000)` for configurability.
+file_path: cycles/003/findings/FI-003-124.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-079
+verdict: Fail
+content_hash: b27d3f4ee89e8364d842836dbb88f32ba2658282e51011a1a3cbf81fedb2b62f
+token_count: 114

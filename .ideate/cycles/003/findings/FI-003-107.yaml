@@ -1,0 +1,18 @@
+id: FI-003-107
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: Transaction not rolled back on batch failure — connection left in broken state
+description: |
+  - **File**: `src/hamlet/persistence/writer.py:28-34`
+  - **Issue**: `execute_batch` issued `BEGIN` then caught exceptions but never called `ROLLBACK`. After the first failure, subsequent `BEGIN` calls would fail with "cannot start a transaction within a transaction".
+  - **Resolution**: Fixed — added `rollback()` method to `DatabaseConnection`; `execute_batch` now calls `self._db.rollback()` in the except branch (with its own exception guard).
+file_path: cycles/003/findings/FI-003-107.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-076
+verdict: Fail
+content_hash: ecf20604ea08f2d8e897d97c31a40fb78ebd748ab22fac892fb3998699f7cc4c
+token_count: 196

@@ -1,0 +1,18 @@
+id: FI-004-007
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: No test exercises the import path of the moved symbol directly
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_type_inference.py:567`
+  - **Issue**: The existing work-unit tests import `StructureType` directly from `hamlet.world_state.types` and call `engine._handle_post_tool_use`, which exercises `TOOL_TO_STRUCTURE` indirectly through the engine. No test imports `TOOL_TO_STRUCTURE` from `hamlet.world_state.rules` to verify the symbol is publicly accessible at its new location.
+  - **Suggested fix**: Add a one-line smoke test: `from hamlet.world_state.rules import TOOL_TO_STRUCTURE` inside a `test_tool_to_structure_importable` function to pin the public API location.
+file_path: cycles/004/findings/FI-004-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-117
+verdict: null
+content_hash: c98df58b4d8afc0b5d5ea4a4f900ed4ca2c3db806889712a99bbc5fe352bb64c
+token_count: 231

@@ -1,0 +1,11 @@
+id: J-018-005
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 18
+title: "Cycle 1 — Work item 177: Add server_url parameter to hamlet_init"
+content: |
+  Status: complete
+  Added optional server_url parameter to hamlet_init inputSchema and description. Config write now uses arguments.get("server_url") or default_server_url.
+content_hash: "349f5b7241f421d4b556ee3928074c600c4305f6120845e71533c9e5ce42bbb0"
+token_count: 88

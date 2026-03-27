@@ -1,0 +1,17 @@
+id: FI-003-131
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: "405 response missing `Allow` header (RFC 7231 §6.5.5)"
+description: |
+  - **File**: `src/hamlet/mcp_server/server.py:72`
+  - **Suggested fix**: Add `headers={"Allow": "POST"}` to the 405 response.
+file_path: cycles/003/findings/FI-003-131.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-100
+verdict: Pass
+content_hash: a10f7421bbc45dd36b386570918d74d2eed995def2f8d78a538c6b523dbcfc15
+token_count: 109

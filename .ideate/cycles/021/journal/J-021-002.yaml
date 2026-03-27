@@ -1,0 +1,11 @@
+id: J-021-002
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 187: Test coverage — event pipeline round-trip for all 15 HookType values"
+content: |
+  Status: complete
+  Added parametrized test covering all 15 HookType values in test_event_processor.py and 4 WorldStateManager tests (SessionStart, SessionEnd, SubagentStart, TaskCompleted) in test_world_state_manager.py.
+content_hash: "7c077f88c06992478fd85f0c43a7f07a224c89ddef5a4826c4efa595086b7609"
+token_count: 106

@@ -1,0 +1,52 @@
+id: module_spec-persistence
+type: module_spec
+name: Persistence
+scope: |
+  This module owns SQLite storage and persistence. It is responsible for:
+  
+  - Defining and managing the SQLite database schema
+  - Loading world state from disk on startup
+  - Writing world state changes to disk (write-behind)
+  - Managing the write queue for async persistence
+  - Database migrations for schema changes
+  - Checkpointing for crash recovery
+  
+  This module is NOT responsible for:
+  
+  - In-memory state (World State module)
+  - Event processing (Event Processing module)
+  - Configuration management (separate config module)
+provides:
+  - `Persistence` class — Main persistence interface
+  - - `async load_state() -> WorldStateData` — Load all state from disk
+  - "- `async save_project(project: Project) -> None`"
+  - "- `async save_session(session: Session) -> None`"
+  - "- `async save_agent(agent: Agent) -> None`"
+  - "- `async save_structure(structure: Structure) -> None`"
+  - "- `async save_village(village: Village) -> None`"
+  - "- `async append_event_log(entry: EventLogEntry) -> None`"
+  - - `async checkpoint() -> None` — Flush all pending writes
+  - - `async close() -> None` — Close database connection
+  - `PersistenceConfig` dataclass — Configuration
+  - "- `db_path: str` — Path to SQLite file (default: `~/.hamlet/world.db`)"
+  - "- `write_queue_size: int` — Max pending writes (default: 1000)"
+  - "- `checkpoint_interval: float` — Seconds between checkpoints (default: 5.0)"
+  - `WorldStateData` dataclass — Loaded state
+  - "- `projects: List[Project]`"
+  - "- `sessions: List[Session]`"
+  - "- `villages: List[Village]`"
+  - "- `agents: List[Agent]`"
+  - "- `structures: List[Structure]`"
+  - "- `metadata: Dict[str, str]`"
+requires:
+  - `aiosqlite` (Python package) — Async SQLite wrapper
+  - `pathlib.Path` (standard library) — Path handling
+  - `asyncio` — Async operations
+boundary_rules:
+  - "1. **Write-behind.** State changes queue writes; they do not block on I/O. The write queue is processed asynchronously."
+  - "2. **No caching.** Persistence does not cache; World State is the in-memory cache. Persistence only reads on startup and writes on changes."
+  - "3. **Atomic transactions.** All writes are atomic. Partial updates do not corrupt state."
+  - "4. **Schema versioning.** Database includes schema version. Migrations are applied on startup if needed."
+  - "5. **Crash recovery.** On startup, incomplete transactions are rolled back. Write queue state is lost (acceptable per guiding principle 7)."
+content_hash: "6626b641977b3a9e6b18bdc268b1ffbaf79a5b295d17c8956d6193a09331c38a"
+token_count: 610

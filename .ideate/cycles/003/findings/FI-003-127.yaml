@@ -1,0 +1,19 @@
+id: FI-003-127
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `runner.setup()` outside OSError guard — exception aborts start() after MCP task is running
+description: |
+  - **File**: `src/hamlet/mcp_server/server.py:88-91`
+  - **Issue**: `await runner.setup()` executes outside the `try/except OSError` block. A non-OSError exception propagates out of `start()` with `_run_task` already created and `_running=True`. Caller receives unhandled exception with live MCP task but no way to invoke `stop()`.
+  - **Impact**: Violates GP-7 and AC8. Can leave server in uncleanable half-started state.
+  - **Suggested fix**: Wrap entire HTTP setup block in `try/except Exception`.
+file_path: cycles/003/findings/FI-003-127.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-100
+verdict: Pass
+content_hash: "4c4258714123241229902d66b137973c760f02e7b6b8e061560d2e04023f9c7c"
+token_count: 213

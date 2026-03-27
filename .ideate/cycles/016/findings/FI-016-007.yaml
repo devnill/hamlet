@@ -1,0 +1,26 @@
+id: FI-016-007
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: critical
+title: `encode_image_display` receives character-cell indices, not pixel offsets
+description: |
+  - **File**: `src/hamlet/gui/kitty/renderer.py:176`, `:205`, `:234`
+  - **Issue**: `encode_image_display(handle.image_id, sx, sy)` is called with `sx`/`sy` as character-cell screen coordinates (0-indexed column/row). The Kitty graphics protocol `a=p` action interprets `X` and `Y` as pixel offsets from the top-left corner of the terminal, not character-cell indices. The generated escape sequence will place all sprites at or near the top-left regardless of where the entity actually is on screen.
+  - **Impact**: Every sprite rendered at MEDIUM or CLOSE zoom is positioned incorrectly. At typical cell sizes (8–16px) a cell-index of, say, 20 maps to pixel offset 20 instead of 160–320. Sprites cluster at the top-left corner.
+  - **Suggested fix**: Multiply the cell coordinates by the tile pixel size before passing them. The renderer already holds `self._zoom_config.tile_pixels`:
+    ```python
+    px = sx * self._zoom_config.tile_pixels
+    py = sy * self._zoom_config.tile_pixels
+    buf.append(encode_image_display(handle.image_id, px, py))
+    ```
+  
+  ---
+file_path: cycles/016/findings/FI-016-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-278
+verdict: Fail
+content_hash: b2b06fec4256f80999a492e4d1dcf73f71703d4e7d5f706d663d850fd4e2ad0e
+token_count: 347

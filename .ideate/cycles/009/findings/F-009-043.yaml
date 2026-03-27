@@ -1,0 +1,19 @@
+id: F-009-043
+type: finding
+cycle: 9
+reviewer: spec-reviewer
+severity: minor
+title: CLAUDE.md saver.py gotcha is stale after WI-194
+description: |
+  - **File**: `CLAUDE.md:73`
+  - **Issue**: The Gotchas section says "`persistence/saver.py` is orphaned — the file exists but is not imported anywhere." WI-194 deleted `saver.py`. The gotcha should be updated to reflect that the file was deleted.
+  - **Impact**: Misleading developer note — the file no longer exists.
+  - **Suggested fix**: Update the gotcha to note that saver.py was deleted by WI-194.
+file_path: cycles/009/findings/F-009-043.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-009
+verdict: Pass
+content_hash: "267ff65d3eb332e845c3d2c243a3562dd412abae66cd09f70090435efcd66ef9"
+token_count: 176

@@ -1,0 +1,11 @@
+id: J-019-008
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 185: Plugin update hygiene — hamlet install detects plugin"
+content: |
+  Status: complete
+  Modified: src/hamlet/cli/commands/install.py — is_plugin_active() reads installed_plugins.json; install_command() skips hook writing if plugin active.
+content_hash: e0e031dc5fc58252c08beffa01e000d9a4b59aa3048f67c4158c6d4f3624a2a1
+token_count: 89

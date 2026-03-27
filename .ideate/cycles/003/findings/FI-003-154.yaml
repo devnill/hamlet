@@ -1,0 +1,19 @@
+id: FI-003-154
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Hardcoded fallback defaults duplicate canonical rule data
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:390` and `:518`
+  - **Issue**: `STRUCTURE_RULES.get(structure_type, {"thresholds": [100, 500, 1000], ...})` uses magic literals as fallback. Unknown structure types are silently created with wrong thresholds rather than failing loudly.
+  - **Impact**: Silent data correctness failure for any unknown StructureType.
+  - **Suggested fix**: Guard on None: `rules = STRUCTURE_RULES.get(structure_type); if rules is None: logger.warning(...); return`
+file_path: cycles/003/findings/FI-003-154.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-108
+verdict: Pass
+content_hash: "74b7e9440d3f93107bc3f52fe71a85fa6970187fb5f5fe50f6612b561e3c9cb2"
+token_count: 203

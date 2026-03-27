@@ -1,0 +1,18 @@
+id: FI-003-078
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Unreachable StructureType.ROAD entry in STRUCTURE_SYMBOLS
+description: |
+  - **File**: `src/hamlet/tui/symbols.py:43`
+  - **Issue**: `StructureType.ROAD: "#"` was in STRUCTURE_SYMBOLS, but get_structure_symbol branches on ROAD before consulting STRUCTURE_SYMBOLS, so this entry was never read.
+  - **Suggested fix**: Remove the entry and replace with a clarifying comment. Applied.
+file_path: cycles/003/findings/FI-003-078.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-062
+verdict: Pass
+content_hash: "27041112ba23720db665e20c893a0e206bb8e47fe128c53d2a960ac87d372334"
+token_count: 155

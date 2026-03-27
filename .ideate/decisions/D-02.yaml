@@ -1,0 +1,13 @@
+id: D-02
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: Agent Type Colors
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "3b28f11979582ad8c3563018c3e9f4741b58ad4324589d70523616b90e764cd6"
+token_count: 60
+file_path: .ideate/decisions/D-02.yaml

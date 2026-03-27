@@ -1,0 +1,18 @@
+id: FI-003-055
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `datetime.utcnow()` is deprecated and returns naive datetime
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:70`, `src/hamlet/simulation/state.py:12`
+  - **Issue**: Deprecated on Python 3.12. Produces naive datetime that will clash with timezone-aware datetimes elsewhere.
+  - **Suggested fix**: Use `datetime.now(UTC)` with `from datetime import UTC`.
+file_path: cycles/003/findings/FI-003-055.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-041
+verdict: Fail
+content_hash: "2f0d37d915b1670a93ea6492369edb42e4e6645f1566918ac8a159171dc9ddb1"
+token_count: 152

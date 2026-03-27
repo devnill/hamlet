@@ -1,0 +1,17 @@
+id: FI-003-056
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Dead TYPE_CHECKING block
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:12-13`
+  - **Issue**: Empty `if TYPE_CHECKING: pass` block. Remove both import and block.
+file_path: cycles/003/findings/FI-003-056.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-041
+verdict: Fail
+content_hash: "5f35e5a1bfcb71f7b51f94997fa4174cc9740fd3aec859c605bfaa74c8c4fac5"
+token_count: 103

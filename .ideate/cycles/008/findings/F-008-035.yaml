@@ -1,0 +1,20 @@
+id: F-008-035
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `UserPromptSubmit` hook does not read `cwd` even though prompt hook fires in project context
+description: |
+  - **File**: `hooks/user_prompt_submit.py` (same root as S1, but separately notable)
+  
+  - **Issue**: The `UserPromptSubmit` hook is the most likely hook to fire from within a user's active project session, making correct `project_id` resolution particularly valuable. This amplifies the impact of the S1 finding for this specific hook.
+  
+  - **Suggested fix**: Addressed by the S1 fix.
+file_path: cycles/008/findings/F-008-035.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-008
+verdict: Fail
+content_hash: d97df9d0f4afeb9f71a2109cd0086b3b36a9b97359c937627c3a0c0db85eedb8
+token_count: 183

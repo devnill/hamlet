@@ -1,0 +1,18 @@
+id: FI-016-004
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `uploaded` field on `SpriteHandle` is always `False` and can never be `True`
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/gui/kitty/sprites.py:94-99`
+  - **Issue**: `SpriteHandle` is frozen, so `uploaded` is set at construction time and cannot be changed. `load_sprite` always constructs the handle with `uploaded=False`. `get_upload_sequence` adds the ID to `_uploaded_ids` but never updates the handle (and cannot, since it is frozen). The `uploaded` field therefore has no effect on runtime behavior and carries misleading state — a caller who checks `handle.uploaded` after calling `get_upload_sequence` will always see `False`.
+  - **Suggested fix**: Either remove the `uploaded` field from `SpriteHandle` and expose upload status through a `SpriteManager` method (`is_uploaded(handle) -> bool` delegating to `_uploaded_ids`), or document clearly that the field reflects state at load time only and is always `False`. Removing it is cleaner and removes the misleading affordance.
+file_path: cycles/016/findings/FI-016-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-277
+verdict: Pass
+content_hash: "3c9e8185ee2e0b8ecbd1ab146be508b8d0444268574de95cd4aa54cfb6150876"
+token_count: 310

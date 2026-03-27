@@ -1,0 +1,18 @@
+id: FI-003-169
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: No tests for ActivitySummarizer
+description: |
+  - **File**: `tests/` (no test file existed)
+  - **Issue**: Zero tests for success path, error path, or timeout fallback — all named acceptance criteria.
+  - **Suggested fix**: Add `tests/test_summarizer.py` with happy path, exception fallback, and timeout fallback tests.
+file_path: cycles/003/findings/FI-003-169.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-111
+verdict: Pass
+content_hash: f50a172b6df5f4ebe96a921657b459038a1d3b7b160d3b6967e2c238117ea4de
+token_count: 139

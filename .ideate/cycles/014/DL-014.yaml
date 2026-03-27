@@ -1,0 +1,41 @@
+id: DL-014
+type: decision_log
+cycle: 14
+content: |
+  # Decision Log — Cycle 014
+  
+  ## Decisions
+  
+  ### D1: min_village_distance moved from class constant to configurable setting
+  WI-264 moved `MIN_VILLAGE_DISTANCE = 15` from WorldStateManager class constant to `Settings.min_village_distance: int = 15`, wired through `app_factory.py`.
+  
+  ### D2: Settings CLI uses dot notation for terrain sub-keys
+  WI-265 supports `hamlet settings set terrain.seed 42` using `.` as separator. Top-level keys use bare names.
+  
+  ### D3: Type inference derives target type from current value
+  `settings set` infers int/float/bool/None from the existing stored value rather than requiring explicit type flags.
+  
+  ### D4: Periodic reload interval fixed at 30 seconds
+  WI-266 uses `RELOAD_INTERVAL = 30` as a module constant. Not itself configurable.
+  
+  ### D5: mcp_port, db_path, terrain excluded from hot-reload
+  These require subsystem restart. Changes are logged as warnings only.
+  
+  ### D6: TerrainConfig constructed for terrain sub-key validation at set-time
+  WI-265 rework: constructing TerrainConfig before saving catches invalid terrain values early (GP-11 Low-Friction Setup).
+  
+  ## Open Questions
+  
+  ### OQ-1: _check_port_conflict may fail on IPv6-only systems
+  Pre-existing. `localhost` may resolve to `::1` while daemon binds to `127.0.0.1`.
+  
+  ### OQ-2: hamlet service commands undocumented in README
+  Pre-existing. Service management feature not discoverable without source code.
+  
+  ### OQ-3: meadow_threshold validation range (carried from cycle 013)
+  Should validate against [-1, 1] not [0, 1].
+  
+  ### OQ-4: TerrainConfig.__post_init__ validation untested (carried from cycle 013)
+  No caplog tests for range check warnings.
+content_hash: "54a4b44ba6786071b010c76478e0d1c652e5e9964d3f7142a12cef06d62789b2"
+token_count: 431

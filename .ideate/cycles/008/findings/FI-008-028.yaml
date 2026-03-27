@@ -1,0 +1,18 @@
+id: FI-008-028
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: Event log pruning uses list reassignment inside the lock
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:821`
+  - **Issue**: `self._state.event_log = self._state.event_log[-100:]` creates a new list object inside the lock. Any code that captured a reference to the old list before this line (e.g., via `get_event_log()` which returns `list(self._state.event_log[-limit:])`) holds a stale reference. This is harmless for current callers since `get_event_log` always copies via `list(...)`, but the pattern is fragile.
+  - **Suggested fix**: Use `del self._state.event_log[:-100]` to truncate in place, avoiding reference invalidation.
+file_path: cycles/008/findings/FI-008-028.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: "501726b6edaa72228484c712996f50684360331f5cbf57da7659f20d3f02f3f9"
+token_count: 221

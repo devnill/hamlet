@@ -1,0 +1,25 @@
+id: RM-016
+type: review_manifest
+cycle: 16
+content: |
+  # Review Manifest — Cycle 016
+  
+  ## Work Items
+  
+  | # | Title | File Scope | Incremental Verdict | Findings (C/S/M) | Review Path |
+  |---|---|---|---|---|---|
+  | 275 | Remove notcurses backend | gui/notcurses/ (delete), detect.py, settings.py, cli/__init__.py, __main__.py | Pass | 0/0/2 | archive/incremental/275-remove-notcurses.md |
+  | 276 | Kitty graphics protocol layer | gui/kitty/__init__.py, gui/kitty/protocol.py | Pass | 0/0/0 | archive/incremental/276-kitty-protocol.md |
+  | 277 | Kitty sprite system | gui/kitty/sprites.py | Pass | 0/0/4 | archive/incremental/277-kitty-sprites.md |
+  | 278 | Kitty renderer implementation | gui/kitty/renderer.py | Fail (reworked) | 1/2/4 | archive/incremental/278-kitty-renderer.md |
+  | 279 | Multi-resolution zoom for Kitty | gui/kitty/zoom.py | Pass | 0/0/2 | archive/incremental/279-kitty-zoom.md |
+  | 280 | Detection, settings, CLI updates | gui/detect.py, config/settings.py, cli/__init__.py, __main__.py | Fail (reworked) | 1/2/2 | archive/incremental/280-detect-settings-cli.md |
+  | 281 | Kitty viewer app, state fetching, legend | gui/kitty/app.py, gui/kitty/state_fetcher.py | Fail (reworked) | 0/2/4 | archive/incremental/281-kitty-app.md |
+  | 282 | Doctor command and architecture docs | cli/commands/doctor.py, specs/plan/architecture.md | Pass | 0/0/2 | archive/incremental/282-doctor-arch-docs.md |
+  
+  ## Notes
+  - WI-278, WI-280, WI-281 had Fail verdicts during initial incremental review. All findings were reworked and fixed before cycle completion.
+  - WI-280 C1 (KittyApp not found) was a dependency timing issue — app.py was created by WI-281 which ran after WI-280's review.
+  - All 8 work items are complete. 169 Kitty-related tests pass.
+content_hash: "9019d0c967f0cafccad2d5d14f453932e48b447c7db38a0f7e4cbcf00c29bc52"
+token_count: 441

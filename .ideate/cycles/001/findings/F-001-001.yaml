@@ -1,0 +1,18 @@
+id: F-001-001
+type: finding
+cycle: 1
+reviewer: gap-analyst
+severity: minor
+title: Multi-cell structure rendering on terrain
+description: |
+  - **Interview Reference**: "Structures should have visual progression (foundation → wood → stone) and roads should connect villages"
+  - **Status**: ✅ Implemented — multi-cell structures and rendering priority work correctly
+  - **Note**: Roads between villages mentioned but implementation is deferred (not a gap for this cycle)
+file_path: cycles/001/findings/F-001-001.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-001
+verdict: null
+content_hash: "46025fa8e68ed96effa51260d1566ce5c32095eed98fe199e41cf301f48b0fc8"
+token_count: 156

@@ -1,0 +1,27 @@
+id: WI-068
+type: work_item
+title: Reactive State Updates
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `_update_state()` async method polls World State at 10 Hz
+  - "Updates StatusBar reactive properties: `agent_count`, `structure_count`, `project_name`, `viewport_pos`"
+  - Updates EventLog `events` property from `world_state.get_event_log(limit=100)`
+  - Updates viewport center if in follow mode
+  - Handles empty World State gracefully (no villages, no agents)
+  - All updates are non-blocking (no UI freeze)
+  - State polling runs on interval separate from render loop
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 068
+  
+  Use `set_interval(1/10, self._update_state)` for 10 Hz polling. The render loop runs at 30 Hz independently. State polling queries World State for entities in the current viewport bounds and updates reactive properties. Textual automatically triggers re-render when reactives change.
+cycle_created: 1
+cycle_modified: null
+content_hash: "876548cb5f6ab2e06f0ed932a388734cdb46814a503af0f45d320678acf00066"
+token_count: 263
+file_path: .ideate/work-items/WI-068.yaml

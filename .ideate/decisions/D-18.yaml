@@ -1,0 +1,13 @@
+id: D-18
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 15
+supersedes: null
+description: Sprite lifecycle via Kitty protocol numeric IDs
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "2a441d3311b88be8870989bff63eff01bf05c01a14200abcd6c7a496f40be982"
+token_count: 68
+file_path: .ideate/decisions/D-18.yaml

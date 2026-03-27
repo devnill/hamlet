@@ -1,0 +1,18 @@
+id: FI-003-093
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: Previous cursor leaked on repeated execute() calls
+description: |
+  - **File**: `src/hamlet/persistence/connection.py:34-37`
+  - **Issue**: Each call to execute() overwrote self._cursor without closing the previous one.
+  - **Fix**: Added cursor close before creating new cursor in execute().
+file_path: cycles/003/findings/FI-003-093.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-072
+verdict: Pass
+content_hash: a541943c3c000d97f2ca699501828d004fb3e04b67a8f46f52e7d098326019f1
+token_count: 133

@@ -1,0 +1,18 @@
+id: FI-003-037
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `datetime.utcnow()` is deprecated on Python 3.12+
+description: |
+  - **File**: `src/hamlet/world_state/types.py`
+  - **Issue**: `datetime.utcnow()` is deprecated since Python 3.12. Produces naive datetimes.
+  - **Suggested fix**: Replace with `lambda: datetime.now(timezone.utc)`.
+file_path: cycles/003/findings/FI-003-037.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-031
+verdict: Pass
+content_hash: ffac5406224bcda684c2568c614a7cfdbc2e7904db5040abe2c0c93fd44071ef
+token_count: 129

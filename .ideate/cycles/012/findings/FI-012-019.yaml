@@ -1,0 +1,17 @@
+id: FI-012-019
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Tests cover main functionality
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_terrain.py`
+  - **Issue**: 12 new tests cover configuration, water adjacency, region bias, and integration. Good coverage.
+file_path: cycles/012/findings/FI-012-019.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-256
+verdict: Pass
+content_hash: "2af56388380a0dc1fbdabcdd8ea450b180ef15b672d62ee4d9cb40baf043c2f6"
+token_count: 114

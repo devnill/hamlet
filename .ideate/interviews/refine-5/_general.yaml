@@ -1,0 +1,12 @@
+id: interviews/refine-5/_general
+type: interview
+cycle: 5
+source_path: steering/interviews/refine-5/_general.md
+entries:
+  - {id: IQ-005-001, question: Do the guiding principles still hold?, answer: Yes, all principles unchanged., domain: null, seq: 1}
+  - {id: IQ-005-002, question: What changes do you want to make?, answer: "Two things: (1) remove the manually created hooks in ~/.claude/ and switch to testing the plugin hooks instead; (2) add hamlet to the plugin marketplace at ~/code/claude-marketplace.", domain: null, seq: 2}
+  - {id: IQ-005-003, question: Should the plugin hooks be async (non-blocking)?, answer: "Yes, async: true — same behavior as the current inline hooks — unless there's a compelling reason not to. There isn't one.
+
+**Scope boundary**: Hook script implementations (pre_tool_use.py, post_tool_use.py, notification.py, stop.py), MCP server, daemon, TUI, and all world-state logic are unchanged. This cycle touches only hooks.json, ~/.claude/settings.json, and the marketplace manifest.", domain: null, seq: 3}
+content_hash: d112b511ce0c3dc32f58ceca2872bc0bd18308f316eba4d5f7913b98941f74c6
+token_count: 265

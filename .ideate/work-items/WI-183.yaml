@@ -1,0 +1,55 @@
+id: WI-183
+type: work_item
+title: Daemon handling for new event types with visual triggers
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - WorldStateManager.handle_event() does not raise or log error for any of the 11 new HookType values
+  - Each new event type produces an EventLogEntry with a non-empty summary string
+  - SessionStart calls get_or_create_project and get_or_create_session to ensure entities exist
+  - SessionEnd sets all agents in the session to AgentState.IDLE
+  - SubagentStart calls get_or_create_agent to spawn a new agent
+  - TaskCompleted calls add_work_units with 10 units on a structure in the session's village
+  - All new event handling is wrapped in try/except with logger.warning (GP-7)
+module: null
+domain: null
+notes: |
+  # WI-183 Notes: Daemon handling for new event types
+  
+  ## Context
+  WorldStateManager.handle_event() needs to handle 11 new HookType values without errors, and trigger visual activity for each.
+  
+  ## Mapping guidance (visual interest over accuracy)
+  SessionStart → get_or_create_project + get_or_create_session (entities exist for downstream)
+  SessionEnd → set all agents in session to AgentState.IDLE
+  SubagentStart → get_or_create_agent (spawn a new agent in the village)
+  SubagentStop → log only (agent will go idle naturally)
+  TeammateIdle → set matching agent to AgentState.IDLE (if found by teammate_name)
+  TaskCompleted → add_work_units(10) on a random structure in the project village
+  PostToolUseFailure → log only (error state visible in event log)
+  UserPromptSubmit → log only
+  PreCompact → log only
+  PostCompact → log only
+  StopFailure → log only
+  
+  ## Error handling
+  All state mutations wrapped in try/except with logger.warning per GP-7. Failure to trigger visual effect must never propagate.
+  
+  ## EventLogEntry summary format
+  Use event.hook_type.value as fallback. Specific formats:
+  "SessionStart: {event.source or 'startup'}"
+  "SessionEnd: {event.reason or ''}"
+  "SubagentStart: {event.agent_type or 'unknown'}"
+  "SubagentStop: {event.agent_type or 'unknown'}"
+  "TeammateIdle: {event.teammate_name or ''}"
+  "TaskCompleted: {event.task_subject or ''}"
+  "PostToolUseFailure: {event.tool_name or ''}"
+  "UserPromptSubmit" / "PreCompact" / "PostCompact" / "StopFailure"
+cycle_created: 1
+cycle_modified: null
+content_hash: f265a8843e3b7440ba02d2fcaa3e127a21e0ee4d758d1807962c113006f2840a
+token_count: 597
+file_path: .ideate/work-items/WI-183.yaml

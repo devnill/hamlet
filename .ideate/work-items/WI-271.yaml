@@ -1,0 +1,41 @@
+id: WI-271
+type: work_item
+title: Multi-resolution zoom system
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "ZoomLevel enum: CLOSE, MEDIUM, FAR"
+  - ZoomConfig dataclass with tile_pixels (16/8/1) and blitter
+  - next_zoom and prev_zoom cycle through all three levels
+  - NotcursesRenderer.set_zoom() method exists
+  - FAR renders characters, MEDIUM/CLOSE blit sprites with fallback to characters
+module: null
+domain: null
+notes: |
+  # WI-271: Multi-resolution zoom system
+  
+  ## Implementation Notes
+  
+  ### ZoomLevel enum
+  CLOSE=0 (16x16 sprites, NCBLIT_PIXEL), MEDIUM=1 (8x8 sprites, NCBLIT_2x1), FAR=2 (1x1 chars, NCBLIT_1x1)
+  
+  ### Cycling
+  `next_zoom(current) = (current + 1) % 3`, `prev_zoom(current) = (current - 1) % 3`
+  
+  ### Renderer integration
+  Add `_zoom` and `set_zoom()` to NotcursesRenderer. In render_frame, check zoom level:
+  - FAR: existing character putstr
+  - MEDIUM/CLOSE: sprite blit if available, fallback to character
+  
+  Fallback is critical — system must work with zero PNGs.
+  
+  ### Tests
+  Pure unit tests on zoom.py — no notcurses dependency.
+cycle_created: 1
+cycle_modified: null
+content_hash: "6385d19a8c40889f3d27a71d536a4afff75bb748dcf565713936a8bf30e1b061"
+token_count: 300
+file_path: .ideate/work-items/WI-271.yaml

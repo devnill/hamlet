@@ -1,0 +1,11 @@
+id: J-007-015
+type: journal_entry
+phase: execute
+date: "2026-03-15"
+cycle_created: 7
+title: "Work item 051: Coordinate Types and Translation"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed — get_visible_bounds off-by-one for even viewport dimensions; max_x/max_y adjusted using (width % 2) formula to match world_to_screen. 1 significant finding fixed — added __post_init__ coercion (int()) to Position, Size, BoundingBox for runtime integer enforcement. 1 minor finding fixed (added type annotations to BoundingBox fields; already present but was verified).
+content_hash: "03a305cc401508a24825c85828c01e36bfdea1a4c642dfde40ee40c0c027babc"
+token_count: 150

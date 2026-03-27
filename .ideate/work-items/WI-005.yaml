@@ -1,0 +1,27 @@
+id: WI-005
+type: work_item
+title: MCPServer Integration
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `MCPServer.__init__()` creates asyncio.Queue and stores dependencies
+  - `MCPServer.start()` creates MCP Server instance and calls `register_handlers`
+  - `MCPServer.start()` spawns server run task using stdio_server context
+  - `MCPServer.stop()` cancels server task and cleans up
+  - `MCPServer.get_event_queue()` returns event queue
+  - Server runs as background task alongside TUI and simulation
+  - Module exports MCPServer class
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 005
+  
+  Server runs as asyncio task. Graceful shutdown cancels task. Integration test verifies events can be queued and retrieved.
+cycle_created: 1
+cycle_modified: null
+content_hash: "11f974998765d9520a927e2343d413a4f1d84371b4bc19701fae8d626ea88b9c"
+token_count: 214
+file_path: .ideate/work-items/WI-005.yaml

@@ -1,0 +1,17 @@
+id: FI-003-157
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Inconsistent bounds clamping on materials index access
+description: |
+  - **File**: `world_state/manager.py` and `simulation/structure_updater.py`
+  - **Suggested fix**: Document the invariant `len(materials) == len(thresholds) + 1` and make access consistent.
+file_path: cycles/003/findings/FI-003-157.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-108
+verdict: Pass
+content_hash: c999a8111a1a427c1f14bfc6fd05067996bbd3ece29aa29a6ff66b137a95bda5
+token_count: 124

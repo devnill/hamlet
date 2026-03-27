@@ -1,0 +1,26 @@
+id: F-014-059
+type: finding
+cycle: 14
+reviewer: code-reviewer
+severity: significant
+title: Bare dict lookup in `service_command` raises `KeyError` on unexpected subcommand
+description: |
+  - **File**: `src/hamlet/cli/commands/service.py:215`
+  - **Issue**: `dispatch[subcommand](args)` performs a bare dict access. If `subcommand` is `None` (the default from `getattr(args, "service_subcommand", None)`) or any unrecognised string, this raises an unhandled `KeyError`. The argparse layer prevents this in normal CLI use because `service_subparsers.required = True` is set, but `service_command` is a public function and can be called directly — including from tests, from the `_service_command` shim, or via future programmatic use. The test suite calls it directly in every test via `_run_service`, which means any test that passes an invalid subcommand crashes with a `KeyError` instead of a clean failure.
+  - **Impact**: Any caller that passes a `Namespace` with `service_subcommand` absent or unrecognised receives an unhandled exception instead of a meaningful error message and a non-zero exit code.
+  - **Suggested fix**: Replace the bare lookup with a `.get()` and explicit error handling:
+    ```python
+    handler = dispatch.get(subcommand)
+    if handler is None:
+        print(f"Error: unknown service subcommand: {subcommand!r}", file=sys.stderr)
+        return 1
+    return handler(args)
+    ```
+file_path: cycles/014/findings/F-014-059.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-014
+verdict: Pass
+content_hash: "734279596d8fc157eccae9584f8f86a2e6e694d2159da43f9d214fbf8bb4e006"
+token_count: 390

@@ -1,0 +1,18 @@
+id: F-002-005
+type: finding
+cycle: 2
+reviewer: code-reviewer
+severity: minor
+title: `import os` inside function bodies
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/pre_tool_use.py:21`, `49`; same pattern in all four hook files
+  - **Issue**: `import os` is placed inside `find_server_url()` and `find_config()` rather than at module level. `os` is part of the standard library and is always available; there is no reason to defer its import.
+  - **Suggested fix**: Move `import os` to the top-level import block in each hook file.
+file_path: cycles/002/findings/F-002-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-002
+verdict: Pass
+content_hash: "73c8d885b1b3ff6e7f9bba92a0ed57d6f5a79c8b73d9d435a6795e6e03907552"
+token_count: 174

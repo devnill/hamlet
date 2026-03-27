@@ -1,0 +1,18 @@
+id: FI-003-091
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Deprecated `typing.Dict` and `typing.List`
+description: |
+  - **File**: `src/hamlet/persistence/types.py:4`
+  - **Issue**: Deprecated since Python 3.9. Use built-in `dict` and `list` instead.
+  - **Suggested fix**: Replace Dict[str, Any] → dict[str, Any], List[...] → list[...].
+file_path: cycles/003/findings/FI-003-091.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-071
+verdict: Fail
+content_hash: c89590863273246ac9d1330465a407aeca9f89e7e4c7e35fef854722a0849327
+token_count: 129

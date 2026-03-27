@@ -1,0 +1,18 @@
+id: FI-008-026
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `UserPromptSubmit`, `PreCompact`, and `PostCompact` produce empty-ish summaries
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:794-801`
+  - **Issue**: The summaries for these three types are bare constant strings (`"UserPromptSubmit"`, `"PreCompact"`, `"PostCompact"`) with no contextual content from the event. `InternalEvent` carries `prompt_text` (for `UserPromptSubmit`) and `is_interrupt` (potentially useful for `PreCompact`). These fields are ignored.
+  - **Suggested fix**: Use available fields: e.g., `summary = f"UserPromptSubmit: {(event.prompt_text or '')[:40]}"` to show the prompt prefix in the event log. For `PreCompact`, include `event.is_interrupt` if present.
+file_path: cycles/008/findings/FI-008-026.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: "2d61fbfadf782aa99124b2e2c9ad7569153d0ea54c8ce4991ede76b8f8104a2e"
+token_count: 235

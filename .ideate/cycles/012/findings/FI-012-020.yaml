@@ -1,0 +1,18 @@
+id: FI-012-020
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Mountain foothills rule adds natural transitions
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:_apply_smoothing_rule`
+  - **Issue**: Passable terrain (meadow, plain) with 3+ mountain neighbors becomes mountain (foothills effect). This creates natural transitions from plains to mountains.
+  - **Impact**: Positive - creates realistic mountain boundaries.
+file_path: cycles/012/findings/FI-012-020.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-257
+verdict: null
+content_hash: "0c50b5b49d1ed8c11b2fa654df6e1fe3740814f23dfdafd9975888475ca17ce1"
+token_count: 159

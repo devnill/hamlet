@@ -1,0 +1,18 @@
+id: F-002-003
+type: finding
+cycle: 2
+reviewer: code-reviewer
+severity: minor
+title: No exception handling on existing-config read in `hamlet_init`
+description: |
+  - **File**: `/Users/dan/code/hamlet/mcp/server.py:42`
+  - **Issue**: `json.loads(config_path.read_text())` is called with no try/except. If `.hamlet/config.json` exists but contains invalid JSON (truncated write, manual edit error), `call_tool` raises an unhandled exception rather than returning a user-readable error message.
+  - **Suggested fix**: Wrap lines 42–46 in a try/except and return a `TextContent` error message, consistent with the graceful-degradation principle (P7).
+file_path: cycles/002/findings/F-002-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-002
+verdict: Pass
+content_hash: f05955c4ee64a5e56a75f039751d0b2e7fb78f0f3bc4ee9716a2faed2b227f65
+token_count: 200

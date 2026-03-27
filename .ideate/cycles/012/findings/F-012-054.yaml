@@ -1,0 +1,18 @@
+id: F-012-054
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Dead Code in scroll Method Removed
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/map_viewer.py:89-92`
+  - **Issue**: The WI-253 review identified dead variables and misleading comments in `scroll`. The current implementation is clean - the method now simply updates `center_x` and `center_y` without any unused variables.
+  - **Suggested fix**: None needed; this was addressed.
+file_path: cycles/012/findings/F-012-054.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-012
+verdict: Fail
+content_hash: "17288f1f6f3c815c79f0df6c3a4d05942e1b68e071eb965cb82708164fdc2496"
+token_count: 159

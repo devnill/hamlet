@@ -1,0 +1,19 @@
+id: FI-012-012
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: `generate_water_features` modifies generator state unexpectedly
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:1880+`
+  - **Issue**: The helper function `generate_water_features` creates a `TerrainGenerator`, then overwrites `generator._seed` and `generator._random` with the provided seed. This modifies the generator's internal state after construction.
+  - **Impact**: Unusual pattern, but acceptable for internal helper function.
+  - **Suggested fix**: Pass the seed to the `TerrainGenerator` constructor directly.
+file_path: cycles/012/findings/FI-012-012.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-255
+verdict: Pass
+content_hash: "304487aa770089e6efc60d205c38232108cefe26d5ffca2d4c9f73c22b06b5c4"
+token_count: 200

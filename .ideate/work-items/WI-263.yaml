@@ -1,0 +1,76 @@
+id: WI-263
+type: work_item
+title: Add Parameter Validation to TerrainConfig
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - TerrainConfig has `__post_init__` method that validates parameters
+  - Validation logs warning (does not raise) for values outside reasonable ranges
+  - region_scale warns if < 10 or > 500
+  - octaves warns if > 10
+  - Threshold parameters warn if < 0 or > 1
+  - Parameters are still accepted (warn but accept behavior)
+module: null
+domain: null
+notes: |
+  # WI-263: Add Parameter Validation to TerrainConfig
+  
+  ## Objective
+  Add validation to TerrainConfig that warns about out-of-range parameter values.
+  
+  ## Finding Addressed
+  G2: Terrain parameter validation missing. Parameters accept any numeric values without warnings.
+  
+  ## File Scope
+  - `src/hamlet/world_state/terrain.py` — TerrainConfig dataclass
+  
+  ## Implementation Notes
+  Add `__post_init__` method to TerrainConfig that validates parameters and logs warnings.
+  
+  ```python
+  from hamlet.logging import get_logger
+  
+  logger = get_logger(__name__)
+  
+  @dataclass
+  class TerrainConfig:
+      # ... existing fields ...
+      
+      def __post_init__(self) -> None:
+          # Region scale warning
+          if self.region_scale < 10:
+              logger.warning(f"region_scale={self.region_scale} is very small; recommended range is 50-200")
+          if self.region_scale > 500:
+              logger.warning(f"region_scale={self.region_scale} is very large; recommended range is 50-200")
+          
+          # Octaves warning
+          if self.octaves > 10:
+              logger.warning(f"octaves={self.octaves} may cause slow generation; recommended range is 1-8")
+          
+          # Threshold warnings
+          for name in ['water_threshold', 'mountain_threshold', 'forest_threshold', 'meadow_threshold']:
+              value = getattr(self, name)
+              if value < 0 or value > 1:
+                  logger.warning(f"{name}={value} is outside normal range [0, 1]")
+          
+          # Water/forest percentage warnings
+          if self.water_percentage_target and (self.water_percentage_target < 0 or self.water_percentage_target > 50):
+              logger.warning(f"water_percentage_target={self.water_percentage_target}; recommended range is 0-50")
+          
+          if self.forest_percentage_target and (self.forest_percentage_target < 0 or self.forest_percentage_target > 50):
+              logger.warning(f"forest_percentage_target={self.forest_percentage_target}; recommended range is 0-50")
+  ```
+  
+  ## Acceptance Criteria
+  - `__post_init__` validates parameters and logs warnings
+  - Validation does not raise exceptions (warn but accept)
+  - Warnings logged for: region_scale < 10 or > 500, octaves > 10, thresholds outside [0, 1]
+  - Parameters still accepted after warnings
+cycle_created: 1
+cycle_modified: null
+content_hash: "986bcfabd9b21c259dda74d7e956502213a2674bfb156455a09941639328a956"
+token_count: 727
+file_path: .ideate/work-items/WI-263.yaml

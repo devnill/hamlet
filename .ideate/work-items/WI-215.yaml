@@ -1,0 +1,61 @@
+id: WI-215
+type: work_item
+title: Add request timeout to RemoteStateProvider fetch methods
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `RemoteStateProvider.fetch_state` passes `timeout=aiohttp.ClientTimeout(total=5)` (or configurable) to the HTTP GET call
+  - `RemoteStateProvider.fetch_events` passes `timeout=aiohttp.ClientTimeout(total=5)` (or configurable) to the HTTP GET call
+  - A test verifies that a timeout on `fetch_state` raises `aiohttp.ServerTimeoutError` (or equivalent) rather than hanging
+module: null
+domain: null
+notes: |
+  # WI-215 Implementation Notes
+  
+  ## Context
+  
+  `RemoteStateProvider` in `src/hamlet/tui/remote_state.py` has three HTTP methods:
+  - `check_health` — has `timeout=aiohttp.ClientTimeout(total=2)` ✓
+  - `fetch_state` — no timeout ✗ (lines 41-44)
+  - `fetch_events` — no timeout ✗ (lines 50-54)
+  
+  If the daemon dies mid-response, `fetch_state` and `fetch_events` will hang the viewer's poll loop indefinitely.
+  
+  ## Fix
+  
+  Add `timeout=aiohttp.ClientTimeout(total=5)` to both `fetch_state` and `fetch_events`:
+  
+  ```python
+  async def fetch_state(self) -> dict:
+      if self._session is None:
+          return {}
+      async with self._session.get(
+          f"{self._base_url}/hamlet/state",
+          timeout=aiohttp.ClientTimeout(total=5),
+      ) as r:
+          return await r.json()
+  
+  async def fetch_events(self) -> list[dict]:
+      if self._session is None:
+          return []
+      async with self._session.get(
+          f"{self._base_url}/hamlet/events",
+          timeout=aiohttp.ClientTimeout(total=5),
+      ) as r:
+          data = await r.json()
+          return data.get("events", [])
+  ```
+  
+  5 seconds is generous for a local HTTP call and matches the interval at which the viewer polls. Callers already have try/except Exception blocks that handle connectivity failures gracefully.
+  
+  ## Testing
+  
+  Mock `aiohttp.ClientSession.get` to raise `asyncio.TimeoutError` and verify `fetch_state` propagates the exception (rather than hanging). The timeout itself is validated by checking `timeout` kwarg passed to `session.get`.
+cycle_created: 1
+cycle_modified: null
+content_hash: d4bd55297bab5503804df9982e80e34abe4500e13ffa97f997867c04600d3e79
+token_count: 552
+file_path: .ideate/work-items/WI-215.yaml

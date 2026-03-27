@@ -1,0 +1,18 @@
+id: F-009-040
+type: finding
+cycle: 9
+reviewer: code-reviewer
+severity: minor
+title: test_hooks.py — TestNotification does not assert notification_type in outgoing payload
+description: |
+  - **File**: `tests/test_hooks.py` (TestNotification class)
+  - **Issue**: The hook reads `data.get("type", "generic")` and sends it as `notification_type`. The test only checks `hook_type == "Notification"`, not the `notification_type` value.
+  - **Suggested fix**: Add assertion for `notification_type` in the outgoing params.
+file_path: cycles/009/findings/F-009-040.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-009
+verdict: Pass
+content_hash: db7f3a6e838f7c5b55bbde3fcb35fdf505e8e9760553b79ece60c215c5ee995f
+token_count: 169

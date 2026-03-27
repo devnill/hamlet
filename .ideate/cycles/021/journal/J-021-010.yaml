@@ -1,0 +1,12 @@
+id: J-021-010
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 193: Enum identity dispatch comment"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed (M1) — removed 7 dead try/except blocks wrapping simple string assignments in SubagentStop, TeammateIdle, PostToolUseFailure, UserPromptSubmit, PreCompact, PostCompact, StopFailure branches of handle_event().
+  Added convention comment at top of handle_event body: "All branches use enum identity (event.hook_type == HookType.X), not string comparison."
+content_hash: da0e07ebfa475723a10d69f99be9d57f361cdfe0e24576a0dd0efd65dfa09cef
+token_count: 145

@@ -1,0 +1,40 @@
+id: WI-180
+type: work_item
+title: New hook scripts — system/observation events
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - hooks/post_tool_use_failure.py exists, is executable, sends hook_type "PostToolUseFailure" with tool_name, error, is_interrupt fields
+  - hooks/user_prompt_submit.py exists, is executable, sends hook_type "UserPromptSubmit" with prompt field
+  - hooks/pre_compact.py exists, is executable, sends hook_type "PreCompact" with base fields only
+  - hooks/post_compact.py exists, is executable, sends hook_type "PostCompact" with base fields only
+  - hooks/stop_failure.py exists, is executable, sends hook_type "StopFailure" with error dict (type, reason)
+  - All 5 scripts follow the same pattern as WI-179 (hamlet_hook_utils import, find_config, find_server_url, exit 0)
+module: null
+domain: null
+notes: |
+  # WI-180 Notes: New hook scripts — system/observation events
+  
+  ## Context
+  v0.4.0 hook expansion. These 5 scripts cover system and observation events: PostToolUseFailure, UserPromptSubmit, PreCompact, PostCompact, StopFailure.
+  
+  ## stdin field locations (per Claude Code docs)
+  All fields at top level:
+  - PostToolUseFailure: session_id, cwd, hook_event_name, tool_name, tool_input, tool_use_id, error, is_interrupt
+  - UserPromptSubmit: session_id, cwd, hook_event_name, prompt
+  - PreCompact: session_id, cwd, hook_event_name (minimal payload)
+  - PostCompact: session_id, cwd, hook_event_name (minimal payload)
+  - StopFailure: session_id, cwd, hook_event_name, error (dict with type and reason)
+  
+  ## Notes
+  - stop_failure.py: error is a dict with type (rate_limit/authentication_failed/billing_error/etc.) and reason string
+  - pre_compact.py and post_compact.py: send base fields only (no event-specific data needed)
+  - Same pattern as WI-179 for all
+cycle_created: 1
+cycle_modified: null
+content_hash: c69f9cfcb854dc8b123fcdc8c082d3b6af4cf88cb76d16df01bf4d351fe9ed10
+token_count: 481
+file_path: .ideate/work-items/WI-180.yaml

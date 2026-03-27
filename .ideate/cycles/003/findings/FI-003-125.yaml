@@ -1,0 +1,19 @@
+id: FI-003-125
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: EXECUTOR color mismatch between TYPE_COLORS and AGENT_COLORS
+description: |
+  - **File**: `src/hamlet/inference/types.py:89` and `src/hamlet/tui/symbols.py:22`
+  - **Issue**: `TYPE_COLORS` assigns `AgentType.EXECUTOR` the color `"green"`. `AGENT_COLORS` assigns it `"cyan"`. Both dicts drive display rendering through different code paths.
+  - **Impact**: EXECUTOR agents render as different colors depending on which rendering path is taken. Undermines deterministic color-from-type contract (GP-6).
+  - **Suggested fix**: Change `AGENT_COLORS[AgentType.EXECUTOR]` from `"cyan"` to `"green"` in `tui/symbols.py`.
+file_path: cycles/003/findings/FI-003-125.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-099
+verdict: Pass
+content_hash: "5d0fff10502b43f9f1a32b80fd0cd508c0067266a2dbefdbb42cb0c744131377"
+token_count: 216

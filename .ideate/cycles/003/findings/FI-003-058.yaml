@@ -1,0 +1,18 @@
+id: FI-003-058
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: world_state parameter typed as Any
+description: |
+  - **File**: `src/hamlet/simulation/agent_updater.py`
+  - **Issue**: `world_state: Any` loses type safety for future refactors. A Protocol would be more precise.
+  - **Suggested fix**: Define a WorldStateProtocol with `async def update_agent(self, agent_id: str, patch: dict) -> None`. Out of scope; Any is intentional to avoid circular imports per architecture notes.
+file_path: cycles/003/findings/FI-003-058.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-042
+verdict: Pass
+content_hash: e446696cee242a592669a096c4239499e88b8e61d1768989d15b917f93488573
+token_count: 164

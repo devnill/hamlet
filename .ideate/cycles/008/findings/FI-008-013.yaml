@@ -1,0 +1,18 @@
+id: FI-008-013
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `error` field type inconsistency between schema and dataclass
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/event_processing/internal_event.py:76`
+  - **Issue**: `InternalEvent.error` is typed `dict[str, Any] | None`. The schema in `validation.py:49` allows `{"type": ["object", "null"]}`, which accepts any JSON object including arrays-of-values or deeply nested structures. However, JSON "object" and Python `dict` are consistent here. The inconsistency is subtler: there is no documented shape for the `error` object (no required keys, no schema). Downstream consumers receiving an unstructured dict with no guaranteed keys may produce `KeyError` or silent `None` lookups.
+  - **Suggested fix**: Document the expected keys of the `error` dict (e.g. `{"code": str, "message": str}`) in the field docstring, or define a dedicated `ErrorDetail` dataclass. At minimum, add a comment at `internal_event.py:76` indicating what keys callers should expect.
+file_path: cycles/008/findings/FI-008-013.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-182
+verdict: Pass
+content_hash: "85af99949b31661dde181b7285c7998d538f939bcccb1207e74509c801154428"
+token_count: 304

@@ -1,0 +1,41 @@
+id: WI-099
+type: work_item
+title: AgentType enum consolidation
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "`AgentType` enum in `src/hamlet/inference/types.py` has exactly 7 members: RESEARCHER, CODER, EXECUTOR, ARCHITECT, TESTER, PLANNER, GENERAL"
+  - `PLANNER = "planner"` is a member of `AgentType` in `src/hamlet/inference/types.py`
+  - `TYPE_COLORS` dict in `src/hamlet/inference/types.py` has an entry for `AgentType.PLANNER`
+  - `AGENT_COLORS` dict in `src/hamlet/tui/symbols.py` has an entry for `AgentType.EXECUTOR`
+  - `AGENT_COLORS` dict in `src/hamlet/tui/symbols.py` has exactly 7 entries (one per AgentType member)
+  - Both `AgentType` enums (inference/types.py and world_state/types.py) have identical member names and values
+  - No import errors when running `python -c "from hamlet.inference.types import AgentType; from hamlet.tui.symbols import AGENT_COLORS"`
+module: null
+domain: null
+notes: |
+  # Work Item 099: AgentType enum consolidation
+  
+  ## Problem
+  Two separate `AgentType` enums exist in `inference/types.py` (6 members, no PLANNER) and `world_state/types.py` (7 members, includes PLANNER). This causes runtime failures when converting between them. Additionally, `EXECUTOR` is missing from `tui/symbols.py` AGENT_COLORS, defaulting silently to white.
+  
+  ## Changes
+  
+  ### inference/types.py
+  - Add `PLANNER = "planner"` to the `AgentType` enum
+  - Add `AgentType.PLANNER` entry to `TYPE_COLORS` dict (use `"dark_green"` or match `world_state/types.py` color convention)
+  
+  ### tui/symbols.py
+  - Add `AgentType.EXECUTOR` entry to `AGENT_COLORS` dict (use `"cyan"` to match inference/types.py TYPE_COLORS)
+  - Verify all 7 members are covered
+  
+  ## Verification
+  After this work item, the string `.value` of every member of the inference `AgentType` must have a corresponding member in `world_state` `AgentType`. The existing conversion `WSAgentType(inferred.value)` in engine.py must not raise KeyError for any reachable value.
+cycle_created: 1
+cycle_modified: null
+content_hash: a1e5d6d7c8b65e966df7a5c47f79984c54b3f8465ef7b9f317da529835b651a5
+token_count: 523
+file_path: .ideate/work-items/WI-099.yaml

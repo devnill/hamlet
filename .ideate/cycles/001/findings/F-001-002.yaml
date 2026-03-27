@@ -1,0 +1,20 @@
+id: F-001-002
+type: finding
+cycle: 1
+reviewer: gap-analyst
+severity: minor
+title: Terrain-based gameplay effects
+description: |
+  - **Interview Reference**: No explicit terrain effects on gameplay were requested
+  - **Status**: N/A — Terrain is visual/atmospheric for now
+  - **Note**: Future enhancement could include movement costs through different terrain types
+  
+  ---
+file_path: cycles/001/findings/F-001-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-001
+verdict: null
+content_hash: "54f2c2eb6d1dadbe4e295edcda764472a18866e413955a87f9568e0285b5dab0"
+token_count: 131

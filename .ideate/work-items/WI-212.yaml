@@ -1,0 +1,81 @@
+id: WI-212
+type: work_item
+title: Fix legend overlay positioning
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `HamletApp` declares `LAYERS = ("default", "overlay")` or equivalent Textual mechanism for floating overlays
+  - "`LegendOverlay.DEFAULT_CSS` positions the widget as a floating overlay above the grid (using `layer: overlay` and `position: absolute`, or equivalent)"
+  - `LegendOverlay` has a defined width and height in CSS so it is not zero-sized when displayed
+  - Toggling `/` shows the legend content (symbols, colors, key bindings) visibly overlaid on the world view
+  - The legend does not displace or resize any other widget when shown
+  - "Tests verify: `LegendOverlay.render()` returns non-empty content; overlay CSS includes positioning properties"
+module: null
+domain: null
+notes: |
+  # WI-212 Implementation Notes: Fix legend overlay positioning
+  
+  ## Problem
+  
+  `LegendOverlay` is yielded as the 4th child of `HamletApp.compose()` into a 3-row CSS grid.
+  Extra grid children that don't fit in defined cells get zero height — the widget is present
+  in the DOM but renders nothing when toggled visible.
+  
+  ## Fix
+  
+  Two changes:
+  
+  ### 1. HamletApp — declare a layer for overlays
+  
+  In `src/hamlet/tui/app.py`, add `LAYERS` to `HamletApp`:
+  
+  ```python
+  class HamletApp(App):
+      LAYERS = ("default", "overlay")
+      CSS = """..."""
+  ```
+  
+  ### 2. LegendOverlay — position as floating overlay
+  
+  In `src/hamlet/tui/legend.py`, update `DEFAULT_CSS`:
+  
+  ```python
+  DEFAULT_CSS = """
+  LegendOverlay {
+      display: none;
+      layer: overlay;
+      position: absolute;
+      top: 2;
+      left: 2;
+      width: 51;
+      height: 22;
+      background: $surface;
+  }
+  """
+  ```
+  
+  The legend box drawn in `render()` is 49 chars wide and ~20 rows tall (count the lines).
+  Set `width` and `height` to match with a small margin. Adjust if the exact character count
+  differs.
+  
+  If Textual's `position: absolute` behaves unexpectedly with the installed version (>=0.50.0),
+  an alternative is to set `dock: left` with `offset` — check Textual docs for the version
+  in use.
+  
+  The same pattern should be applied to `HelpOverlay` in `src/hamlet/tui/help_overlay.py`
+  if it has the same positioning problem (out of scope for this work item unless it's trivial).
+  
+  ## Tests
+  
+  In `tests/test_tui_legend.py`:
+  - Verify `LegendOverlay.render()` returns a non-empty string
+  - Verify `DEFAULT_CSS` contains `layer: overlay` or `position: absolute`
+  - (If existing tests cover the toggle: verify they still pass)
+cycle_created: 1
+cycle_modified: null
+content_hash: "58caf87f37cd82bfab446384de3df82b79a3f74c371522d94fc54759cfdcb25e"
+token_count: 663
+file_path: .ideate/work-items/WI-212.yaml

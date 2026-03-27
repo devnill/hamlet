@@ -1,0 +1,18 @@
+id: FI-005-006
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: Variable name `settings` shadows hamlet Settings object
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/cli/commands/install.py:315,349,357`
+  - **Issue**: `settings` is assigned the hamlet `Settings` object on line 315, used on line 349 to read `settings.mcp_port`, then reassigned on line 357 to the Claude Code settings dict returned by `load_settings()`. The code works correctly because `mcp_port` is read before reassignment, but the dual use of the same name makes the code error-prone for future edits.
+  - **Suggested fix**: Rename the hamlet settings variable to `hamlet_settings` throughout lines 315–349 to keep the two distinct.
+file_path: cycles/005/findings/FI-005-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-121
+verdict: Pass
+content_hash: fe6dc20050e96d37c714980c2072ad88c3e71c7e26881e214a0481719a58cbfc
+token_count: 223

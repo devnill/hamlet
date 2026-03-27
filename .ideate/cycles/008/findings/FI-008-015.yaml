@@ -1,0 +1,18 @@
+id: FI-008-015
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: Dead try/except blocks in five log-only branches
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:761-765`, `:795-799`, `:801-806`, `:808-813`, `:815-820`
+  - **Issue**: The try bodies in SubagentStop, UserPromptSubmit, PreCompact, PostCompact, and StopFailure each contain only a literal string assignment (`summary = "..."`). A literal string assignment cannot raise. The except clause in each of these blocks is unreachable dead code.
+  - **Suggested fix**: Either remove the try/except from these five branches (accepting them as bare assignments like TeammateIdle and PostToolUseFailure, if the fix in S1 is applied consistently), or accept the inert wrapping as forward-looking boilerplate and document it as such. The current inconsistency — some branches wrapped, two not — is the real problem addressed in S1.
+file_path: cycles/008/findings/FI-008-015.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: "27607dba0cb5bcf2894e317768e2e9d06cd77b61ece3792c6646679693abfd29"
+token_count: 274

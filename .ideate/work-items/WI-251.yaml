@@ -1,0 +1,21 @@
+id: WI-251
+type: work_item
+title: Config Persistence for Terrain Parameters
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Settings dataclass includes terrain_config field (TerrainConfig or dict)
+  - Config loading reads terrain parameters from .hamlet/config.json
+  - Config writing saves terrain parameters to .hamlet/config.json
+  - Default values used when config lacks terrain section
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: cbc252387db4dfbb835bf264a5e60f2994ff0e4faaaa68169ac7b77da2a70467
+token_count: 141
+file_path: .ideate/work-items/WI-251.yaml

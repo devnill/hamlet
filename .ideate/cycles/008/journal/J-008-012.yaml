@@ -1,0 +1,11 @@
+id: J-008-012
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 8
+title: "Work item 100: HTTP endpoint on MCPServer"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed (S1: entire HTTP setup block wrapped in try/except Exception to prevent uncaught exceptions aborting start() after MCP task is live; S2: _http_runner assigned before site.start() to prevent resource leak on port-in-use failure). 2 minor findings fixed (M1: removed duplicate WARNING log; M2: added Allow header to 405 response). S3 (no tests) noted — not in acceptance criteria scope.
+content_hash: "65b159097de3ea265c4ccc072785a486856a85b84e757348f905a30b5396c4f9"
+token_count: 153

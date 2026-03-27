@@ -1,0 +1,18 @@
+id: FI-008-011
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: No tests exercise the new fields end-to-end through process_event
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_event_processor.py`
+  - **Issue**: `test_process_event_returns_internal_event` (line 386) uses a `PreToolUse` fixture that does not include any of the 11 new fields (agent_id, agent_type, source, reason, task_id, task_subject, task_description, teammate_name, error, is_interrupt, prompt). There is no test that passes these fields in raw params and asserts they appear on the resulting `InternalEvent`. The field extraction at `event_processor.py:144-154` is therefore untested.
+  - **Suggested fix**: Add a parameterised test or a dedicated test method, e.g. for a `SubagentStart` raw event containing `agent_id`, `agent_type`, and `source`, that asserts `result.agent_id`, `result.agent_type`, and `result.source` match the input values. Also cover the `prompt` → `prompt_text` key remapping explicitly.
+file_path: cycles/008/findings/FI-008-011.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-182
+verdict: Pass
+content_hash: ca2a17a02dfb22298655a7e1011aafd7f3bd0b0bc529f25c4ff6e842a6bfee24
+token_count: 293

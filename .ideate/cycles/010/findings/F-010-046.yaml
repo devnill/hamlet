@@ -1,0 +1,18 @@
+id: F-010-046
+type: finding
+cycle: 10
+reviewer: spec-reviewer
+severity: minor
+title: Pre-existing @pytest.mark.asyncio decorators in test_world_state_manager.py
+description: |
+  - 13 existing test methods carry @pytest.mark.asyncio despite asyncio_mode=auto. WI-200 test additions correctly omit these, but the file retains the pre-existing violations.
+  - Impact: None at runtime (asyncio_mode=auto still runs them), but inconsistent with project conventions.
+  - Suggested fix: Remove all @pytest.mark.asyncio decorators from TestWorldStateManager.
+file_path: cycles/010/findings/F-010-046.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-010
+verdict: Pass
+content_hash: "1a8bf9b09e44ef081d49e48215f52fa9efdc2a4957612280a6810f3f97bbe4f1"
+token_count: 176

@@ -1,0 +1,31 @@
+id: FI-012-001
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Incorrect type hint using built-in callable instead of typing.Callable
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/parameter_panel.py:69`
+  - **Issue**: The type hints for callback parameters use `callable` (the built-in function) instead of `Callable` from the `typing` module. While this works at runtime due to Python's dynamic typing, it is semantically incorrect and will fail static type checkers like mypy.
+  - **Suggested fix**: Change `callable` to `Callable` and import it from `typing`:
+    ```python
+    # At top of file
+    from typing import TYPE_CHECKING, Callable
+  
+    # In __init__ signature
+    def __init__(
+        self,
+        terrain_config: "TerrainConfig",
+        on_change: Callable | None = None,
+        on_save: Callable | None = None,
+        on_seed_change: Callable | None = None,
+    ) -> None:
+    ```
+file_path: cycles/012/findings/FI-012-001.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-252
+verdict: Pass
+content_hash: "47e0facdc9096db1c8e2d32469b47e33da5cb8773260326a5b0e9e963d718b26"
+token_count: 272

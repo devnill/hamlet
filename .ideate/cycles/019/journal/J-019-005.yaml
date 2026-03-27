@@ -1,0 +1,12 @@
+id: J-019-005
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 182: Extend event schema for new hook types"
+content: |
+  Status: complete
+  Modified: src/hamlet/event_processing/internal_event.py, src/hamlet/mcp_server/validation.py, src/hamlet/event_processing/event_processor.py
+  HookType enum extended to 15 values; 11 new optional fields on InternalEvent; EVENT_SCHEMA updated; EventProcessor extracts all new fields.
+content_hash: "77e8c1906a7046e450e9f67ceebbd08d9b582438862398725c36c22d883c0709"
+token_count: 118

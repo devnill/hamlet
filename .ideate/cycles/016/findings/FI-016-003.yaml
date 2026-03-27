@@ -1,0 +1,24 @@
+id: FI-016-003
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `get_upload_sequence` raises `KeyError` on a stale handle after `cleanup`
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/gui/kitty/sprites.py:155`
+  - **Issue**: After `cleanup()` is called, `self._png_data` is cleared. If a caller retains a `SpriteHandle` (which is frozen and gives no indication it is stale) and later calls `get_upload_sequence(handle)`, the lookup `self._png_data[handle.image_id]` raises an unhandled `KeyError`. The design note in `specs/plan/notes/277.md` says "display commands for deleted IDs are silently ignored by terminal" — that covers the display path, not the upload path.
+  - **Suggested fix**: Guard the lookup and return an empty string (matching the graceful-degradation principle) or raise a documented `ValueError`:
+    ```python
+    data = self._png_data.get(handle.image_id)
+    if data is None:
+        return ""   # sprite was cleaned up; terminal already deleted it
+    ```
+    Alternatively, document the precondition explicitly so callers know re-uploading after cleanup requires a fresh `load_sprite` call.
+file_path: cycles/016/findings/FI-016-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-277
+verdict: Pass
+content_hash: "135df3ce2437628948fdaa166831209ca56e10c5e6cb51274b252615700ae07a"
+token_count: 326

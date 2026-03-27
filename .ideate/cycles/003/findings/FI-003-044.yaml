@@ -1,0 +1,18 @@
+id: FI-003-044
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: "Bare `except: pass` on persistence writes silenced errors completely"
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:151-158`
+  - **Issue**: All three persistence `queue_write` calls caught exceptions with bare `pass`, discarding any diagnostic information.
+  - **Fix**: Changed to `except Exception as exc: logger.debug(...)` so errors are observable in debug logging without being noisy at runtime.
+file_path: cycles/003/findings/FI-003-044.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-035
+verdict: Pass
+content_hash: "0d4a75e070fb1bd45c26849970edfe50474be4aecf8bfc609f4c5e26599be213"
+token_count: 163

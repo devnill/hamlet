@@ -1,0 +1,11 @@
+id: J-034-003
+type: journal_entry
+phase: execute
+date: "2026-03-23"
+cycle_created: 34
+title: "Work item 284: Fix KittyApp dict access patterns"
+content: |
+  Status: complete
+  app.py: replaced isinstance(v, dict) / .get() patterns throughout. Village: v.center.x/y. Follow loop: agent.id, agent.position.x/y. _toggle_follow: first.id or None.
+content_hash: "61420e0937040e06113e9d1f4acc7b715a3f0dec90e902e895b4d58549ed4566"
+token_count: 88

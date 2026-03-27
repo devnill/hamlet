@@ -1,0 +1,106 @@
+id: WI-094
+type: work_item
+title: Configuration Module
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File src/hamlet/config/settings.py exists with Settings dataclass
+  - Settings includes db_path, mcp_port, tick_rate, theme fields
+  - Settings.load() classmethod loads from ~/.hamlet/config.json or creates defaults
+  - Settings.save() method persists to config file
+  - File src/hamlet/config/paths.py exists with path constants
+  - HAMLET_DIR = ~/.hamlet, CONFIG_PATH, DB_PATH defined
+  - Paths use Path.expanduser() for cross-platform compatibility
+  - Config directory created automatically if not exists
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 094 - Configuration Module
+  
+  ## Scope
+  
+  Create configuration system for user settings.
+  
+  ## Implementation
+  
+  ### src/hamlet/config/paths.py
+  
+  ```python
+  from pathlib import Path
+  
+  HAMLET_DIR = Path.home() / ".hamlet"
+  CONFIG_PATH = HAMLET_DIR / "config.json"
+  DB_PATH = HAMLET_DIR / "world.db"
+  
+  def ensure_hamlet_dir():
+      HAMLET_DIR.mkdir(parents=True, exist_ok=True)
+  ```
+  
+  ### src/hamlet/config/settings.py
+  
+  ```python
+  import json
+  from dataclasses import dataclass, asdict
+  from pathlib import Path
+  from typing import Optional
+  
+  from .paths import CONFIG_PATH, ensure_hamlet_dir
+  
+  @dataclass
+  class Settings:
+      db_path: str = "~/.hamlet/world.db"
+      mcp_port: int = 8080
+      tick_rate: float = 30.0
+      theme: str = "default"
+      event_log_max_entries: int = 1000
+  
+      @classmethod
+      def load(cls) -> "Settings":
+          ensure_hamlet_dir()
+          if CONFIG_PATH.exists():
+              data = json.loads(CONFIG_PATH.read_text())
+              return cls(**data)
+          # Create defaults
+          settings = cls()
+          settings.save()
+          return settings
+  
+      def save(self) -> None:
+          ensure_hamlet_dir()
+          CONFIG_PATH.write_text(json.dumps(asdict(self), indent=2))
+  ```
+  
+  ## Design Principles
+  
+  1. **Sensible defaults** - Works out of the box (GP-11)
+  2. **Auto-create config** - No manual setup needed
+  3. **JSON format** - Human editable
+  4. **Expand user paths** - `~` works in paths
+  
+  ## Example config.json
+  
+  ```json
+  {
+    "db_path": "~/.hamlet/world.db",
+    "mcp_port": 8080,
+    "tick_rate": 30.0,
+    "theme": "default",
+    "event_log_max_entries": 1000
+  }
+  ```
+  
+  ## Testing
+  
+  ```python
+  def test_settings_load_creates_defaults():
+      settings = Settings.load()
+      assert settings.tick_rate == 30.0
+  ```
+cycle_created: 1
+cycle_modified: null
+content_hash: "5318a173c23e79f0f7bd846df995079c36d07067d0d4752ecda3bbfd9a249fe1"
+token_count: 651
+file_path: .ideate/work-items/WI-094.yaml

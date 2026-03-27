@@ -1,0 +1,11 @@
+id: J-007-052
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 037: Implement Structure and Work Unit Management"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (C1: work_units accumulated unboundedly on max-stage structures — moved accumulation inside `if current_stage < 3` block). 1 significant finding fixed (S1: created tests/test_structure_management.py with 10 tests covering all key behaviors). 2 minor findings fixed (M1: added constants to __all__; M2: replaced hardcoded "wood" with MATERIAL_STAGES[0] in create_structure).
+content_hash: afe785000e9eb5c244343ccb960fd5610a0cb787d012145f9228d25508e79cc0
+token_count: 154

@@ -1,0 +1,19 @@
+id: FI-003-054
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: Zero or negative tick rate causes infinite tight loop
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:64-65`
+  - **Issue**: `set_tick_rate` accepts any float. When tick_rate is 0 or negative, `asyncio.sleep` is never called — `_tick_loop` spins at 100% CPU and starves the event loop.
+  - **Impact**: TUI, MCP server, and event processing are blocked entirely.
+  - **Suggested fix**: Validate in `set_tick_rate`: raise ValueError for non-positive rates. Add `asyncio.sleep(max(1.0/tick_rate, 0.001))` as unconditional fallback.
+file_path: cycles/003/findings/FI-003-054.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-041
+verdict: Fail
+content_hash: "6c9db5251283919e07622b56384884fdec8c2fb552eb4c37dc61940a91240ae9"
+token_count: 195

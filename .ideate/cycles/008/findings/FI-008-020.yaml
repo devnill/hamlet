@@ -1,0 +1,18 @@
+id: FI-008-020
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `SubagentStop` and `PostToolUseFailure` produce no state mutation
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:760-761`, `797-798`
+  - **Issue**: Both handlers only set a summary string. No agent state is updated, no work units are applied. `SubagentStop` is the symmetrical lifecycle counterpart to `SubagentStart` and should at minimum set the matched agent to `AgentState.IDLE`. This was S3 in the prior review. It is downgraded to Minor here because the acceptance criteria do not explicitly mandate visual effects for these two types beyond producing a non-empty summary — which they do.
+  - **Suggested fix**: For `SubagentStop`, set the matching agent to `AgentState.IDLE` (mirror `SessionEnd` logic scoped to `event.session_id`).
+file_path: cycles/008/findings/FI-008-020.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: "3dca2843cfdca2f9f17d69bce4688525b284f632f4f0fa81f583905ad59be07d"
+token_count: 254

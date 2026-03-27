@@ -1,0 +1,13 @@
+id: D-33
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 17
+supersedes: null
+description: Rendering pipeline crash resolved at the parse layer, not the access layer
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "979f13f056f32f4e2a5c60462ec28854d6b60fb58f66edffc9dd054e8bf2fbd5"
+token_count: 74
+file_path: .ideate/decisions/D-33.yaml

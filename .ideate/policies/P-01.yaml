@@ -1,0 +1,13 @@
+id: P-01
+type: domain_policy
+domain: visualization
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: "Agents are `@` characters. Colors indicate type (researcher=cyan, coder=yellow, architect=magenta, tester=blue, general=white). Terrain uses standard roguelike symbols (`.` floor, `#` wall)."
+cycle_created: 1
+cycle_modified: null
+content_hash: "5e3830469457c69135e5bc1c95ac99060bedf7dd2b008fb4ca177ac7726a85b0"
+token_count: 107
+file_path: .ideate/policies/P-01.yaml

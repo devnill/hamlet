@@ -1,0 +1,11 @@
+id: J-009-007
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 102: Wire AgentInferenceEngine in __main__.py"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (S1: SimulationEngine was calling private `_update_zombie_states()` method directly on AgentInferenceEngine — added public `tick()` method to engine.py, updated simulation/engine.py to call it). 1 minor finding fixed (M1: shutdown order corrected — simulation now stops before event_processor, then mcp_server, then persistence).
+content_hash: "66ddd9dbd1066287ea010c6f8f4a19749ab5548ec0fe06048ffc8f3297f7f594"
+token_count: 142

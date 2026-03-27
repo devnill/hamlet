@@ -1,0 +1,18 @@
+id: FI-003-082
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Redundant `% 4` when indexing SPIN_SYMBOLS
+description: |
+  - **File**: `src/hamlet/tui/world_view.py:75`
+  - **Issue**: `SPIN_SYMBOLS[self._spin_frame % 4]` — `_spin_frame` is already kept in `[0, 3]` by the modulo in `_update_animation_frame`.
+  - **Fix**: Changed to `SPIN_SYMBOLS[self._spin_frame]`.
+file_path: cycles/003/findings/FI-003-082.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-063
+verdict: Pass
+content_hash: "65f7df361f0a04819b6ec7a2f160d112f6e0736588d596b756256b7fe182d9c9"
+token_count: 135

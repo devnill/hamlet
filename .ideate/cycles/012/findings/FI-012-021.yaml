@@ -1,0 +1,18 @@
+id: FI-012-021
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Forest expansion requires 5 neighbors
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:_apply_smoothing_rule`
+  - **Issue**: Forest expansion into passable terrain requires 5+ forest neighbors, while forest contraction requires fewer than 2 neighbors. This creates stable forest clusters.
+  - **Impact**: Creates coherent forest groves rather than scattered cells.
+file_path: cycles/012/findings/FI-012-021.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-257
+verdict: null
+content_hash: "2560f074fa6ea4361124eebfafcdba8d092659e96e063a903a5ba969f7da5243"
+token_count: 161

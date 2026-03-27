@@ -1,0 +1,11 @@
+id: J-016-014
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 3 — Work item 171: Add mcp diagnostic to start.sh python3 fallback"
+content: |
+  Status: complete
+  Added `python3 -c "import mcp"` import check in the python3 fallback branch of mcp/start.sh. If mcp is not importable, emits diagnostic to stderr and exits 1. POSIX sh compatible. Minor M1 (no python3 availability check) noted, not in acceptance criteria scope.
+content_hash: "28c7923178f67c8d946b82ef605f2ab4feb89b5e524f575a24a102fbf5b01e29"
+token_count: 118

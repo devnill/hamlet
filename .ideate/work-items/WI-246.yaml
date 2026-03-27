@@ -1,0 +1,121 @@
+id: WI-246
+type: work_item
+title: Forest Clustering Algorithm
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - generate_forest_groves(grid, count, growth_iterations) function exists
+  - Seeding selects random positions in high-moisture areas
+  - Growth algorithm expands forest cells to neighbors iteratively
+  - Forest groves form connected clusters (not scattered individual cells)
+  - Same seed produces same forest distribution (deterministic)
+  - Forest generation is integrated into main pipeline after ridge/lake processing
+module: null
+domain: null
+notes: |
+  # WI-246: Forest Clustering Algorithm
+  
+  ## Context
+  
+  Forest from moisture threshold alone can still appear scattered. A seeding and growth algorithm creates more natural forest groves.
+  
+  ## Implementation Notes
+  
+  ### Location
+  - `src/hamlet/world_state/terrain.py` — add `generate_forest_groves()` function
+  
+  ### Seeding and Growth Algorithm
+  
+  ```python
+  def generate_forest_groves(
+      self,
+      grid: dict[Position, TerrainType],
+      moisture_map: dict[Position, float],
+      grove_count: int = 10,
+      growth_iterations: int = 5
+  ) -> dict[Position, TerrainType]:
+      """Create forest groves from seeds in high-moisture areas."""
+      result = grid.copy()
+  
+      # Find high-moisture passable positions for seeding
+      high_moisture = [
+          pos for pos, m in moisture_map.items()
+          if m > self._config.forest_threshold
+          and pos in grid
+          and grid[pos] not in (TerrainType.WATER, TerrainType.MOUNTAIN)
+      ]
+  
+      if not high_moisture:
+          return result
+  
+      # Select N random seed positions
+      self._random.seed(self._seed + 7777)
+      seeds = self._random.sample(high_moisture, min(grove_count, len(high_moisture)))
+  
+      # Initialize groves
+      groves: list[set[Position]] = [{seed} for seed in seeds]
+  
+      # Growth iterations
+      for _ in range(growth_iterations):
+          new_groves = []
+          for grove in groves:
+              # Expand each grove by adding passable neighbors
+              expansion = set()
+              for pos in grove:
+                  for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                      neighbor = Position(pos.x + dx, pos.y + dy)
+                      if neighbor in grid and grid[neighbor] not in (TerrainType.WATER, TerrainType.MOUNTAIN, TerrainType.FOREST):
+                          # Only expand if moisture is reasonable for forest
+                          if neighbor in moisture_map and moisture_map[neighbor] > self._config.forest_threshold * 0.5:
+                              expansion.add(neighbor)
+              new_groves.append(grove | expansion)
+          groves = new_groves
+  
+      # Apply forest to grid
+      for grove in groves:
+          for pos in grove:
+              result[pos] = TerrainType.FOREST
+  
+      return result
+  ```
+  
+  ### Integration with Generation Pipeline
+  
+  After ridge and lake processing:
+  
+  ```python
+  # In main generation pipeline:
+  if self._config.forest_grove_count > 0:
+      terrain = self.generate_forest_groves(
+          terrain,
+          moisture_map,  # from WI-242 classification
+          grove_count=self._config.forest_grove_count,
+          growth_iterations=self._config.forest_growth_iterations
+      )
+  ```
+  
+  ### Config Parameters
+  
+  Add to TerrainConfig:
+  - `forest_grove_count: int = 10` — number of forest grove seeds
+  - `forest_growth_iterations: int = 5` — growth iterations per grove
+  
+  ### Relationship to Other Features
+  
+  Forest clustering runs AFTER ridge generation and lake expansion. This ensures forests don't overwrite mountains or water. Forests are limited to passable terrain (not already water/mountain).
+  
+  ### Tests
+  
+  - Test that seeds are placed in high-moisture areas
+  - Test that growth creates connected forest clusters
+  - Test that forests don't grow into water or mountains
+  - Test determinism (same seed → same forest distribution)
+  - Verify visually that forests appear as groves, not scattered cells
+cycle_created: 1
+cycle_modified: null
+content_hash: "8728c01397f6f7a11ab957a50cb4e8611b93337c7a042fec00ec3d52e38a0b01"
+token_count: 1022
+file_path: .ideate/work-items/WI-246.yaml

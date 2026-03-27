@@ -1,0 +1,11 @@
+id: J-007-044
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 021: Inference Core Types and Data Structures"
+content: |
+  Status: complete with rework
+  Rework: 4 critical findings fixed (C1: InferenceState missing pending_tools and last_seen; C2: PendingTool missing session_id/started_at/estimated_agent_id; C3: SessionState missing last_activity and active_tools; C4: ToolWindow using flat name list instead of timestamped event tuples). 1 significant finding fixed (S1: InferenceResult.agent_id made str | None).
+content_hash: "02f0dab834e02be2ac466b5ff19da56637efdad37c47bbc24809ed7a8969852a"
+token_count: 142

@@ -1,0 +1,11 @@
+id: J-015-027
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 161: Create initial village structures on village founding"
+content: |
+  Status: complete
+  Already correctly implemented — _seed_initial_structures exists and is called outside the asyncio.Lock after village creation in get_or_create_project (and get_or_create_agent). Seeds LIBRARY, WORKSHOP, FORGE with graceful fallback on position conflicts. Domain policy P-7 satisfied.
+content_hash: "8dffa6cd25bb0f8c474f2716261e9d69ce5e514c71dc3aeba2d07a5544b1ae31"
+token_count: 124

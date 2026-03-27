@@ -1,0 +1,26 @@
+id: FI-016-009
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: significant
+title: Direct access to `SpriteManager._uploaded_ids` private attribute
+description: |
+  - **File**: `src/hamlet/gui/kitty/renderer.py:175`, `:204`, `:233`
+  - **Issue**: The renderer reads `self._sprite_manager._uploaded_ids` directly. `_uploaded_ids` is a name-mangled private implementation detail of `SpriteManager`. If `SpriteManager` is refactored (e.g., the set is replaced with a method call), the renderer silently breaks with an `AttributeError` at render time, not at construction.
+  - **Impact**: Fragile coupling between two modules; breakage is not caught by the type checker because it is an attribute access on a concrete class through a runtime-optional reference.
+  - **Suggested fix**: Add a public method to `SpriteManager`:
+    ```python
+    def is_uploaded(self, image_id: int) -> bool:
+        return image_id in self._uploaded_ids
+    ```
+    Then in the renderer: `if handle is not None and self._sprite_manager.is_uploaded(handle.image_id):`
+  
+  ---
+file_path: cycles/016/findings/FI-016-009.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-278
+verdict: Fail
+content_hash: f990999ad0ee8011ea30e96c734995f19279c620c64790e00a49d373cd989a36
+token_count: 301

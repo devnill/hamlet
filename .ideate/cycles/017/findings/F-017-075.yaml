@@ -1,0 +1,18 @@
+id: F-017-075
+type: finding
+cycle: 17
+reviewer: code-reviewer
+severity: minor
+title: `_parse_*` helpers imported from across a convention boundary
+description: |
+  - **File**: `src/hamlet/gui/kitty/state_fetcher.py:13-17`
+  - **Issue**: `_parse_agent`, `_parse_structure`, `_parse_village` carry the `_` prefix (module-private convention) and are not in `tui/remote_world_state.py`'s `__all__`. The import is legal and works, but signals these functions were not designed as shared API.
+  - **Suggested fix**: If reuse across modules is intended (it is), promote the helpers to a shared `world_state/parsers.py` module and export explicitly.
+file_path: cycles/017/findings/F-017-075.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-017
+verdict: Pass
+content_hash: dade93f64fd9972bb6a85e4207307ec5ae4b44ee5bebcb6e8997e932424e06c8
+token_count: 199

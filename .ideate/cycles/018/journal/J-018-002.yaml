@@ -1,0 +1,11 @@
+id: J-018-002
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 18
+title: "Cycle 1 — Work item 174: Extract hook utilities to hamlet_hook_utils.py"
+content: |
+  Status: complete
+  Created hooks/hamlet_hook_utils.py with _cwd_hash, find_server_url, find_config, _log_error. Updated all 4 hook scripts to import via sys.path.insert pattern. Removed ~200 lines of duplicated code.
+content_hash: "3d05bcb2fab9f1b19f0c20b144f432e9aa82de1d0c237dbf997f0f637b28c8d5"
+token_count: 101

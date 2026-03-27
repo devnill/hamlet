@@ -1,0 +1,18 @@
+id: FI-003-140
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `EventLogEntry` construction outside lock
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:613`
+  - **Issue**: Entry is constructed before `async with self._lock:`. Consistent with GP pattern to construct inside the lock.
+  - **Suggested fix**: Move construction inside the lock block.
+file_path: cycles/003/findings/FI-003-140.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-104
+verdict: Pass
+content_hash: f1666668c3d9d31d98f40c571a925aaa4e654e938e73f7cfeaa537fac44ec137
+token_count: 134

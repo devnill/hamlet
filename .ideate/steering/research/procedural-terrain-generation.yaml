@@ -1,0 +1,665 @@
+id: research-procedural-terrain-generation
+type: research
+title: "Research: Procedural Terrain Generation for 2D ASCII Tile-Based Games"
+content: |
+  # Research: Procedural Terrain Generation for 2D ASCII Tile-Based Games
+  
+  **Date**: 2026-03-22
+  **Question**: How to generate coherent geographic features (lakes, forests, mountain ranges) instead of scattered disconnected cells using procedural terrain generation?
+  
+  ## Summary
+  
+  The current implementation uses single-frequency Perlin noise for each terrain type independently, producing scattered, disconnected cells. Research reveals multiple established techniques for generating coherent geographic features: multi-octave noise (fBm) for terrain heightmaps, cellular automata for smoothing and clustering, domain warping for natural distortion, and specialized algorithms for rivers/lakes and mountain ridges. The recommended approach combines these techniques in a layered pipeline: generate a unified heightmap with fBm, use domain warping for organic shapes, apply threshold-based biome assignment, and post-process with cellular automata for connectivity.
+  
+  ## Current Implementation Analysis
+  
+  **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py`
+  
+  ```python
+  # Current approach: independent single-frequency noise per terrain type
+  water_val = noise.pnoise2(
+      x * self._config.water_frequency,  # 0.02
+      y * self._config.water_frequency,
+      base=self._seed,
+  )
+  mountain_val = noise.pnoise2(
+      x * self._config.mountain_frequency,  # 0.015
+      y * self._config.mountain_frequency,
+      base=self._seed + 1000,
+  )
+  ```
+  
+  **Problems identified**:
+  1. Independent noise maps produce disconnected terrain patches
+  2. No relationship between adjacent cells - water cells don't cluster into lakes
+  3. Mountains scattered randomly rather than forming ridges
+  4. Single frequency lacks large-scale structure
+  
+  ## Key Findings
+  
+  ### 1. Multi-Octave Noise (Fractal Brownian Motion)
+  
+  **Source**: [Red Blob Games - Noise Functions and Map Generation](https://www.redblobgames.com/articles/noise/introduction.html)
+  
+  fBm combines multiple noise "octaves" at different frequencies and amplitudes:
+  
+  ```python
+  def fbm(x: float, y: float, octaves: int, lacunarity: float, persistence: float, seed: int) -> float:
+      """
+      Fractal Brownian Motion - combines multiple noise octaves.
+  
+      lacunarity: how much frequency increases per octave (typically 2.0)
+      persistence: how much amplitude decreases per octave (typically 0.4-0.6)
+      """
+      value = 0.0
+      amplitude = 1.0
+      frequency = 1.0
+      max_value = 0.0
+  
+      for i in range(octaves):
+          value += amplitude * noise.pnoise2(
+              x * frequency, y * frequency,
+              base=seed + i * 1000
+          )
+          max_value += amplitude
+          frequency *= lacunarity
+          amplitude *= persistence
+  
+      return value / max_value  # Normalize to [-1, 1]
+  ```
+  
+  **Benefits**:
+  - Low-frequency octaves create large features (mountain ranges, ocean basins)
+  - High-frequency octaves add fine detail
+  - Features flow naturally into each other
+  - Single heightmap enables terrain type relationships
+  
+  **Recommended parameters**:
+  - `octaves`: 4-6 for natural terrain
+  - `lacunarity`: 2.0 (each octave doubles frequency)
+  - `persistence`: 0.4-0.5 (faster amplitude falloff = smoother)
+  
+  ### 2. Domain Warping for Natural Distortion
+  
+  **Source**: [GameDev Stack Exchange - How to distort 2D Perlin Noise](https://gamedev.stackexchange.com/questions/162454/how-to-distort-2d-perlin-noise/162460)
+  
+  Domain warping distorts the coordinate space before sampling, creating organic, flowing patterns:
+  
+  ```python
+  def warped_noise(x: float, y: float, warp_strength: float, seed: int) -> float:
+      """
+      Domain-warped noise for more organic terrain shapes.
+      Warps the input coordinates before sampling.
+      """
+      # Sample noise to get distortion offsets
+      warp_x = warp_strength * noise.pnoise2(x + 5.3, y + 1.3, base=seed)
+      warp_y = warp_strength * noise.pnoise2(x + 9.2, y + 2.8, base=seed + 500)
+  
+      # Sample at warped coordinates
+      return noise.pnoise2(x + warp_x, y + warp_y, base=seed + 1000)
+  ```
+  
+  **Benefits**:
+  - Breaks grid-like artifacts
+  - Creates organic, flowing terrain shapes
+  - Natural-looking coastlines and forest boundaries
+  - Low performance cost (additional noise samples)
+  
+  **Recommended**: `warp_strength = 4.0` for visible but not extreme distortion
+  
+  ### 3. Threshold-Based Terrain Classification
+  
+  **Source**: [learnspace.blog - Creating Procedural Maps](https://learnspace.blog/blog/creating-procedural-maps-with-perlin-and-simplex-noise/)
+  
+  Use a single heightmap with thresholds for terrain types:
+  
+  ```python
+  def classify_terrain(height: float, moisture: float, temperature: float) -> TerrainType:
+      """
+      Classify terrain from combined heightmap values.
+      Uses multiple thresholds for natural transitions.
+      """
+      if height < -0.3:
+          return TerrainType.WATER
+      elif height > 0.7:
+          return TerrainType.MOUNTAIN
+      elif moisture > 0.4 and height < 0.3:
+          return TerrainType.FOREST
+      elif moisture > 0.1 and height < 0.2:
+          return TerrainType.MEADOW
+      else:
+          return TerrainType.PLAIN
+  ```
+  
+  **Dwarf Fortress Approach** (source: [DF Wiki - World Generation](https://dwarffortresswiki.org/index.php/DF2010:World_generation)):
+  - Uses multiple noise layers: elevation, rainfall, temperature, drainage, volcanism, savagery
+  - Combines layers to determine biome type
+  - Runs erosion simulation (250 iterations default)
+  - Creates rivers based on flow accumulation
+  
+  ### 4. Cellular Automata for Smoothing and Clustering
+  
+  **Source**: [Python Arcade - Procedural Caves](https://api.arcade.academy/en/latest/example_code/procedural_caves_cellular.html)
+  
+  Cellular automata smooth scattered noise into connected regions:
+  
+  ```python
+  def cellular_automata_step(grid: list[list[int]], birth_limit: int = 4, death_limit: int = 3) -> list[list[int]]:
+      """
+      One iteration of cellular automata smoothing.
+      birth_limit: dead cells become alive if neighbors >= this
+      death_limit: alive cells die if neighbors < this
+      """
+      height, width = len(grid), len(grid[0])
+      new_grid = [[0 for _ in range(width)] for _ in range(height)]
+  
+      for y in range(height):
+          for x in range(width):
+              neighbors = count_neighbors(grid, x, y)
+  
+              if grid[y][x] == 1:  # Alive
+                  new_grid[y][x] = 1 if neighbors >= death_limit else 0
+              else:  # Dead
+                  new_grid[y][x] = 1 if neighbors >= birth_limit else 0
+  
+      return new_grid
+  
+  def count_neighbors(grid: list[list[int]], x: int, y: int) -> int:
+      """Count alive neighbors (Moore neighborhood - 8 surrounding cells)."""
+      count = 0
+      for dy in [-1, 0, 1]:
+          for dx in [-1, 0, 1]:
+              if dx == 0 and dy == 0:
+                  continue
+              if grid[y + dy][x + dx] == 1:
+                  count += 1
+      return count
+  ```
+  
+  **Typical ruleset** (B678/S345678 notation):
+  - Birth: Dead cells become alive if 6, 7, or 8 neighbors are alive
+  - Survival: Living cells survive if 3+ neighbors are alive
+  
+  **Recommended iterations**: 4-5 passes for stable formations
+  
+  ### 5. Mountain Ridge Generation Algorithms
+  
+  **Source**: [John Whigham's Blog - Mountains and Ridges](https://jwhigham.wordpress.com/2010/05/20/mountains-and-ridges/)
+  
+  Ridge-growing approach creates connected mountain chains:
+  
+  ```python
+  def generate_ridge_chain(
+      start: Position,
+      end: Position,
+      roughness: float,
+      rng: random.Random
+  ) -> list[Position]:
+      """
+      Generate a ridge line between two points using midpoint displacement.
+      Creates connected mountain chains rather than scattered peaks.
+      """
+      if manhattan_distance(start, end) <= 1:
+          return [start, end]
+  
+      # Midpoint with perpendicular displacement
+      mid_x = (start.x + end.x) // 2
+      mid_y = (start.y + end.y) // 2
+  
+      # Perpendicular displacement
+      dx, dy = end.x - start.x, end.y - start.y
+      displacement = roughness * rng.gauss(0, 1)
+      mid_x += int(-dy * displacement)
+      mid_y += int(dx * displacement)
+  
+      # Recurse with reduced roughness
+      left = generate_ridge_chain(start, Position(mid_x, mid_y), roughness * 0.5, rng)
+      right = generate_ridge_chain(Position(mid_x, mid_y), end, roughness * 0.5, rng)
+  
+      return left[:-1] + right  # Avoid duplicating midpoint
+  ```
+  
+  **Canyon-First Approach** (inverse method):
+  1. Create canyon map using weighted random walks
+  2. Height = distance from nearest canyon
+  3. Creates natural ridge networks between canyons
+  
+  ### 6. River and Lake Generation
+  
+  **Source**: [GitHub - mrdunk/flowing-terrain](https://github.com/mrdunk/flowing-terrain)
+  
+  Flow-based water generation:
+  
+  ```python
+  def generate_rivers(
+      heightmap: list[list[float]],
+      water_sources: list[Position],
+      rng: random.Random
+  ) -> set[Position]:
+      """
+      Generate rivers by simulating water flow from high to low elevation.
+      Rivers form where water accumulates along downhill paths.
+      """
+      rivers = set()
+  
+      for source in water_sources:
+          pos = source
+          visited = {source}
+  
+          while True:
+              # Find lowest neighbor
+              neighbors = get_neighbors(pos)
+              lowest = min(neighbors, key=lambda n: heightmap[n.y][n.x])
+  
+              # Stop if we've reached water level or a cycle
+              if heightmap[lowest.y][lowest.x] < -0.3:
+                  break
+              if lowest in visited:
+                  break
+  
+              rivers.add(lowest)
+              visited.add(lowest)
+              pos = lowest
+  
+      return rivers
+  ```
+  
+  **Key insight**: Rivers follow natural drainage basins from heightmap. Generate elevation first, then trace water flow.
+  
+  ### 7. Forest Clustering Algorithms
+  
+  **Source**: [Wesley Kerr - Procedural Forest Generation](https://www.wesley-kerr.com/forest/)
+  
+  Seeding and growth algorithm for natural forest clustering:
+  
+  ```python
+  def generate_forests(
+      terrain: list[list[TerrainType]],
+      num_groves: int,
+      seed_radius: int,
+      growth_iterations: int,
+      rng: random.Random
+  ) -> set[Position]:
+      """
+      Generate clustered forests using seeding and growth.
+      Creates groves/woods rather than scattered individual trees.
+      """
+      forests = set()
+  
+      # Initial seed positions (centers of groves)
+      seeds = []
+      for _ in range(num_groves):
+          pos = find_valid_position(terrain, forests, rng)
+          seeds.append((pos, 1.0))  # (position, seed_strength)
+  
+      # Growth iterations
+      for _ in range(growth_iterations):
+          new_forests = set()
+          for pos, strength in seeds:
+              # Spread to neighbors with probability based on strength
+              for neighbor in get_neighbors(pos):
+                  if neighbor not in forests and rng.random() < strength:
+                      new_forests.add(neighbor)
+  
+          forests.update(new_forests)
+  
+          # Decay seed strength
+          seeds = [(pos, strength * 0.8) for pos, strength in seeds if strength > 0.1]
+  
+      return forests
+  ```
+  
+  **Parameters**:
+  - `num_groves`: Controls number of forest clusters (fewer = larger woods)
+  - `seed_radius`: Radius of initial seeding area
+  - `growth_iterations`: More iterations = denser forests
+  
+  ### 8. Voronoi Diagrams for Biome Regions
+  
+  **Source**: [GitHub - python-voronoi-gen](https://github.com/AWAlexWeber/python-voronoi-gen)
+  
+  Voronoi creates distinct, coherent biome regions:
+  
+  ```python
+  from scipy.spatial import Voronoi
+  
+  def generate_biome_regions(
+      width: int,
+      height: int,
+      num_regions: int,
+      rng: random.Random
+  ) -> list[tuple[Polygon, BiomeType]]:
+      """
+      Generate coherent biome regions using Voronoi diagrams.
+      Each region has a single biome type, creating distinct boundaries.
+      """
+      # Generate seed points
+      points = [(rng.randint(0, width), rng.randint(0, height))
+                for _ in range(num_regions)]
+  
+      # Apply Lloyd relaxation for more regular polygons
+      for _ in range(2):
+          vor = Voronoi(points)
+          points = [centroid(region) for region in vor.regions]
+  
+      # Assign biomes to regions
+      vor = Voronoi(points)
+      regions = []
+      for region in vor.regions:
+          biome = assign_biome_by_neighbors(region, regions)
+          regions.append((Polygon(region), biome))
+  
+      return regions
+  ```
+  
+  **Benefits**:
+  - Creates distinct biome boundaries
+  - Natural-looking region shapes
+  - Neighbor-aware biome assignment prevents chaotic patterns
+  
+  ### 9. Python Noise Library Comparison
+  
+  **Sources**:
+  - [GitHub - lmas/opensimplex](https://github.com/lmas/opensimplex)
+  - [PyPI - opensimplex](https://pypi.org/project/opensimplex/)
+  - [Peerdh - Performance Comparison of Noise Algorithms](https://peerdh.com/blogs/programming-insights/performance-comparison-of-different-noise-algorithms-in-real-time-rendering)
+  
+  | Library | License | Performance | Quality | Best For |
+  |---------|---------|-------------|---------|----------|
+  | `noise` (current) | MIT | Good | Grid artifacts in 2D | Prototyping, compatibility |
+  | `opensimplex` | CC0 | Excellent | No directional artifacts | Terrain generation |
+  | `perlin-noise` | MIT | Good | Perlin artifacts | Simple use cases |
+  
+  **Recommendation**: Keep `noise` library for compatibility. Consider `opensimplex` for improved visual quality without directional artifacts.
+  
+  **OpenSimplex advantages**:
+  - Patent-free (Perlin was patented, now expired)
+  - No visible grid artifacts
+  - Better high-dimensional support
+  - Active maintenance (~120k downloads/month)
+  
+  ### 10. Deterministic Seeding Best Practices
+  
+  **Source**: [Python docs - random](https://docs.python.org/3.15/library/random.html)
+  
+  ```python
+  import random
+  import numpy as np
+  
+  class TerrainGenerator:
+      def __init__(self, seed: int | None = None):
+          self._seed = seed if seed is not None else random.randint(0, 2**31 - 1)
+          self._rng = random.Random(self._seed)  # Isolated RNG
+  
+      def generate_heightmap(self, width: int, height: int) -> list[list[float]]:
+          # For numpy operations, use numpy's generator
+          np_rng = np.random.default_rng(self._seed)
+  
+          # For noise functions, use seed as base
+          for y in range(height):
+              for x in range(width):
+                  value = noise.pnoise2(x, y, base=self._seed)
+  ```
+  
+  **Key patterns**:
+  1. Use isolated `random.Random(seed)` instances to avoid cross-component interference
+  2. For noise libraries, pass seed as `base` parameter
+  3. Save seed alongside generated content for reproducibility
+  4. For parallel generation, use `SeedSequence.spawn()` to create independent streams
+  
+  ### 11. Hydraulic Erosion Simulation
+  
+  **Source**: [GameIdea.org - Simulating Hydraulic Erosion](https://gameidea.org/2023/12/22/simulating-hydraulic-erosion-of-terrain/)
+  
+  For realistic mountain terrain, simulate erosion:
+  
+  ```python
+  def hydraulic_erosion(
+      heightmap: list[list[float]],
+      num_droplets: int,
+      erosion_rate: float,
+      deposition_rate: float,
+      rng: random.Random
+  ) -> list[list[float]]:
+      """
+      Simulate water erosion for realistic terrain.
+      Creates valleys, rivers, and natural-looking mountains.
+      """
+      for _ in range(num_droplets):
+          x, y = rng.randint(0, len(heightmap[0])), rng.randint(0, len(heightmap))
+          sediment = 0
+  
+          for _ in range(max_steps):
+              # Calculate gradient
+              gradient = calculate_gradient(heightmap, x, y)
+  
+              # Erode on steep slopes
+              if gradient > 0.5:
+                  heightmap[y][x] -= erosion_rate * gradient
+                  sediment += erosion_rate * gradient
+  
+              # Deposit on flat areas
+              elif gradient < 0.2 and sediment > 0:
+                  heightmap[y][x] += deposition_rate
+                  sediment -= deposition_rate
+  
+              # Move downhill
+              x, y = move_downhill(heightmap, x, y)
+  
+      return heightmap
+  ```
+  
+  **Trade-off**: Significantly more processing time. Consider for pre-generation only.
+  
+  ## Recommended Implementation Strategy
+  
+  ### Phase 1: Unified Heightmap (Immediate Improvement)
+  
+  Replace independent terrain noise with a single unified heightmap:
+  
+  ```python
+  class TerrainGeneratorV2:
+      """Improved terrain generation with coherent geographic features."""
+  
+      def __init__(self, config: TerrainConfig):
+          self._config = config
+          self._seed = config.seed or random.randint(0, 2**31 - 1)
+          self._rng = random.Random(self._seed)
+  
+      def _fbm(self, x: float, y: float, octaves: int = 4,
+               lacunarity: float = 2.0, persistence: float = 0.5) -> float:
+          """Fractal Brownian Motion for multi-scale terrain."""
+          value = 0.0
+          amplitude = 1.0
+          frequency = 1.0
+          max_value = 0.0
+  
+          for i in range(octaves):
+              value += amplitude * noise.pnoise2(
+                  x * frequency,
+                  y * frequency,
+                  base=self._seed + i * 1000
+              )
+              max_value += amplitude
+              frequency *= lacunarity
+              amplitude *= persistence
+  
+          return value / max_value
+  
+      def _warped_fbm(self, x: float, y: float) -> float:
+          """Domain-warped fBm for organic terrain shapes."""
+          warp_strength = 4.0
+          warp_x = warp_strength * noise.pnoise2(x * 0.01 + 5.3, y * 0.01 + 1.3,
+                                                  base=self._seed)
+          warp_y = warp_strength * noise.pnoise2(x * 0.01 + 9.2, y * 0.01 + 2.8,
+                                                  base=self._seed + 500)
+          return self._fbm(x * 0.02 + warp_x, y * 0.02 + warp_y)
+  
+      def generate_terrain(self, position: Position) -> TerrainType:
+          """Generate terrain type for a single position using unified heightmap."""
+          x, y = position.x, position.y
+  
+          # Primary heightmap (elevation)
+          height = self._warped_fbm(x, y)
+  
+          # Secondary noise for moisture (affects forest distribution)
+          moisture = noise.pnoise2(x * 0.015, y * 0.015, base=self._seed + 2000)
+  
+          # Threshold-based classification
+          if height < self._config.water_threshold:
+              return TerrainType.WATER
+          elif height > self._config.mountain_threshold:
+              return TerrainType.MOUNTAIN
+          elif moisture > self._config.forest_threshold and height < 0.4:
+              return TerrainType.FOREST
+          elif moisture > self._config.meadow_threshold * 0.5 and height < 0.3:
+              return TerrainType.MEADOW
+          else:
+              return TerrainType.PLAIN
+  ```
+  
+  ### Phase 2: Post-Processing for Coherence (Optional Enhancement)
+  
+  Apply cellular automata for terrain smoothing:
+  
+  ```python
+  def smooth_terrain(
+      terrain_grid: dict[Position, TerrainType],
+      iterations: int = 3
+  ) -> dict[Position, TerrainType]:
+      """Apply cellular automata smoothing for connected features."""
+      result = terrain_grid.copy()
+  
+      for _ in range(iterations):
+          new_grid = {}
+          for pos, terrain in result.items():
+              neighbors = get_8_neighbors(pos)
+  
+              # Count terrain types in neighborhood
+              counts = defaultdict(int)
+              for n in neighbors:
+                  if n in result:
+                      counts[result[n]] += 1
+  
+              # Smooth: adopt majority type if strong enough
+              if counts[terrain] < 3 and len(neighbors) > 0:
+                  majority = max(counts, key=counts.get)
+                  if counts[majority] >= 5:
+                      new_grid[pos] = majority
+                  else:
+                      new_grid[pos] = terrain
+              else:
+                  new_grid[pos] = terrain
+  
+          result = new_grid
+  
+      return result
+  ```
+  
+  ### Phase 3: Specialized Feature Generation (Future Enhancement)
+  
+  For lakes and mountain ridges specifically:
+  
+  ```python
+  def generate_lakes(
+      heightmap: list[list[float]],
+      water_level: float,
+      min_size: int = 10
+  ) -> list[set[Position]]:
+      """Find contiguous water regions (lakes) above minimum size."""
+      water_cells = {(x, y) for y, row in enumerate(heightmap)
+                     for x, val in enumerate(row) if val < water_level}
+  
+      lakes = []
+      while water_cells:
+          # Flood fill to find connected region
+          start = water_cells.pop()
+          lake = flood_fill(start, water_cells, water_level)
+          if len(lake) >= min_size:
+              lakes.append(lake)
+  
+      return lakes
+  
+  def generate_mountain_ridges(
+      num_ridges: int,
+      bounds: Bounds,
+      roughness: float,
+      rng: random.Random
+  ) -> list[set[Position]]:
+      """Generate connected mountain ridge chains."""
+      ridges = []
+  
+      for _ in range(num_ridges):
+          # Random start and end points
+          start = Position(rng.randint(bounds.min_x, bounds.max_x),
+                          rng.randint(bounds.min_y, bounds.max_y))
+          end = Position(rng.randint(bounds.min_x, bounds.max_x),
+                        rng.randint(bounds.min_y, bounds.max_y))
+  
+          # Generate ridge using midpoint displacement
+          ridge_points = generate_ridge_chain(start, end, roughness, rng)
+          ridges.append(set(ridge_points))
+  
+      return ridges
+  ```
+  
+  ## Performance Considerations
+  
+  For TUI rendering at 30 FPS:
+  
+  | Technique | Generation Time (200x200) | Memory | Notes |
+  |-----------|--------------------------|--------|-------|
+  | Single-frequency Perlin (current) | ~50ms | Low | Too scattered |
+  | fBm 4 octaves | ~150ms | Low | Good balance |
+  | fBm + domain warp | ~200ms | Low | Recommended |
+  | fBm + CA smoothing | ~250ms | Medium | Post-processing |
+  | Hydraulic erosion | ~500-1000ms | Medium | Pre-compute only |
+  
+  **Recommendation**: Pre-generate terrain chunks with fBm + domain warp. Apply CA smoothing at load time. Reserve erosion for world-generation phase.
+  
+  ## Implementation Priority
+  
+  1. **Phase 1** (Immediate): Unified heightmap with fBm and domain warping
+     - Replaces independent terrain noise
+     - Maintains current `TerrainGenerator` interface
+     - Produces coherent features with minimal code change
+  
+  2. **Phase 2** (Short-term): Cellular automata post-processing
+     - Smooths terrain boundaries
+     - Creates larger connected regions
+     - Applied to cached chunks on generation
+  
+  3. **Phase 3** (Future): Specialized generators
+     - Lake detection and expansion
+     - Mountain ridge chains
+     - River generation from elevation
+  
+  ## Sources
+  
+  ### Code Analysis
+  - `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py` - Current TerrainGenerator implementation
+  - `/Users/dan/code/hamlet/tests/test_terrain.py` - Test coverage and behavior
+  
+  ### External Research
+  - [Red Blob Games - Noise Functions and Map Generation](https://www.redblobgames.com/articles/noise/introduction.html) - fBm theory
+  - [learnspace.blog - Creating Procedural Maps with Perlin and Simplex Noise](https://learnspace.blog/blog/creating-procedural-maps-with-perlin-and-simplex-noise/) - Implementation examples
+  - [Dwarf Fortress Wiki - World Generation](https://dwarffortresswiki.org/index.php/DF2010:World_generation) - DF approach details
+  - [Python Arcade - Procedural Caves Cellular Automata](https://api.arcade.academy/en/latest/example_code/procedural_caves_cellular.html) - CA implementation
+  - [GameDev Stack Exchange - Domain Warping](https://gamedev.stackexchange.com/questions/162454/how-to-distort-2d-perlin-noise/162460) - Warping technique
+  - [GitHub - python-voronoi-gen](https://github.com/AWAlexWeber/python-voronoi-gen) - Voronoi biome regions
+  - [GitHub - mrdunk/flowing-terrain](https://github.com/mrdunk/flowing-terrain) - River generation
+  - [John Whigham - Mountains and Ridges](https://jwhigham.wordpress.com/2010/05/20/mountains-and-ridges/) - Ridge generation
+  - [Wesley Kerr - Procedural Forest Generation](https://www.wesley-kerr.com/forest/) - Forest clustering
+  - [GameIdea.org - Hydraulic Erosion](https://gameidea.org/2023/12/22/simulating-hydraulic-erosion-of-terrain/) - Erosion simulation
+  - [GitHub - lmas/opensimplex](https://github.com/lmas/opensimplex) - OpenSimplex library
+  - [PyPI - opensimplex](https://pypi.org/project/opensimplex/) - OpenSimplex package
+  - [Python docs - random](https://docs.python.org/3.15/library/random.html) - Deterministic seeding
+  
+  ## Open Questions
+  
+  1. **Erosion simulation**: Should we implement hydraulic erosion for more realistic mountains, or is fBm sufficient?
+  2. **Caching strategy**: Pre-generate entire world at startup vs. chunk-based generation?
+  3. **Water features**: Implement river flow from elevation, or simpler lake-only approach?
+  4. **Performance budget**: What's acceptable generation time for 200x200 world at startup?
+content_hash: "773f196e3e9f521862699ca6813e1d6c83b500cc9fe6ef3d51b3d417d797de7c"
+token_count: 6276

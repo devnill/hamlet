@@ -1,0 +1,10 @@
+id: C-01
+type: constraint
+category: scope
+status: active
+description: MVP focus. The first iteration must be usable and demonstrate core functionality. Visual polish and iteration are expected, but the foundation must work.
+cycle_created: 1
+cycle_modified: null
+content_hash: "0b5f1cc7c7bc49ce71a25f3616a3164f1eb54d04b7f1798f140edfbb7b203e17"
+token_count: 81
+file_path: .ideate/constraints/C-01.yaml

@@ -1,0 +1,18 @@
+id: FI-003-162
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Stale comment on `Agent.project_id`
+description: |
+  - **File**: `src/hamlet/world_state/types.py:95`
+  - **Issue**: Comment says "not stored in DB" — now false after this work item.
+  - **Suggested fix**: Update to "persisted to agents table via migration 2".
+file_path: cycles/003/findings/FI-003-162.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-109
+verdict: Pass
+content_hash: "1ec06fa746b228fdb456f0babf2bd88a46f1a5f9cd655fb53f1a0035a93bfa46"
+token_count: 125

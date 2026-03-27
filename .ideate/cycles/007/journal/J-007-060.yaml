@@ -1,0 +1,11 @@
+id: J-007-060
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 079: Persistence Facade and Checkpoint"
+content: |
+  Status: complete with rework
+  Rework: 3 critical findings fixed (C1: direct _queue access — added public task_done() method to WriteQueue; C2: direct _queue.join() access — added public join() method to WriteQueue; C3: dual conflicting write loops — removed WriteQueue._write_loop/start/stop, facade is now sole consumer). 4 significant findings fixed (S1-S4: silent failures in checkpoint, load_state, append_event_log, enqueue_write when not running — all now raise RuntimeError). 2 minor findings fixed (M1: removed unused TYPE_CHECKING block; M2: made event_log_max_entries configurable via PersistenceConfig with fallback).
+content_hash: b25c476110a046395158dfccd267192641929d439f8a6d9232cc75eb51337151
+token_count: 199

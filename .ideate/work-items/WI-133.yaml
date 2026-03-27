@@ -1,0 +1,48 @@
+id: WI-133
+type: work_item
+title: Verify vim hjkl scroll bindings have no conflicts
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `app.py` BINDINGS contains `Binding("h", "scroll_left", ...)`, `Binding("j", "scroll_down", ...)`, `Binding("k", "scroll_up", ...)`, `Binding("l", "scroll_right", ...)`
+  - Arrow key bindings (`left`, `right`, `up`, `down`) remain alongside hjkl
+  - No binding uses `"l"` for any action other than `scroll_right`
+module: null
+domain: null
+notes: |
+  # WI-133: Verify vim hjkl scroll bindings (no conflicts)
+  
+  ## Context
+  `hjkl` scroll bindings are already present in `app.py` (lines 91-98). This work item verifies no conflict exists after WI-132's changes and ensures the bindings are complete and documented.
+  
+  ## Existing Bindings (from app.py lines 91-98)
+  ```python
+  Binding("h", "scroll_left", "Scroll Left", show=False),
+  Binding("left", "scroll_left", "Scroll Left", show=False),
+  Binding("l", "scroll_right", "Scroll Right", show=False),
+  Binding("right", "scroll_right", "Scroll Right", show=False),
+  Binding("j", "scroll_down", "Scroll Down", show=False),
+  Binding("down", "scroll_down", "Scroll Down", show=False),
+  Binding("k", "scroll_up", "Scroll Up", show=False),
+  Binding("up", "scroll_up", "Scroll Up", show=False),
+  ```
+  
+  ## Changes
+  After WI-132 changes `?` → `/` for legend:
+  - `l` = scroll_right (no conflict — legend is no longer on `l` or `?`)
+  - All hjkl bindings are present and correct
+  
+  This work item touches `app.py` only to confirm the final binding list after WI-132 and to update the descriptions if desired (e.g., change `show=False` to `show=False` with a combined description). If bindings are already correct, this is a verification-only pass.
+  
+  If executor finds everything is already correct after WI-132, they should still confirm by reading the file and noting it in the commit message.
+  
+  ## Notes
+  - This work item exists to own any conflict resolution between WI-132 and the `l` key. Since the analysis shows no conflict, it may be merged with WI-132 or treated as a fast verification. The executor should check the actual file state after WI-132 is applied.
+cycle_created: 1
+cycle_modified: null
+content_hash: "641d02b51ba5c0ed25ce68fca45e180ca67a9c86933eb11f347e5e8deec8c778"
+token_count: 584
+file_path: .ideate/work-items/WI-133.yaml

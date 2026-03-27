@@ -1,0 +1,20 @@
+id: FI-012-024
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Performance test uses viewport size
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_terrain.py:TestSmoothingPerformance`
+  - **Issue**: The performance test uses a 50x50 grid (2,500 cells) rather than a full 200x200 world. This is appropriate because smoothing is applied per-viewport in the terrain pipeline.
+  - **Impact**: Test passes with ~27ms, well under the 100ms threshold.
+  
+  ---
+file_path: cycles/012/findings/FI-012-024.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-257
+verdict: null
+content_hash: "2c28b6c4b8cf17d5376061569d46b28df19cbfd01cfbd9fb1994bc39fa4c4c42"
+token_count: 160

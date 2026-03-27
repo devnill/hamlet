@@ -1,0 +1,12 @@
+id: J-019-006
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 183: Daemon handling for new event types with visual triggers"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed — TaskCompleted now filters agents by both session_id and non-empty village_id before calling add_work_units. 1 significant finding fixed — SessionStart now guards against empty project_id/session_id before entity creation. 2 minor findings fixed — TeammateIdle broken agent-by-name lookup removed (log only); SessionEnd empty session_id guard added; try/except added to all remaining log-only branches.
+  Modified: src/hamlet/world_state/manager.py
+content_hash: b5faab8300734ab40096053b3d8226a171b7c34ab7fb7e7acddb89760673ad1d
+token_count: 176

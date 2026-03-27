@@ -1,0 +1,69 @@
+id: WI-227
+type: work_item
+title: Structure size_tier data model, persistence migration, and serialization
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "Structure dataclass in types.py has `size_tier: int = 1` field"
+  - migrations.py has a migration (version 4) that runs `ALTER TABLE structures ADD COLUMN size_tier INTEGER NOT NULL DEFAULT 1`
+  - _load_structures in loader.py includes size_tier column in SELECT and reads it
+  - _write_structure in writer.py includes size_tier in INSERT
+  - "_serialize_structure in serializers.py output dict includes `\"size_tier\": structure.size_tier`"
+  - A test verifies migration 4 adds size_tier column to structures table
+  - A test verifies a structure row with size_tier=3 loads as Structure(size_tier=3)
+  - A test verifies writing a structure with size_tier=2 persists size_tier=2
+  - A test verifies _serialize_structure includes "size_tier" key
+module: null
+domain: null
+notes: |
+  # WI-227 Implementation Notes
+  
+  ## src/hamlet/world_state/types.py
+  
+  Add `size_tier: int = 1` to the Structure dataclass. Position it after `work_required` to
+  avoid breaking existing positional callers.
+  
+  ## src/hamlet/persistence/migrations.py
+  
+  Add migration version 4. Read the current MIGRATIONS dict format, then add:
+  
+  ```python
+  4: """
+  ALTER TABLE structures ADD COLUMN size_tier INTEGER NOT NULL DEFAULT 1;
+  """
+  ```
+  
+  And increment the schema_version update in the migration runner accordingly.
+  Check how migrations.py handles version tracking (likely updates a schema_version table row).
+  
+  ## src/hamlet/persistence/loader.py
+  
+  In `_load_structures`:
+  - Add "size_tier" to SELECT column list
+  - Add `size_tier=int(row["size_tier"])` to Structure constructor call
+  
+  ## src/hamlet/persistence/writer.py
+  
+  In `_write_structure` (or equivalent INSERT):
+  - Add `size_tier` to INSERT column list
+  - Add `d.get("size_tier", 1)` to VALUES parameter tuple
+  
+  ## src/hamlet/mcp_server/serializers.py
+  
+  In `_serialize_structure`:
+  - Add `"size_tier": structure.size_tier` to the returned dict
+  
+  ## Tests
+  
+  - `tests/test_persistence_migrations.py`: run migrations on fresh DB, check PRAGMA table_info(structures) includes size_tier
+  - `tests/test_persistence_loader.py`: insert row with size_tier=3, load, verify Structure.size_tier == 3
+  - `tests/test_persistence_writer.py`: write structure with size_tier=2, read back, verify value
+  - `tests/test_mcp_serializers.py`: serialize Structure(size_tier=2), verify output["size_tier"] == 2
+cycle_created: 1
+cycle_modified: null
+content_hash: "7a1ccd00f3d351561597e7bd7f8022b600523807b9398a3196ab4219cf820043"
+token_count: 656
+file_path: .ideate/work-items/WI-227.yaml

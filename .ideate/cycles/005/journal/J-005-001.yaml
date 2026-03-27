@@ -1,0 +1,13 @@
+id: J-005-001
+type: journal_entry
+phase: refine
+date: "2026-03-21"
+cycle_created: 5
+title: Refinement planning completed
+content: |
+  Trigger: new features + open questions from prior cycles + hotfix test coverage
+  Principles changed: none
+  New work items: WI-220 through WI-231
+  Addresses Q-10 (Bash string tool_output), Q-13 (stop_reason differentiation), Q-14 (enum dispatch), Q-15 (test coverage). Adds viewport-centered village name in status bar. Adds multi-cell structure rendering with size tiers based on work units.
+content_hash: "6045a2462699f1a7da6398ae079eb23d9dacf64d8cd62b6904b8800574066867"
+token_count: 135

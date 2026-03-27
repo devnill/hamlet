@@ -1,0 +1,18 @@
+id: F-002-004
+type: finding
+cycle: 2
+reviewer: code-reviewer
+severity: minor
+title: `find_server_url()` and `find_config()` duplicated verbatim across four hook files
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/pre_tool_use.py:19–61`, `/Users/dan/code/hamlet/hooks/post_tool_use.py:19–61`, `/Users/dan/code/hamlet/hooks/notification.py:15–57`, `/Users/dan/code/hamlet/hooks/stop.py:15–57`
+  - **Issue**: Both functions are copy-pasted in full into every hook module. A bug fix or behaviour change must be applied in four places.
+  - **Suggested fix**: Extract `find_server_url()`, `find_config()`, `_cwd_hash()`, and `_log_error()` into a shared `hooks/common.py` and import from there.
+file_path: cycles/002/findings/F-002-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-002
+verdict: Pass
+content_hash: "4c4219631158672c73a2bfd7ec2c2d5f17b1681249b6348880ba4ed099259663"
+token_count: 214

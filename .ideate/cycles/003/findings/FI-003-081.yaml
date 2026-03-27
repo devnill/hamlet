@@ -1,0 +1,18 @@
+id: FI-003-081
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `from hamlet.world_state.types import AgentState` inside render loop
+description: |
+  - **File**: `src/hamlet/tui/world_view.py:73`
+  - **Issue**: Import statement was inside the innermost `for` loop of `render()`, executing on every cell of every frame. While Python caches the module, the lookup overhead accumulates and import errors would surface mid-render.
+  - **Fix**: Moved to top-level import alongside other hamlet imports.
+file_path: cycles/003/findings/FI-003-081.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-063
+verdict: Pass
+content_hash: ce53568e506dc5f3617c655760267a81907791f86b1e740d77d8dbffb87d43a2
+token_count: 169

@@ -1,0 +1,11 @@
+id: J-011-002
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 11
+title: "Work item 117: Move TOOL_TO_STRUCTURE to world_state/rules.py"
+content: |
+  Status: complete
+  TOOL_TO_STRUCTURE moved from inference/engine.py to world_state/rules.py. Added to __all__. engine.py now imports from world_state.rules. No circular import introduced. All StructureType enum values preserved.
+content_hash: "4fad8dd3c040e0150937784f2e8e48297a05f6b54c04ce59c5014dd23637dfb4"
+token_count: 102

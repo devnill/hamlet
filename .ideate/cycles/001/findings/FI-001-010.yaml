@@ -1,0 +1,22 @@
+id: FI-001-010
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: minor
+title: Logging f-strings should use lazy evaluation
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py:55,76`
+  - **Issue**: `logger.error(f"Failed to start MCP server: {e}")` uses f-string which evaluates even when log level is not ERROR. Standard practice is `logger.error("Failed to start MCP server: %s", e)`.
+  - **Suggested fix**: Use lazy evaluation for performance:
+    ```python
+    logger.error("Failed to start MCP server: %s", e)
+    logger.error("MCP server error: %s", e)
+    ```
+file_path: cycles/001/findings/FI-001-010.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: "1ef8bdd82b15d900de44b9d4844ffa75c922367f6d0941110e7f67aa088d508b"
+token_count: 190

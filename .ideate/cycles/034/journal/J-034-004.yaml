@@ -1,0 +1,11 @@
+id: J-034-004
+type: journal_entry
+phase: execute
+date: "2026-03-23"
+cycle_created: 34
+title: "Work item 285: Functional integration tests with real API fixtures"
+content: |
+  Status: complete
+  Created tests/fixtures/ with real daemon responses (2 agents, 17 structures, 16 villages, 10201 terrain cells, 100 events). Created tests/test_kitty_integration.py with 12 tests covering: dataclass type verification, attribute access, render output contains terrain symbols, malformed entry graceful skip, enum type verification. All 12 pass.
+content_hash: a6f447c4f90666f9c5f3f7d9b3d6fc45aba66e23bd9adb9cb2d7362377c9aace
+token_count: 137

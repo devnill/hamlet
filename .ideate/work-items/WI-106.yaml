@@ -1,0 +1,58 @@
+id: WI-106
+type: work_item
+title: Implement work unit accumulation from PostToolUse
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `_handle_post_tool_use` calls `self._world_state.add_work_units(agent_id, structure_type, units)` after type inference
+  - "TOOL_TO_STRUCTURE mapping defined at module level: Read/Grep/Glob -> LIBRARY, Write/Edit -> WORKSHOP, Bash -> FORGE"
+  - Work units = `max(1, duration_ms // 100)` if duration_ms is not None, else 1
+  - If tool_name not in TOOL_TO_STRUCTURE, no units added (silent skip)
+  - Errors caught and logged at ERROR level (GP-7)
+module: null
+domain: null
+notes: |
+  # Work Item 106: Implement work unit accumulation from PostToolUse
+  
+  ## Problem
+  GP-8 specifies that tool calls contribute construction "work units." The `_handle_post_tool_use` handler in `AgentInferenceEngine` performs type inference but never calls `add_work_units`. Structures never advance stages from agent activity.
+  
+  ## Implementation
+  
+  Add at the module level in `inference/engine.py`:
+  ```python
+  from hamlet.world_state.types import StructureType
+  
+  TOOL_TO_STRUCTURE: dict[str, StructureType] = {
+      "Read": StructureType.LIBRARY,
+      "Grep": StructureType.LIBRARY,
+      "Glob": StructureType.LIBRARY,
+      "Write": StructureType.WORKSHOP,
+      "Edit": StructureType.WORKSHOP,
+      "Bash": StructureType.FORGE,
+  }
+  ```
+  
+  In `_handle_post_tool_use`, after type inference:
+  ```python
+  structure_type = TOOL_TO_STRUCTURE.get(event.tool_name)
+  if structure_type is not None:
+      units = max(1, (event.duration_ms or 0) // 100) if event.duration_ms else 1
+      try:
+          await self._world_state.add_work_units(agent_id, structure_type, units)
+      except Exception:
+          logger.error("Failed to add work units for agent %s", agent_id, exc_info=True)
+  ```
+  
+  ## Notes
+  - Verify `WorldStateManager.add_work_units(agent_id, structure_type, units)` signature in `world_state/manager.py`
+  - The method creates a structure if needed and adds work units, advancing stage if threshold is crossed
+  - Tool names come from `InternalEvent.tool_name` which may be capitalized (Read, Write, Bash) or use the exact Claude Code tool name — check the existing event schema
+cycle_created: 1
+cycle_modified: null
+content_hash: "80db9148bea46cdf21f28434269953ae1516575b35b73674fdaeb6cb2d70e5c1"
+token_count: 584
+file_path: .ideate/work-items/WI-106.yaml

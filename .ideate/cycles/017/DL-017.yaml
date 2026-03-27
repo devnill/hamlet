@@ -1,0 +1,144 @@
+id: DL-017
+type: decision_log
+cycle: 17
+content: |
+  # Decision Log — Cycle 017
+  
+  ## Context
+  
+  Cycle 017 was a corrective cycle triggered by a runtime crash discovered after cycle 016 shipped. `hamlet view --renderer kitty` crashed immediately with `'dict' object has no attribute 'position'`. The root cause: `StateFetcher.fetch_snapshot()` returned raw JSON dicts from the daemon API, while `KittyApp` was written to access typed dataclass attributes. Cycle 016 had 169 passing unit tests and passed all reviews, but no test exercised the actual HTTP parse-to-render pipeline — all tests used mock objects constructed directly as dataclasses, bypassing the `StateFetcher` entirely.
+  
+  Cycle 017 work items:
+  - **WI-283**: Parse API responses into dataclass objects in `StateFetcher`
+  - **WI-284**: Fix `KittyApp` dict access patterns to use dataclass attributes
+  - **WI-285**: Kitty viewer functional integration tests with realistic API fixtures
+  - **WI-286**: Manual regression test — end-to-end smoke test against live daemon
+  
+  No incremental reviews were produced this cycle — all work items were executed in the main session.
+  
+  ---
+  
+  ## Decisions
+  
+  ### D1: Fix at the parse layer, not the access layer
+  
+  - **When**: Planning — `refine-20` scope definition
+  - **Decision**: Resolve the crash by making `StateFetcher.fetch_snapshot()` return typed `Agent`, `Structure`, and `Village` dataclasses, not by adding `isinstance(v, dict)` guards throughout `app.py`.
+  - **Rationale**: Two options existed — parse correctly in the fetcher, or add defensive dict checks at every access site in `app.py`. Parsing in the fetcher is architecturally correct: downstream code should never need to handle both raw dicts and typed objects.
+  - **Alternatives considered**: Adding `isinstance(v, dict)` guards at access sites — rejected because it preserves the root cause and obscures it behind defensive checks.
+  
+  ### D2: Reuse existing `_parse_agent`, `_parse_structure`, `_parse_village` from the TUI module
+  
+  - **When**: Execution — WI-283
+  - **Decision**: `StateFetcher` imports and calls the three parse helpers from `tui/remote_world_state.py` rather than duplicating parse logic in the Kitty module.
+  - **Rationale**: These functions already existed, were tested, and handled enum coercion and field mapping correctly. GP-3 (Thematic Consistency) requires both backends to use the same domain model; sharing the parse helpers enforces this at the code level.
+  - **Alternatives considered**: Duplicating parse logic into `gui/kitty/state_fetcher.py` — rejected because divergent parsers would mean different type coercion behavior between TUI and Kitty, violating GP-3.
+  - **Implications**: The helpers carry the `_` prefix (module-private convention) and are absent from `__all__`. The import is legal and works. See OQ-1.
+  
+  ### D3: Add `_try_parse` wrapper for per-item graceful degradation
+  
+  - **When**: Execution — WI-283
+  - **Decision**: A local `_try_parse(fn, item)` helper was added to `state_fetcher.py`. It calls the parse function and returns `None` on any exception. The three list comprehensions in `fetch_snapshot()` use walrus-operator filtering to drop `None` results.
+  - **Rationale**: GP-7 (Graceful Degradation) requires malformed items to be skipped without crashing. Per-item wrapping ensures valid items survive even when a neighbor is malformed.
+  - **Implications**: `_try_parse` catches bare `Exception`, which swallows programming errors as well as expected parse failures. The TUI path uses coarser per-category degradation. See OQ-6.
+  
+  ### D4: Remove all dict-access patterns from `app.py`
+  
+  - **When**: Execution — WI-284
+  - **Decision**: All `isinstance(v, dict)` checks and `.get()` calls on agent, structure, and village objects in `app.py` were removed and replaced with direct dataclass attribute access.
+  - **Rationale**: Once WI-283 ensured typed objects from the fetcher, the defensive guards were unnecessary and masked future regressions. Removing them makes any future type mismatch immediately visible as an `AttributeError`.
+  
+  ### D5: Integration tests mock only the HTTP transport boundary, not the parse layer
+  
+  - **When**: Execution — WI-285
+  - **Decision**: `tests/test_kitty_integration.py` patches only `urllib.request.urlopen` and lets the full pipeline run: JSON bytes → parse functions → typed dataclasses → `ViewportState` → `render_frame` → string output.
+  - **Rationale**: The cycle 016 crash was not caught because tests used mock dataclasses, bypassing `StateFetcher` entirely. By mocking only the network call, the integration tests exercise the same code path that runs in production. This directly addresses the process failure that produced the cycle 016 ship-and-crash.
+  - **Alternatives considered**: Adding more unit tests with mock dataclasses (as the original WI-285 scope specified) — rejected because this was exactly the approach that failed in cycle 016.
+  
+  ### D6: Fixture data captured from live daemon with realistic multi-entity content
+  
+  - **When**: Execution — WI-285
+  - **Decision**: Three JSON fixture files were captured from a live running daemon. The state fixture contains 2 agents, 17 structures, and 16 villages; the terrain fixture has 10,201 cells.
+  - **Rationale**: Synthetic fixture data might miss the exact shape of real API responses — exactly the kind of mismatch that produced the cycle 016 crash. Using data captured from a live daemon guarantees the fixture matches what `StateFetcher` will receive in production.
+  - **Implications**: Fixture agents are all GENERAL/idle type. Zombie rendering and non-general type color paths are untested at the integration level. See OQ-3 and gap-analysis G3.
+  
+  ### D7: WI-286 added as explicit manual smoke test gate
+  
+  - **When**: Execution — scope expansion
+  - **Decision**: A fourth work item (WI-286) was added requiring manual verification: running `hamlet view --renderer kitty` against a live daemon and confirming no crash, keyboard response, and clean exit.
+  - **Rationale**: Automated tests verify parse correctness but cannot substitute for observing that the viewer launches, renders, and accepts keyboard input in a real terminal. User confirmed the app renders (slight flicker noted, deferred).
+  
+  ---
+  
+  ## Open Questions
+  
+  ### OQ-1: Parse helpers should be promoted to a shared module
+  
+  - **Question**: Should `_parse_agent`, `_parse_structure`, `_parse_village` be moved to a shared module (e.g., `world_state/parsers.py`) with explicit public exports?
+  - **Source**: code-quality M3, spec-adherence M2, gap-analysis suggestion
+  - **Context**: Both `tui/remote_world_state.py` and `gui/kitty/state_fetcher.py` now use these functions. They carry the `_` prefix and are absent from `__all__`. The cross-module import works but signals these functions were not designed as shared public API.
+  - **Impact**: Any internal refactoring of `tui/remote_world_state.py` silently breaks the Kitty backend. No static analysis tool will flag the breakage until runtime.
+  
+  ### OQ-2: No test covers empty agents/structures/villages through the full pipeline
+  
+  - **Question**: Does `fetch_snapshot()` and `render_frame()` handle empty lists without error when the daemon has no agents, structures, or villages?
+  - **Source**: gap-analysis G2
+  - **Context**: All integration tests use the full fixture. A fresh daemon installation will have none of these entities — the population most likely to encounter this code path first.
+  - **Impact**: An empty-list crash in the renderer would affect all new users on first use.
+  
+  ### OQ-3: Agent `@` symbol not asserted in render pipeline test
+  
+  - **Question**: Does the render pipeline actually produce agent `@` symbols in output when agents are present in the fixture state?
+  - **Source**: gap-analysis G1
+  - **Context**: `test_render_frame_produces_terrain_symbols` checks terrain symbols but not agent symbols. The WI-285 acceptance criterion "output contains agent @ symbols" is unverified by assertion. Note: spec-adherence and gap-analysis disagree on whether this criterion is met.
+  - **Impact**: An agent symbol rendering regression would not be caught automatically.
+  
+  ### OQ-4 (carried from cycle 016): Sprite upload pipeline not wired
+  
+  - **Question**: When will `get_upload_sequence()` be called to upload sprites into the Kitty backend?
+  - **Source**: code-quality S1 (cycle 016)
+  - **Context**: `SpriteManager.get_upload_sequence()` exists but is never called. `is_uploaded()` always returns `False`. The renderer falls back to character rendering at all zoom levels.
+  - **Impact**: When sprite PNG assets are created, they will not render. The Kitty backend silently uses character fallback indefinitely.
+  
+  ### OQ-5 (carried from cycle 016): No sprite PNG assets
+  
+  - **Question**: When will sprite PNG assets be created?
+  - **Source**: gap-analysis G2 (cycle 016)
+  - **Impact**: The SNES/16-bit visual experience described in GP-3 is not evaluable. Kitty and Textual backends currently produce identical visual output.
+  
+  ### OQ-6: TUI per-category degradation is coarser than Kitty per-item degradation
+  
+  - **Question**: Should `RemoteWorldState.refresh()` in the TUI path be updated to use per-item exception handling consistent with `_try_parse`?
+  - **Source**: spec-adherence M1 (cycle 017)
+  - **Context**: The TUI path discards an entire category (all agents, or all structures, or all villages) when one item fails to parse. The Kitty path discards only the malformed item. The asymmetry was out of scope for WI-283.
+  - **Impact**: TUI and Kitty backends offer different degradation semantics for the same malformed data. The behavioral difference is invisible and undocumented.
+  
+  ---
+  
+  ## Cross-References
+  
+  ### CR1: `_parse_*` convention boundary — all three reviewers converge
+  
+  - **Code review**: M3 — helpers carry `_` prefix, not in `__all__`, import works but signals unintended shared use
+  - **Spec review**: M2 — confirms import is legal and required by the spec; notes future cycle could promote to shared module
+  - **Gap analysis**: Suggestion — explicitly recommends `world_state/parsers.py` as destination
+  - **Connection**: All three reviewers independently identify the same issue with the same resolution path. The risk is not current breakage but future fragility: any refactoring of `tui/remote_world_state.py` internals silently breaks the Kitty backend.
+  
+  ### CR2: Agent `@` symbol criterion — spec-adherence and gap-analysis disagree
+  
+  - **Spec review**: WI-285 "full pipeline" criterion marked Met, based on `test_render_frame_produces_terrain_symbols` existing and 12 tests passing
+  - **Gap analysis**: G1 — the same test does not assert `@` in output; the agent-symbol criterion is unverified by assertion
+  - **Connection**: The code path is exercised, but a renderer bug that drops agent symbols would not be caught. Recorded as OQ-3 to resolve in the next cycle.
+  
+  ### CR3: Mock boundary determines what tests catch — lessons across cycles
+  
+  - **Code review**: 103 tests pass, no regression detected
+  - **Spec review**: WI-286 (manual smoke test) cannot be verified by automated testing
+  - **Gap analysis**: G2, G3, G4, G5 — even the new fixture-based integration tests have edge-case coverage gaps
+  - **Connection**: The cycle 016 crash was caused by mocking at the wrong boundary. Cycle 017's D5 corrects this for the happy path. But fixture-based tests still have coverage gaps at edge cases (OQ-2, OQ-3). The pattern: each layer of mocking trades coverage for speed; moving the boundary closer to production narrows the gap but does not close it.
+  
+  ---
+  
+  *Cycle 017 review: code-quality (Pass, 3 minor), spec-adherence (Pass, 2 minor), gap-analysis (0 critical, 2 significant, 3 minor). All work item acceptance criteria met. No incremental reviews produced.*
+content_hash: df4ceae2f3f58bba48baa3ff6e70b1f85a534a0d14e05d1de3d8b322d36d1545
+token_count: 2957

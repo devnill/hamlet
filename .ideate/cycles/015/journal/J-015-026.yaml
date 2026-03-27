@@ -1,0 +1,11 @@
+id: J-015-026
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 160: Call get_or_create_project in inference engine"
+content: |
+  Status: complete
+  Already correctly implemented — get_or_create_project called at engine.py:92 before get_or_create_session at line 94. Domain policy P-5 satisfied.
+content_hash: a9019e2b2c905c02594be323c5764230ccb3926701202ff91409a6201f422c76
+token_count: 88

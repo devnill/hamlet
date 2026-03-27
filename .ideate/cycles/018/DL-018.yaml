@@ -1,0 +1,39 @@
+id: DL-018
+type: decision_log
+cycle: 18
+content: |
+  # Decision Log — Cycle 018
+  
+  ## Context
+  Corrective cycle triggered by two live bugs (status bar dead code, validation schema mismatch) and two cycle 017 test coverage gaps (agent symbol, empty state). Four work items (WI-287–290), all completed.
+  
+  ## Decisions
+  
+  ### D1: Scope to bug fixes + cycle 017 test gaps only
+  Deferred all cycle 017 minor findings (M1, M3, M4, G3-G5). Live bugs and the two significant test gaps were prioritized.
+  
+  ### D2: Wire existing _update_state into refresh loop (WI-287)
+  Single line added: `await self._update_state()` at the end of `_refresh_remote_state()`. The method itself was correct; only the call site was missing.
+  
+  ### D3: Accept viewer-mode-only reachability without defensive guard
+  `_update_state` is only reachable when `_remote_provider` is set. HamletApp is exclusively used as the viewer; the daemon is headless. No guard needed.
+  
+  ### D4: Widen error field type in EVENT_SCHEMA (WI-288)
+  Changed from `["object", "null"]` to `["object", "string", "null"]`. PostToolUseFailure hook sends strings; schema was over-constrained.
+  
+  ### D5: Add agent @ assertion to existing integration test (WI-289)
+  Extended existing test rather than creating a new one. Closes cycle 017 G1.
+  
+  ### D6: Create daemon_events_empty.json for fixture consistency (WI-290)
+  Rework added empty events fixture alongside empty state fixture. Closes cycle 017 G2.
+  
+  ## Open Questions
+  
+  - **OQ-1** (carried): Promote `_parse_*` helpers to shared module — cross-module import boundary risk
+  - **OQ-2** (new): No test verifies `_update_state` is called from `_refresh_remote_state` — regression risk
+  - **OQ-3** (new): Ideate project shows zero agents despite hooks posting — core use case non-functional
+  - **OQ-4** (carried): Sprite upload pipeline not wired — Kitty uses character fallback only
+  - **OQ-5** (carried): No sprite PNG assets — SNES visual experience not evaluable
+  - **OQ-6** (carried): TUI/Kitty degradation asymmetry — different resilience to malformed data
+content_hash: "451328a2cd05fb04324d3e8041a83f378f28cbf5ca326d413f2df894a8f5f946"
+token_count: 519

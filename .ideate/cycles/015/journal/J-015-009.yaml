@@ -1,0 +1,11 @@
+id: J-015-009
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 148: Fix StateLoader datetime mismatch"
+content: |
+  Status: complete with rework
+  Rework: 2 critical fixes (added UTC timezone to _parse_dt; removed dead re-parsing in manager.py), 1 significant (applied _parse_dt to sessions/villages), 1 significant test gap (added timezone-aware assertion test).
+content_hash: "0ea0fdf981ff7144b114aae232ff613b6d30792662a918e6cfa48e648b948351"
+token_count: 105

@@ -1,0 +1,13 @@
+id: J-033-008
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 33
+title: "Work item 281: Kitty viewer app, state fetching, legend overlay"
+content: |
+  Status: complete with rework
+  Rework: 0 critical, 2 significant, 4 minor findings fixed from incremental review.
+  Significant: Added legend overlay test (Q-15 verification); fixed blocking read on partial arrow-key escape sequence with select.select guard.
+  Minor: check_health response closure, initial terminal size before fetch, per-key terrain parse error handling, follow toggle empty string guard.
+content_hash: "2897d66aedffc119b224d01f9468e17f8aa74e274648e403920c9b5c8b6abebf"
+token_count: 147

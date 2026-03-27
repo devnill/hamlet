@@ -1,0 +1,12 @@
+id: J-025-004
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 25
+title: "Cycle 1 review complete (cycle dir: 012)"
+content: |
+  Critical findings: 0
+  Significant findings: 2
+  Minor findings: 4
+content_hash: e5098f674d44d88551e9a3dede4169d063fee9c883dc9e2d8c2799d64a5397ee
+token_count: 55

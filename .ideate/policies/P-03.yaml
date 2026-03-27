@@ -1,0 +1,13 @@
+id: P-03
+type: domain_policy
+domain: visualization
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: Agent color is derived from inferred type, not random. Same type = same color. Zombie state blends with green.
+cycle_created: 1
+cycle_modified: null
+content_hash: "1896122706ebcd6fea732d37ded511ee564f9fcc41bd01d6ea393d9df0c14fb6"
+token_count: 87
+file_path: .ideate/policies/P-03.yaml

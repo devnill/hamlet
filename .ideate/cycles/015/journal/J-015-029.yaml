@@ -1,0 +1,11 @@
+id: J-015-029
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 158: Fix hook scripts to read stdin and implement find_config()"
+content: |
+  Status: complete with rework
+  Rework: C1 (find_config() returned "" when config existed but lacked project_id key — fixed to only return on non-empty pid, falling through to hash fallback), M1 (_cwd_hash dead code fixed by updating it to accept cwd parameter and calling it from find_config).
+content_hash: "2ef5b0d84b80e1e727fd57a3732a014eb3b15ae5c56c3a5bfa7dcf434099f1a8"
+token_count: 124

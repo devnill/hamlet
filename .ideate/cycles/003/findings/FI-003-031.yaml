@@ -1,0 +1,15 @@
+id: FI-003-031
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No test for `update_agent` error path in `_handle_post_tool_use`
+description: "- **Resolution**: Fixed — `test_handle_post_tool_use_update_agent_error_does_not_raise` added."
+file_path: cycles/003/findings/FI-003-031.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-024
+verdict: Fail
+content_hash: "7d4d219df101353ad4f54bd7a883271c0da0e2577f964e23235e9209456b796e"
+token_count: 105

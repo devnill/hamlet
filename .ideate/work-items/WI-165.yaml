@@ -1,0 +1,63 @@
+id: WI-165
+type: work_item
+title: Persist viewport center to world_metadata across restarts
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - On scroll/center change, viewport_center_x and viewport_center_y are written to world_metadata table
+  - On startup, load_from_persistence reads viewport_center_x/y from world_metadata if present
+  - ViewportManager.initialize() applies restored center instead of always resetting to first village
+  - If no viewport metadata exists (fresh world), ViewportManager falls back to first village center
+module: null
+domain: null
+notes: |
+  # WI-165: Persist viewport center to world_metadata across restarts
+  
+  ## Context
+  The architecture specifies `world_metadata` table stores `viewport_center_x` and `viewport_center_y`. GP-5 (persistent world) implies scroll position should survive restarts. Currently, `ViewportManager.initialize()` resets center to first village's center on every startup, losing user's scroll position.
+  
+  ## Changes
+  
+  ### src/hamlet/viewport/manager.py
+  On scroll/center change, write to world_metadata. This requires access to the persistence layer or world state. Options:
+  - Option A (simpler): The viewport manager is initialized with a callback or persistence reference that it calls on center change.
+  - Option B: WorldStateManager.update_viewport_center() method writes to world_metadata.
+  
+  Read the existing code to determine which approach is more natural. If persistence access already exists in viewport/manager.py, use it directly.
+  
+  On scroll action:
+  ```python
+  # After updating self._center:
+  await self._world_state.update_viewport_center(self._center.x, self._center.y)
+  ```
+  
+  ### src/hamlet/world_state/manager.py
+  Add (or verify) `update_viewport_center(x, y)` that writes to world_metadata:
+  ```python
+  async def update_viewport_center(self, x: int, y: int) -> None:
+      self._state.world_metadata["viewport_center_x"] = x
+      self._state.world_metadata["viewport_center_y"] = y
+      # Persist if persistence is available
+  ```
+  
+  In `load_from_persistence`, after loading world_metadata:
+  ```python
+  if "viewport_center_x" in metadata and "viewport_center_y" in metadata:
+      # Pass to viewport manager during initialization
+  ```
+  
+  ### Initialization flow
+  `ViewportManager.initialize()` should accept optional `initial_center` parameter that, if provided, uses it instead of defaulting to first village center.
+  
+  ## Notes
+  - Read viewport/manager.py and world_state/manager.py to understand the current initialization flow
+  - Read StateLoader to understand how world_metadata is loaded
+  - This is a low-priority significant finding; keep the fix minimal and focused
+cycle_created: 1
+cycle_modified: null
+content_hash: e6e2113e8fa4c6335766c27172df9983894e6b1dfb683c9531909e82d44c0825
+token_count: 699
+file_path: .ideate/work-items/WI-165.yaml

@@ -1,0 +1,36 @@
+id: F-008-031
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: WI-180 hooks omit `os.chdir(cwd)` — wrong project identity under P-6
+description: |
+  - **Files**:
+    - `hooks/post_tool_use_failure.py` (entire `main()`)
+    - `hooks/user_prompt_submit.py` (entire `main()`)
+    - `hooks/pre_compact.py` (entire `main()`)
+    - `hooks/post_compact.py` (entire `main()`)
+    - `hooks/stop_failure.py` (entire `main()`)
+  
+  - **Issue**: The six WI-179 hooks (`session_start.py`, `session_end.py`, `subagent_start.py`, `subagent_stop.py`, `teammate_idle.py`, `task_completed.py`) all read `hook_input.get("cwd", "")` from stdin and call `os.chdir(cwd)` before invoking `find_server_url()` and `find_config()`. The five WI-180 hooks do none of this. Both `find_server_url()` and `find_config()` in `hamlet_hook_utils.py` begin traversal from `Path(os.getcwd())` (lines 31 and 55). Without `os.chdir()`, these hooks traverse from the process's launch directory — which is controlled by Claude Code, not the project — so they may resolve a different project's config or fall back to the global default, producing wrong `project_id` and `project_name` values. Policy P-6 requires config traversal for project identity; P-9 requires reading `server_url` from config. Both are undermined for the WI-180 group.
+  
+  - **Impact**: In a multi-project or non-standard launch-directory environment, `PostToolUseFailure`, `UserPromptSubmit`, `PreCompact`, `PostCompact`, and `StopFailure` events are attributed to the wrong project. Because the hooks catch all exceptions silently (GP-7), this failure is invisible.
+  
+  - **Suggested fix**: Apply the same `cwd`-chdir pattern used in all WI-179 hooks immediately after reading stdin:
+    ```python
+    hook_input = json.load(sys.stdin)
+    cwd = hook_input.get("cwd", "")
+    if cwd and os.path.isdir(cwd):
+        os.chdir(cwd)
+    ```
+    Also add `import os` to each of the five files.
+  
+  ---
+file_path: cycles/008/findings/F-008-031.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-008
+verdict: Fail
+content_hash: "4577406f65cefb3b1688827d08a85281efaf5b3cb4211cad1d49eafc5df890ad"
+token_count: 526

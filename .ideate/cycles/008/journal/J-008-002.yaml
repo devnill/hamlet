@@ -1,0 +1,11 @@
+id: J-008-002
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 8
+title: "Work item 090: Hook Scripts - PreToolUse and PostToolUse"
+content: |
+  Status: complete
+  Created hooks/pre_tool_use.py and hooks/post_tool_use.py. Both scripts use stdlib only, send JSON-RPC events to localhost:8080, exit 0 on all paths (GP-7), and complete in <100ms.
+content_hash: add3e808dc2565cf38592a3f748afc2423a61aa2b052053abe223c4e92afef54
+token_count: 93

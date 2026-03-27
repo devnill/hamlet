@@ -1,0 +1,10 @@
+id: C-04
+type: constraint
+category: process
+status: active
+description: Deployment is future scope. The application should be pip-installable eventually, but packaging, distribution, and installation UX are not part of this iteration.
+cycle_created: 1
+cycle_modified: null
+content_hash: "0fe7786a7283278f865f75f806019ab1868661b0e30ad0db9c85c75a7b3a71cb"
+token_count: 83
+file_path: .ideate/constraints/C-04.yaml

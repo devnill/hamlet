@@ -1,0 +1,18 @@
+id: FI-016-001
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `test.py` at project root imports deleted module
+description: |
+  - **File**: `/Users/dan/code/hamlet/test.py:3`
+  - **Issue**: Untracked scratch file imports deleted `NotcursesApp`. Outside criteria's grep scope.
+  - **Suggested fix**: Delete test.py.
+file_path: cycles/016/findings/FI-016-001.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-275
+verdict: Pass
+content_hash: "4b5fe45776f26162f42eb012f913bc269904056e59411af27e7c8c8485120d06"
+token_count: 122

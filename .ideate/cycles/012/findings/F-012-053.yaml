@@ -1,0 +1,18 @@
+id: F-012-053
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Parameter Panel Excludes `seed` from Adjustment
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/parameter_panel.py:21-37`
+  - **Issue**: The `seed` parameter is not in `TERRAIN_PARAMS`, which is intentional since it has dedicated UI (display in header, randomization via 'R' key). However, this means `seed` cannot be manually edited through the panel.
+  - **Suggested fix**: Document this design decision or add a comment explaining why seed is handled separately.
+file_path: cycles/012/findings/F-012-053.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-012
+verdict: Fail
+content_hash: "8dd3757ef7c598bcbbefdef01fcb36b4e6cc89c540e9b0302b1ff9cc09f187f9"
+token_count: 181

@@ -1,0 +1,19 @@
+id: F-012-049
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: TerrainConfig Parameters Not in Default Settings
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/config/settings.py:13-34`
+  - **Issue**: The default settings JSON in the docstring is outdated and does not include the new TerrainConfig parameters from WI-254, WI-255, and WI-256. While the `terrain: dict[str, Any]` field will accept any parameters, the documented default configuration does not reflect the current parameter set.
+  - **Impact**: Users who look at the documented default config will see an incomplete list of parameters. New installations will use TerrainConfig defaults (which are correct), but the documentation is out of sync.
+  - **Suggested fix**: Update the docstring example to include all TerrainConfig parameters, or add a note that additional parameters are available.
+file_path: cycles/012/findings/F-012-049.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-012
+verdict: Fail
+content_hash: "50769037c3c6f3ccf50405fbaeefaae4aa2ee817e0a26ee07f827941a9e24a09"
+token_count: 264

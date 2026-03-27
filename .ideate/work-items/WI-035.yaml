@@ -1,0 +1,26 @@
+id: WI-035
+type: work_item
+title: Implement Project, Session, and Village CRUD
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `get_or_create_project(project_id, name)` returns existing or new Project
+  - Creates associated Village for new projects
+  - `get_or_create_session(session_id, project_id)` returns existing or new Session
+  - `get_village(village_id)` and `get_village_by_project(project_id)`
+  - `_expand_village_bounds(village, position)` private method
+  - All public methods async and lock-protected
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 035
+  
+  Village center starts at (0, 0). Bounds expand as agents move. Queue persistence writes after state changes.
+cycle_created: 1
+cycle_modified: null
+content_hash: "17ebc56e99c59fd41d7f8bd2397cfd58527bd8a97cbd4022d9025065c8b02d39"
+token_count: 205
+file_path: .ideate/work-items/WI-035.yaml

@@ -1,0 +1,12 @@
+id: J-006-004
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 6
+title: "Cycle 6 — Work item 215: Add request timeout to RemoteStateProvider fetch methods"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed (test injected wrong exception type — corrected to aiohttp.ServerTimeoutError; no propagation test for fetch_events — added).
+  Both fetch_state and fetch_events now pass timeout=aiohttp.ClientTimeout(total=5).
+content_hash: "1c8ff63ec008ae7db0f126076291ca22ffedb6a0d365f9041f16ebeabf52d3c0"
+token_count: 118

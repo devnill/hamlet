@@ -1,0 +1,25 @@
+id: FI-012-002
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Dead Code and Misleading Comment in scroll Method
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/map_viewer.py:95-99`
+  - **Issue**: The `scroll` method contains variables `scaled_delta_x` and `scaled_delta_y` that are assigned but never actually scaled, and a comment that claims "Scale scroll delta inversely with zoom for consistent feel" when no scaling occurs.
+  - **Impact**: The misleading comment suggests functionality that is not implemented. Users may experience faster perceived scrolling at higher zoom levels since moving 1 world cell at zoom=8 moves 8 screen cells, while moving 1 world cell at zoom=1 moves 1 screen cell.
+  - **Suggested fix**: Either implement the scaling (divide delta by zoom factor) or remove the misleading comment and dead variables:
+    ```python
+    def scroll(self, delta_x: int, delta_y: int) -> None:
+        """Scroll the viewport by the given delta in world coordinates."""
+        self.center_x += delta_x
+        self.center_y += delta_y
+    ```
+file_path: cycles/012/findings/FI-012-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-253
+verdict: Pass
+content_hash: "624f94957ec008e0f37dbfff0cc227c84eca06761b202c52eebed8ea4b975444"
+token_count: 315

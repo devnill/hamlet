@@ -1,0 +1,11 @@
+id: J-025-002
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 25
+title: "Cycle 1 — Work item 204: hamlet service subcommand group with launchd integration"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding (deprecated launchctl load/unload → bootstrap/bootout), 2 significant findings (unchecked bootout return codes in uninstall and restart), 1 significant finding (wrong bootout argument format — two-arg vs single service-target), 2 minor findings fixed (restart plist guard ordering, _launchctl output concatenation). Tests updated to match modern launchctl argument forms.
+content_hash: "965c27e7cd0c6ae71a9dacb2064555a6ee2655bd39b95842da29509b20cb0497"
+token_count: 157

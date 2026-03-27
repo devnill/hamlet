@@ -1,0 +1,28 @@
+id: WI-061
+type: work_item
+title: Textual Application Setup (HamletApp)
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/tui/app.py` exists
+  - `HamletApp` class inherits from `textual.app.App`
+  - "CSS layout defines three-row grid: StatusBar (1fr), WorldView (20fr), EventLog (5fr)"
+  - "`__init__(world_state: WorldStateManager, viewport: ViewportManager)` receives dependencies"
+  - `compose()` method yields StatusBar, WorldView, EventLog widgets
+  - "Key bindings defined for: q (quit), h/l/j/k (scroll), ? (legend), f (follow)"
+  - `on_mount()` sets up 30 FPS refresh interval
+  - `async run_async()` method starts the application
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 061
+  
+  Textual apps use CSS-like styling for layout. The grid layout ensures StatusBar is at top, EventLog at bottom, WorldView fills remaining space. Use `set_interval(1/30, self._refresh_world)` for frame-rate control.
+cycle_created: 1
+cycle_modified: null
+content_hash: "12058777ccef5cc2b9716fc2b11a5ee0a458bb9fb3c6fdfde4ba049e57c92789"
+token_count: 264
+file_path: .ideate/work-items/WI-061.yaml

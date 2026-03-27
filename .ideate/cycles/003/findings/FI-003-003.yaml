@@ -1,0 +1,18 @@
+id: FI-003-003
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Bare `except Exception` logs without traceback context
+description: |
+  - **File**: `src/hamlet/mcp_server/validation.py:60`
+  - **Issue**: logger.warning omits exc_info=True.
+  - **Suggested fix**: Add exc_info=True.
+file_path: cycles/003/findings/FI-003-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-002
+verdict: Fail
+content_hash: "47921af97ca68644cbdc4a9fcd38fa0ba7ecd6a29014d9df8a6fbd96525bf682"
+token_count: 113

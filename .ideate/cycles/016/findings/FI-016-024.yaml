@@ -1,0 +1,18 @@
+id: FI-016-024
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: Initial `_do_fetch` uses stale terminal dimensions
+description: |
+  - **File**: `src/hamlet/gui/kitty/app.py:69`
+  - **Issue**: `_do_fetch()` at line 69 computes `half_w = self._cols // 2` and `half_h = self._rows // 2` from constructor defaults (80×24). `os.get_terminal_size()` is not called until line 85, inside the `try` block. The initial terrain request always covers a 40×12 half-window regardless of actual terminal size.
+  - **Suggested fix**: Move the `os.get_terminal_size()` call (and assignment to `self._cols`, `self._rows`) to before the `_do_fetch()` call at line 69. It does not require raw mode to be active.
+file_path: cycles/016/findings/FI-016-024.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-281
+verdict: Fail
+content_hash: "86acaca088c043f85a626f25a5140498f3f2c40d7508963daa0dc969dfa2a234"
+token_count: 216

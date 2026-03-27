@@ -1,0 +1,11 @@
+id: J-018-009
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 18
+title: "Cycle 2 — Work item 178: Add error logging in hamlet_hook_utils.py on malformed config JSON"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed — _log_error was defined after its callers; moved to before find_server_url and find_config.
+content_hash: eec4ef4ffc094df42d3632037307bef15a0094bd9b9464dbc436d540dc44f701
+token_count: 91

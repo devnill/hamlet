@@ -1,0 +1,13 @@
+id: D-35
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: Per-item graceful degradation in Kitty parse path via _try_parse
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "8abf0ec4f6a95b2b138879dc522aa153acb006a2f4674ef4e167c88bd9ae6900"
+token_count: 71
+file_path: .ideate/decisions/D-35.yaml

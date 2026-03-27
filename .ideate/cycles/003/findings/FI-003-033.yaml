@@ -1,0 +1,19 @@
+id: FI-003-033
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `last_seen` not updated on PostToolUse — active agents become zombies
+description: |
+  - **File**: `src/hamlet/inference/engine.py:208`
+  - **Issue**: `_handle_post_tool_use` never wrote to `_state.last_seen`. Only `_handle_pre_tool_use` and `_handle_stop` updated `last_seen`. A tool call exceeding 300 seconds would trigger zombie promotion while still active.
+  - **Impact**: Any long-running tool call (> 5 min) falsely marks the agent as ZOMBIE in world state, affecting TUI rendering.
+  - **Fix applied**: Added `last_seen` update at the end of `_handle_post_tool_use`, mirroring the pattern from `_handle_pre_tool_use`.
+file_path: cycles/003/findings/FI-003-033.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-025
+verdict: Fail
+content_hash: "9034170f317d7dda80b4518c25452b9c3b663bd5fa37dd6c7c8cececf752a8de"
+token_count: 217

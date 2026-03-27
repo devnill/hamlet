@@ -1,0 +1,18 @@
+id: FI-016-023
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `check_health` does not close the HTTP response
+description: |
+  - **File**: `src/hamlet/gui/kitty/state_fetcher.py:40-42`
+  - **Issue**: `urllib.request.urlopen(...)` returns an `http.client.HTTPResponse` that holds an open socket. The code reads `.status` and lets the object go out of scope without closing it. All three `fetch_snapshot` requests correctly use `with` blocks; `check_health` does not.
+  - **Suggested fix**: `with urllib.request.urlopen(f"{self._base_url}/hamlet/health", timeout=2) as r: return r.status == 200`
+file_path: cycles/016/findings/FI-016-023.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-281
+verdict: Fail
+content_hash: "935b4c4d17410b846d6d0df8944a0fcd1d1bea3b8c5172cf7969850936a92742"
+token_count: 193

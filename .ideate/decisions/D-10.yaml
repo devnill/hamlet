@@ -1,0 +1,13 @@
+id: D-10
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 6
+supersedes: null
+description: Dual color map deduplication deferred (TYPE_COLORS vs AGENT_BASE_COLORS)
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "1f4acd5e86fe0718730bca946b2a8fd1c829b6195b82c945332a1937c081ca5a"
+token_count: 74
+file_path: .ideate/decisions/D-10.yaml

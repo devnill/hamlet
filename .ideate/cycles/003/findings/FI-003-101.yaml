@@ -1,0 +1,18 @@
+id: FI-003-101
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `save_village` included `agent_ids` and `structure_ids` columns that don't exist
+description: |
+  - **File**: `src/hamlet/persistence/saver.py:113`
+  - **Issue**: `villages` table stores these relationships via FK on child tables, not as columns.
+  - **Resolution**: Fixed — both keys removed from village data dict.
+file_path: cycles/003/findings/FI-003-101.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "2981ea63997dcf1b04122581208dd37413393f07aa785fc10d62d49f27a7a22a"
+token_count: 139

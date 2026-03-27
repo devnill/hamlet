@@ -1,0 +1,12 @@
+id: J-021-012
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 197: stop_reason behavioral differentiation"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (C1: manager.py Stop branch used direct agent.state mutation without persistence write — changed to collect agent IDs inside lock then call update_agent() outside lock, which queues a persistence write). 1 minor finding fixed (M1: removed @pytest.mark.asyncio decorators and unused pytest import from test_inference_engine.py).
+  Changes: inference/engine.py _handle_stop() now evicts pending_tools and calls update_agent(IDLE) for stop_reason "tool"/"stop"; world_state/manager.py Stop branch now calls update_agent(IDLE) for each session agent; tests/test_inference_engine.py created with 3 tests.
+content_hash: d8683ac9e68016ae9cf7341809d01024091b3ddae23d056a96bfa4277f20a38f
+token_count: 210

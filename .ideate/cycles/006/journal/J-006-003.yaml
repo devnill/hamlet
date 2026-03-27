@@ -1,0 +1,12 @@
+id: J-006-003
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 6
+title: "Cycle 6 — Work item 216: Village expansion founds new settlements"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (idempotency guard not tested at found_village level — added unit test), 2 minor findings fixed (removed @pytest.mark.asyncio decorators, added logger.warning for missing found_village).
+  Added found_village method to WorldStateManager; ExpansionManager.process_expansion now calls it after drawing roads.
+content_hash: f511b63102e07b81a4c2bc3fc6742738be90fee35bc4e777c5852153343c3ca5
+token_count: 138

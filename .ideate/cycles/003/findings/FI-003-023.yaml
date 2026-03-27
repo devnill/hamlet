@@ -1,0 +1,18 @@
+id: FI-003-023
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `get_inference_state` docstring claimed "read-only snapshot" but returns live object
+description: |
+  - **File**: `src/hamlet/inference/engine.py:51`
+  - **Issue**: Returning the live `_state` reference means callers can mutate inference state. The docstring's "snapshot" claim was misleading.
+  - **Resolution**: Fixed — docstring updated to "live inference state" with mutation warning.
+file_path: cycles/003/findings/FI-003-023.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-022
+verdict: Fail
+content_hash: a0962fba4fb1e1e819df434714c1bd6bc2b896092af27361fe3feee40395abc5
+token_count: 158

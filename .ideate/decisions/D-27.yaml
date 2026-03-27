@@ -1,0 +1,13 @@
+id: D-27
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: Periodic config reload interval fixed at 30 seconds
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "650c345037416bc5b70728183867c88210e6644615540513db7fcd7ea66672c8"
+token_count: 68
+file_path: .ideate/decisions/D-27.yaml

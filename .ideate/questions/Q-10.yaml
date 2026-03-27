@@ -1,0 +1,14 @@
+id: Q-10
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: StructureType.ROAD has no symbol in SymbolConfig — crash path in renderer
+cycle_created: 1
+cycle_modified: null
+content_hash: "55b0db6db1f97f90831e123ed5ee6506e6ffbb70a7e4ca912f9d0645e4a5ff02"
+token_count: 78
+file_path: .ideate/questions/Q-10.yaml

@@ -1,0 +1,11 @@
+id: J-015-014
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 153: Implement work unit accumulation"
+content: |
+  Status: complete with rework
+  Rework: 1 critical (updated 4 test assertions to new formula), 1 significant (None duration floors to 1 not 0).
+content_hash: "7e73b0172ef0ed1c0da0726dda2febc091f4e3d7fe431bdf58014bad8d892b72"
+token_count: 79

@@ -1,0 +1,18 @@
+id: FI-003-115
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Missing `else` branch left `agent_ids_json` as `None` when DB value was not a string
+description: |
+  - **File**: `src/hamlet/persistence/loader.py:126`
+  - **Issue**: `if isinstance(raw, str)` had no `else` — a `None` value would leave `d["agent_ids_json"] = None`, causing `TypeError` downstream.
+  - **Fix applied**: Added `else: d["agent_ids_json"] = []` to match the `JSONDecodeError` fallback.
+file_path: cycles/003/findings/FI-003-115.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-078
+verdict: Fail
+content_hash: "1b496df55f475fecf91b648761a641a87d1a8563073f9e6c799238bfeec76015"
+token_count: 160

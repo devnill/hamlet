@@ -1,0 +1,12 @@
+id: J-003-017
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 257: Terrain Smoothing and Transition Rules"
+content: |
+  Status: complete with rework
+  Rework: Added performance test for 50x50 viewport smoothing (verifies < 100ms).
+  CA smoothing rules apply to all terrain types (water isolation, forest expansion/contraction, mountain foothills, meadow-plain transitions). Forests expand into adjacent passable terrain with 5+ forest neighbors. Isolated forests (fewer than 2 neighbors) contract to meadow. Transition rules create gradual boundaries between similar biomes. Smoothing passes configurable via existing smoothing_passes parameter. Performance: smoothing adds < 100ms to generation time.
+content_hash: "542be9eb8f3c6d44ea0dafd25b334efd071199175c72687420fb1db975aa1ca4"
+token_count: 188

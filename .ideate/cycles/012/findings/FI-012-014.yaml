@@ -1,0 +1,19 @@
+id: FI-012-014
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: River minimum length filter hardcoded
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:1053`
+  - **Issue**: Rivers shorter than 3 cells are discarded with no configuration option.
+  - **Impact**: Valid short rivers are excluded. The threshold should be configurable.
+  - **Suggested fix**: Add `min_river_length` parameter to `TerrainConfig`.
+file_path: cycles/012/findings/FI-012-014.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-255
+verdict: Pass
+content_hash: "68c95b3ca4ce79904498df64f5761937d02a3ec36cbb624a0363a888318e44aa"
+token_count: 156

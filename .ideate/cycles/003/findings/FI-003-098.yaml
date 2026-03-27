@@ -1,0 +1,18 @@
+id: FI-003-098
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `save_project` included non-existent `village_id` column
+description: |
+  - **File**: `src/hamlet/persistence/saver.py:30`
+  - **Issue**: `projects` table has no `village_id` column. Village-to-project link is stored on the villages table.
+  - **Resolution**: Fixed — `village_id` removed from project data dict.
+file_path: cycles/003/findings/FI-003-098.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-075
+verdict: Fail
+content_hash: "4c4c89a7dd6540d3076918b1a7e4c4ae46cfb40f37c0ca753874c25775198729"
+token_count: 138

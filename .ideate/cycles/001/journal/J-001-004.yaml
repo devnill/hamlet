@@ -1,0 +1,11 @@
+id: J-001-004
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 1
+title: "Work item 274: Notcurses availability diagnostic"
+content: |
+  Status: complete
+  doctor_command prints notcurses availability, version, TERM, tmux detection, recommended renderer. 7 tests pass.
+content_hash: "2bc8722fb8f9d1489278fedd97fd87773a41c3462b1bdee29b80ba55a5955066"
+token_count: 74

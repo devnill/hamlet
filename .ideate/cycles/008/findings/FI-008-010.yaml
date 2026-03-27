@@ -1,0 +1,18 @@
+id: FI-008-010
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `pre_compact.py` and `post_compact.py` read `hook_input` from stdin but never use it
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/pre_compact.py:17`, `/Users/dan/code/hamlet/hooks/post_compact.py:17`
+  - **Issue**: Both scripts call `hook_input = json.load(sys.stdin)` but then only use `hook_input.get("session_id", "")`. If the compact hook delivers no `session_id` field (or delivers an empty stdin), the scripts still function but the `json.load` call will raise on malformed JSON, which is caught by the outer `except`. This is fine. The minor issue is that the variable name `hook_input` implies the full input is used; it would be clearer to note that only `session_id` is extracted from it.
+  - **Suggested fix**: No code change required; this is a documentation/readability observation. A comment like `# Only session_id is used for base-fields-only events` would suffice.
+file_path: cycles/008/findings/FI-008-010.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-180
+verdict: Fail
+content_hash: "964d111f672a309cd9369901ff1d287725cbfbc37ccfa963c32da0da575ae403"
+token_count: 284

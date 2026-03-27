@@ -1,0 +1,15 @@
+id: F-005-018
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: `test_agent_updater.py` had no ZOMBIE coverage — FIXED
+description: "- **Fix**: `test_zombie_agent_is_skipped` added to `tests/test_agent_updater.py`. Passes a ZOMBIE agent with old `last_seen` to `update_agents()`, asserts `update_agent` is never called."
+file_path: cycles/005/findings/F-005-018.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-005
+verdict: Pass
+content_hash: "95fff622ec3bd1f9a0bc83997caf444a24d7eacb56006defa4315b5168bac686"
+token_count: 124

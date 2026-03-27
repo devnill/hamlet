@@ -1,0 +1,18 @@
+id: FI-016-012
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `_render_hud` does not guard against `self._rows < 6`
+description: |
+  - **File**: `src/hamlet/gui/kitty/renderer.py:259-261`
+  - **Issue**: When `self._rows < 6`, `start_row` is clamped to 1, but the loop still writes events starting at row 1. With a 2-row terminal the event log would overlap the status bar (row 0) and the single content row (row 1).
+  - **Suggested fix**: Add a guard: `if self._rows < 2: return` at the top of `_render_hud`, and reconsider whether the status bar and event log can overlap when `rows` is very small.
+file_path: cycles/016/findings/FI-016-012.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-278
+verdict: Fail
+content_hash: b3e017941a733bc9242a57bdc8e0fd71de6b0882d7406341ad7fedde82fb301f
+token_count: 194

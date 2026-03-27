@@ -1,0 +1,10 @@
+id: C-03
+type: constraint
+category: scope
+status: active
+description: Manual config. Project configuration is done via a config file. No auto-detection of projects, no complex setup wizards.
+cycle_created: 1
+cycle_modified: null
+content_hash: "65fbe527d152ee9ca851682d91860d236f5b0db267b34bbe7c1ad7b73507192e"
+token_count: 72
+file_path: .ideate/constraints/C-03.yaml

@@ -1,0 +1,18 @@
+id: FI-003-047
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `setattr` without field name validation
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:327`
+  - **Issue**: Typo in field name (e.g., `sate` instead of `state`) silently creates a new attribute, losing the state transition with no log.
+  - **Resolution**: Fixed — added `dataclasses.fields()` lookup; unknown keys log a warning and are skipped.
+file_path: cycles/003/findings/FI-003-047.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-036
+verdict: Fail
+content_hash: "4a90436a68e28b5bbaa9842ecae5078bade133647ce1f3107c0b360bb0a28b32"
+token_count: 151

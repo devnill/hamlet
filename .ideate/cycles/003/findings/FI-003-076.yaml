@@ -1,0 +1,18 @@
+id: FI-003-076
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Widget import duplicated in three fallback blocks
+description: |
+  - **File**: `src/hamlet/tui/app.py:22,37,52`
+  - **Issue**: `from textual.widget import Widget` repeated three times.
+  - **Suggested fix**: Move to top of file outside try/except blocks.
+file_path: cycles/003/findings/FI-003-076.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-061
+verdict: Pass
+content_hash: "253dd32191f30973d9e44647c52ac293e60f304b02d3307db5451515db4496fe"
+token_count: 123

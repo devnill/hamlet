@@ -1,0 +1,18 @@
+id: FI-003-039
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: EventLogEntry provides no chronological ordering support
+description: |
+  - **File**: `src/hamlet/world_state/state.py`
+  - **Issue**: Architecture context states the event log is chronological, but EventLogEntry defines no comparison methods and field ordering means `@dataclass(order=True)` would compare `id` before `timestamp`. Callers must sort by `timestamp` explicitly.
+  - **Suggested fix**: Document that callers must sort by timestamp when ordering is needed. Out of scope for this work item.
+file_path: cycles/003/findings/FI-003-039.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-032
+verdict: Pass
+content_hash: "4c77aed7aa3d6698d565ce2422b959e1bafa2cc456a18cac36c65b0f4da7412d"
+token_count: 185

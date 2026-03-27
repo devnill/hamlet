@@ -1,0 +1,19 @@
+id: FI-016-008
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: significant
+title: Sprite rendering path is entirely untested
+description: |
+  - **File**: `tests/test_kitty_renderer.py`
+  - **Issue**: No test constructs a `SpriteManager`, marks any image as uploaded, or calls `render_frame` at MEDIUM or CLOSE zoom with a populated `_uploaded_ids` set. The `test_set_zoom` test only checks that the internal field is updated; it does not render anything. The three branches at lines 171–177, 200–206, and 229–235 of `renderer.py` are dead from the test suite's perspective.
+  - **Impact**: The coordinate bug reported in C1 is invisible to the test suite. Any future regression in the sprite path will also be invisible.
+  - **Suggested fix**: Add at least one test that creates a `SpriteManager` with a fake `_uploaded_ids` entry, sets zoom to CLOSE, and asserts that an `encode_image_display` sequence (`\x1b_Ga=p`) appears in the output — and with the corrected coordinates, that the pixel offset matches `sx * tile_pixels`.
+file_path: cycles/016/findings/FI-016-008.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-278
+verdict: Fail
+content_hash: f74ad3879ef1d0cd0e27f177a1c4a08cd022f2e5812d0d0b54d3ba2807e19b79
+token_count: 297

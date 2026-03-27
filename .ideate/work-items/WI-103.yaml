@@ -1,0 +1,52 @@
+id: WI-103
+type: work_item
+title: Wire simulation subsystems in __main__.py
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `AgentUpdater`, `StructureUpdater`, `ExpansionManager`, `AnimationManager` are imported and instantiated
+  - `SimulationConfig` is created (using settings values where available, else defaults)
+  - "`SimulationEngine` receives all four subsystems: `agent_updater`, `structure_updater`, `expansion_manager`, `animation_manager`"
+  - The simulation tick loop no longer runs as a no-op (subsystems are wired)
+module: null
+domain: null
+notes: |
+  # Work Item 103: Wire simulation subsystems in __main__.py
+  
+  ## Problem
+  `SimulationEngine` accepts `agent_updater`, `structure_updater`, `expansion_manager`, and `animation_manager` but receives none of them. The tick loop runs but all subsystem blocks are no-ops.
+  
+  ## Fix
+  ```python
+  from hamlet.simulation.agent_updater import AgentUpdater
+  from hamlet.simulation.structure_updater import StructureUpdater
+  from hamlet.simulation.expansion import ExpansionManager
+  from hamlet.simulation.animation import AnimationManager
+  from hamlet.simulation.config import SimulationConfig
+  
+  sim_config = SimulationConfig()  # use defaults, or wire from settings if fields match
+  agent_updater = AgentUpdater(config=sim_config)
+  structure_updater = StructureUpdater(config=sim_config)
+  expansion_manager = ExpansionManager(config=sim_config)
+  animation_manager = AnimationManager()
+  
+  simulation = SimulationEngine(
+      world_state=world_state,
+      agent_updater=agent_updater,
+      structure_updater=structure_updater,
+      expansion_manager=expansion_manager,
+      animation_manager=animation_manager,
+      agent_inference=agent_inference,  # from work item 102
+  )
+  ```
+  
+  ## Notes
+  Read each subsystem's `__init__` signature before instantiating — some may not accept `config=`. Pass only what each constructor accepts. If constructors accept `world_state` directly (not via SimulationEngine), wire accordingly.
+cycle_created: 1
+cycle_modified: null
+content_hash: "6bdc45658fd74912488c56719710a28862481489472e4759fd5b5e7e66e1a28c"
+token_count: 526
+file_path: .ideate/work-items/WI-103.yaml

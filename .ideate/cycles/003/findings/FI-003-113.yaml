@@ -1,0 +1,19 @@
+id: FI-003-113
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `SELECT *` column-order coupling silently corrupts data on schema change
+description: |
+  - **File**: `src/hamlet/persistence/loader.py:105,116,136,146,156`
+  - **Issue**: All `_load_*` methods used `SELECT *` with positional row-to-column-name zip. A future migration adding, removing, or reordering columns would silently produce wrong field values with no error.
+  - **Impact**: Silent data corruption on load after any schema change.
+  - **Fix applied**: All SELECT queries now list columns explicitly, matching the hardcoded column name lists.
+file_path: cycles/003/findings/FI-003-113.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-078
+verdict: Fail
+content_hash: d859132561688bd061445a070316de63e4b4dbcfc8a824cb0f56913997ebea84
+token_count: 197

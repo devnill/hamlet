@@ -1,0 +1,18 @@
+id: FI-003-004
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Wrong object enqueued — full JSON-RPC envelope instead of params dict
+description: |
+  - **File**: `src/hamlet/mcp_server/handlers.py:26`
+  - **Issue**: `validate_event` returns `payload=` the full envelope dict. Enqueuing `result.payload` put `{"jsonrpc":"2.0","method":"hamlet/event","params":{...}}` onto the queue; consumers need the params dict.
+  - **Fix**: Changed to `await event_queue.put(result.payload["params"])`.
+file_path: cycles/003/findings/FI-003-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-003
+verdict: Pass
+content_hash: "38a2f7f307223ed88a7fa5de367094bff77ef2e2d1bfadd42357fac91c39c195"
+token_count: 170

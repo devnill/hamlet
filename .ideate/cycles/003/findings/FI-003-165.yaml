@@ -1,0 +1,18 @@
+id: FI-003-165
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Pre-existing broken test `test_infer_type_first_matching_rule_wins`
+description: |
+  - **File**: `tests/test_type_inference.py:202`
+  - **Issue**: 7 Read + 5 Task = 12 events. 7/12 = 0.583 < 0.6 → RESEARCHER threshold not met. ARCHITECT rule fires instead. Test asserted RESEARCHER.
+  - **Suggested fix**: Use 6 Read + 4 Task = 10 events (6/10=0.6 RESEARCHER, 4/10=0.4 ARCHITECT — both match; RESEARCHER wins as first rule).
+file_path: cycles/003/findings/FI-003-165.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-110
+verdict: Pass
+content_hash: f91267d5680d4d6e6b7bb29b485e024e975908fc12441136dd96de30b0aa3df0
+token_count: 167

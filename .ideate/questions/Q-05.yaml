@@ -1,0 +1,14 @@
+id: Q-05
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: EXECUTOR absent from animation.py AGENT_BASE_COLORS
+cycle_created: 1
+cycle_modified: null
+content_hash: "9d3fd60d31a2acfdd879b6b94e61b828a110caa4fc1405fee466f6dca9973b36"
+token_count: 72
+file_path: .ideate/questions/Q-05.yaml

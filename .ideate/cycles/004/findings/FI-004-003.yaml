@@ -1,0 +1,18 @@
+id: FI-004-003
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: TOCTOU between occupancy check and grid.occupy in _seed_initial_structures
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:459`
+  - **Issue**: `self._grid.is_occupied(pos)` is called without holding `self._lock`. By the time `create_structure` acquires the lock and calls `self._grid.occupy`, another coroutine could have claimed that cell. The consequence is a warning log and the structure being placed without a grid slot, meaning spatial queries (`get_agents_in_view`, `get_structures_in_view`) will not find it.
+  - **Suggested fix**: This is consistent with how agent spawning is handled elsewhere in the file, and the `_create_structure_locked` call already handles the collision gracefully. Acceptable as-is, but document that seeded structures may be absent from spatial query results under concurrent village creation. Alternatively, loop to the next candidate offset rather than accepting the gridless placement.
+file_path: cycles/004/findings/FI-004-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-115
+verdict: Pass
+content_hash: f50ca8a380c6efb0e4aa6603d89ff20a251771b9dd49825296093ee797c20087
+token_count: 300

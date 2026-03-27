@@ -1,0 +1,23 @@
+id: WI-254
+type: work_item
+title: Biome Region Generation
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Macro-scale noise (low frequency) defines biome regions
+  - Each region has a dominant terrain type tendency
+  - Regions span 50-200 cells across (configurable via region_scale parameter)
+  - Boundaries between regions use blending or sharp transitions based on terrain types
+  - Same seed produces same regions deterministically
+  - "Performance: generation under 500ms for 200x200 world"
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: "5461937171576e1c61621e19c00fba5ab7a4248b45c75ef4241057e377b885ff"
+token_count: 165
+file_path: .ideate/work-items/WI-254.yaml

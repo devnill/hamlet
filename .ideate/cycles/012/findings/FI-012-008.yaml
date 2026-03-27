@@ -1,0 +1,19 @@
+id: FI-012-008
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Missing Test for Dominant Terrain Tendency
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_terrain.py` (missing test)
+  - **Issue**: Acceptance criterion 2 states "Each region has a dominant terrain type tendency", but there is no test verifying that wet regions actually favor water/forest, temperate regions favor meadow, or dry regions favor plain/mountain.
+  - **Impact**: The bug in C1 could have been caught by a test that verifies wet regions have higher water bias than temperate regions.
+  - **Suggested fix**: Add a test that samples positions in known wet regions (where biome_char < -0.33) and verifies that water/forest biases are positive and larger than biases in temperate regions.
+file_path: cycles/012/findings/FI-012-008.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-254
+verdict: Pass
+content_hash: bfb94ae6a2dbf92641c1e0e32efc57544133d7c19673fc34838f5793841dd364
+token_count: 239

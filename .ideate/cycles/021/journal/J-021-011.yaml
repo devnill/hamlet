@@ -1,0 +1,12 @@
+id: J-021-011
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 196: Bash tool_output schema widening and notification_type extraction"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed (M1) — added parametrized test test_tool_output_non_string covering object ({"exit_code": 0}) and None tool_output values.
+  Changes: internal_event.py tool_output widened to str | dict | None; validation.py EVENT_SCHEMA accepts ["object", "string", "null"]; event_processor.py extracts notification_type field.
+content_hash: "66b4309f79af495f362b2915261cd79d56b12e6b947fcb642d9625a3a44581c5"
+token_count: 145

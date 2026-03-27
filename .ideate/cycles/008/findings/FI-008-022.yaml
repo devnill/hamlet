@@ -1,0 +1,19 @@
+id: FI-008-022
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: critical
+title: `TaskCompleted` calls `add_work_units` on an agent that may not belong to the session's village
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:781-787`
+  - **Issue**: The `TaskCompleted` handler iterates over all agents to find one whose `session_id` matches, then calls `add_work_units(agent_id, structure_type, 10)`. `add_work_units` selects a structure in the agent's village — but at line 781 the iteration is over `self._state.agents.values()`, which is an unordered dict view. The first matching agent is arbitrary. More importantly, `add_work_units` (line 567) requires the agent to have a non-empty `village_id` to locate a structure. If the matched agent has `village_id == ""` (which is possible when agents are created without a session that has a project), `add_work_units` will log a debug message and silently do nothing. The acceptance criterion says "calls `add_work_units` with 10 units on a structure **in the session's village**" — there is no guarantee the selected agent belongs to the correct village, especially in multi-session scenarios. The correct lookup should resolve the session's project, then the project's village, and then an agent within that village.
+  - **Impact**: Work units may be applied to an agent in the wrong village or not applied at all, defeating the visual trigger goal (GP-1).
+  - **Suggested fix**: After acquiring the lock to find `agent_id`, also verify `self._state.agents[agent_id].village_id` is non-empty and matches the expected village for the session. Or look up the session directly: `session = self._state.sessions.get(session_id)`, then find an agent in `session.agent_ids`.
+file_path: cycles/008/findings/FI-008-022.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Fail
+content_hash: c9949c8b055b2e01fbd24f55352daef5830a8cec0b08194ca235c135cd0527e1
+token_count: 474

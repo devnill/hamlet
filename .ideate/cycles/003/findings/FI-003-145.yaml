@@ -1,0 +1,18 @@
+id: FI-003-145
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Summary field produces trailing space when `tool_name` is `None`
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:184`
+  - **Issue**: `f"{event.hook_type.value}: {event.tool_name or ''}"` produces `"PreToolUse: "` for events without tool_name.
+  - **Suggested fix**: Conditionally include the tool suffix.
+file_path: cycles/003/findings/FI-003-145.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-105
+verdict: Pass
+content_hash: "865c1bfa97b9dff5db2dde90eb8a0aaa9c137a693ffe760a2a98a9e455d098bb"
+token_count: 140

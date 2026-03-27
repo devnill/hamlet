@@ -1,0 +1,15 @@
+id: FI-003-032
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Misleading comment in `test_infer_type_just_below_threshold`
+description: "- **Resolution**: Fixed — removed contradictory introductory lines."
+file_path: cycles/003/findings/FI-003-032.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-024
+verdict: Fail
+content_hash: fa0fa896cb47dcd6585232385f1800729dda22e67a80f104831f5c5fe649dea0
+token_count: 96

@@ -1,0 +1,27 @@
+id: WI-002
+type: work_item
+title: Event Schema and Validation
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/mcp_server/validation.py` exists
+  - `EVENT_SCHEMA` constant defines JSON-RPC 2.0 envelope with required fields
+  - Schema validates `params.session_id`, `params.timestamp`, `params.hook_type`, `params.project_id`
+  - Schema validates `hook_type` is one of "PreToolUse", "PostToolUse", "Notification", "Stop"
+  - "`validate_event(payload: dict) -> ValidationResult` function returns validated data or error"
+  - Invalid payloads are logged at WARN level and discarded
+  - Module exports `ValidationResult` and `validate_event`
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 002
+  
+  Use `jsonschema` library for validation. The schema must match the HookEvent contract from architecture. Validation failures are logged but not raised — per guiding principle 7, malformed events never crash the server.
+cycle_created: 1
+cycle_modified: null
+content_hash: e34c7bc8b8ed4acdd141275171dbe7bc7e233e2a75b8046e79fecf9206c75a91
+token_count: 268
+file_path: .ideate/work-items/WI-002.yaml

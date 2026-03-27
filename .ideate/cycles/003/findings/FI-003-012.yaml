@@ -1,0 +1,18 @@
+id: FI-003-012
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Inconsistent module-level documentation in `__init__.py`
+description: |
+  - **File**: `src/hamlet/event_processing/__init__.py:1`
+  - **Issue**: Line 1 is a bare `#` comment followed by a proper module docstring on lines 2–5. Content duplicated.
+  - **Suggested fix**: Remove the `#` comment on line 1.
+file_path: cycles/003/findings/FI-003-012.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-011
+verdict: Fail
+content_hash: af41fc09264aa988a16af1b2c612d81e27f7588123463b69c77c44581b9bd741
+token_count: 135

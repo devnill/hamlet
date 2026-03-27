@@ -1,0 +1,100 @@
+id: WI-093
+type: work_item
+title: Application Entry Point
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File src/hamlet/__main__.py exists with main() entry point
+  - python -m hamlet launches the TUI application
+  - "pyproject.toml has [project.scripts] section with hamlet = \"hamlet.__main__:main\""
+  - pip install -e . makes hamlet command available in PATH
+  - main() initializes and runs HamletApp with proper error handling
+  - main() handles KeyboardInterrupt gracefully
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 093 - Application Entry Point
+  
+  ## Scope
+  
+  Create the entry point to run Hamlet as a command-line tool.
+  
+  ## Implementation
+  
+  ### src/hamlet/__main__.py
+  
+  ```python
+  """Entry point for hamlet package."""
+  import sys
+  import asyncio
+  from pathlib import Path
+  
+  # Add src to path if running from source
+  def main():
+      from hamlet.tui.app import HamletApp
+      from hamlet.world_state.manager import WorldStateManager
+      from hamlet.persistence.facade import PersistenceFacade
+      from hamlet.event_processing.event_processor import EventProcessor
+      from hamlet.simulation.engine import SimulationEngine
+      from hamlet.mcp_server.server import MCPServer
+  
+      # Initialize components
+      persistence = PersistenceFacade()
+      world_state = WorldStateManager(persistence)
+      event_processor = EventProcessor()
+      simulation = SimulationEngine(world_state)
+      mcp_server = MCPServer()
+  
+      # Wire dependencies
+      # ...
+  
+      # Run TUI
+      app = HamletApp(world_state, ...)
+      app.run()
+  
+  if __name__ == "__main__":
+      main()
+  ```
+  
+  ### pyproject.toml Update
+  
+  ```toml
+  [project.scripts]
+  hamlet = "hamlet.__main__:main"
+  ```
+  
+  ## Design Decisions
+  
+  1. **No argparse yet** - Keep simple, add CLI args in future work item if needed
+  2. **Single command** - Just `hamlet` runs the app
+  3. **Async entry** - May need `asyncio.run()` wrapper
+  4. **Error handling** - Catch and print friendly errors
+  
+  ## Testing
+  
+  ```bash
+  # Install in dev mode
+  $ pip install -e .
+  
+  # Run
+  $ hamlet
+  # Should launch TUI
+  
+  # Or
+  $ python -m hamlet
+  # Same result
+  ```
+  
+  ## Acceptance Criteria
+  
+  - [ ] `python -m hamlet` works
+  - [ ] `hamlet` command works after pip install
+  - [ ] KeyboardInterrupt (Ctrl+C) exits cleanly
+cycle_created: 1
+cycle_modified: null
+content_hash: d009c6cb3e8614d7316cce57a17579f69175f53596ef504a7154b689aaff9908
+token_count: 605
+file_path: .ideate/work-items/WI-093.yaml

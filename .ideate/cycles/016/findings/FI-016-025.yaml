@@ -1,0 +1,18 @@
+id: FI-016-025
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: Terrain parse error inside fetch terminates processing of remaining keys
+description: |
+  - **File**: `src/hamlet/gui/kitty/state_fetcher.py:87-103`
+  - **Issue**: The `try/except Exception: pass` block spans the entire terrain fetch including the `for k, v in raw.items()` loop. If `int(parts[0])` or `int(parts[1])` raises `ValueError` for any key (e.g., `"1.5,2"`), the outer `except` catches it and discards all terrain keys that follow that entry in the response. The existing `test_skips_malformed_keys` test uses `"bad_key"` which is filtered by the `len(parts) == 2` check before `int()` is called, so this bug is not covered.
+  - **Suggested fix**: Wrap only the `int()` conversions in a per-iteration `try/except ValueError: continue` inside the loop, keeping the outer `except Exception` only around the HTTP fetch and JSON parse.
+file_path: cycles/016/findings/FI-016-025.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-281
+verdict: Fail
+content_hash: "8e7526128c3c4165e0a8c95ff688f0329013ffd54549f0ba0c23c46d796b6f55"
+token_count: 271

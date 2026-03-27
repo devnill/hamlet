@@ -1,0 +1,49 @@
+id: WI-181
+type: work_item
+title: Update hooks.json — register all 15 hooks, fix PreToolUse async
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - hooks/hooks.json is valid JSON
+  - PreToolUse entry does NOT have "async" key (removed — unsupported on blocking hook events)
+  - PostToolUse, Notification, Stop entries retain "async" true
+  - SessionStart, SessionEnd, SubagentStart, SubagentStop, TeammateIdle, TaskCompleted, PostToolUseFailure, UserPromptSubmit, PostCompact, StopFailure entries all have async true
+  - PreCompact entry exists WITHOUT async (unsupported on PreCompact per docs)
+  - All new entries use type "command", timeout 5, path "${CLAUDE_PLUGIN_ROOT}/hooks/{script}.py"
+  - Total of 15 hook event type entries in the file
+module: null
+domain: null
+notes: |
+  # WI-181 Notes: Update hooks.json — 15 hooks, fix PreToolUse async
+  
+  ## Context
+  Two changes: (1) remove async:true from PreToolUse (it's a blocking event — async unsupported, likely causing "1 error during load"), (2) register all 11 new hook types.
+  
+  ## Async rules per Claude Code docs
+  - async: true NOT supported on: PreToolUse, PermissionRequest, PreCompact
+  - async: true supported on all other hook types
+  
+  ## 15 hooks and their async setting
+  PreToolUse: NO async
+  PostToolUse: async true
+  Notification: async true
+  Stop: async true
+  SessionStart: async true
+  SessionEnd: async true
+  SubagentStart: async true
+  SubagentStop: async true
+  TeammateIdle: async true
+  TaskCompleted: async true
+  PostToolUseFailure: async true
+  UserPromptSubmit: async true
+  PreCompact: NO async
+  PostCompact: async true
+  StopFailure: async true
+cycle_created: 1
+cycle_modified: null
+content_hash: "682423fbff07087f20878aa9d2d130b85c4ac52e64045fb6bb496b688a4556ca"
+token_count: 437
+file_path: .ideate/work-items/WI-181.yaml

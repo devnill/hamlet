@@ -1,0 +1,11 @@
+id: J-029-003
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 29
+title: "Cycle 1 — Work item 241: fBm Noise Implementation"
+content: |
+  Status: complete with rework
+  Implemented `_fbm()` and `_warped_fbm()` methods in TerrainGenerator. Updated `_generate_with_noise()` to use warped fBm for elevation and fBm for moisture. Added comprehensive tests for fBm methods. Fixed critical finding: missing skipif decorator on test_fbm_can_produce_varied_terrain_values.
+content_hash: "019bff9159d5c84eb870f9075e79e34aa0137af4450c5569544f390192a065bb"
+token_count: 123

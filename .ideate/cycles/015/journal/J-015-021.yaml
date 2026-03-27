@@ -1,0 +1,12 @@
+id: J-015-021
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: Cycle 3 refinement
+content: |
+  Findings addressed: 4 critical, 12 significant
+  New work items created: WI-158 (Fix hook scripts stdin+find_config), WI-159 (Fix active_tools decrement), WI-160 (Call get_or_create_project in engine), WI-161 (Create initial village structures), WI-162 (Move TOOL_TO_STRUCTURE to rules.py), WI-163 (Wire mcp_port + /hamlet/health endpoint), WI-164 (Fix EXECUTOR color), WI-165 (Persist viewport center)
+  Work items reset for rework: none
+content_hash: "4f4a8c61e53d2e84708711ccb7c0610d5269cf3a0d2febe608308defb793e141"
+token_count: 143

@@ -1,0 +1,27 @@
+id: WI-003
+type: work_item
+title: Event Notification Handler
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/mcp_server/handlers.py` exists
+  - "`register_handlers(server: Server, event_queue: asyncio.Queue)` function exists"
+  - Handler registered for `hamlet/event` method via MCP SDK
+  - Handler validates payload using `validate_event`
+  - Valid events create `ValidatedEvent` and push to queue
+  - Invalid events logged at WARN level and discarded
+  - No exceptions propagate to MCP protocol layer
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 003
+  
+  Handler must catch all exceptions and log them. Per guiding principle 7, the server must continue even if individual events fail.
+cycle_created: 1
+cycle_modified: null
+content_hash: eebcdde815fed3cdcbb34d922d56cd4c401bd6bbb4166f18dd800dd28458dcf7
+token_count: 211
+file_path: .ideate/work-items/WI-003.yaml

@@ -1,0 +1,19 @@
+id: FI-003-133
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: SimulationEngine calls private method `_update_zombie_states()` on AgentInferenceEngine
+description: |
+  - **File**: `src/hamlet/simulation/engine.py:121`
+  - **Issue**: `await self._agent_inference._update_zombie_states()` calls a private method directly, coupling simulation to inference internals. A rename or refactor would fail silently at runtime (caught by broad except).
+  - **Impact**: Violates GP-4 modular design; brittle coupling.
+  - **Suggested fix**: Add public `AgentInferenceEngine.tick()` method; call that instead.
+file_path: cycles/003/findings/FI-003-133.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-102
+verdict: Pass
+content_hash: c22a7a097d08f109958d8873ec508ceded4729d4e5ba9f2025d26280c604755d
+token_count: 194

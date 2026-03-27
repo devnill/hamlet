@@ -1,0 +1,55 @@
+id: WI-275
+type: work_item
+title: Remove notcurses backend
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Directory src/hamlet/gui/notcurses/ does not exist
+  - Files tests/test_notcurses_app.py, tests/test_notcurses_bindings.py, tests/test_notcurses_renderer.py do not exist
+  - grep -r "notcurses" src/hamlet/ returns zero matches (excluding __pycache__)
+  - grep -r "notcurses" tests/ returns zero matches (excluding __pycache__)
+  - detect_renderer() returns "textual" unconditionally (temporary stub)
+  - valid_renderers = {"auto", "textual"} (temporary, expanded by WI-280)
+  - pytest passes with no import errors from removed modules
+module: null
+domain: null
+notes: |
+  # WI-275: Remove notcurses backend
+  
+  ## Context
+  notcurses 3.0.17 segfaults with Python 3.14 on ARM64 macOS. The backend (WI-267–274) is structurally complete but unusable at runtime. Full removal.
+  
+  ## Implementation
+  
+  Delete the entire `gui/notcurses/` directory and its test files. Update four files to remove notcurses references:
+  
+  **detect.py** — Replace body of `detect_renderer()` with `return "textual"`. Remove the notcurses import.
+  
+  **settings.py** — Change `valid_renderers` to `{"auto", "textual"}`.
+  
+  **cli/__init__.py**:
+  - Delete `_launch_notcurses_subprocess()` function
+  - Remove `if renderer == "notcurses"` branches in `_view_command` and `main`
+  - Change `--renderer` choices to `["auto", "textual"]`
+  
+  **__main__.py**:
+  - Delete `_run_viewer_notcurses()` function
+  - Remove `if renderer == "notcurses"` branch in `main()`
+  
+  These are temporary stubs — WI-280 adds Kitty equivalents.
+  
+  ## Verification
+  ```bash
+  rm -rf src/hamlet/gui/notcurses/
+  rm tests/test_notcurses_app.py tests/test_notcurses_bindings.py tests/test_notcurses_renderer.py
+  grep -r "notcurses" src/hamlet/ --include="*.py" | grep -v __pycache__  # should be empty
+  pytest
+  ```
+cycle_created: 1
+cycle_modified: null
+content_hash: dd4f4e5ba37e0c0f20ddee98a1a2d9a35b814d0d50d9bdeaff380c951398b73e
+token_count: 502
+file_path: .ideate/work-items/WI-275.yaml

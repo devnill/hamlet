@@ -1,0 +1,12 @@
+id: J-019-003
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 180: New hook scripts — system/observation events"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed — stop_failure.py now explicitly extracts type and reason from error dict rather than forwarding raw. 1 minor finding fixed — removed redundant double-evaluation of error dict.
+  Created: hooks/post_tool_use_failure.py, hooks/user_prompt_submit.py, hooks/pre_compact.py, hooks/post_compact.py, hooks/stop_failure.py
+content_hash: f30752f2f26b2e84960d8d6edb11564ae8582e3885d4c7caa154e66494aa0123
+token_count: 140

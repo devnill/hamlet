@@ -1,0 +1,18 @@
+id: F-006-024
+type: finding
+cycle: 6
+reviewer: code-reviewer
+severity: minor
+title: `Optional` imported but never used in `settings.py`
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/config/settings.py:6`
+  - **Issue**: `from typing import Optional` is present but `Optional` is not referenced anywhere in the module.
+  - **Suggested fix**: Remove the import line.
+file_path: cycles/006/findings/F-006-024.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-006
+verdict: Fail
+content_hash: b43f031eaa22345edbbe8957cd7a74c33068f60aec8202c9d09c2288412374b0
+token_count: 134

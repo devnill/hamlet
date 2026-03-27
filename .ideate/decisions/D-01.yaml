@@ -1,0 +1,13 @@
+id: D-01
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: ASCII-Only Rendering
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: deddb1e968c16772b856e10346d219e3f9e1cc7649a181faac81b415fdc318da
+token_count: 61
+file_path: .ideate/decisions/D-01.yaml

@@ -1,0 +1,18 @@
+id: FI-016-002
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: renderer variable resolved but unused in stubs
+description: |
+  - **File**: `src/hamlet/cli/__init__.py`
+  - **Issue**: `renderer` variable assigned but not used in temporary stubs. WI-280 resolves this.
+  - **Suggested fix**: No action needed — WI-280 wires it.
+file_path: cycles/016/findings/FI-016-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-275
+verdict: Pass
+content_hash: "2d6a95efdfa534da98380e398217f39acbf08a68457bd012f920e712d5a98fc4"
+token_count: 125

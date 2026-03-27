@@ -1,0 +1,11 @@
+id: J-015-025
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 159: Fix active_tools decrement to be gated on pending_tools eviction"
+content: |
+  Status: complete
+  active_tools decrement tied to successful pending_tools eviction via max(0,...) form in both _handle_post_tool_use (line 308) and _update_zombie_states TTL eviction (line 402). TTL eviction path inconsistency (M1 from review) fixed inline.
+content_hash: "72630bcbab21fdbe97b67af5b0c72b5bfb79dfe11a564a728b854dd76a22ab3b"
+token_count: 116

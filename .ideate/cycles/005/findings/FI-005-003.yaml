@@ -1,0 +1,18 @@
+id: FI-005-003
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: No tests exercise the new flat schema fields in validation
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_mcp_validation.py`
+  - **Issue**: The three existing tests cover only structural validation (missing `jsonrpc`, invalid `hook_type`). None of them verify that the newly added flat properties (`notification_message`, `stop_reason`, `tool_name`, `tool_output`, `success`, `duration_ms`) are accepted or that type constraints on them (e.g. `["string", "null"]`) are enforced by the schema.
+  - **Suggested fix**: Add parametrised tests that submit payloads with each new field at valid and invalid types and assert the expected `valid` result.
+file_path: cycles/005/findings/FI-005-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-120
+verdict: Pass
+content_hash: "7b7f53574afc7b2f578f4864b74c51d49aea3afd654655498f1a616ed189fcc9"
+token_count: 226

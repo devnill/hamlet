@@ -1,0 +1,13 @@
+id: D-15
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: Sprite PNG assets deliberately absent from initial delivery
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: f44fc0237bb78171f0de272c1188b51f529778326a14067fe5d180c29a63bcdc
+token_count: 70
+file_path: .ideate/decisions/D-15.yaml

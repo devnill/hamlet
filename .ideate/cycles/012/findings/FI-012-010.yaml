@@ -1,0 +1,18 @@
+id: FI-012-010
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Inconsistent Bias Strength Scaling
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:641`
+  - **Issue**: The bias strength is capped at ±0.3 maximum (via `region_blending * 0.3`), but the water bias formula can produce up to ±0.5 when `(biome_char + 1.0) * 0.5` equals 0.5 (at boundary). The forest bias is also added separately. The total bias could exceed the intended range.
+  - **Suggested fix**: Either cap the total bias or document the expected range more clearly.
+file_path: cycles/012/findings/FI-012-010.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-254
+verdict: Pass
+content_hash: "5bc372cf9c159714f8745d159fa19a170bb20fa6857cb6b1d076f987e4e76835"
+token_count: 186

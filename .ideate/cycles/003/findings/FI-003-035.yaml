@@ -1,0 +1,17 @@
+id: FI-003-035
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `blend_color` accepted out-of-range ratio silently
+description: |
+  - **File**: `src/hamlet/inference/colors.py:12`
+  - **Fix applied**: Added `ValueError` guard for `ratio` outside `[0.0, 1.0]`.
+file_path: cycles/003/findings/FI-003-035.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-025
+verdict: Fail
+content_hash: c49f72c3b2d60edab856c8692e768001312c149c86667d250ed69c42048b2251
+token_count: 108

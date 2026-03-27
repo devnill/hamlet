@@ -1,0 +1,65 @@
+id: WI-208
+type: work_item
+title: Reset agent state to ZOMBIE on daemon startup
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - In `load_from_persistence()`, all agents are created with `state=AgentState.ZOMBIE` regardless of the value stored in the database
+  - A test in `test_world_state_manager.py` verifies that after `load_from_persistence()`, agents with stored state "active" are loaded as ZOMBIE
+  - All existing `test_world_state_manager.py` tests continue to pass
+module: null
+domain: null
+notes: |
+  # WI-208 Implementation Notes: Reset agent state to ZOMBIE on daemon startup
+  
+  ## Problem
+  
+  `WorldStateManager.load_from_persistence()` restores agents with their stored database state:
+  
+  ```python
+  # src/hamlet/world_state/manager.py ~line 116
+  state=AgentState(d.get("state", "active")),
+  ```
+  
+  The inference engine's zombie detection (`_check_zombie`) only evaluates agents in its own
+  `_state.last_seen` dict. This dict is empty at startup. So any agents loaded from the DB
+  that were "active" or "idle" are never transitioned to zombie — they remain "active"
+  indefinitely, appearing on screen as spinning agents even when no Claude sessions are running.
+  
+  ## Fix
+  
+  Change the single line in `load_from_persistence()` that sets agent state:
+  
+  ```python
+  # Before
+  state=AgentState(d.get("state", "active")),
+  
+  # After
+  state=AgentState.ZOMBIE,  # always start as zombie on reload; new events will promote to active
+  ```
+  
+  This aligns with the persistent world design (GP-5): agents remain in the world as historical
+  entities (zombies), and new hook events from active Claude sessions promote them back to ACTIVE
+  via the normal inference path in `AgentInferenceEngine`.
+  
+  ## File to modify
+  
+  `src/hamlet/world_state/manager.py` — the agent loop inside `load_from_persistence()`.
+  The relevant section starts around line 103 ("# Restore agents and register positions in grid").
+  
+  ## Test to add
+  
+  In `tests/test_world_state_manager.py`, add a test that:
+  1. Mocks the persistence layer to return an agent with `state="active"`
+  2. Calls `load_from_persistence()`
+  3. Asserts the loaded agent's state is `AgentState.ZOMBIE`
+  
+  Follow existing test patterns in the file (mock `_persistence.load_state`, use `asyncio`).
+cycle_created: 1
+cycle_modified: null
+content_hash: "0f9233c0b0fe0dd6b809162d85f7cd26db7e352d067690c090068e0d53a510a5"
+token_count: 600
+file_path: .ideate/work-items/WI-208.yaml

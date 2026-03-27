@@ -1,0 +1,19 @@
+id: FI-003-006
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `_running` flag set before task executes; double-start guard incorrect
+description: |
+  - **File**: `src/hamlet/mcp_server/server.py:47`
+  - **Issue**: Guard used `if self._running` which is set immediately after `create_task()`. If two coroutines race to call `start()` before the task runs, the second call no-ops incorrectly. The task itself may also fail before entering stdio_server, leaving `_running=True` momentarily.
+  - **Suggested fix**: Guard on `_run_task is not None and not _run_task.done()`.
+  - **Resolution**: Fixed — guard now checks `_run_task`.
+file_path: cycles/003/findings/FI-003-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-005
+verdict: Fail
+content_hash: "820c8066e00a3cfeb03c729951b491d71f4218f08a3b686776c36b317c6676cc"
+token_count: 202

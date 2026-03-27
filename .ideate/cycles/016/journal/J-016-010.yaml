@@ -1,0 +1,9 @@
+id: J-016-010
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 2: differential diff failed — falling back to full review. Reason: not a git repo."
+content: ""
+content_hash: b35d3c28e04e98e5635ca2ae7e3adfe2bd6e660e7c77db7dffb3fec1510b64c3
+token_count: 51

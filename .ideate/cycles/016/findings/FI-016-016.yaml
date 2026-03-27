@@ -1,0 +1,19 @@
+id: FI-016-016
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: critical
+title: `hamlet.gui.kitty.app.KittyApp` does not exist
+description: |
+  - **File**: `src/hamlet/__main__.py:149`
+  - **Issue**: `_run_viewer_kitty` does `from hamlet.gui.kitty.app import KittyApp`. There is no `app.py` file in `src/hamlet/gui/kitty/`. The directory contains `__init__.py`, `protocol.py`, `renderer.py`, `sprites.py`, and `zoom.py`. The renderer class is `KittyRenderer`, not `KittyApp`.
+  - **Impact**: Any code path that resolves to renderer=="kitty" raises `ModuleNotFoundError` at runtime. This includes `hamlet view --renderer kitty`, `hamlet view` when `KITTY_AVAILABLE` is `True`, and the bare `hamlet` command in the same conditions. The feature is completely broken.
+  - **Suggested fix**: Either create `src/hamlet/gui/kitty/app.py` with a `KittyApp` class that wraps `KittyRenderer` and implements a `run()` method, or change the import in `_run_viewer_kitty` to use the existing `KittyRenderer` directly. Because this is an acceptance criterion ("renderer=='kitty' calls KittyApp directly"), the missing file needs to be created.
+file_path: cycles/016/findings/FI-016-016.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-280
+verdict: Fail
+content_hash: cc95b3a305fdba0acc064cb30d34711892afbc3f2adde359362ad1f1c767346b
+token_count: 323

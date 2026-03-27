@@ -1,0 +1,11 @@
+id: J-008-005
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 8
+title: "Work item 093: Application Entry Point"
+content: |
+  Status: complete
+  Created src/hamlet/__main__.py with main() entry point. Updated pyproject.toml with [project.scripts]. Both `python -m hamlet` and `hamlet` commands work.
+content_hash: "4827e7c1e80dd3b4b2467756273078ac4ab2334b555c8a628b9902373a91dc81"
+token_count: 82

@@ -1,0 +1,18 @@
+id: FI-003-138
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `test_process_expansion_creates_roads` accesses `world_state._state` directly
+description: |
+  - **File**: `tests/test_expansion.py:146-148`
+  - **Issue**: Test sets `world_state._state.villages` and `world_state._state.agents` directly. After the accessor refactor, `process_expansion` calls `get_all_villages()` and `get_all_agents()` — so the `_state` stubs are never consulted and the test passes vacuously (no villages found → no expansion → no roads created).
+  - **Suggested fix**: Replace with `AsyncMock(return_value=[village])` for `get_all_villages` and `AsyncMock(return_value=agents)` for `get_all_agents`.
+file_path: cycles/003/findings/FI-003-138.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-104
+verdict: Pass
+content_hash: "3be727ac1758b5bb3c7b7122be780ded21bbde9f006d6b38a8b11ac9f8d518e7"
+token_count: 215

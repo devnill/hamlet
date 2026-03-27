@@ -1,0 +1,18 @@
+id: F-006-023
+type: finding
+cycle: 6
+reviewer: code-reviewer
+severity: minor
+title: `zombie_despawn_seconds` has no validation in `Settings._validate()`
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/config/settings.py:21`
+  - **Issue**: WI-214 added `zombie_threshold_seconds` with full type, bool, and positive-integer validation. The companion field `zombie_despawn_seconds` (present before Cycle 6) has no validation at all. A config file containing `"zombie_despawn_seconds": 0` or `"zombie_despawn_seconds": "300"` produces no startup error; the bad value is passed directly to `AgentInferenceEngine` where it will cause incorrect behavior or a downstream `TypeError`.
+  - **Suggested fix**: Add matching validation after the `zombie_threshold_seconds` block.
+file_path: cycles/006/findings/F-006-023.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-006
+verdict: Fail
+content_hash: cf20dab3f140ec5635e7a0ca4e400645532e900986c1d980c0150b2156cabe4f
+token_count: 235

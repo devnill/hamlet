@@ -1,0 +1,13 @@
+id: D-17
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: Renderer infrastructure carried forward unchanged through backend pivot
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "982925751185c8bcf8273ae36c2ee110e51941ad25dda5326475670c8f5b7582"
+token_count: 73
+file_path: .ideate/decisions/D-17.yaml

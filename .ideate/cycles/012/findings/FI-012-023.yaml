@@ -1,0 +1,18 @@
+id: FI-012-023
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: Priority ordering ensures consistent behavior
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:_apply_smoothing_rule`
+  - **Issue**: The order of terrain type checks matters. Water isolation is checked first, then forest expansion/contraction, then mountain foothills, then meadow-plain transitions.
+  - **Impact**: Water takes priority over forest expansion, which takes priority over mountain foothills.
+file_path: cycles/012/findings/FI-012-023.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-257
+verdict: null
+content_hash: "8c46d499f94d4e0fd3f4961254d4abc17ac08b823dd11b1d8b1ae745376106da"
+token_count: 170

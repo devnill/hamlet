@@ -1,0 +1,15 @@
+id: F-005-021
+type: finding
+cycle: 5
+reviewer: spec-reviewer
+severity: minor
+title: `@pytest.mark.asyncio` decorators recur in new test files
+description: The incremental reviews for WI-209, WI-210, and WI-212 each independently flagged `@pytest.mark.asyncio` decorators in new test files (`test_tui_world_view.py`, `test_persistence_facade.py`, `test_tui_legend.py`). `pyproject.toml` sets `asyncio_mode = "auto"` and `CLAUDE.md` explicitly prohibits these decorators. The tests pass despite the decorators (pytest-asyncio accepts them in auto mode), but the convention is not being applied to new test files. Deferred — the decorators are harmless and fixing them is noise without value.
+file_path: cycles/005/findings/F-005-021.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-005
+verdict: Pass
+content_hash: cdf22541ebca07d704d50e81cd00001c1d7cebc8e75604134645c85d4abf3bf9
+token_count: 213

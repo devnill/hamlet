@@ -1,0 +1,11 @@
+id: J-001-007
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 1
+title: "Work item 272: Sprite asset system and PNG loading"
+content: |
+  Status: complete with rework
+  Rework: 1 significant, 2 minor findings fixed. S1: cleanup() now unconditionally destroys ncvisuals. M2: docstring corrected for _snap_size.
+content_hash: d91ebb2a4c2d9d4c3454490e96ba204f2030bb78f204b222ef122da2f3c40eba
+token_count: 85

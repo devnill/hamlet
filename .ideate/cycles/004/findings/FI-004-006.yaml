@@ -1,0 +1,18 @@
+id: FI-004-006
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: MCPServer port parameter is not covered by existing tests
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_mcp_server.py`
+  - **Issue**: No test exercises `MCPServer(port=N)` to verify `self._port` is set and forwarded to `TCPSite`. This is a maintenance gap, not an acceptance criterion violation.
+  - **Suggested fix**: Add a unit test asserting `server._port == N` for a non-default port.
+file_path: cycles/004/findings/FI-004-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-116
+verdict: Pass
+content_hash: eb9ceb43514f6e8c5b330ca83fb2bdc81c5ef4de0b1f53cfc1bfc8f3870cdd8d
+token_count: 161

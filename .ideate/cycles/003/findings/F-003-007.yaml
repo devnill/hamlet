@@ -1,0 +1,18 @@
+id: F-003-007
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `pip install mcp` advice may install into the wrong Python environment
+description: |
+  - **File**: `/Users/dan/code/hamlet/mcp/start.sh:8`
+  - **Issue**: On many systems `pip` installs into a different environment than `python3`. A user who follows this advice may still get `ModuleNotFoundError`.
+  - **Suggested fix**: Change to `python3 -m pip install mcp` to guarantee installation into the same interpreter that will run `server.py`.
+file_path: cycles/003/findings/F-003-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-003
+verdict: Pass
+content_hash: d541e6c648c3952e49472262fea255e673ae308150e51f853681d9b4e0bd4e39
+token_count: 169

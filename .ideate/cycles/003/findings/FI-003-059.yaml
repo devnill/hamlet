@@ -1,0 +1,18 @@
+id: FI-003-059
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: ROAD had only 1 threshold — stages 2-3 unreachable
+description: |
+  - **File**: `src/hamlet/simulation/structure_updater.py:22`
+  - **Issue**: ROAD rules had `{"thresholds": [50], "materials": ["stone", "stone"]}`. With one threshold, a road could only advance to stage 1. Stages 2-3 were unreachable. Also, initial material was "stone" not "wood" as the spec requires.
+  - **Fix**: Updated to `{"thresholds": [50, 250, 500], "materials": ["wood", "wood", "stone", "brick"]}`.
+file_path: cycles/003/findings/FI-003-059.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-043
+verdict: Pass
+content_hash: ae6f6c4516d5867655934b63fd3af3354fc577dc16cfe4bd3b3257ad2decaae1
+token_count: 185

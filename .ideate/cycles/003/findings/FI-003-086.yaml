@@ -1,0 +1,18 @@
+id: FI-003-086
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: "Bare `except Exception: pass` in `action_toggle_legend`"
+description: |
+  - **File**: `src/hamlet/tui/app.py:140`
+  - **Issue**: Silently suppressed all errors with no logging.
+  - **Resolution**: Fixed — `except Exception as exc: logger.debug(...)` added.
+file_path: cycles/003/findings/FI-003-086.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-067
+verdict: Fail
+content_hash: ff2479adc4ee95a749470c17cf454ff5e8b0e39037c7b8be39a494d3ba5acec6
+token_count: 124

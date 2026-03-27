@@ -1,0 +1,18 @@
+id: FI-003-014
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `process_event` called `loop.run_until_complete()` on a running event loop
+description: |
+  - **File**: `src/hamlet/event_processing/event_processor.py:128`
+  - **Issue**: The synchronous `process_event` drove `self._sequence.next()` via `asyncio.get_event_loop().run_until_complete()`. In an asyncio application with a running event loop, this raises `RuntimeError: This event loop is already running`.
+  - **Fix**: Made `process_event` async and replaced `run_until_complete` with `await self._sequence.next()` directly. Removed the now-redundant `_process_event_async` method. Updated `_consume_loop` to call `await self.process_event(raw)`.
+file_path: cycles/003/findings/FI-003-014.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-014
+verdict: Pass
+content_hash: b2ddecce9efc2b5c25a2ddae0e5d1c5a0f554301a3a3b0a6808b6cfc564fc3e9
+token_count: 221

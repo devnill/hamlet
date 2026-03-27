@@ -1,0 +1,18 @@
+id: FI-004-002
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: `_handle_post_tool_use` uses primary agent index `[0]` rather than most-recently-active agent for type update
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/inference/engine.py:263`
+  - **Issue**: `agent_id = session.agent_ids[0]` always picks the first agent appended to the session, not the most-recently-active one. In a multi-agent session, type updates and work unit credits will always be attributed to the original (possibly long-idle) root agent rather than whichever agent actually performed the tool call. This is a pre-existing issue, not introduced by this rework, but it remains a correctness gap under concurrent spawns.
+  - **Suggested fix**: Either track which agent id is associated with each `PendingTool.estimated_agent_id` (the field already exists on `PendingTool` at `types.py:51` but is never populated) and use it here, or call `_get_primary_agent(event.session_id)` to select the most-recently-active one.
+file_path: cycles/004/findings/FI-004-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-114
+verdict: Pass
+content_hash: db9564d186f724245ce68b05af706613b6a1c689d1431577f03d8fe714252d9f
+token_count: 296

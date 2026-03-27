@@ -1,0 +1,11 @@
+id: J-021-024
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 21
+title: Overall metrics summary
+content: |
+  Total agents spawned across all cycles: ~14 (workers and reviewers, metrics unavailable — context compacted)
+  Total wall-clock across all cycles: not recorded (metrics.jsonl not written — context compacted mid-session)
+content_hash: d179b6617256d4a6acf736631c190210f6333ed7d3d58c89df1a892648c56927
+token_count: 90

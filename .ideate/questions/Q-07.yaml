@@ -1,0 +1,14 @@
+id: Q-07
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: PLANNER absent from LegendOverlay
+cycle_created: 1
+cycle_modified: null
+content_hash: "6d57d347565354102caeea4ca04acece797d0d62e2197b39592736f81ddf1e2f"
+token_count: 68
+file_path: .ideate/questions/Q-07.yaml

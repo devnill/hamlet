@@ -1,0 +1,17 @@
+id: F-007-029
+type: finding
+cycle: 7
+reviewer: spec-reviewer
+severity: minor
+title: No direct column-existence test for has_expanded in migrations test
+description: |
+  - **File**: `tests/test_persistence_migrations.py`
+  - No test uses `PRAGMA table_info(villages)` to confirm migration 3 added `has_expanded`. Schema-version assertions confirm the migration ran, but column existence is not asserted directly. Noted in incremental review 217.
+file_path: cycles/007/findings/F-007-029.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-007
+verdict: Pass
+content_hash: "9aec1be6f0ef3194800a6512b286707a7d6034daeb1d92843e6c14d6029401c9"
+token_count: 150

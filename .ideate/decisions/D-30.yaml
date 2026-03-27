@@ -1,0 +1,13 @@
+id: D-30
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 15
+supersedes: null
+description: Rendering layer scope boundary — core untouched by backend addition
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: d6a35805530d12d18ce6568962626f9244702edee5b031ea85b0e598fd0055d2
+token_count: 72
+file_path: .ideate/decisions/D-30.yaml

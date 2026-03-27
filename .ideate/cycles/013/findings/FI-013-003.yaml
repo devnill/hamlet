@@ -1,0 +1,18 @@
+id: FI-013-003
+type: finding
+cycle: 13
+reviewer: code-reviewer
+severity: minor
+title: ridge_count absent from TERRAIN_PARAMS
+description: |
+  - **File**: `src/hamlet/tui/parameter_panel.py`
+  - **Issue**: `ridge_count` is a `None`-auto field in TerrainConfig but not in the panel.
+  - **Suggested fix**: Consistent with how other auto fields are handled. Note for future completeness.
+file_path: cycles/013/findings/FI-013-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: null
+verdict: Pass
+content_hash: "7f8894d0ca2827c989548597e1a33926a43918e2724e967e6f543807677effca"
+token_count: 133

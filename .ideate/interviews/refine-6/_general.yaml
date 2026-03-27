@@ -1,0 +1,19 @@
+id: interviews/refine-6/_general
+type: interview
+cycle: 6
+source_path: steering/interviews/refine-6/_general.md
+entries:
+  - {id: IQ-006-001, question: Item 5 (hook utility duplication) was accepted as a P2 trade-off in WI-170. Do you want to extract to a shared module, or keep it deferred?, answer: Let's keep it DRY. If something breaks, it should be handled then., domain: null, seq: 1}
+  - {id: IQ-006-002, question: For the mcp import check improvement, should I verify against the actual import in mcp/server.py and use that symbol?, answer: "Let you pick whatever the most pythonic option is.
+
+**Decision**: Use `from mcp.server import Server` — matches the actual import in mcp/server.py and verifies the core class is available, not just the top-level namespace.
+
+**Scope confirmed:**
+1. Extract `_cwd_hash`, `find_server_url`, `find_config`, `_log_error` from the four hook scripts into `hooks/hamlet_hook_utils.py`. Import via `sys.path.insert(0, str(Path(__file__).parent))`.
+2. Delete the four dead `.sh` wrapper files from `hooks/`.
+3. Improve `mcp/start.sh` import check: `python3 -c \"from mcp.server import Server\"`.
+4. Add `server_url` optional parameter to `hamlet_init` in `mcp/server.py`.
+
+**Not changing**: All other source files. Architecture unchanged. Guiding principles unchanged.", domain: null, seq: 2}
+content_hash: "248e33add23924f86c18d03fd248cd9405e1ac978944052ec9255dff2c790a69"
+token_count: 340

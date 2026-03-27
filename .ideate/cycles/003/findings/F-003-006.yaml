@@ -1,0 +1,18 @@
+id: F-003-006
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `python3` absence produces a misleading error message
+description: |
+  - **File**: `/Users/dan/code/hamlet/mcp/start.sh:7`
+  - **Issue**: When `python3` is not on PATH, `python3 -c "import mcp"` exits non-zero, causing the `if !` branch to fire and emit "hamlet: mcp package not found" — which is factually wrong. The actual problem is that `python3` itself is missing.
+  - **Suggested fix**: Add a `command -v python3` guard before line 7.
+file_path: cycles/003/findings/F-003-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-003
+verdict: Pass
+content_hash: "445172bc20f8795066eb64afec7599146e318a6df34202456e8f286631b625cb"
+token_count: 170

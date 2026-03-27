@@ -1,0 +1,11 @@
+id: J-016-022
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 5 — Work item 173: hamlet_init improvements and marketplace CLAUDE.md"
+content: |
+  Status: complete with rework
+  Rework: C1 (arguments not guarded against None — added `arguments = arguments or {}` before .get() call). Both success and already-exists paths now mention "To use a different host or port, edit server_url in .hamlet/config.json." hamlet_init accepts optional `path` parameter. Marketplace CLAUDE.md updated with hamlet row.
+content_hash: "3b8c6780525683de1ba041ef4ea2555080ab0cb1ee3214c8a558ffff3c36e952"
+token_count: 137

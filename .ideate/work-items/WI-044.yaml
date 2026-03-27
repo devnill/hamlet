@@ -1,0 +1,27 @@
+id: WI-044
+type: work_item
+title: Implement Animation State Machine
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/simulation/animation.py` exists
+  - `AnimationState` dataclass with animation_type, current_frame, frame_count
+  - `AnimationManager` class with `get_animation_state(agent)`, `get_animation_symbol(state)`, `get_animation_color(agent, state, time)`
+  - Active agents show spin animation (`-`, `\`, `|`, `/`)
+  - Idle agents show static `@`
+  - Zombie agents pulse between base color and green at 0.5Hz
+  - `advance_frames(agents, delta_ticks)` increments frame counters
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 044
+  
+  Spin animation is 4Hz (4 frames per second). Frame counters stored per-agent in internal dict.
+cycle_created: 1
+cycle_modified: null
+content_hash: aa421f6f5a09698ed247e9d1b1c586036474a9ee27188e6d7cbdef3786a8823c
+token_count: 223
+file_path: .ideate/work-items/WI-044.yaml

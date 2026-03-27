@@ -1,0 +1,19 @@
+id: F-018-078
+type: finding
+cycle: 18
+reviewer: code-reviewer
+severity: minor
+title: _update_state only reachable in viewer mode
+description: |
+  - **File**: `src/hamlet/tui/app.py:142-144`
+  - **Issue**: `_update_state()` is now called from `_refresh_remote_state()`, which is only scheduled when `_remote_provider is not None`. If HamletApp were ever used without a remote provider, the status bar would remain at zeros.
+  - **Impact**: No practical impact — HamletApp is only used in viewer mode (always has remote_provider). The daemon is headless.
+  - **Suggested fix**: None needed now. Note for future if embedded daemon mode is added.
+file_path: cycles/018/findings/F-018-078.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-018
+verdict: Pass
+content_hash: "114f02edae24b4fad87730b2d178a358ffde83ce565562f069b42ad3cd9acf1c"
+token_count: 199

@@ -1,0 +1,11 @@
+id: J-018-012
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 18
+title: Overall metrics summary
+content: |
+  Total agents spawned across all cycles: ~17 (4 workers, 4 incremental reviewers, 1 rework reviewer, 3 cycle-007 reviewers, 3 cycle-008 reviewers, 1 journal-keeper, 1 rework worker)
+  Total wall-clock across all cycles: ~1800s estimated
+content_hash: "87f0f5a4905ba07d38d023e5d39c508d184d87dadf2a8d23cb8352dec1a563bb"
+token_count: 94

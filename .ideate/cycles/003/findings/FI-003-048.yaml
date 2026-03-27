@@ -1,0 +1,18 @@
+id: FI-003-048
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Placeholder village not persisted
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:278`
+  - **Issue**: Village created for unknown project was stored in `_state.villages` but never queued for persistence write, unlike the pattern in `get_or_create_project`.
+  - **Resolution**: Fixed — `queue_write("village", ...)` added.
+file_path: cycles/003/findings/FI-003-048.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-036
+verdict: Fail
+content_hash: "7f86b6197d035cf0113e870fd916486529cedc5431bfd2b479f84422faab9284"
+token_count: 144

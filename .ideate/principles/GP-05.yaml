@@ -1,0 +1,16 @@
+id: GP-05
+type: guiding_principle
+name: Persistent World, Project-Based Villages
+status: active
+description: |
+  The world persists across sessions. Each project (codebase) maps to a village that grows over time. Multiple projects create multiple villages on a global map. Villages can expand, connect via roads, and found new settlements.
+  
+  **Why:** User specified: "the persistent map should track all projects ever worked on - this is a global map that has lots of little villages" and "a single codebase should be a single village that grows out."
+  
+  **How to apply:** SQLite must store project-to-village mappings. New events from a project update its village. The UI must support scrolling to view different villages. World state survives app restarts.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: da534ab4076f88c66ed55a343347ba31fc1c1f3b2f2697eb31a3d3b0cddf4f09
+token_count: 220
+file_path: .ideate/principles/GP-05.yaml

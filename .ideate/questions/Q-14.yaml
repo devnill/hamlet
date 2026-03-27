@@ -1,0 +1,14 @@
+id: Q-14
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: No sprite PNG assets — SNES visual experience cannot be evaluated
+cycle_created: 1
+cycle_modified: null
+content_hash: "32e1d6a9cee7420a09fcd1316973f31e5862843a31fdf9c50d42f0f6655d35d3"
+token_count: 76
+file_path: .ideate/questions/Q-14.yaml

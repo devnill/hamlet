@@ -1,0 +1,17 @@
+id: FI-003-149
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Inconsistent exception logging style
+description: |
+  - **File**: `src/hamlet/inference/engine.py:278`
+  - **Issue**: Used `logger.error(..., exc_info=True)` instead of `logger.exception(...)` used elsewhere in the same method.
+file_path: cycles/003/findings/FI-003-149.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-106
+verdict: Pass
+content_hash: bded081ceb1be6631cdc7990171b0bbe2f2f8c22e76e896045e25172435e88bd
+token_count: 116

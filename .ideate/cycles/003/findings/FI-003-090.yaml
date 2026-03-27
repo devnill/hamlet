@@ -1,0 +1,19 @@
+id: FI-003-090
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `db_path` default is unexpanded tilde string
+description: |
+  - **File**: `src/hamlet/persistence/types.py:22`
+  - **Issue**: `db_path: str = "~/.hamlet/world.db"` — Python does not expand `~` automatically. sqlite3.connect() and Path() will interpret `~` as a literal directory name.
+  - **Impact**: Database created at `./~/.hamlet/world.db` or FileNotFoundError instead of user home directory.
+  - **Suggested fix**: Use `field(default_factory=lambda: str(Path("~/.hamlet/world.db").expanduser()))`.
+file_path: cycles/003/findings/FI-003-090.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-071
+verdict: Fail
+content_hash: b5db8ef3b1dffec9e190cec356d411dec5bcd7b2293197e687672583dd5c31a1
+token_count: 187

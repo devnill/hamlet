@@ -1,0 +1,28 @@
+id: WI-041
+type: work_item
+title: Implement SimulationEngine Core
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/simulation/engine.py` exists
+  - `SimulationEngine.__init__(world_state, config)` constructor
+  - `async start()` creates and starts tick loop task
+  - `async stop()` cancels task and awaits cleanup
+  - `set_tick_rate(rate)` updates tick rate
+  - `_tick_loop()` runs while running flag, sleeps between iterations
+  - `SimulationState` dataclass with tick_count, last_tick_at, running
+  - `SimulationConfig` dataclass with tick_rate (default 30.0), work_unit_scale, zombie_threshold, expansion_threshold
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 041
+  
+  Use `asyncio.create_task` for background loop. Catch exceptions in tick loop, continue running.
+cycle_created: 1
+cycle_modified: null
+content_hash: be0703931794ce742360209570e2ec2033ca27e28567c9efcbc97018b46b93c0
+token_count: 231
+file_path: .ideate/work-items/WI-041.yaml

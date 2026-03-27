@@ -1,0 +1,17 @@
+id: F-007-028
+type: finding
+cycle: 7
+reviewer: spec-reviewer
+severity: minor
+title: Migration dict literal in descending key order
+description: |
+  - **File**: `src/hamlet/persistence/migrations.py`
+  - Migration version 3 appears before version 2 in the dict literal. Execution is correct because `run_migrations` iterates using `sorted(MIGRATIONS.keys())`. Cosmetic inconsistency only; no functional impact. Noted in incremental review 217.
+file_path: cycles/007/findings/F-007-028.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-007
+verdict: Pass
+content_hash: "60dce391657b1b3e88f0764ebafe3cbbcdea510bf31c2cbd3fe67a6975f9a77e"
+token_count: 149

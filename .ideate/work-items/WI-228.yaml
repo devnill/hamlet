@@ -1,0 +1,85 @@
+id: WI-228
+type: work_item
+title: Size tier calculation in StructureUpdater with pluggable work classifier
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - "SimulationConfig has `size_tier_thresholds: dict[int, int]` with default `{1: 0, 2: 500, 3: 2000, 4: 5000}`"
+  - StructureUpdater has `_compute_target_tier(structure) -> int` that returns highest tier whose threshold <= work_units
+  - StructureUpdater.update_structures calls world_state.upgrade_structure_tier when target_tier > structure.size_tier
+  - WorldStateProtocol declares `upgrade_structure_tier(structure_id, new_tier) -> None`
+  - WorldStateManager.upgrade_structure_tier stub exists (calls update_structure with size_tier=new_tier)
+  - A test verifies _compute_target_tier thresholds at boundaries (0, 499, 500, 1999, 2000, 4999, 5000)
+  - A test verifies update_structures calls upgrade_structure_tier when upgrade needed
+  - A test verifies update_structures does NOT call upgrade_structure_tier when already at target tier
+module: null
+domain: null
+notes: |
+  # WI-228 Implementation Notes
+  
+  ## src/hamlet/simulation/config.py
+  
+  Add to SimulationConfig:
+  
+  ```python
+  size_tier_thresholds: dict[int, int] = field(
+      default_factory=lambda: {1: 0, 2: 500, 3: 2000, 4: 5000}
+  )
+  ```
+  
+  ## src/hamlet/simulation/structure_updater.py
+  
+  Add method:
+  
+  ```python
+  def _compute_target_tier(self, structure: "Structure") -> int:
+      """Return highest tier whose threshold <= structure.work_units."""
+      thresholds = self._config.size_tier_thresholds
+      target = 1
+      for tier in sorted(thresholds.keys()):
+          if structure.work_units >= thresholds[tier]:
+              target = tier
+      return target
+  ```
+  
+  In `update_structures` (or equivalent tick method), after stage advancement, add:
+  
+  ```python
+  target_tier = self._compute_target_tier(structure)
+  if target_tier > structure.size_tier:
+      await world_state.upgrade_structure_tier(structure.id, target_tier)
+  ```
+  
+  This runs for all structures (tier is independent of stage).
+  
+  ## src/hamlet/world_state/manager.py
+  
+  Add stub for `upgrade_structure_tier` (full implementation in WI-229):
+  
+  ```python
+  async def upgrade_structure_tier(self, structure_id: str, new_tier: int) -> None:
+      """Upgrade structure size tier. Agent displacement implemented in WI-229."""
+      await self.update_structure(structure_id, size_tier=new_tier)
+  ```
+  
+  ## src/hamlet/protocols.py
+  
+  Add to WorldStateProtocol:
+  
+  ```python
+  async def upgrade_structure_tier(self, structure_id: str, new_tier: int) -> None: ...
+  ```
+  
+  ## Tests in tests/test_structure_updater.py
+  
+  1. `_compute_target_tier` at boundaries: work_units=0→tier1, 499→tier1, 500→tier2, 1999→tier2, 2000→tier3, 4999→tier3, 5000→tier4, 10000→tier4
+  2. `update_structures` calls `upgrade_structure_tier(id, 2)` when work_units=500 and size_tier=1
+  3. `update_structures` does NOT call `upgrade_structure_tier` when size_tier already at target
+cycle_created: 1
+cycle_modified: null
+content_hash: "0d4a328e31b00051cffd04123d19560bbb6111bf4b229e50d5f0191b787868d4"
+token_count: 768
+file_path: .ideate/work-items/WI-228.yaml

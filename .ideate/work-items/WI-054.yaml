@@ -1,0 +1,30 @@
+id: WI-054
+type: work_item
+title: ViewportManager Core Operations
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/viewport/manager.py` exists
+  - "`ViewportManager` class with `__init__(world_state: WorldStateManager)`"
+  - `async initialize() -> None` sets center to primary village center
+  - "`world_to_screen(world_pos: Position) -> Position` method"
+  - "`screen_to_world(screen_pos: Position) -> Position` method"
+  - "`is_visible(world_pos: Position) -> bool` method"
+  - `get_visible_bounds() -> BoundingBox` method
+  - "`resize(width: int, height: int) -> None` method"
+  - `get_viewport_state() -> ViewportState` method returns current state snapshot
+  - Uses `SpatialIndex` for visibility queries
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 054
+  
+  ViewportManager holds a reference to WorldStateManager for reading entity positions. It maintains internal SpatialIndex updated when entities move. Initialize reads all villages and centers on the first one.
+cycle_created: 1
+cycle_modified: null
+content_hash: d995a77cbcf04a6ab19e130fff73970879186d444ffe68e7a2eab4f653e5e97b
+token_count: 278
+file_path: .ideate/work-items/WI-054.yaml

@@ -1,0 +1,11 @@
+id: J-029-005
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 29
+title: "Cycle 1 — Work item 243: Cellular Automata Post-Processing"
+content: |
+  Status: complete with rework
+  Implemented `smooth_terrain()`, `_count_neighbors()`, and `_apply_smoothing_rule()` functions. Added `smoothing_passes` to TerrainConfig. TerrainGrid now applies CA smoothing to generated terrain. Added 26 tests for smoothing. Fixed significant finding: TerrainGrid now uses config.smoothing_passes when not explicitly provided.
+content_hash: b76fd19a8747a2ff1fa87d1d4da988cde2f0b072ddea15aea805781ca3ee2dca
+token_count: 133

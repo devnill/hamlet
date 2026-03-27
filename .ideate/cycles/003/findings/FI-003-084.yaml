@@ -1,0 +1,18 @@
+id: FI-003-084
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `action_toggle_legend` permanently inoperative — `LegendOverlay` not in widget tree
+description: |
+  - **File**: `src/hamlet/tui/app.py:101`
+  - **Issue**: `compose()` never yielded `LegendOverlay`, so `query_one(LegendOverlay)` always raised `NoMatches`. The bare `except Exception: pass` swallowed this silently.
+  - **Resolution**: Fixed — `LegendOverlay` imported via try/except stub pattern and yielded in `compose()`. Exception handler narrowed to log at DEBUG level.
+file_path: cycles/003/findings/FI-003-084.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-067
+verdict: Fail
+content_hash: "7e2e149111c58a756d9fc9b183d883a2ef60b1d7944a13fc4073ca5317b348e3"
+token_count: 178

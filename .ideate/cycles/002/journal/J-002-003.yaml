@@ -1,0 +1,11 @@
+id: J-002-003
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 2
+title: "Work item 264: Add min_village_distance to Settings"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed from incremental review. Added 5 validation tests for min_village_distance field.
+content_hash: "7563bad709bea88aebf3b0c54790723882f0040ef4938827356fd01abfd5e851"
+token_count: 78

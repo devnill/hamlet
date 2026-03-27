@@ -1,0 +1,76 @@
+id: WI-098
+type: work_item
+title: Final Polish and Error Messages
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - All error messages guide users to fixes (GP-11)
+  - install command detects missing Claude Code and suggests installation
+  - install command detects running MCP server and warns if not running
+  - main() catches common startup errors and prints helpful messages
+  - All user-facing strings reviewed for clarity
+  - Version number bumped to 0.1.0 in pyproject.toml
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 098 - Final Polish and Error Messages
+  
+  ## Scope
+  
+  Review all user-facing strings and error messages for clarity (GP-11).
+  
+  ## Error Message Review
+  
+  ### Installation Errors
+  
+  | Scenario | Current | Improved |
+  |----------|---------|----------|
+  | Claude Code not found | "Claude Code not found" | "Claude Code not found. Install from https://claude.ai/download and try again." |
+  | Settings corrupted | "Invalid JSON" | "Claude Code settings.json is corrupted. Backup created at ~/.claude/settings.json.backup. Please fix or delete the file." |
+  | Server not running | "Connection refused" | "Hamlet server not running. Start with 'hamlet' in another terminal, then run 'hamlet install'." |
+  
+  ### Runtime Errors
+  
+  | Scenario | Current | Improved |
+  |----------|---------|----------|
+  | Port in use | "Port 8080 in use" | "Port 8080 already in use. Change mcp_port in ~/.hamlet/config.json or stop the other process." |
+  | Database locked | "SQLite locked" | "Database busy. If Hamlet is already running, use that instance instead." |
+  | Hook error | Silent fail | Log to ~/.hamlet/hooks.log for debugging |
+  
+  ## Implementation Checklist
+  
+  Review each file:
+  
+  - [ ] `src/hamlet/cli/commands/install.py` - All error messages
+  - [ ] `src/hamlet/__main__.py` - Startup errors
+  - [ ] `src/hamlet/persistence/facade.py` - DB errors
+  - [ ] `src/hamlet/mcp_server/server.py` - Server errors
+  - [ ] Hook scripts - Error logging
+  
+  ## User Experience Improvements
+  
+  1. **Progress indicators** - Show "Starting..." messages
+  2. **First-run welcome** - Brief tutorial on first launch
+  3. **Config validation** - Check values on load, suggest fixes
+  
+  ## Version Bump
+  
+  Update pyproject.toml:
+  ```toml
+  version = "0.1.0"
+  ```
+  
+  ## Final Checklist
+  
+  - [ ] All error messages guide users to fixes
+  - [ ] All user-facing strings reviewed
+  - [ ] Version bumped
+  - [ ] CHANGELOG.md created (optional)
+cycle_created: 1
+cycle_modified: null
+content_hash: "7b4df768109aca17f08f1b3a2af89a51effeca58d8206c8b803fea5970acc25b"
+token_count: 647
+file_path: .ideate/work-items/WI-098.yaml

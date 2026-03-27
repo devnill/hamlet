@@ -1,0 +1,17 @@
+id: F-016-072
+type: finding
+cycle: 16
+reviewer: spec-reviewer
+severity: minor
+title: GP-3 in context package still shows old text
+description: |
+  - **File**: The MCP context package returns the pre-refinement GP-3 text (without Kitty references)
+  - **Impact**: Future reviewers using the MCP context package will see stale principle text. The file on disk is correct.
+file_path: cycles/016/findings/F-016-072.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-016
+verdict: null
+content_hash: ae8fec81c5eac20064603784bcc8ea902974e0e09d7a682f285e4bf63db73a68
+token_count: 130

@@ -1,0 +1,22 @@
+id: WI-256
+type: work_item
+title: Forest Clustering Near Features
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Forests preferentially spawn near water features
+  - Forest density varies by biome region (higher in forest-prone regions)
+  - Forest groves use existing seeding and growth algorithm adapted for new system
+  - Forests form coherent clusters, not scattered cells
+  - Forest percentage configurable via parameter
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: aeca4f69763908974b53d6894b8d069409a15c6296611c7147aaac456380252e
+token_count: 149
+file_path: .ideate/work-items/WI-256.yaml

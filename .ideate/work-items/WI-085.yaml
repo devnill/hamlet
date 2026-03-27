@@ -1,0 +1,136 @@
+id: WI-085
+type: work_item
+title: Viewport Tests - Manager, Coordinates, SpatialIndex, State
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File tests/test_viewport_manager.py exists with test class TestViewportManager
+  - TestViewportManager.test_world_to_screen_translation passes
+  - TestViewportManager.test_scroll_switches_to_free_mode passes
+  - TestViewportManager.test_auto_follow_sets_target passes
+  - TestViewportManager.test_update_follows_agent_position passes
+  - File tests/test_viewport_coordinates.py exists with test class TestCoordinates
+  - TestCoordinates.test_world_to_screen_formula passes
+  - TestCoordinates.test_is_visible_inclusive_bounds passes
+  - File tests/test_viewport_spatial_index.py exists with test class TestSpatialIndex
+  - TestSpatialIndex.test_update_adds_entity passes
+  - TestSpatialIndex.test_query_returns_entities_in_bounds passes
+  - File tests/test_viewport_state.py exists with test class TestViewportState
+  - TestViewportState.test_set_center_switches_to_free passes
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 085 - Viewport Tests
+  
+  ## Scope
+  
+  Test ViewportManager (coordinate translation, follow mode), coordinates (Position, BoundingBox), SpatialIndex (visibility queries), and ViewportState.
+  
+  ## Testing Patterns
+  
+  ### ViewportManager Tests
+  
+  Mock WorldStateManager:
+  
+  ```python
+  @pytest.fixture
+  def viewport():
+      world_state = Mock()
+      return ViewportManager(world_state)
+  ```
+  
+  Test coordinate translation:
+  
+  ```python
+  def test_world_to_screen():
+      viewport._state.center = Position(50, 50)
+      screen = viewport.world_to_screen(Position(60, 60))
+      # screen_x = world_x - center_x + width//2
+      assert screen.x == 60 - 50 + 40  # Assuming width 80
+  ```
+  
+  Test follow mode:
+  
+  ```python
+  def test_auto_follow():
+      viewport.auto_follow("agent123")
+      assert viewport._state.follow_target == "agent123"
+      assert viewport._state.follow_mode == "center"
+  ```
+  
+  Test update follows agent:
+  
+  ```python
+  async def test_update_follows():
+      agent = Mock(position=Position(100, 100))
+      world_state.get_agent.return_value = agent
+  
+      viewport.auto_follow("agent123")
+      await viewport.update()
+  
+      assert viewport._state.center == Position(100, 100)
+  ```
+  
+  ### Coordinates Tests
+  
+  Test Position dataclass:
+  
+  ```python
+  def test_position_creation():
+      pos = Position(x=10.7, y=20.3)
+      assert pos.x == 11  # Rounded to int
+      assert pos.y == 20
+  ```
+  
+  Test BoundingBox:
+  
+  ```python
+  def test_bounding_box_contains():
+      box = BoundingBox(0, 0, 100, 100)
+      assert box.contains(Position(50, 50))
+      assert not box.contains(Position(150, 50))
+  ```
+  
+  ### SpatialIndex Tests
+  
+  Test entity management:
+  
+  ```python
+  def test_update_adds():
+      index = SpatialIndex(cell_size=10)
+      index.update("agent1", Position(5, 5))
+      assert "agent1" in index._entity_cells
+  ```
+  
+  Test query:
+  
+  ```python
+  def test_query_returns_in_bounds():
+      index = SpatialIndex(cell_size=10)
+      index.update("agent1", Position(5, 5))
+      index.update("agent2", Position(100, 100))
+  
+      results = index.query(BoundingBox(0, 0, 20, 20))
+      assert "agent1" in results
+      assert "agent2" not in results
+  ```
+  
+  ## Key Test Scenarios
+  
+  1. **World-to-screen translation** - Formula correctness
+  2. **Screen-to-world translation** - Inverse formula
+  3. **Follow mode activation** - Target set, mode switched
+  4. **Follow mode update** - Center tracks agent
+  5. **Scroll** - Switches to free mode
+  6. **SpatialIndex update** - Adds entities to cells
+  7. **SpatialIndex query** - Returns entities in bounds
+  8. **BoundingBox contains** - Point inclusion
+  9. **Position rounding** - Float to int conversion
+cycle_created: 1
+cycle_modified: null
+content_hash: "34dd2ac929f38565c1c5183f82b908e9270e4289fb791bf7c89af0dca5dfd23a"
+token_count: 964
+file_path: .ideate/work-items/WI-085.yaml

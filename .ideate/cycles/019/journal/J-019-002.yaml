@@ -1,0 +1,12 @@
+id: J-019-002
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 179: New hook scripts — agent/session lifecycle"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed across all 6 scripts — moved find_server_url() call to after os.chdir(cwd) so both config traversal functions use the correct project working directory from hook_input["cwd"].
+  Created: hooks/session_start.py, hooks/session_end.py, hooks/subagent_start.py, hooks/subagent_stop.py, hooks/teammate_idle.py, hooks/task_completed.py
+content_hash: dfb3b4b3aed4de7bc00031206b63073b7b7de1d5a9b045dd95aecdb336a17557
+token_count: 143

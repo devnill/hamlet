@@ -1,0 +1,11 @@
+id: J-012-003
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 12
+title: "Work item 120: Validation schema fix and InternalEvent notification/stop fields"
+content: |
+  Status: complete
+  All 4 acceptance criteria met. 3 minor findings (missing tests for new fields, tool_output schema type) noted, not in WI-120 scope.
+content_hash: b87f82d4292a790475ac44b08ba31f6c8bdfdcec70fb96f86275d75ec0465b9b
+token_count: 87

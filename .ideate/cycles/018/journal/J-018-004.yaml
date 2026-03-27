@@ -1,0 +1,11 @@
+id: J-018-004
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 18
+title: "Cycle 1 — Work item 176: Improve mcp import check in start.sh"
+content: |
+  Status: complete
+  Changed mcp/start.sh import check from "import mcp" to "from mcp.server import Server".
+content_hash: fd6abf004e43494ff0d0ebe68aa09b1a3b926fccbc861b0e0e51900931b6ab7a
+token_count: 72

@@ -1,0 +1,11 @@
+id: J-003-010
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 250: TerrainConfig Parameter System"
+content: |
+  Status: complete
+  TerrainConfig dataclass extended with all adjustable parameters. Parameters include: elevation_scale, moisture_scale, smoothing_passes, forest_grove_count, forest_growth_iterations, water_threshold, mountain_threshold, forest_threshold, meadow_threshold, ridge_count, min_lake_size, lake_expansion_factor, domain_warp_strength, octaves, lacunarity, persistence, plus new parameters: region_scale, region_blending, water_percentage_target, forest_water_adjacency_bonus, forest_region_bias_strength, forest_percentage_target. TerrainGenerator accepts TerrainConfig and uses all parameters.
+content_hash: "80e4cf2940b63829655748db068b0a15ac8c298720481a952d5564fd9fd6304d"
+token_count: 192

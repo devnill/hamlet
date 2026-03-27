@@ -1,0 +1,18 @@
+id: FI-008-008
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `sys.exit(0)` in `finally` silently swallows all exceptions across all five scripts
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/post_tool_use_failure.py:44`, `/Users/dan/code/hamlet/hooks/user_prompt_submit.py:43`, `/Users/dan/code/hamlet/hooks/pre_compact.py:42`, `/Users/dan/code/hamlet/hooks/post_compact.py:42`, `/Users/dan/code/hamlet/hooks/stop_failure.py:43`
+  - **Issue**: The `finally` block runs unconditionally, meaning `sys.exit(0)` fires even when the `except` clause is not reached and no exception was logged. This is the correct behaviour for GP-7. However, `sys.exit()` raises `SystemExit`, so if `sys.exit(0)` is ever placed *inside* the `try` block it would be caught by `except Exception` — it is not here, so the structure is safe. The minor issue is that `sys.exit(0)` in `finally` means any `SystemExit` raised by Python internals (e.g., from `json.load` finding EOF on a closed stdin) also exits 0 rather than propagating the real exit code. During local testing this makes failures invisible at the shell level.
+  - **Suggested fix**: This is an accepted trade-off under GP-7, but consider using `os._exit(0)` or simply calling `sys.exit(0)` unconditionally at the end of `main()` after the try/except (not in a `finally`) so the intent is clearer. Alternatively, leave as-is and document that exit 0 is always enforced.
+file_path: cycles/008/findings/FI-008-008.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-180
+verdict: Fail
+content_hash: "14ae912e8df6fca64e7dfeb2207460c8e944da6d46e21d764698b6a38661ef39"
+token_count: 399

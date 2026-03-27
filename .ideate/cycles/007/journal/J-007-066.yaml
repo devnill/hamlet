@@ -1,0 +1,11 @@
+id: J-007-066
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 087: TUI Integration Tests"
+content: |
+  Status: complete with rework
+  Rework: Fixed app.py compose() to pass world_state and viewport to WorldView. Created 2 test files with 22 tests: test_tui_world_view.py (10 tests), test_tui_app.py (12 tests). All acceptance criteria satisfied.
+content_hash: a915029440b1c403ddee08249ded96aa447edf8057c61e17883dcb70108aac5e
+token_count: 99

@@ -1,0 +1,11 @@
+id: J-007-006
+type: journal_entry
+phase: brrr
+date: "2026-03-20"
+cycle_created: 7
+title: "Cycle 4 — Work item 210: Agent despawn infrastructure"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (test had wrong exception expectation — log_event re-raises, doesn't swallow). 1 minor fixed (grid vacate exception now logs warning). Pre-existing test_persistence_facade @pytest.mark.asyncio decorators removed. writer.py needed no changes — existing _TABLE_MAP + _delete_entity already handles agent deletes.
+content_hash: "50da826ab2d0e6b4f57413446420c3e35d00771cb822044d3677a8b63920787a"
+token_count: 136

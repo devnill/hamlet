@@ -1,0 +1,39 @@
+id: F-012-048
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Missing Parameters in Map Viewer Parameter Panel
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/tui/parameter_panel.py:21-37`
+  - **Issue**: The `TERRAIN_PARAMS` list does not include the following TerrainConfig parameters that were added in WI-254, WI-255, and WI-256:
+    - `region_scale` (WI-254)
+    - `region_blending` (WI-254)
+    - `river_count` (WI-255)
+    - `pond_count` (WI-255)
+    - `min_pond_size` (WI-255)
+    - `max_pond_size` (WI-255)
+    - `water_percentage_target` (WI-255)
+    - `forest_water_adjacency_bonus` (WI-256)
+    - `forest_region_bias_strength` (WI-256)
+    - `forest_percentage_target` (WI-256)
+  - **Impact**: Users cannot adjust these parameters through the map viewer interface, despite them being configurable in TerrainConfig and persisted in settings.
+  - **Suggested fix**: Add these parameters to `TERRAIN_PARAMS` with appropriate min/max/step values:
+    ```python
+    TERRAIN_PARAMS = [
+        # ... existing params ...
+        ("region_scale", "Region Scale", 50.0, 200.0, 10.0, "Biome region size (cells)"),
+        ("region_blending", "Region Blend", 0.0, 1.0, 0.1, "Biome transition sharpness"),
+        ("river_count", "Rivers", 0, 10, 1, "Number of rivers (0=auto)"),
+        ("pond_count", "Ponds", 0, 20, 1, "Number of ponds (0=auto)"),
+        # etc.
+    ]
+    ```
+file_path: cycles/012/findings/F-012-048.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-012
+verdict: Fail
+content_hash: b3b51e5da54f613c2dc3bfff20a99db91b7264e921e4fde7104cfef641373e20
+token_count: 395

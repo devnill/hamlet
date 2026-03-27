@@ -1,0 +1,11 @@
+id: J-015-007
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 146: Consolidate AgentType enum"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed (added AGENT_BASE_COLORS alias in animation.py; removed WSAgentType conversion in engine.py). 1 minor fixed (round-trip conversion in get_animation_color removed).
+content_hash: "9ca8e76bf37c3834dce2218d912c9b11ef7ad358e0bed27f2cbdbc42ebad852c"
+token_count: 100

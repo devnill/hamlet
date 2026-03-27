@@ -1,0 +1,11 @@
+id: J-003-003
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 258: Fix Water Bias Formula Documentation"
+content: |
+  Status: complete
+  Updated comment in terrain.py line 651 from "Max ±0.3 adjustment" to "Max ±0.15 adjustment" to match actual formula output.
+content_hash: f3793b04c6a98cf932da8339a89d48ab7845db79331a4cafec77be2d52e4f1ef
+token_count: 79

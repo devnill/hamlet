@@ -1,0 +1,11 @@
+id: J-009-003
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 104: WorldStateManager public accessors"
+content: |
+  Status: complete with rework
+  Rework: 1 critical finding fixed (C1: handle_event omitted required `id` field in EventLogEntry — added `id=str(uuid.uuid4())`). 2 significant findings fixed (S1: type annotation updated from Any to InternalEvent; S2/S3: test_expansion.py and test_viewport_manager.py fixtures updated to use AsyncMock for get_all_villages/get_all_agents/get_all_structures instead of _state stubs). 1 minor finding fixed (M1: EventLogEntry construction moved inside lock block).
+content_hash: "28b416eaf8be6eecb9b996a88edda1e3df6330b78eb6b148bbcea9a626c4f3fa"
+token_count: 165

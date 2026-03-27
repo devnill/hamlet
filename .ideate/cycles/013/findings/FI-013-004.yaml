@@ -1,0 +1,18 @@
+id: FI-013-004
+type: finding
+cycle: 13
+reviewer: code-reviewer
+severity: minor
+title: Stale LegendOverlay docstring
+description: |
+  - **File**: `src/hamlet/tui/legend.py:13`
+  - **Issue**: Docstring references HamletApp but toggle is now also wired in MapApp. Esc dismissal not implemented in MapApp.
+  - **Suggested fix**: Update docstring to mention both apps, or make it generic.
+file_path: cycles/013/findings/FI-013-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: null
+verdict: Pass
+content_hash: c425934c22c786fbae519f27d9cddbbdad30fcc342b27ee550c40f962a3fbb27
+token_count: 133

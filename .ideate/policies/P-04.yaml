@@ -1,0 +1,13 @@
+id: P-04
+type: domain_policy
+domain: visualization
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: New agents spawn near their parent (within 3 cells). Team/session agents cluster together.
+cycle_created: 1
+cycle_modified: null
+content_hash: "5b269e988168c7a55b4f42cdd64fffa51136343c9b6bb7b20259386860b4b088"
+token_count: 82
+file_path: .ideate/policies/P-04.yaml

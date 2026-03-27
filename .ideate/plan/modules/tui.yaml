@@ -1,0 +1,52 @@
+id: module_spec-tui
+type: module_spec
+name: TUI
+scope: |
+  This module owns the terminal user interface built with Textual. It is responsible for:
+  
+  - Rendering the world view (agents, structures, terrain)
+  - Displaying the status line (agent count, structure count, project name)
+  - Showing the event log (scrollable list of recent events)
+  - Handling user input (scroll, menu navigation, legend)
+  - Managing overlays (legend, help, menus)
+  - Refreshing display at configurable frame rate
+  
+  This module is NOT responsible for:
+  
+  - Managing world state (World State module)
+  - Game logic (Simulation module)
+  - Coordinate translation (Viewport module)
+provides:
+  - `HamletApp` class — Main Textual application
+  - - `async run_async()` — Start the TUI
+  - - `request_refresh()` — Request immediate redraw
+  - `WorldView` widget — Main world rendering area
+  - - Renders agents as `@` with type-based colors
+  - - Renders structures based on type and stage
+  - - Handles scroll input
+  - `StatusBar` widget — Status line at top
+  - - Shows agent count, structure count, active project
+  - - Shows viewport position
+  - `EventLog` widget — Scrollable event list at bottom
+  - - Shows recent events in chronological order
+  - - Auto-scrolls to show latest
+  - `LegendOverlay` widget — Legend display (toggleable)
+  - - Shows agent types and colors
+  - - Shows structure symbols
+requires:
+  - `WorldState` (from World State module) — Query entities for rendering
+  - - `get_agents_in_view(bounds) -> List[Agent]`
+  - - `get_structures_in_view(bounds) -> List[Structure]`
+  - - `get_event_log(limit) -> List[EventLogEntry]`
+  - `ViewportManager` (from Viewport module) — Coordinate translation
+  - - `get_visible_bounds() -> BoundingBox`
+  - - `world_to_screen(pos) -> Position`
+  - `asyncio` — Event loop integration
+boundary_rules:
+  - "1. **No game logic.** TUI only renders state; it never modifies World State directly."
+  - "2. **Frame-rate limited.** Rendering happens at fixed frame rate (default 30 FPS), not on every state change."
+  - "3. **Input delegation.** User input (scroll, etc.) goes through Viewport module; TUI only handles raw input events."
+  - "4. **Widget hierarchy.** Textual widget hierarchy must not leak into other modules."
+  - "5. **No business logic.** Symbol mappings, colors, and animations are defined here; not in World State."
+content_hash: "3e688de9d414675182208ecec785db14d66ee9d6fe88fa49570787fcec37011d"
+token_count: 578

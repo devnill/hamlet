@@ -1,0 +1,11 @@
+id: J-011-005
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 11
+title: "Work item 114: Inference engine fixes"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (S1: added TTL eviction in _update_zombie_states — stale pending_tools entries older than ZOMBIE_THRESHOLD_SECONDS are evicted and active_tools decremented). 1 significant finding fixed (S2: active_tools decrement now tied to successful pending_tools eviction — only decrements when matching_key found). 2 minor findings (M1, M2) noted in review, deferred.
+content_hash: "2cf5175140231db2f60111b8e9ae11fa6b00a36bf5a882df88c1793120e3dadf"
+token_count: 145

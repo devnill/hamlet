@@ -1,0 +1,18 @@
+id: FI-003-015
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `start()` used deprecated `asyncio.get_event_loop().create_task()`
+description: |
+  - **File**: `src/hamlet/event_processing/event_processor.py:72`
+  - **Issue**: `asyncio.get_event_loop()` is deprecated in Python 3.10+ when not called from within a running coroutine. Using it from a synchronous `start()` method is unreliable.
+  - **Fix**: Made `start()` async and replaced with `asyncio.create_task()`, which requires being called from a running coroutine — the correct usage pattern in this application.
+file_path: cycles/003/findings/FI-003-015.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-014
+verdict: Pass
+content_hash: f588166c6d7d6defb0a9a2e34c7696048cccb606d875ffc8604b34d5fd663a47
+token_count: 187

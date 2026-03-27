@@ -1,0 +1,11 @@
+id: J-005-004
+type: journal_entry
+phase: brrr
+date: "2026-03-21"
+cycle_created: 5
+title: "Cycle 7 — Work item 218: Add 5 missing methods to WorldStateProtocol"
+content: |
+  Status: complete with rework
+  Rework: C1 fixed (WorldStateProtocol.found_village missing originating_village_id param); C2 fixed (RemoteWorldState.found_village stub same); S1 fixed (hasattr guard removed from create_road_between); S2 fixed (warning log removed from create_structure stub); M1 fixed (structure_type type annotation corrected). Test for removed guard behavior deleted.
+content_hash: "208ff04e8f718ebf4ec8e9d04285e447a9bc577316dc66fc9cda424359bbcdfa"
+token_count: 142

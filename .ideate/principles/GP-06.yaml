@@ -1,0 +1,16 @@
+id: GP-06
+type: guiding_principle
+name: Deterministic Agent Identity
+status: active
+description: |
+  Agent appearance and behavior should be deterministic based on extractable properties: type (researcher, coder, planner, etc.) determines color, team/session determines spatial clustering, idle time determines visual state (zombie effect).
+  
+  **Why:** User specified: "deterministic" for color assignment, "agents on the same team or session should prefer to be close together," and agents not heard from "could turn a greenish hue to look like a zombie."
+  
+  **How to apply:** Derive color from a hash of agent type, not random assignment. Group agents by session/team for proximity calculations. Track last-seen timestamp per agent for idle detection.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: df58b3552a01f9200c5f1b52ff13e16e371239fbfb490f7851531f1272b6af1f
+token_count: 219
+file_path: .ideate/principles/GP-06.yaml

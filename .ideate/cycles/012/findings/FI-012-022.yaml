@@ -1,0 +1,20 @@
+id: FI-012-022
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Meadow-plain transition creates grassland gradients
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:_apply_smoothing_rule`
+  - **Issue**: Plains with 5+ meadow neighbors become meadow, and meadows with 5+ plain neighbors become plain. This creates gradual grassland transitions.
+  - **Impact**: Eliminates sharp meadow/plain boundaries.
+  
+  ---
+file_path: cycles/012/findings/FI-012-022.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-257
+verdict: null
+content_hash: a9b23fcf44c1d276e645d4184e5a37e1ce32309b07145e13ea4e1198d9027d07
+token_count: 156

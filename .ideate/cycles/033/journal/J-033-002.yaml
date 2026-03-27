@@ -1,0 +1,11 @@
+id: J-033-002
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 33
+title: "Work item 275: Remove notcurses backend"
+content: |
+  Status: complete
+  Deleted gui/notcurses/ directory, 3 notcurses test files, and 2 additional test files (test_sprites.py, test_zoom.py) that referenced notcurses. Updated detect.py, settings.py, cli/__init__.py, __main__.py with temporary stubs. Also cleaned up doctor.py, gui/__init__.py, renderer_protocol.py docstrings, and updated test_cli.py, test_renderer_detect.py, test_settings.py.
+content_hash: b6a7b9947ab5af86b1bd2f055f200976bc28fddeeabff790a73778fa7a2fcf4f
+token_count: 137

@@ -1,0 +1,17 @@
+id: FI-003-150
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `if event.duration_ms` falsy for `duration_ms=0` — should be `is not None`
+description: |
+  - **File**: `src/hamlet/inference/engine.py:274`
+  - **Issue**: `if event.duration_ms` evaluates False for 0, diverging from the spec's stated `is not None` semantics.
+file_path: cycles/003/findings/FI-003-150.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-106
+verdict: Pass
+content_hash: "7ba647d9d9d93f47fd7bb1d0bdf6ad920f5447d7600ede3c5cf298c1ddf2e84d"
+token_count: 124

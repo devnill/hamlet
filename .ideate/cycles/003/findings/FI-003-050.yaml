@@ -1,0 +1,18 @@
+id: FI-003-050
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `work_units` accumulated unboundedly on max-stage (stage 3) structures
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:532`
+  - **Issue**: `nearest_structure.work_units += units` ran unconditionally before the `if current_stage < 3` check. On a completed structure (`stage == 3`, `work_required == 0`), work_units grew without bound on every call — a silent corruption visible in any progress display.
+  - **Resolution**: Fixed — moved `nearest_structure.work_units += units` inside the `if current_stage < 3:` block so max-stage structures receive no further accumulation.
+file_path: cycles/003/findings/FI-003-050.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-037
+verdict: Fail
+content_hash: e74fbb00f043d5a17539b1a58e89d25e6045a061563284bd2c34f5cf1ab95078
+token_count: 207

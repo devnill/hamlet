@@ -1,0 +1,17 @@
+id: RM-014
+type: review_manifest
+cycle: 14
+content: |
+  # Review Manifest — Cycle 014
+  
+  ## Work Items
+  
+  | # | Title | File Scope | Incremental Verdict | Findings (C/S/M) | Work Item Path | Review Path |
+  |---|---|---|---|---|---|---|
+  | 264 | Add min_village_distance to Settings | config/settings.py, world_state/manager.py | Pass (in-session) | 0/0/1 | work-items.yaml#264 | — |
+  | 265 | Add hamlet settings CLI command | cli/commands/settings_cmd.py, cli/__init__.py | Pass (after rework) | 0/2/1 | work-items.yaml#265 | — |
+  | 266 | Add periodic config reload to daemon | cli/commands/daemon.py, config/settings.py | Pass (after rework) | 0/2/1 | work-items.yaml#266 | — |
+  
+  Note: Incremental reviews were conducted in-session during execution. All findings were fixed before completion. No separate review files were written to archive/incremental/.
+content_hash: "2a654fbe93839592247146b372508fcfc07a023927805f607681f5bc3e4901c3"
+token_count: 216

@@ -1,0 +1,11 @@
+id: J-015-018
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 157: Fix LegendOverlay visible reactive"
+content: |
+  Status: complete with rework
+  Rework: S1 (3 tests rewritten with async app-context pattern), S2 (BINDINGS/on_key/actions removed from LegendOverlay), M1 (test_no_bindings uses __dict__ check).
+content_hash: "3743eceb1bc10d0edefd43031d573e430afbd873628bf07f65cf2dbe1db02c5e"
+token_count: 92

@@ -1,0 +1,105 @@
+id: WI-177
+type: work_item
+title: Add server_url parameter to hamlet_init
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - hamlet_init inputSchema includes an optional server_url string property
+  - hamlet_init tool description mentions the server_url parameter
+  - "When server_url is provided, the config is written with that value instead of the default http://localhost:8080/hamlet/event"
+  - When server_url is not provided, the config is written with the default value (behavior unchanged)
+  - The arguments None guard (arguments = arguments or {}) remains in place
+module: null
+domain: null
+notes: |
+  # WI-177 Notes: Add server_url parameter to hamlet_init
+  
+  ## Context
+  Users running hamlet on a non-default port must currently edit `.hamlet/config.json` manually after running hamlet_init. Adding an optional `server_url` parameter allows setting it at init time.
+  
+  ## File to modify
+  `/Users/dan/code/hamlet/mcp/server.py`
+  
+  ## Current inputSchema (line 33-38)
+  ```python
+  inputSchema={
+      "type": "object",
+      "properties": {
+          "path": {
+              "type": "string",
+              "description": "Project root directory. Defaults to current working directory."
+          }
+      },
+      "required": []
+  }
+  ```
+  
+  ## Desired inputSchema
+  ```python
+  inputSchema={
+      "type": "object",
+      "properties": {
+          "path": {
+              "type": "string",
+              "description": "Project root directory. Defaults to current working directory."
+          },
+          "server_url": {
+              "type": "string",
+              "description": "URL of the hamlet daemon event endpoint. Defaults to http://localhost:8080/hamlet/event."
+          }
+      },
+      "required": []
+  }
+  ```
+  
+  ## Current tool description (line 23-28)
+  ```python
+  description=(
+      "Initialize hamlet for the current project. Creates .hamlet/config.json "
+      "with a unique project_id, project_name, and server_url. "
+      "Optionally accepts a path argument to specify the project root "
+      "(defaults to current working directory). "
+      "Run this once per project before using hamlet."
+  ),
+  ```
+  
+  ## Desired tool description
+  Add mention of server_url parameter:
+  ```python
+  description=(
+      "Initialize hamlet for the current project. Creates .hamlet/config.json "
+      "with a unique project_id, project_name, and server_url. "
+      "Optionally accepts a path argument to specify the project root "
+      "(defaults to current working directory) and a server_url argument "
+      "to set a custom daemon endpoint (defaults to http://localhost:8080/hamlet/event). "
+      "Run this once per project before using hamlet."
+  ),
+  ```
+  
+  ## Config write change (line 49-53)
+  ```python
+  # Current
+  config = {
+      "project_id": str(uuid.uuid4()),
+      "project_name": project_root.name,
+      "server_url": "http://localhost:8080/hamlet/event"
+  }
+  
+  # Desired
+  default_server_url = "http://localhost:8080/hamlet/event"
+  config = {
+      "project_id": str(uuid.uuid4()),
+      "project_name": project_root.name,
+      "server_url": arguments.get("server_url") or default_server_url
+  }
+  ```
+  
+  The `arguments or {}` guard is already in place at line 48, so `arguments.get("server_url")` is safe.
+cycle_created: 1
+cycle_modified: null
+content_hash: "12d2883b846a138de6d57bcd165ec4482082746c8ee30f863e5f5aefb44dc5f3"
+token_count: 852
+file_path: .ideate/work-items/WI-177.yaml

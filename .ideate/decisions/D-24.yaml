@@ -1,0 +1,13 @@
+id: D-24
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: min_village_distance moved to configurable Settings field
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "8833e314d1a97ff1a50292892a4a3dc761c6cfaf0f769f406957766b8a4ffa8e"
+token_count: 70
+file_path: .ideate/decisions/D-24.yaml

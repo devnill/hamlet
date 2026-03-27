@@ -1,0 +1,24 @@
+id: FI-001-007
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: significant
+title: No test files
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/`
+  - **Issue**: There are no test files for this module. Acceptance criteria include testing happy path and error paths.
+  - **Impact**: No verification that the code works correctly. Edge cases (rapid start/stop, error conditions) are untested.
+  - **Suggested fix**: Create `tests/test_mcp_server.py` with tests for:
+    - `start()` creates task and sets running flag
+    - `stop()` cancels task and cleans up
+    - `get_event_queue()` returns a queue
+    - Event notification handler pushes to queue
+    - Schema validation rejects malformed events
+file_path: cycles/001/findings/FI-001-007.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: "9aa227c2c117167f691ca5eca4571b2c68b82dbd4c6d0630e2aba9c34df274b4"
+token_count: 219

@@ -1,0 +1,11 @@
+id: J-008-014
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 8
+title: "Work item 099: AgentType enum consolidation"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed. TYPE_COLORS[EXECUTOR] changed from "green" to "cyan" (zombie color collision); AGENT_COLORS[PLANNER] changed from "green" to "dark_green" (zombie collision + mismatch with TYPE_COLORS). Both dicts now consistent.
+content_hash: "4b102fb8b438c264818ff042c49a778cd86e4018ccf05c08c94d8821207c0a73"
+token_count: 113

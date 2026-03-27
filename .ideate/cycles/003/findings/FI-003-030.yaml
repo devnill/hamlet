@@ -1,0 +1,15 @@
+id: FI-003-030
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: No test for AgentType enum conversion correctness
+description: "- **Resolution**: Fixed — `test_handle_post_tool_use_updates_agent_when_type_inferred` updated to assert `WSAgentType.RESEARCHER` (world_state enum) not `inference AgentType.RESEARCHER`."
+file_path: cycles/003/findings/FI-003-030.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-024
+verdict: Fail
+content_hash: "6a73a97da02d63a666b9cf49e35eb14c5e2f2b04e8aa804121d026de162ec31c"
+token_count: 124

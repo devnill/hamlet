@@ -1,0 +1,51 @@
+id: module_spec-simulation
+type: module_spec
+name: Simulation
+scope: |
+  This module owns the game loop and world progression. It is responsible for:
+  
+  - Running the simulation tick loop (independent of event arrival)
+  - Advancing construction progress based on accumulated work units
+  - Evolving structures (wood -> stone -> brick)
+  - Building roads between nearby villages
+  - Managing agent animation states (spin, idle, pulse)
+  - Detecting zombie/timeout state for inactive agents
+  - Triggering village expansion and new settlement founding
+  
+  This module is NOT responsible for:
+  
+  - Processing events (Event Processing module)
+  - Storing state (World State module)
+  - Rendering (TUI module)
+provides:
+  - `SimulationEngine` class — Main simulation loop
+  - - `async start()` — Begin simulation tick loop
+  - - `async stop()` — Graceful shutdown
+  - "- `set_tick_rate(rate: float)` — Adjust simulation speed"
+  - `SimulationState` dataclass — Current simulation state
+  - "- `tick_count: int`"
+  - "- `last_tick_at: datetime`"
+  - "- `running: bool`"
+  - `SimulationConfig` dataclass — Configuration
+  - "- `tick_rate: float` — Ticks per second (default: 30)"
+  - "- `work_unit_scale: float` — Work units per ms (default: 0.01)"
+  - "- `zombie_threshold: timedelta` — Idle time before zombie (default: 5 min)"
+  - "- `expansion_threshold: int` — Agents before expansion (default: 20)"
+requires:
+  - `WorldState` (from World State module) — Query and update entities
+  - - `get_all_villages() -> List[Village]`
+  - - `get_agents_by_village(village_id) -> List[Agent]`
+  - - `get_structures_by_village(village_id) -> List[Structure]`
+  - - `update_agent(agent_id, fields)`
+  - - `update_structure(structure_id, fields)`
+  - - `create_road(village_id, start, end)`
+  - - `expand_village(village_id)`
+  - `asyncio` — Timer-based execution
+boundary_rules:
+  - "1. **No event dependency.** Simulation runs independently of event arrival. If no events occur, simulation continues (agents become idle, structures pause)."
+  - "2. **No rendering.** Simulation updates state only. TUI reads state and renders."
+  - "3. **Time-based progression.** Work units are converted to progress based on simulation time, not event timestamps."
+  - "4. **Idempotent ticks.** Each tick produces deterministic results given the same state. No random state mutations."
+  - "5. **Non-blocking.** Each tick must complete within a bounded time (target: < 10ms for 100 agents)."
+content_hash: "269dbd251c13ef00affef3e1d1397e1ed5483957ffdb8cf17c07fece1003ebf1"
+token_count: 598

@@ -1,0 +1,11 @@
+id: J-007-057
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 025: Idle and Zombie Detection"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed (S1: _handle_post_tool_use never updated last_seen — any tool call >300s would falsely trigger zombie promotion while agent was still active; added last_seen update at end of _handle_post_tool_use. S2: get_display_color docstring incorrectly claimed alternation behavior; updated to accurately document MVP always-green behavior for zombies). 2 minor findings fixed (M1: added ValueError guard to blend_color for ratio outside [0.0,1.0]; M2: added docstring note to _update_zombie_states documenting scope invariant).
+content_hash: e55b52cb1d769b1134220f495f0ef20a5918bf3e127bebf4d5d829629c157729
+token_count: 186

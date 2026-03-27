@@ -1,0 +1,19 @@
+id: F-013-057
+type: finding
+cycle: 13
+reviewer: code-reviewer
+severity: minor
+title: `map_app.py` accesses `MapViewer._terrain_grid` directly (private attribute)
+description: |
+  - **File**: `src/hamlet/tui/map_app.py:195`
+  - **Issue**: `map_viewer._terrain_grid = self._terrain_grid` bypasses encapsulation by directly setting a private attribute. `MapViewer` has no public setter for the terrain grid. WI-261 added the `get_visible_bounds` public utility extraction, which moves in the right direction for clean interfaces, but the regeneration path in `_on_param_change` and `_on_seed_change` still uses the private attribute.
+  - **Impact**: Low. No behavioral issue in this cycle, but it means changes to `MapViewer` internals must account for callers that reach into `_terrain_grid`. A `MapViewer.set_terrain_grid(grid)` method would make the interface explicit.
+  - **Note**: This pattern predates cycle 013 — not introduced by WI-261. Recording here for completeness.
+file_path: cycles/013/findings/F-013-057.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-013
+verdict: Pass
+content_hash: "664c78334db76d06a81b820dfe7e4856f05900e26ec9f1c5b7947213dc00a3a8"
+token_count: 282

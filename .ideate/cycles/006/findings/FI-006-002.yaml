@@ -1,0 +1,17 @@
+id: FI-006-002
+type: finding
+cycle: 6
+reviewer: code-reviewer
+severity: minor
+title: _handle_stop() only logs when stop_reason is non-None
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/inference/engine.py`
+  - **Issue**: Same pattern as M1. Acceptable given the field is always populated by the Stop hook.
+file_path: cycles/006/findings/FI-006-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-122
+verdict: Pass
+content_hash: "67a37712d3777d70d9967552fc775c37fb9d7732fd4df3fc67283c3b19d9bbec"
+token_count: 119

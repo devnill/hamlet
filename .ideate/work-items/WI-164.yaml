@@ -1,0 +1,49 @@
+id: WI-164
+type: work_item
+title: Fix EXECUTOR agent type color to avoid error-color collision
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - AgentType.EXECUTOR is mapped to "cyan" (or another non-red, non-green color) in TYPE_COLORS
+  - AgentType.EXECUTOR is mapped to the same color in AGENT_COLORS (symbols.py) if it exists there
+  - legend.py renders the EXECUTOR entry with the correct matching color
+  - No active agent type uses "red" (red reserved for error states per Principle 3)
+  - No two active agent types share the same base color
+module: null
+domain: null
+notes: |
+  # WI-164: Fix EXECUTOR agent type color to avoid error-color collision
+  
+  ## Context
+  Principle 3 states: "Color should indicate status (green=zombie/idle, white=active, red=error)." Red is reserved for error states. However, AgentType.EXECUTOR has base color "red" in TYPE_COLORS, meaning a healthy working EXECUTOR agent looks identical to an error state.
+  
+  Additionally, legend.py renders EXECUTOR as green (the old color from before a prior refactor), but the actual color is "red" — creating a misleading legend entry.
+  
+  ## Changes
+  
+  ### src/hamlet/inference/types.py
+  Change EXECUTOR color from "red" to "cyan":
+  ```python
+  AgentType.EXECUTOR: "cyan",
+  ```
+  
+  Verify no other agent type already uses "cyan". If RESEARCHER uses "cyan", pick a different unique color (e.g., "bright_magenta", "dark_orange", "bright_cyan").
+  
+  ### src/hamlet/tui/legend.py (or symbols.py if AGENT_COLORS exists there)
+  Update the EXECUTOR legend entry to display the correct color. Read legend.py to find the exact EXECUTOR line and update it to match the new color from TYPE_COLORS.
+  
+  If symbols.py has an AGENT_COLORS dict that also maps EXECUTOR, update it there too.
+  
+  ## Notes
+  - Read inference/types.py to see all current color assignments — pick a color not already used by another agent type
+  - Read legend.py to find the EXECUTOR color reference
+  - Read symbols.py if it exists — it may also have color mappings that need updating
+  - Ensure no two active agent types share the same base color after this change
+cycle_created: 1
+cycle_modified: null
+content_hash: be87ccc808363bc95f3ac72db68518ccd2d3e9e51a3204ed1482262d49ef8a4f
+token_count: 562
+file_path: .ideate/work-items/WI-164.yaml

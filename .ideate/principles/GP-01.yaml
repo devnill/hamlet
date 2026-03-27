@@ -1,0 +1,16 @@
+id: GP-01
+type: guiding_principle
+name: Visual Interest Over Accuracy
+status: active
+description: |
+  The primary goal is a fun, visually engaging idle game. Agent activity should produce frenetic, interesting visuals. Debounce similar actions to prevent visual spam, but otherwise allow high event throughput to create activity. When in doubt, choose the option that makes the screen more interesting to watch.
+  
+  **Why:** User explicitly stated "more work in claude code to yield a more visually interesting and frenetic screen." The idle game is the primary interface; observability is a future benefit.
+  
+  **How to apply:** When designing event handling, prefer real-time visual feedback over queued/aggregate display. When mapping tools to actions, prioritize visual variety over semantic precision.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: "2273c19866f1f101d01bebe7b57bdd3b7b1c800a78cf214ccb9371beb92d7083"
+token_count: 231
+file_path: .ideate/principles/GP-01.yaml

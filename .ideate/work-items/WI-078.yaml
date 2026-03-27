@@ -1,0 +1,29 @@
+id: WI-078
+type: work_item
+title: State Loading
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/persistence/loader.py` exists
+  - "`StateLoader` class with `__init__(db: DatabaseConnection)`"
+  - `async load_state() -> WorldStateData` loads all entities from database
+  - Loads projects, sessions, villages, agents, structures, metadata tables
+  - Converts database rows to dataclass instances
+  - Parses JSON fields (agent_ids, config_json)
+  - Parses ISO timestamps to datetime objects
+  - Returns `WorldStateData` with all lists populated
+  - Handles empty database gracefully (returns empty lists)
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 078
+  
+  Loading reads all tables and converts rows to dataclasses. Position fields (x, y) are stored as separate columns and combined into Position objects. Metadata is stored as key-value pairs and returned as dict.
+cycle_created: 1
+cycle_modified: null
+content_hash: "648e5bfc634e8644d60484866f0f7559a0623a67c960e80798d821e6960fee8a"
+token_count: 254
+file_path: .ideate/work-items/WI-078.yaml

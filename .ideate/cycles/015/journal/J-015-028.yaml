@@ -1,0 +1,11 @@
+id: J-015-028
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 15
+title: "Cycle 4 — Work item 165: Persist viewport center to world_metadata across restarts"
+content: |
+  Status: complete with rework
+  Rework: C1 (update_viewport_center mutated world_metadata without lock — added async with self._lock), C2 (_dirty_center cleared before write completed — moved clear to after successful await), S1 (EntityType Literal missing "world_metadata" — added to types.py), S2 (no tests — added 6 tests to test_viewport_manager.py; all 271 tests pass).
+content_hash: "462541f5ddac2519dc20958513afb4bc8967335103aa32ddb2c4994bef2cc88f"
+token_count: 143

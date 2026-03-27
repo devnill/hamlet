@@ -1,0 +1,19 @@
+id: FI-003-167
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: Summarizer call blocks the event pipeline
+description: |
+  - **File**: `src/hamlet/inference/engine.py:279`
+  - **Issue**: `await self._summarizer.summarize(...)` called inline in `_handle_post_tool_use`. Under sustained activity, every PostToolUse event could wait up to 5s (the timeout) before the engine processes the next event. Guiding principle explicitly requires the call not block the pipeline.
+  - **Impact**: Type inference, zombie detection, and work-unit accounting stall for all sessions during summarizer execution.
+  - **Suggested fix**: Use `asyncio.create_task(_summarize_and_update(...))` — fire and forget.
+file_path: cycles/003/findings/FI-003-167.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-111
+verdict: Pass
+content_hash: "36aa0f8df776fd8c414a073d2817185e754ffea218d5567c6963a431c7a80797"
+token_count: 217

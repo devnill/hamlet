@@ -1,0 +1,18 @@
+id: FI-008-009
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `hook_input` is read from stdin before `find_server_url()` returns in all five scripts
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/post_tool_use_failure.py:16-18` (and equivalents in all five scripts)
+  - **Issue**: `find_server_url()` is called first, then `json.load(sys.stdin)`. If `find_server_url()` raises (it catches its own exceptions internally, so this won't happen in practice), stdin would be unconsumed. The reference pattern `notification.py` uses the same ordering, so this is consistent. The real observation is that the ordering is `find_server_url → json.load(stdin) → find_config`, whereas the reference script uses the same order. No bug, but reading stdin *before* potentially slow disk I/O (`find_config` walks directories) would reduce the window in which Claude Code's write end of the pipe blocks. Low priority given the 1-second HTTP timeout dominates.
+  - **Suggested fix**: Reorder to `json.load(sys.stdin)` first, then `find_server_url`, then `find_config`. This matches the natural data-dependency order and unblocks stdin immediately.
+file_path: cycles/008/findings/FI-008-009.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-180
+verdict: Fail
+content_hash: "4a3b753da68274b7eeaf84d2839743262508667a11776281cf30eef69bf45855"
+token_count: 329

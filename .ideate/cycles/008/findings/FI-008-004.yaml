@@ -1,0 +1,18 @@
+id: FI-008-004
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `find_server_url()` also ignores `cwd`
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/session_start.py:16` (same in all 6)
+  - **Issue**: `find_server_url()` in `hamlet_hook_utils` traverses from `os.getcwd()` upward looking for a project-level `server_url` override. Because the scripts do not `os.chdir(cwd)` before calling `find_server_url()`, the same wrong-cwd problem applies to server URL resolution. If the fix for C1 is applied with `os.chdir()` before both utility calls (as shown), this is resolved automatically. If a non-chdir approach is chosen for `find_config()`, `find_server_url()` needs a parallel fix.
+  - **Suggested fix**: Apply the `os.chdir(cwd)` fix before both `find_server_url()` and `find_config()` calls, so both utilities operate in the correct directory context.
+file_path: cycles/008/findings/FI-008-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-179
+verdict: Fail
+content_hash: "5d1118c644475181f24d3edf61b3207a75dbd84179b7b04b440778c493bc8f7c"
+token_count: 260

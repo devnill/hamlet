@@ -1,0 +1,18 @@
+id: FI-005-005
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: Bare write_text call missing encoding argument in install.py
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/cli/commands/install.py:352`
+  - **Issue**: `hamlet_config_path.write_text(json.dumps(existing, indent=2))` omits the `encoding` argument. Every other file write in this module (lines 122, 161, 199) specifies `encoding="utf-8"`. On a system where the default locale encoding is not UTF-8, this write could fail or produce mojibake if any existing config value contains non-ASCII characters.
+  - **Suggested fix**: `hamlet_config_path.write_text(json.dumps(existing, indent=2), encoding="utf-8")`
+file_path: cycles/005/findings/FI-005-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-121
+verdict: Pass
+content_hash: "00460bf749937ed2188d7dffe1237cb572564b929128c7edb93148198171da82"
+token_count: 215

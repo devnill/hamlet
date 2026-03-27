@@ -1,0 +1,14 @@
+id: Q-13
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: destroy_plane return value not checked in notcurses bindings
+cycle_created: 1
+cycle_modified: null
+content_hash: "7f021fb839ab1029c713518c652b01f6e4e3d81d7af3476bc57b0650d0f8bf7a"
+token_count: 74
+file_path: .ideate/questions/Q-13.yaml

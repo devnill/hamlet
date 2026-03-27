@@ -1,0 +1,25 @@
+id: FI-008-006
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `stop_failure.py` double-evaluates `hook_input.get("error")` with `or {}`
+description: |
+  - **File**: `/Users/dan/code/hamlet/hooks/stop_failure.py:29-30`
+  - **Issue**: The expression `(hook_input.get("error") or {}).get("type", "")` is repeated identically on consecutive lines. If the `error` key is present but falsy (e.g. `0`, empty string, `False`), it is silently replaced with `{}` and both fields default to `""`. Assigning the error dict to a local variable once would eliminate the duplication and the double evaluation.
+  - **Suggested fix**:
+    ```python
+    error_dict = hook_input.get("error") or {}
+    "error": {
+        "type": error_dict.get("type", ""),
+        "reason": error_dict.get("reason", ""),
+    },
+    ```
+file_path: cycles/008/findings/FI-008-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-180
+verdict: Pass
+content_hash: f1bfd8eba79bec188d50916ddb2a7a8829b6101e249e1311e40ba3456b2520fd
+token_count: 248

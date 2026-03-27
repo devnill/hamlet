@@ -1,0 +1,14 @@
+id: Q-08
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: inference/colors.py potentially dead code
+cycle_created: 1
+cycle_modified: null
+content_hash: "3dbe800605275a51d747f81b1d238e066ebd304c170aaef9e9c37291169cb42b"
+token_count: 70
+file_path: .ideate/questions/Q-08.yaml

@@ -1,0 +1,11 @@
+id: J-029-002
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 29
+title: "Cycle 1 — Work item 240: TerrainConfig v2 — configuration parameters for multi-octave noise"
+content: |
+  Status: complete
+  Added four new parameters to TerrainConfig dataclass: octaves, lacunarity, persistence, domain_warp_strength. Tests added for each new parameter. All acceptance criteria verified. Review passed with 2 minor findings (pre-existing test failure, no validation on new params — not required by criteria).
+content_hash: "62fef9c889f8cf24869f1bce3d59bc53a7ed3279c3b9297b2af85e0c1b6581bc"
+token_count: 132

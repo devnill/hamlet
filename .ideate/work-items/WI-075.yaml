@@ -1,0 +1,30 @@
+id: WI-075
+type: work_item
+title: Entity Save Operations
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/persistence/saver.py` exists
+  - "`EntitySaver` class with `__init__(queue: WriteQueue)`"
+  - "`async save_project(project: Project) -> None` queues project write"
+  - "`async save_session(session: Session) -> None` queues session write"
+  - "`async save_agent(agent: Agent) -> None` queues agent write"
+  - "`async save_structure(structure: Structure) -> None` queues structure write"
+  - "`async save_village(village: Village) -> None` queues village write"
+  - Each method converts entity to dict and creates `WriteOperation` with operation="upsert"
+  - Uses `INSERT OR REPLACE` semantics (upsert)
+  - All methods are non-blocking (queue write, return immediately)
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 075
+  
+  Each save method creates a WriteOperation with entity_type, entity_id, operation="upsert", and data dict. The actual SQL execution happens in the write loop. Methods are async but don't wait for write completion.
+cycle_created: 1
+cycle_modified: null
+content_hash: "80bdd47897801f76d5581a217ac2cdff9befe6b8ba3d7e06cbc7aae5e1c17a70"
+token_count: 295
+file_path: .ideate/work-items/WI-075.yaml

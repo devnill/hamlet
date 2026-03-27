@@ -1,0 +1,88 @@
+id: RF-visual-design-decisions
+type: research_finding
+topic: Visual Design Decisions — 2026-03-22
+status: active
+date: null
+content: |
+  # Visual Design Decisions — 2026-03-22
+  
+  ## Art Style Direction
+  
+  Established through interactive mockup session. Reference games: Core Keeper, Stardew Valley, Legend of Zelda: A Link to the Past.
+  
+  ## Palette
+  - Warm saturated (Stardew-adjacent)
+  - Dominant colors: warm greens, golden browns, soft blues, terracotta reds
+  - 16-32 color constrained palette per sprite group
+  
+  ## Rendering Conventions
+  - **Self-colored outlines** — darkest shade of the object's own hue, NOT hard black. All three reference games use this technique.
+  - **Chibi character proportions** — oversized head relative to body
+  - **3/4 top-down perspective** — see front face of buildings + roof
+  - **Round tree canopies** with visible trunk, not triangular
+  
+  ## Autotiling
+  - Required for water, forest, mountain, meadow edges
+  - Water-grass transition: sandy shore strip with foam highlights
+  - Edges must be **smooth/curved**, not blocky right-angle steps
+  - Full 47-tile Wang set recommended for polished look; 16-tile minimum viable
+  
+  ## Agent Visual Identity
+  - Distinguished by **clothing/tunic color** matching agent type
+  - Researcher=blue, Coder=yellow, Architect=magenta, Tester=teal, Planner=dark green, Executor=red, General=white
+  - Same chibi proportions regardless of type
+  - Zombie state: green tint overlay
+  
+  ## Structure Visual Identity
+  - Different building types distinguished by **shape** (roof profile, size)
+  - House: peaked red roof
+  - Workshop: wider, large window bay
+  - Forge: stone/grey roof, wider chimney with warm glow
+  - Library, Tower, Well, Road: distinct silhouettes TBD
+  
+  ## Multi-Resolution Zoom
+  - Close (16x16): full SNES-style sprites, NCBLIT_PIXEL
+  - Medium (8x8): simplified sprites, NCBLIT_2x1
+  - Far (1x1): character-based ASCII symbols, NCBLIT_1x1
+  
+  ## Roads
+  - Dirt path style, 3-shade dithered surface with darker edge borders
+  - Autotile variants: horizontal, vertical, crossroads, T-junctions
+  - Width: ~10px centered within 16x16 tile
+  - Roads connect structures and villages
+  
+  ## Multi-Tile Structures
+  - Library: 2x2 tiles, blue slate roof, many windows (knowledge/scholarship feel)
+  - Tower: 1x2 tiles (tall), stone walls, pointed stone roof, lit windows
+  - Well: 1x1, circular stone rim with water visible inside
+  - House: 1x1, red roof, wood walls (baseline building)
+  - Workshop, Forge: 1x1, distinct roof profiles (see v4 mockups)
+  
+  ## Autotile Implementation Notes
+  - Corner tiles should only appear where water has grass on TWO adjacent sides
+  - Edge tiles for single-side grass adjacency
+  - Runtime neighbor-map algorithm selects correct tile variant
+  - Sandy beach transition strip with foam highlights on water side
+  - Minimum 16-tile Wang set; 47-tile for inner corners
+  
+  ## Known Areas for Improvement
+  - Mountain tiles need better layered range rendering (current chevron pattern is weak)
+  - Agent sprites need more detail and animation frames
+  - Autotile corner placement logic needs correct neighbor detection (mockup had wrong tile assignments)
+  - Animation work deferred to future cycle
+  
+  ## Reference Mockups
+  Saved in specs/steering/research/mockups/:
+  - hamlet_v4_village.png — full village scene with multiple building types and agent colors
+  - hamlet_v4_scene.png — tile strip showing all tile types
+  - hamlet_v4_{grass,water,forest,mountain,meadow,house,workshop,forge,agent}.png — individual tiles
+  - hamlet_v3_autotile_lake.png — autotile composition demo
+  - hamlet_v3_water_edges.png — water edge tile variants
+  
+  See specs/steering/research/pixel-art-reference-styles.md for detailed analysis of reference games.
+sources: []
+cycle_created: 1
+cycle_modified: null
+content_hash: a60b538a7456d9bb7b2e39a61744711ea0712f9c61e4e71fea1d732da1ec2496
+token_count: 962
+file_path: .ideate/research/RF-visual-design-decisions.yaml

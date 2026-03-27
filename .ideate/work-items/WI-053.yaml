@@ -1,0 +1,28 @@
+id: WI-053
+type: work_item
+title: Spatial Index for Visibility Queries
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/viewport/spatial_index.py` exists
+  - "`SpatialIndex` class with `__init__(cell_size: int = 50)`"
+  - "`update(entity_id: str, position: Position) -> None` method updates entity position in grid"
+  - "`remove(entity_id: str) -> None` method removes entity from index"
+  - "`query(bounds: BoundingBox) -> List[str]` method returns entity IDs in bounding box"
+  - `clear() -> None` method clears all entities
+  - Internal grid uses cell-based hashing for O(1) updates
+  - Query complexity is O(cells in bounds) not O(total entities)
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 053
+  
+  The spatial index divides the world into cells (default 50x50). Each entity is placed in exactly one cell based on its position. Query iterates over cells that intersect the bounding box. This avoids checking every entity for visibility.
+cycle_created: 1
+cycle_modified: null
+content_hash: "3d223b8f6694114cbb5e20be03b33b94dac17c3df15ad1da0345165f55aa1785"
+token_count: 272
+file_path: .ideate/work-items/WI-053.yaml

@@ -1,0 +1,13 @@
+id: D-32
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: Terminal routing updated — tmux uses Textual, Kitty-capable terminals use KittyApp
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "80d2a1649a437a49fc31d7ae59aa08c63790a9e8691f5dc051cbdec0e151a8f3"
+token_count: 76
+file_path: .ideate/decisions/D-32.yaml

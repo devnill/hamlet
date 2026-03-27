@@ -1,0 +1,13 @@
+id: P-09
+type: domain_policy
+domain: architecture
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: Hook scripts must not hardcode the server port. Any mechanism for port configurability must propagate `settings.mcp_port` to hook scripts at install time or runtime. The server-side port is configurable; the hook-side port must match.
+cycle_created: 1
+cycle_modified: null
+content_hash: a94a3a4041c30e16857029efdeccff333266219c120963c79e101d76e7bda099
+token_count: 118
+file_path: .ideate/policies/P-09.yaml

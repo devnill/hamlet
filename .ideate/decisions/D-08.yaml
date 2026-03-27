@@ -1,0 +1,13 @@
+id: D-08
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: EXECUTOR added to animation.py AGENT_BASE_COLORS; PLANNER added to legend
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: a8c32308de6aec39549dfdfc30830ae94a035370619fe76df3a07c3e4f808baf
+token_count: 74
+file_path: .ideate/decisions/D-08.yaml

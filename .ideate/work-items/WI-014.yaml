@@ -1,0 +1,28 @@
+id: WI-014
+type: work_item
+title: Event Processor
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/event_processing/event_processor.py` exists
+  - `EventProcessor` class implements `EventRouter` interface
+  - `__init__` accepts `event_queue`, `world_state`, `agent_inference`, `persistence`
+  - `start()` begins consuming from queue
+  - `stop()` gracefully shuts down
+  - `process_event(raw)` returns `InternalEvent`
+  - Events routed to world_state, agent_inference, persistence, and subscribers
+  - Validation rejects events missing required fields
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 014
+  
+  Error handling follows graceful degradation: log errors, continue processing. Routing sends to all destinations concurrently where possible.
+cycle_created: 1
+cycle_modified: null
+content_hash: "3ce232da31b131a45400a10448ab2020bf81f763d2d3b63009f13962d706eda5"
+token_count: 225
+file_path: .ideate/work-items/WI-014.yaml

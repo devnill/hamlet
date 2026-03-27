@@ -1,0 +1,50 @@
+id: WI-168
+type: work_item
+title: Register hamlet in claude-marketplace
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - marketplace.json plugins array includes an entry with name "hamlet"
+  - Entry uses source type "github" with repo "devnill/hamlet"
+  - Entry includes description "Visualize Claude Code agent activity as a roguelike idle game."
+  - Entry includes version "0.1.0" (matching .claude-plugin/plugin.json in the hamlet repo)
+  - Existing plugin entries are unchanged
+  - JSON is valid
+module: null
+domain: null
+notes: |
+  # WI-168 Notes: Register hamlet in claude-marketplace
+  
+  ## File to modify
+  `~/code/claude-marketplace/.claude-plugin/marketplace.json`
+  
+  ## What to add
+  Append to the `plugins` array:
+  ```json
+  {
+    "name": "hamlet",
+    "source": {
+      "source": "github",
+      "repo": "devnill/hamlet"
+    },
+    "description": "Visualize Claude Code agent activity as a roguelike idle game.",
+    "version": "0.1.0"
+  }
+  ```
+  
+  ## Version note
+  Version `0.1.0` matches the hamlet repo's `.claude-plugin/plugin.json`. The repo is not yet published on GitHub — the entry is added now so it is ready when published. The `release.sh sync` command can update the version later if needed.
+  
+  ## Do not run release.sh add
+  The `add` subcommand fetches the remote plugin.json from GitHub. Since the repo is not yet public, this would fail. Edit marketplace.json directly.
+  
+  ## Existing entries
+  Do not modify beepboop, moodring, ideate, outpost, or cyberbrain entries.
+cycle_created: 1
+cycle_modified: null
+content_hash: e72c4c8446bb11e8eab207e3d23a316ee15306138624c3f40ece582b2391cb89
+token_count: 410
+file_path: .ideate/work-items/WI-168.yaml

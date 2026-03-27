@@ -1,0 +1,25 @@
+id: FI-001-005
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: significant
+title: Race condition between start() and stop()
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py:49`
+  - **Issue**: `_running` is set to `True` on line 49 before `_run_task` is created (line 52). If `stop()` is called between lines 49 and 52, it will see `_running=True` but `_run_task=None`, leading to inconsistent state.
+  - **Impact**: Unlikely in practice, but creates a window for race conditions during rapid start/stop cycles.
+  - **Suggested fix**: Set `_running = True` only after `_run_task` is assigned:
+    ```python
+    self._server = Server("hamlet")
+    self._run_task = asyncio.create_task(self._run_server())
+    self._running = True
+    logger.info("MCP server 'hamlet' started")
+    ```
+file_path: cycles/001/findings/FI-001-005.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: bc718d65efd4b96dacc4784f3b4a672ad8b346011e80cd395666a6be8e3fbcc6
+token_count: 244

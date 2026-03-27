@@ -1,0 +1,15 @@
+id: FI-003-110
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `_execute_write` signature diverges from spec (`cursor` param dropped, `async` added)
+description: - No code change — adaptation is correct given the `DatabaseConnection` abstraction. Noted.
+file_path: cycles/003/findings/FI-003-110.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-076
+verdict: Fail
+content_hash: f98841b164e3bab0a6e2ac4d3ce722487fed2d3ffced301ec8c9b0674567dd18
+token_count: 108

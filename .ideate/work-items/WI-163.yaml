@@ -1,0 +1,58 @@
+id: WI-163
+type: work_item
+title: Wire mcp_port setting to HTTP server and add /hamlet/health endpoint
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - MCPServer.__init__ accepts a port parameter (default 8080)
+  - The aiohttp HTTP server uses self._port instead of hardcoded 8080
+  - __main__.py passes settings.mcp_port when constructing MCPServer
+  - "GET /hamlet/health route returns {\"status\":\"ok\"} with HTTP 200"
+  - install.py validate_mcp_server_running() succeeds when server is running
+module: null
+domain: null
+notes: |
+  # WI-163: Wire mcp_port setting to HTTP server and add /hamlet/health endpoint
+  
+  ## Context
+  Two independent issues:
+  1. `Settings` validates `mcp_port` (WI-112) but `MCPServer` ignores it — hardcoded to port 8080. Users cannot change the HTTP endpoint port.
+  2. `install.py` calls `http://localhost:8080/hamlet/health` but no `/hamlet/health` route exists — install always shows "MCP server not reachable" warning even when server is running.
+  
+  ## Changes
+  
+  ### src/hamlet/mcp_server/server.py
+  1. Add `port: int = 8080` parameter to `MCPServer.__init__`:
+     ```python
+     def __init__(self, ..., port: int = 8080):
+         ...
+         self._port = port
+     ```
+  2. Replace hardcoded `8080` with `self._port` in the `web.TCPSite` or `runner.setup()` / `site.start()` call.
+  3. Add GET `/hamlet/health` route:
+     ```python
+     async def _handle_health(self, request) -> web.Response:
+         return web.json_response({"status": "ok"})
+  
+     # In setup, add route:
+     app.router.add_get("/hamlet/health", self._handle_health)
+     ```
+  
+  ### src/hamlet/__main__.py (or daemon.py)
+  Pass `settings.mcp_port` when constructing MCPServer:
+  ```python
+  mcp_server = MCPServer(..., port=settings.mcp_port)
+  ```
+  
+  ## Notes
+  - Read server.py to find the exact location where port 8080 is hardcoded (TCPSite or equivalent)
+  - Read __main__.py and daemon.py to see where MCPServer is constructed
+  - Check install.py health URL to ensure it matches the new route path
+cycle_created: 1
+cycle_modified: null
+content_hash: "058ac552ac1e82fc70f8ed23111fe568ff91e25b20c99008484a5479bfcdbe73"
+token_count: 533
+file_path: .ideate/work-items/WI-163.yaml

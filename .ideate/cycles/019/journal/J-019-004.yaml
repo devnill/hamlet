@@ -1,0 +1,11 @@
+id: J-019-004
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 19
+title: "Work item 181: Update hooks.json — 15 hooks, fix PreToolUse async"
+content: |
+  Status: complete
+  Modified: hooks/hooks.json — 15 hook types registered, async:true removed from PreToolUse and PreCompact per Claude Code docs.
+content_hash: "226f961e7a3305111c08205b381502aa89b6f49234fbda2b060be7c2a7af5dfe"
+token_count: 82

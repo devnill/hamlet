@@ -1,0 +1,16 @@
+id: GP-07
+type: guiding_principle
+name: Graceful Degradation Over Robustness
+status: active
+description: |
+  If the MCP server is down or events are lost, the game continues. Hook scripts fail silently without blocking Claude Code. The UI shows what it has, not error states. Missing data is preferable to broken workflows.
+  
+  **Why:** User specified: "We can discard messages for now" when asked about failure handling. The priority is a working idle game, not mission-critical observability.
+  
+  **How to apply:** Hook scripts should have minimal error handling — catch exceptions and exit cleanly. The server should handle missing or malformed events gracefully. No retry logic, no blocking waits.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: "971eb83dd99bdfcc2419dcf3e256dcc700ea128af33a8c324fc6df27e57893e6"
+token_count: 205
+file_path: .ideate/principles/GP-07.yaml

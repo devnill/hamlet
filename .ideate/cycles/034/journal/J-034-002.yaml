@@ -1,0 +1,11 @@
+id: J-034-002
+type: journal_entry
+phase: execute
+date: "2026-03-23"
+cycle_created: 34
+title: "Work item 283: Parse API responses into dataclass objects"
+content: |
+  Status: complete
+  state_fetcher.py: imported _parse_agent/_parse_structure/_parse_village from tui/remote_world_state.py. Added _try_parse helper for graceful per-item degradation. Replaced raw dict assignment with parsed dataclass lists.
+content_hash: "3d4128912a6833b4de6d663a403dae559112538e087b41c831dbec7ced7951fa"
+token_count: 104

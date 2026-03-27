@@ -1,0 +1,13 @@
+id: P-08
+type: domain_policy
+domain: data-model
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: `SessionState.active_tools` may only be decremented when a corresponding `pending_tools` entry is found and removed — either by PostToolUse correlation or by TTL eviction in `_update_zombie_states`. Unconditional decrement causes negative counters and spurious agent spawns.
+cycle_created: 1
+cycle_modified: null
+content_hash: "7debfe961d861fb73ec0581f3f25c8d672c1339d98fb159a7a688dc8ae1be852"
+token_count: 128
+file_path: .ideate/policies/P-08.yaml

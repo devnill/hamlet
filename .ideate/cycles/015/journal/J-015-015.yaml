@@ -1,0 +1,11 @@
+id: J-015-015
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: "Cycle 3 — Work item 154: Fix event routing dead code"
+content: |
+  Status: complete with rework
+  Rework: S1 (handle_event now uses event.id not uuid4), S2 (log_event exceptions now propagate).
+content_hash: d010a6de019fed1860f93b1caa3b425819a5f177bfae90461dc7868b19d5842e
+token_count: 74

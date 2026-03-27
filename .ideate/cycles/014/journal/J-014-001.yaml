@@ -1,0 +1,13 @@
+id: J-014-001
+type: journal_entry
+phase: refine
+date: "2026-03-18"
+cycle_created: 14
+title: Refinement planning completed
+content: |
+  Trigger: User-initiated requirement evolution — setup friction, no plugin integration, no project init command, no in-app help
+  Principles changed: none
+  New work items: 125-137 (13 items)
+  This refinement cycle addresses four areas: (1) daemon/viewer split — `hamlet daemon` runs the backend headlessly, `hamlet` (viewer) polls the daemon's new REST state API; (2) Claude Code plugin packaging — `.claude-plugin/` manifest + `hooks/hooks.json` + lightweight MCP config server exposing `hamlet_init` tool; (3) `hamlet init` CLI command — creates `.hamlet/config.json` in cwd with random UUID project_id; (4) TUI keybinding refinement — legend moves to `/`, help overlay added on `?`, vim hjkl scroll keys verified conflict-free.
+content_hash: "13b5ab0d38d03cea347b8a44a7ede681cf7dc9e5e8e0c2b6b4e7c61fdf4b0e9f"
+token_count: 219

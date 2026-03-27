@@ -1,0 +1,14 @@
+id: Q-16
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: Sprite upload pipeline not wired — sprites never display
+cycle_created: 1
+cycle_modified: null
+content_hash: "7d2f93210884f971c1c7d0ccab8ab8c6ddd7472db1e811a3e53cd61d4464b224"
+token_count: 73
+file_path: .ideate/questions/Q-16.yaml

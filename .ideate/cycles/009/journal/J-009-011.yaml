@@ -1,0 +1,11 @@
+id: J-009-011
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 106: Implement work unit accumulation from PostToolUse"
+content: |
+  Status: complete with rework
+  Rework: 3 significant findings fixed (S1: added duration_ms parameter to _make_event helper + 5 tests covering formula branches; S2: added tests asserting add_work_units called with correct agent_id/structure_type/units; S3: added test verifying unknown tool names don't trigger add_work_units). 2 minor findings fixed (M1: changed logger.error to logger.exception for consistency; M2: changed `if event.duration_ms` to `if event.duration_ms is not None`).
+content_hash: "21d947193c81498ab2fa5720609e4b5af76b38e60aaa4b8e88cad0613f6d9bf2"
+token_count: 167

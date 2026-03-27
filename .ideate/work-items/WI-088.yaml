@@ -1,0 +1,114 @@
+id: WI-088
+type: work_item
+title: World State Tests - Grid, Manager CRUD and Queries
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File tests/test_position_grid.py exists with test class TestPositionGrid
+  - TestPositionGrid.test_occupy_stores_entity passes
+  - TestPositionGrid.test_vacate_removes_entity passes
+  - TestPositionGrid.test_is_occupied_returns_boolean passes
+  - File tests/test_world_state_manager.py exists with test class TestWorldStateManager
+  - TestWorldStateManager.test_load_from_persistence_restores_state passes
+  - TestWorldStateManager.test_get_or_create_project_creates_new passes
+  - TestWorldStateManager.test_get_or_create_agent_spawns_new passes
+  - TestWorldStateManager.test_update_agent_modifies_fields passes
+  - TestWorldStateManager.test_get_agents_in_view_returns_bounded passes
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 088 - World State Tests
+  
+  ## Scope
+  
+  Test PositionGrid (spatial tracking) and WorldStateManager CRUD operations, loading, and queries.
+  
+  ## Testing Patterns
+  
+  ### PositionGrid Tests
+  
+  Test occupancy:
+  
+  ```python
+  def test_occupy():
+      grid = PositionGrid()
+      grid.occupy("agent1", Position(10, 10))
+      assert grid.is_occupied(Position(10, 10))
+      assert grid.get_entity_at(Position(10, 10)) == "agent1"
+  ```
+  
+  Test conflict handling:
+  
+  ```python
+  def test_occupy_conflict():
+      grid.occupy("agent1", Position(10, 10))
+      with pytest.raises(ValueError):
+          grid.occupy("agent2", Position(10, 10))
+  ```
+  
+  ### WorldStateManager Tests
+  
+  Use real in-memory state or mocks:
+  
+  ```python
+  @pytest.fixture
+  def manager():
+      persistence = Mock()
+      return WorldStateManager(persistence)
+  ```
+  
+  Test CRUD:
+  
+  ```python
+  async def test_create_project():
+      project = await manager.get_or_create_project("proj1", "Test Project")
+      assert project.id == "proj1"
+      assert project.name == "Test Project"
+  ```
+  
+  Test loading:
+  
+  ```python
+  async def test_load_from_persistence():
+      data = WorldStateData(
+          projects=[{"id": "p1", "name": "Project 1", "config_json": {}}],
+          sessions=[],
+          villages=[],
+          agents=[],
+          structures=[],
+          metadata={}
+      )
+      await manager.load_from_persistence(data)
+      assert "p1" in manager._state.projects
+  ```
+  
+  Test queries:
+  
+  ```python
+  async def test_agents_in_view():
+      # Add agents at positions
+      bounds = BoundingBox(0, 0, 100, 100)
+      agents = await manager.get_agents_in_view(bounds)
+      # Verify only agents in bounds returned
+  ```
+  
+  ## Key Test Scenarios
+  
+  1. **Grid occupy** - Stores entity at position
+  2. **Grid conflict** - Raises on duplicate
+  3. **Grid vacate** - Removes entity
+  4. **Grid is_occupied** - Boolean check
+  5. **Manager create project** - New project + village
+  6. **Manager create agent** - Spawn near parent
+  7. **Manager update agent** - Fields modified
+  8. **Manager load from persistence** - Restores all entities
+  9. **Manager agents in view** - Bounds filtering
+  10. **Manager structures in view** - Bounds filtering
+cycle_created: 1
+cycle_modified: null
+content_hash: "51e6d7dfebfbc44f94ef9b8e424c4f31b92f2bb174f4064075940c99d791d41f"
+token_count: 801
+file_path: .ideate/work-items/WI-088.yaml

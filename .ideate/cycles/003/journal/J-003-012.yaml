@@ -1,0 +1,12 @@
+id: J-003-012
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 252: Map Viewer Mode with Parameter Adjustment"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed (type hint `callable` changed to `Callable` with proper import).
+  New CLI flag `hamlet map-viewer` launches map viewer mode. MapApp shows terrain without agents/structures. Side panel has sliders for terrain parameters. Regenerate button regenerates terrain with new parameters. Save button persists parameters to config file.
+content_hash: e0f7a38213f460b04a1bcdea0865200782adcd63729a0aea3ac2175cb0a7b5ff
+token_count: 140

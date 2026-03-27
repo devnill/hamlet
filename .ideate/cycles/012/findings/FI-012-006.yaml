@@ -1,0 +1,27 @@
+id: FI-012-006
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: critical
+title: Inverted Water Bias Formula in Wet Regions
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:650`
+  - **Issue**: The water bias calculation for wet regions (`biome_char < -0.33`) uses the formula `bias_strength * (biome_char + 1.0) * 0.5`. This produces MINIMUM water bias (0) at the wettest point (biome_char = -1) and MAXIMUM water bias at the temperate boundary (biome_char = -0.33). This is the opposite of the intended behavior - wet regions should have HIGHER water bias.
+  - **Impact**: Wet biome regions do not correctly favor water terrain. Instead, the transition zones between wet and temperate regions get the strongest water bias, while the core of wet regions gets none.
+  - **Suggested fix**: Change the formula to produce maximum water bias at the wettest point. For example:
+    ```python
+    # Before (incorrect):
+    bias[TerrainType.WATER] = bias_strength * (biome_char + 1.0) * 0.5
+    
+    # After (correct):
+    bias[TerrainType.WATER] = bias_strength * -(biome_char + 0.33) / 0.67 * 0.3
+    ```
+    This gives maximum bias (0.3 * bias_strength) at biome_char = -1 and decreases to 0 at biome_char = -0.33.
+file_path: cycles/012/findings/FI-012-006.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-254
+verdict: Pass
+content_hash: a2708901387c401dcc86896f76f9938560ea668c018f1eade80a52a83a795c5e
+token_count: 349

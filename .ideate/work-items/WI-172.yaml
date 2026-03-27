@@ -1,0 +1,68 @@
+id: WI-172
+type: work_item
+title: Add python3 availability guard to start.sh and fix pip advice
+status: pending
+complexity: low
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Before the `python3 -c "import mcp"` check, start.sh verifies python3 is on PATH using `command -v python3 >/dev/null 2>&1`
+  - If python3 is not on PATH, start.sh emits a diagnostic to stderr naming both the uv option and the need to install python3, then exits 1
+  - The mcp import check follows the python3 availability check (python3 is confirmed present before the import test)
+  - The mcp not-found diagnostic updated to use `python3 -m pip install mcp` instead of `pip install mcp`
+  - The script remains POSIX sh compatible
+module: null
+domain: null
+notes: |
+  # WI-172 Notes: Add python3 availability guard to start.sh
+  
+  ## Addresses
+  - Gap from Cycle 3 comprehensive review: `python3` not on PATH causes misleading "mcp package not found" error
+  
+  ## File to modify
+  `/Users/dan/code/hamlet/mcp/start.sh`
+  
+  ## Current fallback (after WI-171)
+  ```sh
+  else
+      # python3 fallback: requires mcp package pre-installed
+      if ! python3 -c "import mcp" 2>/dev/null; then
+          echo "hamlet: mcp package not found. Install uv (https://docs.astral.sh/uv/) or run: pip install mcp" >&2
+          exit 1
+      fi
+      exec python3 "${SCRIPT_DIR}/server.py"
+  fi
+  ```
+  
+  ## Problem
+  When `python3` is not on PATH, `python3 -c "import mcp"` exits non-zero (shell error, not mcp error). The `if !` branch fires and emits "mcp package not found" — which is wrong. The real problem is that python3 is absent.
+  
+  Also: `pip install mcp` may install into a different Python environment than the `python3` on PATH.
+  
+  ## Desired behavior
+  ```sh
+  else
+      # python3 fallback: requires mcp package pre-installed
+      if ! command -v python3 >/dev/null 2>&1; then
+          echo "hamlet: python3 not found. Install uv (https://docs.astral.sh/uv/) or ensure python3 is on PATH." >&2
+          exit 1
+      fi
+      if ! python3 -c "import mcp" 2>/dev/null; then
+          echo "hamlet: mcp package not found. Install uv (https://docs.astral.sh/uv/) or run: python3 -m pip install mcp" >&2
+          exit 1
+      fi
+      exec python3 "${SCRIPT_DIR}/server.py"
+  fi
+  ```
+  
+  ## Constraints
+  - Script must remain POSIX sh compatible (#!/bin/sh shebang)
+  - `command -v python3` is POSIX-compatible (same pattern as the existing uv check on line 3)
+  - Both diagnostics go to stderr (>&2)
+  - Exit 1 in both cases so Claude Code records the server as failed to launch with a clear reason
+cycle_created: 1
+cycle_modified: null
+content_hash: dc2d50b592175c6578c10f95d7836fb3b3fa0dac0251018d2b539a50b02bb278
+token_count: 665
+file_path: .ideate/work-items/WI-172.yaml

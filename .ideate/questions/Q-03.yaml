@@ -1,0 +1,14 @@
+id: Q-03
+type: domain_question
+domain: visualization
+status: open
+impact: ""
+source: ""
+resolution: null
+resolved_in: null
+description: PLANNER agent type — add inference rule or mark reserved?
+cycle_created: 1
+cycle_modified: null
+content_hash: "0492d193ecb6de5d1021f425376b87c70f9fb14c39b6d6b63ea6580ffba05713"
+token_count: 74
+file_path: .ideate/questions/Q-03.yaml

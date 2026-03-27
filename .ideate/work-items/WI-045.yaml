@@ -1,0 +1,27 @@
+id: WI-045
+type: work_item
+title: Implement Village Expansion and Road Building
+status: pending
+complexity: high
+scope: []
+depends: []
+blocks: []
+criteria:
+  - File `src/hamlet/simulation/expansion.py` exists
+  - `ExpansionManager` class with `__init__(config)`
+  - `check_village_expansion(village, agents, all_villages)` returns expansion site Position or None
+  - Expansion triggers when agent count >= expansion_threshold (default 20)
+  - `_is_clear_site(position, all_villages, min_distance)` checks for village conflicts
+  - `create_road_between(world_state, village_id, start, end)` uses Bresenham's line algorithm
+  - Road segments created with stage=3, material=stone
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 045
+  
+  Expansion site search: 20-50 cells from village center, check every 15 degrees. Roads are stone structures.
+cycle_created: 1
+cycle_modified: null
+content_hash: "23134415837dff3f34dff552f1f83c2479910f5caf676e4ee3ecccb4cf4c6573"
+token_count: 236
+file_path: .ideate/work-items/WI-045.yaml

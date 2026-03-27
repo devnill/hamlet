@@ -1,0 +1,24 @@
+id: F-008-036
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: `HOOK_SCRIPTS` in `install.py` still lists only 4 hooks — not updated for v0.4.0
+description: |
+  - **File**: `src/hamlet/cli/commands/install.py:20–25`
+  
+  - **Issue**: The `HOOK_SCRIPTS` dict maps only `PreToolUse`, `PostToolUse`, `Notification`, and `Stop`. The `hooks.json` registered in WI-181 covers 15 hook types. The `install` command is for non-plugin installations (settings.json injection). When a user runs `hamlet install`, they get only 4 of 15 hooks configured — the remaining 11 new hooks are never registered. The `remove_hooks_from_settings` and `uninstall_command` functions share the same incomplete list, so they also fail to clean up any hooks that were installed by other means. This predates this cycle but the cycle added 11 hooks without updating this list.
+  
+  - **Impact**: Non-plugin users who run `hamlet install` get no coverage of `SessionStart`, `SessionEnd`, `SubagentStart`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`, `PostToolUseFailure`, `UserPromptSubmit`, `PreCompact`, `PostCompact`, `StopFailure`. These users get a degraded experience with no error or warning.
+  
+  - **Suggested fix**: Add all 11 new hook types and their script filenames to the `HOOK_SCRIPTS` dict in `install.py`, matching the entries in `hooks.json`.
+  
+  ---
+file_path: cycles/008/findings/F-008-036.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-008
+verdict: Fail
+content_hash: "83dd62de36072320fcab885e00d511cf0fdc49ce8ba2263562a99234f75726e2"
+token_count: 378

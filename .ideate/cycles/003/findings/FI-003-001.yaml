@@ -1,0 +1,19 @@
+id: FI-003-001
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `timestamp` field accepts any string including empty string
+description: |
+  - **File**: `src/hamlet/mcp_server/validation.py:23`
+  - **Issue**: Schema defines `"timestamp": {"type": "string"}` with no format or pattern. Architecture contract specifies ISO-8601.
+  - **Impact**: Malformed timestamps pass the validation gate and cause parse failures downstream in Event Processing.
+  - **Suggested fix**: Add `"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"`.
+file_path: cycles/003/findings/FI-003-001.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-002
+verdict: Fail
+content_hash: "2e970bf617937a757ea8282afefbfcd8784a9d81c08d89ce5891acc7b2903a0a"
+token_count: 183

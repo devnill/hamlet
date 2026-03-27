@@ -1,0 +1,13 @@
+id: J-034-001
+type: journal_entry
+phase: refine
+date: "2026-03-23"
+cycle_created: 34
+title: Refinement planning completed (refine-20)
+content: |
+  Trigger: Runtime crash — StateFetcher returns raw dicts, KittyRenderer expects dataclass objects
+  Principles changed: none
+  New work items: WI-283–WI-286
+  Summary: Fix dict-to-dataclass conversion in Kitty StateFetcher using existing parsers from tui/remote_world_state.py. Add functional integration tests with real daemon fixtures. Mandatory manual smoke test gate.
+content_hash: "6727ca2ef778d448ba6176ef5b11cb8a14a3793136fd085df5b1df724169edfe"
+token_count: 132

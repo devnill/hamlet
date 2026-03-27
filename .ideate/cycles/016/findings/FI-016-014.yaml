@@ -1,0 +1,26 @@
+id: FI-016-014
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `test_zoom_config_is_frozen` catches bare `Exception` instead of `FrozenInstanceError`
+description: |
+  - **File**: `tests/test_kitty_zoom.py:65-69`
+  - **Issue**: The frozen-dataclass test uses a bare `except Exception: pass` to confirm mutability is blocked. This means any exception — including a `TypeError` from a bug in the test itself — would silently cause the test to pass, hiding regressions.
+  - **Suggested fix**: Catch `dataclasses.FrozenInstanceError` (available from Python 3.11) explicitly and re-raise on any other exception:
+    ```python
+    import dataclasses, pytest
+  
+    def test_zoom_config_is_frozen():
+        config = get_zoom_config(ZoomLevel.CLOSE)
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            config.tile_pixels = 99  # type: ignore[misc]
+    ```
+file_path: cycles/016/findings/FI-016-014.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-279
+verdict: Pass
+content_hash: f3acca0f624af44b4c847f8acab420b551fc4f2527d14e5fb80683cbf6d1be07
+token_count: 259

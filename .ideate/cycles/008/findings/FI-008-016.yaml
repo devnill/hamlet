@@ -1,0 +1,18 @@
+id: FI-008-016
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: minor
+title: SessionEnd does not guard against empty session_id
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:745`
+  - **Issue**: `session_id = event.session_id or ""` assigns an empty string when `event.session_id` is None. The loop on line 747 then iterates all agents and sets any agent whose `session_id == ""` to `AgentState.IDLE`. SessionStart guards its equivalent path with `if event.project_id and event.session_id:` at line 732 but SessionEnd has no such guard.
+  - **Suggested fix**: Add the same guard before the loop: `if not session_id: return` (or skip the block), matching the pattern already used in SessionStart.
+file_path: cycles/008/findings/FI-008-016.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-183
+verdict: Pass
+content_hash: "14851a87035ac8c0196ca68743628491f4f4e3531cc65344ecc8b1109fa12e98"
+token_count: 225

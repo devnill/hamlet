@@ -1,0 +1,11 @@
+id: J-007-059
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 078: State Loading"
+content: |
+  Status: complete with rework
+  Rework: 2 significant findings fixed (S1: SELECT * with positional column mapping changed to explicit column lists in all _load_* methods — immune to future schema column reordering; S2: config_json was not parsed from JSON string — added json.loads with {} fallback in _load_projects matching _load_sessions pattern). 1 minor finding fixed (M1: missing else branch for agent_ids_json None value — added else: d["agent_ids_json"] = []).
+content_hash: "0c36d91b8992759b5c828898ab84d2c6e384b065660d2b92124cd63dc882530b"
+token_count: 154

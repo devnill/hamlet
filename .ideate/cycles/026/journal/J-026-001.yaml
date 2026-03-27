@@ -1,0 +1,13 @@
+id: J-026-001
+type: journal_entry
+phase: refine
+date: "2026-03-20"
+cycle_created: 26
+title: Refinement planning completed (refine-12)
+content: |
+  Trigger: User-reported runtime bugs after first use of launchd service install
+  Principles changed: none
+  New work items: WI-208 through WI-212
+  Five changes: (1) agents load as ZOMBIE on startup; (2) remove premature viewport resize from WorldView.on_mount; (3) despawn_agent() infrastructure in WorldStateManager + persistence; (4) inference engine despawn — session end = immediate, zombie TTL = configurable 300s default, startup seeding of zombie_since; (5) LegendOverlay CSS positioning fix so it renders as a floating overlay.
+content_hash: c4feebd5a0ff83f904455d62cf7e88b85ba305a0e97538371e0baef69eb98c0b
+token_count: 173

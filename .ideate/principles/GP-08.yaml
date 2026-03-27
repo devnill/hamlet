@@ -1,0 +1,16 @@
+id: GP-08
+type: guiding_principle
+name: Agent-Driven World Building
+status: active
+description: |
+  The world changes as agents work. Token expenditure roughly correlates to construction progress. Structures evolve (wood → stone). Roads connect settlements. The village grows outward over time.
+  
+  **Why:** User specified: "the amount they work should roughly map to the number of tokens spent. As work continues, workers might rebuild from wooden building to stone, make roads, etc."
+  
+  **How to apply:** Design a progress system where tool calls contribute to construction "work units." Track cumulative work per structure type. Trigger upgrades at thresholds. Agents visibly participate in construction animations.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: "181fd7387cd94301fcb97dc3cdc637368e0db510c08923649504901e8a7bcd79"
+token_count: 210
+file_path: .ideate/principles/GP-08.yaml

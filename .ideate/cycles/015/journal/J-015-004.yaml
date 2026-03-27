@@ -1,0 +1,13 @@
+id: J-015-004
+type: journal_entry
+phase: brrr
+date: "2026-03-18"
+cycle_created: 15
+title: Cycle 1 refinement
+content: |
+  Findings addressed: 8 critical, 13 significant
+  New work items created: 138 (animation_manager wiring), 139 (stale legend tests + README), 140 (exit code propagation), 141 (hook registration end-to-end), 142 (HelpOverlay visibility), 143 (mcp/start.sh path), 144 (RemoteWorldState correctness), 145 (test coverage)
+  Work items reset for rework: none
+  Work items reset for rework: none
+content_hash: f004c6ec5107177d0653061f9b213f677a3da736f4e2c93306edc5d5d2fd005a
+token_count: 130

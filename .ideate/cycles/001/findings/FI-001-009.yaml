@@ -1,0 +1,18 @@
+id: FI-001-009
+type: finding
+cycle: 1
+reviewer: code-reviewer
+severity: minor
+title: Missing type hints for Server import
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/mcp_server/server.py:7`
+  - **Issue**: `Server` is imported from `mcp.server` but there's no type stub file mentioned. If `mcp` package doesn't provide type hints, runtime errors could occur.
+  - **Suggested fix**: Verify `mcp` package provides type hints or add `# type: ignore` comment if not.
+file_path: cycles/001/findings/FI-001-009.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-001
+verdict: Pass
+content_hash: "8c045178699b4e0a8c8ea04b06e8495151c977da1182aea505f6c06f2f1da9af"
+token_count: 158

@@ -1,0 +1,51 @@
+id: CS-017
+type: cycle_summary
+cycle: 17
+content: |
+  # Review Summary — Cycle 017
+  
+  ## Overview
+  Cycle 017 fixed the Kitty viewer runtime crash (`'dict' object has no attribute 'position'`) by adding type-correct JSON parsing in `StateFetcher` and removing all defensive dict-access patterns from `KittyApp`. Integration tests using real daemon fixtures now exercise the full parse→render pipeline. All four work items (WI-283–286) are complete and all 103 Kitty-related tests pass. Two significant test coverage gaps remain from WI-285's acceptance criteria.
+  
+  ## Critical Findings
+  
+  None.
+  
+  ## Significant Findings
+  
+  - [gap-analyst] G1: WI-285 acceptance criterion for agent `@` symbol in render output is not tested — `test_render_frame_produces_terrain_symbols` checks terrain symbols only; a regression in agent symbol rendering would not be caught automatically — relates to: WI-285
+  - [gap-analyst] G2: No integration test covers empty agents/structures/villages — fresh daemon installation (no agent activity yet) is an untested code path that could reveal a renderer crash — relates to: WI-285
+  
+  ## Minor Findings
+  
+  - [code-reviewer] M1: `_try_parse` catches bare `Exception`, swallowing programming errors (e.g., `AttributeError` inside `_parse_agent`) in addition to expected `ValueError` from bad enum values — relates to: WI-283
+  - [code-reviewer] M2: `first.id or None` in `_toggle_follow` relies on falsy-string behavior; explicit `if first.id else None` is clearer — relates to: WI-284
+  - [code-reviewer] M3: `_parse_agent/_parse_structure/_parse_village` imported from across convention boundary (`_`-prefixed, absent from `__all__`) — relates to: WI-283, cross-cutting
+  - [spec-reviewer] M1: TUI per-category degradation granularity differs from Kitty per-item degradation — a single malformed item discards all items of that type in the TUI path — relates to: cross-cutting
+  - [spec-reviewer] M2: `_parse_*` helpers imported across module-private convention boundary (same as code-reviewer M3) — relates to: WI-283
+  - [gap-analyst] G3: Fixture agents are all GENERAL/idle — zombie rendering and non-general type color paths untested at integration level — relates to: WI-285
+  - [gap-analyst] G4: `test_malformed_agent_is_skipped` covers only agents, not structures or villages — relates to: WI-285
+  - [gap-analyst] G5: Terrain fixture uses plain string values — renderer dict-type terrain path not exercised — relates to: WI-285
+  
+  ## Suggestions
+  
+  - [code-reviewer] Promote `_parse_agent/_parse_structure/_parse_village` to a shared `world_state/parsers.py` module with explicit exports — resolves convention boundary issue and protects against silent breakage on TUI refactoring
+  - [gap-analyst] Add assertion for `@` in render output when viewport is centered on agent position — completes WI-285 agent-symbol criterion
+  - [gap-analyst] Add empty-state fixture test — covers fresh-install edge case
+  
+  ## Findings Requiring User Input
+  
+  None — all findings can be resolved from existing context.
+  
+  ## Proposed Refinement Plan
+  
+  The two significant findings (G1, G2) are test coverage gaps in WI-285. They do not affect runtime correctness (the app works; the user confirmed it). A targeted refinement to add two tests would close both:
+  
+  1. Assert `@` in render output centered on agent position (fixes G1)
+  2. Add empty-state fixture test verifying fetch+render does not crash with no entities (fixes G2)
+  
+  The minor findings (shared parsers module, TUI degradation asymmetry) are lower priority and can be addressed in a future refactoring cycle.
+  
+  If the user accepts the current test coverage, no refinement cycle is needed for the runtime fix itself. The Kitty viewer is functional.
+content_hash: "0f8b944e7856a9c380b976fba0ab7e7d14b984bfd23ad50451eb3a07f6c6ccce"
+token_count: 933

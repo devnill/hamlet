@@ -1,0 +1,18 @@
+id: FI-005-002
+type: finding
+cycle: 5
+reviewer: code-reviewer
+severity: minor
+title: No tests exercise the new notification_message and stop_reason fields end-to-end
+description: |
+  - **File**: `/Users/dan/code/hamlet/tests/test_event_processor.py`
+  - **Issue**: `test_process_event_returns_internal_event` (line 386) does not assert that `notification_message` and `stop_reason` are extracted from the raw dict and populated on the returned `InternalEvent`. The existing `valid_raw_event` fixture (line 58) does not include either field, so omission silently passes. A future regression that drops either `raw.get()` call in `process_event` would not be caught.
+  - **Suggested fix**: Add a test that puts `notification_message` and `stop_reason` into the raw dict and asserts the corresponding fields on the returned `InternalEvent`.
+file_path: cycles/005/findings/FI-005-002.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-120
+verdict: Pass
+content_hash: "90f2e7588f8f0c6e64f5f440c8286b7b8d2c816554c19cfb136be5df1cef4207"
+token_count: 247

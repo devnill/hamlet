@@ -1,0 +1,18 @@
+id: FI-006-003
+type: finding
+cycle: 6
+reviewer: code-reviewer
+severity: minor
+title: `__all__` in animation.py is incomplete and inconsistent
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/simulation/animation.py:84`
+  - **Issue**: `__all__` exports `SPIN_SYMBOLS` (an implementation detail) but omits `AnimationManager` and `ZOMBIE_PULSE_COLOR`, which are the primary public symbols of the module. Any consumer doing `from hamlet.simulation.animation import *` would not receive `AnimationManager` or `ZOMBIE_PULSE_COLOR`.
+  - **Suggested fix**: Replace line 84 with `__all__ = ["AnimationState", "AnimationManager", "ZOMBIE_PULSE_COLOR", "SPIN_SYMBOLS"]`, or drop `SPIN_SYMBOLS` if it is not intended for external use.
+file_path: cycles/006/findings/FI-006-003.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-123
+verdict: Pass
+content_hash: "509653c0698961a3477398d190e99c3070ca5ba603775c53152d0978518a75b0"
+token_count: 224

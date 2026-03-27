@@ -1,0 +1,13 @@
+id: D-26
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 1
+supersedes: null
+description: settings set infers target type from current stored value
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: "4f85f546da7d50a2aeb561f8fdddcc6d103fc3b3e3cce0bfa50a856846aa6a3a"
+token_count: 70
+file_path: .ideate/decisions/D-26.yaml

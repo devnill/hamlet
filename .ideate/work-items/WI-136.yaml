@@ -1,0 +1,59 @@
+id: WI-136
+type: work_item
+title: Update default CLI behavior for no-subcommand case
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - Running `hamlet` with no arguments launches viewer mode (calls `_run_viewer`)
+  - `hamlet view` subcommand is registered and also launches viewer mode
+  - `hamlet --help` still prints help text
+  - "`hamlet view --url http://localhost:9090` connects to non-default daemon URL"
+module: null
+domain: null
+notes: |
+  # WI-136: Update default CLI behavior for no-subcommand case
+  
+  ## Context
+  Currently, `hamlet` with no subcommand dispatches to `parser.print_help()`. After the daemon/viewer split, `hamlet` with no arguments should launch viewer mode.
+  
+  ## Existing Code to Reference
+  - `src/hamlet/cli/__init__.py` — `main()` function. The no-subcommand branch is currently `parser.print_help(); return 0`.
+  - `src/hamlet/__main__.py` — viewer mode function created by WI-127 (`_run_viewer`).
+  
+  ## Changes to `src/hamlet/cli/__init__.py`
+  
+  1. Register `view` subcommand:
+  ```python
+  view_parser = subparsers.add_parser("view", help="Open hamlet TUI viewer (daemon must be running)")
+  view_parser.add_argument("--url", default="http://localhost:8080", help="Daemon URL")
+  view_parser.set_defaults(command="view")
+  ```
+  
+  2. In dispatch, change the no-subcommand branch:
+  ```python
+  # Before:
+  if not parsed_args.command:
+      parser.print_help()
+      return 0
+  
+  # After:
+  if not parsed_args.command or parsed_args.command == "view":
+      import asyncio
+      from hamlet.__main__ import _run_viewer
+      url = getattr(parsed_args, "url", "http://localhost:8080")
+      asyncio.run(_run_viewer(url))
+      return 0
+  ```
+  
+  ## Notes
+  - `hamlet --help` still works because `--help` is handled by argparse before subcommand dispatch.
+  - `hamlet view --url http://localhost:9090` allows connecting to a non-default daemon port.
+  - The `_run_viewer` function is defined in `__main__.py` by WI-127. Import it here to avoid duplicating the asyncio startup logic.
+cycle_created: 1
+cycle_modified: null
+content_hash: a87ef4e0e6a8579ae35aa98fb6364d33019cdb8d3787f12d014e0651ca8b41ed
+token_count: 534
+file_path: .ideate/work-items/WI-136.yaml

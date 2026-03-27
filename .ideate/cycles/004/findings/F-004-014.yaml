@@ -1,0 +1,23 @@
+id: F-004-014
+type: finding
+cycle: 4
+reviewer: spec-reviewer
+severity: significant
+title: `PersistenceProtocol` does not declare `delete_agent`
+description: |
+  `WorldStateManager.__init__` types its persistence dependency as `PersistenceProtocol` (`world_state/manager.py:49`). `despawn_agent()` calls `self._persistence.delete_agent(agent_id)` (`world_state/manager.py:562`). The method `delete_agent` exists on `PersistenceFacade` (`persistence/facade.py:321`) but is absent from `PersistenceProtocol` (`protocols.py:53-60`).
+  
+  This means:
+  - Static type checkers will flag the call site as an attribute error on the protocol.
+  - Any mock or alternate persistence implementation that satisfies `PersistenceProtocol` will not be required to implement `delete_agent`, making WI-210's despawn path silently broken for conforming substitutes.
+  
+  **File**: `src/hamlet/protocols.py:53-60`
+  **Suggested fix**: Add `async def delete_agent(self, agent_id: str) -> None: ...` to `PersistenceProtocol`.
+file_path: cycles/004/findings/F-004-014.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-004
+verdict: Fail
+content_hash: fc827560addf754d58629b57b47315b3beafc98633777a02ca3c05827f951fc6
+token_count: 288

@@ -1,0 +1,18 @@
+id: FI-012-009
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: minor
+title: No Parameter Validation for region_scale
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:95`
+  - **Issue**: The `region_scale` parameter has a comment saying "50-200 cells" but accepts any float value. Values like `region_scale=1` or `region_scale=10000` would produce extreme and likely unintended behavior.
+  - **Suggested fix**: Add validation in `TerrainConfig.__post_init__` to warn or error on values outside a reasonable range, or document that values outside 50-200 produce undefined results.
+file_path: cycles/012/findings/FI-012-009.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-254
+verdict: Pass
+content_hash: "97e7dc39f4fe9a17d0f1f0bab79529c26722b12f2d0f09784f17dffc843e2f5c"
+token_count: 195

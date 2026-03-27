@@ -1,0 +1,11 @@
+id: J-029-007
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 29
+title: "Cycle 1 — Work item 245: Lake Detection and Expansion"
+content: |
+  Status: complete with rework
+  Implemented `detect_lakes()` with flood-fill (4-connected), `_flood_fill_water()` helper, and `expand_lake()` for growing small water bodies. Added `min_lake_size` and `lake_expansion_factor` config parameters. Integration into `get_terrain_in_bounds()` as step 6 (after smoothing, before forests). Fixed critical bug: changed `detect_lakes(smoothed, min_size=min_lake_size)` to `detect_lakes(smoothed, min_size=1)` so expansion logic is reachable. Added 19 tests. Review passed after fix.
+content_hash: bb657ca8bc5243bcb8527bbba0c5fc435bd7630a2b63dbbbc8bfec5dbc2e4c41
+token_count: 172

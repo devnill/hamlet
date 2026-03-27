@@ -1,0 +1,11 @@
+id: J-021-003
+type: journal_entry
+phase: execute
+date: "2026-03-20"
+cycle_created: 21
+title: "Work item 188: Test coverage — on_resize, on_mount, and is_plugin_active"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed — removed unused monkeypatch parameters from 4 test signatures in test_cli_install.py.
+content_hash: fd7b84552ae7183bf081c738536da8c56dd11f10d341636a62b37ffa0cf54f31
+token_count: 85

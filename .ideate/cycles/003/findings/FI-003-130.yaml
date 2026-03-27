@@ -1,0 +1,18 @@
+id: FI-003-130
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Double WARN log on schema-validation failure
+description: |
+  - **File**: `src/hamlet/mcp_server/server.py:80`
+  - **Issue**: `validate_event()` already logs at WARNING internally. The HTTP handler logs a second WARNING for the same event.
+  - **Suggested fix**: Remove redundant log at server.py line 80.
+file_path: cycles/003/findings/FI-003-130.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-100
+verdict: Pass
+content_hash: e0b3a7dbbe44f5a04c73a13cc1cf0f93b6c2b99151c236425087200da6558e6a
+token_count: 135

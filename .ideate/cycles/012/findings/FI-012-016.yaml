@@ -1,0 +1,19 @@
+id: FI-012-016
+type: finding
+cycle: 12
+reviewer: code-reviewer
+severity: significant
+title: Forest percentage enforcement modifies terrain after generation
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/terrain.py:1196-1228`
+  - **Issue**: When `forest_percentage_target` is set, the algorithm removes excess forests starting from those furthest from water, or adds forests near existing ones.
+  - **Impact**: This is a reasonable approach but may create unnatural forest patterns at boundaries when adjusting.
+  - **Suggested fix**: Document that forest percentage enforcement is approximate and may not produce perfectly even distribution.
+file_path: cycles/012/findings/FI-012-016.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-256
+verdict: Pass
+content_hash: a206b8ea50198b34fafc8a7d304192efa6bc8965489cf45b954029cdd1f55938
+token_count: 205

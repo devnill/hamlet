@@ -1,0 +1,18 @@
+id: F-015-064
+type: finding
+cycle: 15
+reviewer: code-reviewer
+severity: minor
+title: destroy_plane return value not checked
+description: |
+  - **File**: `src/hamlet/gui/notcurses/bindings.py`
+  - **Issue**: `ncplane_destroy` returns an int (0 on success), but the wrapper discards the return value. Silent failure on destroy could leak planes.
+  - **Suggested fix**: Log a warning if the return value is non-zero, similar to the error handling pattern in other wrappers.
+file_path: cycles/015/findings/F-015-064.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-015
+verdict: Pass
+content_hash: "893a669d1571603c0ab3e1287d50dc91a017313f206af9fd49b0070de9451371"
+token_count: 156

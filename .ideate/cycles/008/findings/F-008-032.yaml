@@ -1,0 +1,33 @@
+id: F-008-032
+type: finding
+cycle: 8
+reviewer: code-reviewer
+severity: significant
+title: No tests for any new HookType values or new `handle_event` branches
+description: |
+  - **Files**:
+    - `tests/test_event_processor.py` — no test uses any of the 11 new `HookType` values
+    - `tests/test_world_state_manager.py` — no test exercises any new `handle_event` branch
+    - `tests/test_tui_world_view.py` — no test for `on_mount` viewport resize call or `on_resize` handler
+  
+  - **Issue**: The review manifest (line 18) noted this gap for WI-182 and flagged it as minor. At the capstone level, the impact is larger. The 11 new `HookType` values added in WI-182 are never used in any test. The 11 new branches in `handle_event()` added in WI-183 are never exercised. Specifically:
+    - `HookType.SessionStart` branch calls `get_or_create_project` and `get_or_create_session` — not tested.
+    - `HookType.SessionEnd` branch sets `AgentState.IDLE` under `self._lock` — not tested.
+    - `HookType.SubagentStart` branch calls `get_or_create_agent` — not tested.
+    - `HookType.TaskCompleted` branch calls `add_work_units` with a randomly chosen `StructureType` — not tested.
+    - `on_mount` viewport resize call and `on_resize` Textual handler added in WI-184 — not tested.
+    - `is_plugin_active()` added in WI-185 — not tested.
+  
+  - **Impact**: Regressions in the most important new behaviors (session and agent lifecycle, structure work accumulation, resize wiring, plugin detection) will not be caught by the test suite.
+  
+  - **Suggested fix**: Add test cases covering at minimum: each new `HookType` round-trips through `process_event`; `handle_event` for `SessionStart`, `SessionEnd`, `SubagentStart`, `TaskCompleted` produce the expected state mutations; `on_resize` forwards dimensions to `viewport.resize`; `is_plugin_active` returns correct values for both JSON formats.
+  
+  ---
+file_path: cycles/008/findings/F-008-032.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-008
+verdict: Fail
+content_hash: "64267198884f45f5659fd8765b53e0eaf53ac4fabd71acbb5f72e71b6be3ee99"
+token_count: 509

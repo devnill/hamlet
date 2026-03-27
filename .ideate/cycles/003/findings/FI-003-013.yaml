@@ -1,0 +1,18 @@
+id: FI-003-013
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: Docstring described threading guarantee asyncio.Lock does not provide
+description: |
+  - **File**: `src/hamlet/event_processing/sequence_generator.py:9`
+  - **Issue**: Class docstring said "Thread-safe" but asyncio.Lock is safe only within a single event loop, not across OS threads.
+  - **Suggested fix**: Change to "Coroutine-safe monotonic sequence generator (safe within a single event loop)."
+file_path: cycles/003/findings/FI-003-013.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-012
+verdict: Pass
+content_hash: "2de0ba28a06e835bde764c93f165e35fc250b45c77a9f0b59227d9c539f081d2"
+token_count: 159

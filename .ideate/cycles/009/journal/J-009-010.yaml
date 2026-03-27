@@ -1,0 +1,11 @@
+id: J-009-010
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 9
+title: "Work item 107: Fix deterministic agent color assignment"
+content: |
+  Status: complete with rework
+  Rework: 1 minor finding fixed (M1: RESEARCHER and EXECUTOR both mapped to "cyan" in TYPE_COLORS and AGENT_COLORS — changed EXECUTOR to "red" in both inference/types.py and tui/symbols.py).
+content_hash: c2bd211ee40d0786f2263cfad674c691ebf4840f53fe700222a877509c6fd0b9
+token_count: 99

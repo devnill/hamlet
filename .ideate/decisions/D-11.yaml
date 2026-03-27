@@ -1,0 +1,13 @@
+id: D-11
+type: domain_decision
+domain: visualization
+status: settled
+cycle: 1
+supersedes: null
+description: AGENT_BASE_COLORS removed; animation.py imports TYPE_COLORS as sole color authority
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: a78ae33c76b12245ce207977c4fae0a25aa6b655e8dd047ba2eb1e31d5228630
+token_count: 76
+file_path: .ideate/decisions/D-11.yaml

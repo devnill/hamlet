@@ -1,0 +1,39 @@
+id: CS-014
+type: cycle_summary
+cycle: 14
+content: |
+  # Review Summary
+  
+  ## Overview
+  Cycle 014 delivered three features: configurable village spacing (`min_village_distance`), a CLI settings command (`hamlet settings get/set`), and periodic daemon config reload (30s interval). All three work items passed review. The comprehensive review found no critical or significant issues in the cycle 014 changes. Three pre-existing significant findings in `service.py` and `daemon.py` were fixed as rework during the review.
+  
+  ## Critical Findings
+  None.
+  
+  ## Significant Findings
+  - [code-reviewer] S1: `_shutdown_requested` module flag never reset between runs in daemon.py — pre-existing, fixed as rework. Relates to: cross-cutting (daemon lifecycle)
+  - [code-reviewer] S2: Bare dict lookup in `service_command` raises KeyError on unexpected subcommand — pre-existing, fixed as rework. Relates to: cross-cutting (service CLI)
+  - [code-reviewer] S3: Error messages reference deprecated launchctl subcommand names (load/unload instead of bootstrap/bootout) — pre-existing, fixed as rework. Relates to: cross-cutting (service CLI)
+  
+  ## Minor Findings
+  - [code-reviewer] M1: `_check_port_conflict` hardcodes `localhost` which may resolve to IPv6 — relates to: cross-cutting (daemon networking)
+  - [code-reviewer] M2: `_install` idempotency guard returns exit code 0 for both "newly installed" and "already installed" — relates to: cross-cutting (service CLI)
+  - [gap-analyst] G1: Same as M1 — IPv6 resolution concern
+  - [gap-analyst] G2: No user-facing documentation for `hamlet service` in README — relates to: GP-11 (Low-Friction Setup)
+  
+  ## Suggestions
+  None.
+  
+  ## Findings Requiring User Input
+  None — all findings can be resolved from existing context.
+  
+  ## Proposed Refinement Plan
+  No critical or significant findings remain after rework. The project is ready for user evaluation.
+  
+  Minor items for a future cycle if desired:
+  - Fix IPv6 localhost resolution in `_check_port_conflict`
+  - Document `hamlet service` and `hamlet settings` commands in README
+  - Add tests for TerrainConfig.__post_init__ validation (carried from cycle 013)
+  - Fix meadow_threshold validation range to [-1, 1] (carried from cycle 013)
+content_hash: a29bf5ef7e294dd1fec80b66a7c3b30201fdf498d2dcd461f050345f8d409401
+token_count: 557

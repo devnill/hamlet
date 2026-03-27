@@ -1,0 +1,18 @@
+id: F-016-068
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: `SpriteHandle.uploaded` field is always False and misleading
+description: |
+  - **File**: `src/hamlet/gui/kitty/sprites.py:18`
+  - **Issue**: `SpriteHandle` is frozen and constructed with `uploaded=False`. The actual upload state is tracked in `SpriteManager._uploaded_ids`. The `uploaded` field on the handle is never True and misleads callers who check it. The rework already added `is_uploaded()` as the proper API, making the field redundant.
+  - **Suggested fix**: Remove `uploaded` from `SpriteHandle` in a future cycle.
+file_path: cycles/016/findings/F-016-068.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-016
+verdict: null
+content_hash: "55d0eb4616f8b88d9a93f9d50fec4a8e32a7600923f182381547132bf3db4221"
+token_count: 191

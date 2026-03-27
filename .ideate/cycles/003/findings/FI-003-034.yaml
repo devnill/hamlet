@@ -1,0 +1,18 @@
+id: FI-003-034
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `get_display_color` docstring misrepresented blending behavior
+description: |
+  - **File**: `src/hamlet/inference/colors.py:22`
+  - **Issue**: Docstring claimed zombies "alternate between base color and green" — no alternation exists. `blend_color` with ratio=0.5 always returns green (overlay). Criterion says "blends base color with green"; MVP behavior is always-green.
+  - **Fix applied**: Updated docstring to accurately state MVP always returns green for zombies. Added ValueError guard to `blend_color` for out-of-range ratios.
+file_path: cycles/003/findings/FI-003-034.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-025
+verdict: Fail
+content_hash: "3715eb64871e56cfaa468e7d2e391abe49ab1642e83ac4bc1827ef1bd8f10703"
+token_count: 195

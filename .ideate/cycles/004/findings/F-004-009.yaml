@@ -1,0 +1,22 @@
+id: F-004-009
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: significant
+title: `delete_agent` missing from `PersistenceProtocol`
+description: |
+  - **File**: `src/hamlet/protocols.py:53`
+  - **Issue**: `WorldStateManager.despawn_agent` calls `self._persistence.delete_agent(agent_id)` where `self._persistence` is typed as `PersistenceProtocol`. `PersistenceProtocol` does not declare `delete_agent`. Any stub or alternative implementation that satisfies only the protocol will fail at runtime when the first despawn fires.
+  - **Impact**: Runtime `AttributeError` on first despawn in any test or deployment that uses a protocol-conforming stub instead of the concrete `PersistenceFacade`.
+  - **Suggested fix**: Add to `PersistenceProtocol`:
+    ```python
+    async def delete_agent(self, agent_id: str) -> None: ...
+    ```
+file_path: cycles/004/findings/F-004-009.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: cycle-004
+verdict: Fail
+content_hash: "6b495d0c98e47648686e29efadfd38876c6e6fffeabe759dc21e7b7ead9c64d9"
+token_count: 246

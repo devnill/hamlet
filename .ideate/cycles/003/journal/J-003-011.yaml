@@ -1,0 +1,11 @@
+id: J-003-011
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 3
+title: "Work item 251: Config Persistence for Terrain Parameters"
+content: |
+  Status: complete
+  Settings dataclass includes terrain_config field. Config loading reads terrain parameters from .hamlet/config.json. Default values used when config lacks terrain section.
+content_hash: dc9450c03e07eaef5b66f9f7ff1e5e78e32758f84f3af67319952bc7f181d061
+token_count: 91

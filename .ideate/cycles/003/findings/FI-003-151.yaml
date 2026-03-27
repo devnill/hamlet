@@ -1,0 +1,18 @@
+id: FI-003-151
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: RESEARCHER and EXECUTOR share the same color "cyan" in TYPE_COLORS
+description: |
+  - **File**: `src/hamlet/inference/types.py:89,91` and `src/hamlet/tui/symbols.py:20,22`
+  - **Issue**: Both `AgentType.RESEARCHER` and `AgentType.EXECUTOR` mapped to `"cyan"`. GP-6 requires deterministic, distinct identity per type. Two types with identical colors are visually indistinguishable.
+  - **Suggested fix**: Change `AgentType.EXECUTOR` to a distinct color (e.g., "red") in both dicts.
+file_path: cycles/003/findings/FI-003-151.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-107
+verdict: Pass
+content_hash: "1543e1b15e46da12d8f048f7a0d186343138ded17859d568a54ab15ffc7e9197"
+token_count: 181

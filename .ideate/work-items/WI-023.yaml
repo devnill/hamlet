@@ -1,0 +1,26 @@
+id: WI-023
+type: work_item
+title: Spawn Detection Algorithm
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - `_detect_spawn(event, state)` async method detects spawns
+  - First event in new session creates spawn result with `parent_id=None`
+  - PreToolUse while session has active tools creates spawn with parent inference
+  - `_get_primary_agent(session_id)` helper finds parent agent
+  - `_handle_pre_tool_use` calls spawn detection and records pending tools
+  - New sessions added to state when first seen
+module: null
+domain: null
+notes: |
+  # Implementation Notes: 023
+  
+  Spawn detection uses concurrent PreToolUse events and session tracking. Primary agent is one with most recent activity. Store pending tools in inference state.
+cycle_created: 1
+cycle_modified: null
+content_hash: "4f968b28d531a56e133094f9141928764e3df9cf4d0dc92bd7af442c0b17189e"
+token_count: 216
+file_path: .ideate/work-items/WI-023.yaml

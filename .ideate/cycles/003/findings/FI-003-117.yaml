@@ -1,0 +1,18 @@
+id: FI-003-117
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: critical
+title: `checkpoint()` accessed internal `_queue` for `join()`
+description: |
+  - **File**: `src/hamlet/persistence/facade.py:161`
+  - **Issue**: `checkpoint()` used `self._write_queue._queue.join()` directly.
+  - **Fix applied**: Added public `join()` method to `WriteQueue`; facade now uses `await self._write_queue.join()`.
+file_path: cycles/003/findings/FI-003-117.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-079
+verdict: Fail
+content_hash: "4a2d98649c063171a3dea4e359e65b97fa2e333de742f75dc987517cb3be8215"
+token_count: 139

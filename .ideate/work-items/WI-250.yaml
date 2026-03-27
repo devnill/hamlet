@@ -1,0 +1,21 @@
+id: WI-250
+type: work_item
+title: TerrainConfig Parameter System
+status: pending
+complexity: medium
+scope: []
+depends: []
+blocks: []
+criteria:
+  - TerrainConfig dataclass has all adjustable parameters exposed
+  - "Parameters include: elevation_scale, moisture_scale, smoothing_passes, forest_grove_count, forest_growth_iterations, water_threshold, mountain_threshold, forest_threshold, meadow_threshold, ridge_count, min_lake_size, lake_expansion_factor, domain_warp_strength, octaves, lacunarity, persistence"
+  - Parameters have sensible defaults matching current behavior
+  - TerrainGenerator accepts TerrainConfig in constructor and uses all parameters
+module: null
+domain: null
+notes: null
+cycle_created: 1
+cycle_modified: null
+content_hash: bf0ff18ad657731e6c7011ebbed9d8e093ae54c2a859846ce9da591425c4e9ed
+token_count: 198
+file_path: .ideate/work-items/WI-250.yaml

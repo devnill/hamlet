@@ -1,0 +1,18 @@
+id: FI-003-141
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: minor
+title: `handle_event` summary format is minimal
+description: |
+  - **File**: `src/hamlet/world_state/manager.py:619`
+  - **Issue**: Summary is `"{hook_type}: {tool_name or ''}"` — trailing space when tool_name is None.
+  - **Suggested fix**: `f"{event.hook_type.value}: {event.tool_name}"` if None, strip trailing space.
+file_path: cycles/003/findings/FI-003-141.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-104
+verdict: Pass
+content_hash: "7c76de9e3f5a793024fbaeb2de6879a9ccc6fc2f8bc1905c7ef704918fd6170d"
+token_count: 138

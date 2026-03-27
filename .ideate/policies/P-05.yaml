@@ -1,0 +1,13 @@
+id: P-05
+type: domain_policy
+domain: visualization
+status: active
+derived_from: []
+established: planning phase
+amended: null
+description: All agent type color assignments must be defined in `inference/types.py` `TYPE_COLORS`. Any module needing agent colors must import from that table. No local color map copies are permitted.
+cycle_created: 1
+cycle_modified: null
+content_hash: c4248d1ab5bd59b0f08e061ab201d312aef5eee30d7ffcaab95e988d72f61b7c
+token_count: 107
+file_path: .ideate/policies/P-05.yaml

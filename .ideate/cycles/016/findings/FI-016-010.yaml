@@ -1,0 +1,18 @@
+id: FI-016-010
+type: finding
+cycle: 16
+reviewer: code-reviewer
+severity: minor
+title: Terrain and agent cells at screen row 0 are silently clobbered by the HUD
+description: |
+  - **File**: `src/hamlet/gui/kitty/renderer.py:122-124`, `:253-255`
+  - **Issue**: `_in_bounds` permits `sy == 0`, so terrain/structure/agent content can be written to row 0 before `_render_hud` overwrites it with the status bar. The content is lost with no visible artefact but it wastes work and indicates incomplete guard logic.
+  - **Suggested fix**: Either exclude row 0 from `_in_bounds` (`return 0 < sy < self._rows and 0 <= sx < self._cols` — note: bottom HUD rows similarly need exclusion) or document that HUD rows are reserved and enforce that at the bounds check.
+file_path: cycles/016/findings/FI-016-010.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-278
+verdict: Fail
+content_hash: "4496767dbcc17139e42543a2498c671dd6dbfc1dcd118685b2a4c3a1585a5845"
+token_count: 226

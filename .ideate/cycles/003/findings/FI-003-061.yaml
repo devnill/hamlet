@@ -1,0 +1,18 @@
+id: FI-003-061
+type: finding
+cycle: 3
+reviewer: code-reviewer
+severity: significant
+title: `advance_frames` ignored SPIN_FRAME_RATE — spin ran at tick rate not 4Hz
+description: |
+  - **File**: `src/hamlet/simulation/animation.py:65`
+  - **Issue**: Frame counter was incremented by `delta_ticks` directly `% 4`, so at 30fps the spin completed a full rotation in 4/30ths of a second instead of every second. `SPIN_FRAME_RATE` was defined but never used.
+  - **Fix**: Changed `_frames` to store raw accumulated ticks. `get_animation_state` converts to display frame via `(raw // TICKS_PER_SPIN_FRAME) % 4`. Added `TICKS_PER_SPIN_FRAME = 8` and `TICKS_PER_PULSE_FRAME = 15` constants.
+file_path: cycles/003/findings/FI-003-061.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-044
+verdict: Pass
+content_hash: b8c4135487e68836a12d78e5b59691c3335de3860bddde0741374e6e0c25cc96
+token_count: 208

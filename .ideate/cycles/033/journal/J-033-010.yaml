@@ -1,0 +1,12 @@
+id: J-033-010
+type: journal_entry
+phase: execute
+date: "2026-03-22"
+cycle_created: 33
+title: Metrics summary
+content: |
+  Agents spawned: 16 (8 workers, 8 code-reviewers)
+  Models used: sonnet (WI-275, WI-279, WI-282 workers + all reviewers), opus (WI-276, WI-277, WI-278, WI-280, WI-281 workers + rework agents)
+  Slowest agent: worker — 275-remove-notcurses — 664420ms
+content_hash: "89bc12f70c2ac4971e245384a773b07671bf08bff958c8e8226344200757a3b9"
+token_count: 95

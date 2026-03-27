@@ -1,0 +1,11 @@
+id: J-016-003
+type: journal_entry
+phase: brrr
+date: "2026-03-19"
+cycle_created: 16
+title: "Cycle 1 — Work item 167: Remove inline hooks from ~/.claude/settings.json"
+content: |
+  Status: complete
+  Removed the top-level "hooks" key and all four inline jq+curl hook entries from ~/.claude/settings.json. extraKnownMarketplaces, env, permissions, model, statusLine, enabledPlugins all preserved.
+content_hash: "193db1d7f037486be03831a6e18a4f5fe1f170c934a983d16aa517e3bbbcf039"
+token_count: 101

@@ -1,0 +1,11 @@
+id: J-007-058
+type: journal_entry
+phase: execute
+date: "2026-03-16"
+cycle_created: 7
+title: "Work item 077: Event Log Operations"
+content: |
+  Status: complete with rework
+  Rework: 1 significant finding fixed (S1: INSERT and DELETE not wrapped in a transaction — a crash between them left the table over max_entries permanently, and a concurrent append between them could be immediately pruned by the DELETE subquery; wrapped both in begin_transaction/commit/rollback). 1 minor finding fixed (M1: error log changed to log session_id and hook_type instead of ambiguous entry.id UUID).
+content_hash: "5980ed4eb72a2461de9104c34d4ad68da3ee975db1cf04096daa0eee05dd0ea6"
+token_count: 149

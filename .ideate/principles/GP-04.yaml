@@ -1,0 +1,16 @@
+id: GP-04
+type: guiding_principle
+name: Modularity for Iteration
+status: active
+description: |
+  All mappings (tool-to-action, agent-type-to-color, structure progression) should be configurable and swappable. The first version won't be perfect, so the architecture must support easy iteration on visual and gameplay elements.
+  
+  **Why:** User stated: "It doesn't need to be a perfect mapping as long as the screen is visually interesting" and "This is subject to change, but design around the agents having specific activities that they do based on hook. It should be designed in a way that could be modular."
+  
+  **How to apply:** Use configuration files or data structures for tool-to-action mappings. Don't hardcode building types or animation timings. Make it easy to swap in new visual behaviors without rewriting core logic.
+amendment_history: []
+cycle_created: 1
+cycle_modified: null
+content_hash: "838fcba05cb2c03f2682cb32ce1b4c4d2a364bcba62118105c36dd173b723492"
+token_count: 238
+file_path: .ideate/principles/GP-04.yaml

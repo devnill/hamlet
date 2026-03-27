@@ -1,0 +1,18 @@
+id: FI-004-004
+type: finding
+cycle: 4
+reviewer: code-reviewer
+severity: minor
+title: village.center read without lock in _seed_initial_structures
+description: |
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/manager.py:451`
+  - **Issue**: `center = village.center` is read from a shared `Village` object after `self._lock` has been released. No code path currently mutates `village.center` after creation, so this is not an active bug, but the access pattern is inconsistent with the locking discipline used everywhere else in the file.
+  - **Suggested fix**: Capture the center value before releasing the lock. In `get_or_create_project` (line 171), just before setting `village_to_seed = village`, add `village_center = village.center`. Then pass `village_center` to `_seed_initial_structures` rather than the full `Village` object, or store it as an attribute of a small seed-params dataclass.
+file_path: cycles/004/findings/FI-004-004.yaml
+line: null
+suggestion: null
+addressed_by: null
+work_item: WI-115
+verdict: Pass
+content_hash: "3195c31f7840e9414f35a776f91a02349aac85ef0d27777522cdbafed96e324e"
+token_count: 265

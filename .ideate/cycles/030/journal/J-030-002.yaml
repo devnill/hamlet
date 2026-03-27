@@ -1,0 +1,11 @@
+id: J-030-002
+type: journal_entry
+phase: brrr
+date: "2026-03-22"
+cycle_created: 30
+title: "Cycle 2 — Work item 247: Terrain Pipeline Integration Test"
+content: |
+  Status: complete
+  Added integration test class TestTerrainGridIntegration with two tests: test_get_terrain_in_bounds_full_pipeline_produces_varied_terrain (verifies all terrain types present) and test_get_terrain_in_bounds_deterministic_full_pipeline (verifies determinism). Both tests use skipif decorator for environments without noise library.
+content_hash: f88998217704b706672b8351ea895e7440607e4a45b15cbfcfcfe9b13ef7bb93
+token_count: 130

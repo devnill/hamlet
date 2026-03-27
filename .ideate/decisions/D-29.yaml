@@ -1,0 +1,13 @@
+id: D-29
+type: domain_decision
+domain: architecture
+status: settled
+cycle: 14
+supersedes: null
+description: _shutdown_requested flag reset at entry to _run_daemon
+rationale: ""
+cycle_created: 1
+cycle_modified: null
+content_hash: e9286d4062fb26003f1f2ec72f1a2a8b6f5a38e04e3fbdda18d2fc01720a8e90
+token_count: 69
+file_path: .ideate/decisions/D-29.yaml
