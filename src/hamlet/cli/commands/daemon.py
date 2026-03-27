@@ -6,6 +6,7 @@ import logging
 import signal
 import socket
 import sys
+import time
 import urllib.request
 from types import FrameType
 
@@ -15,6 +16,36 @@ logger = logging.getLogger(__name__)
 
 # Global flag for graceful shutdown (set by signal handlers)
 _shutdown_requested = False
+
+# How often (in seconds) to re-read config.json at runtime
+RELOAD_INTERVAL = 30
+
+
+def _apply_config_changes(bundle, changes: dict, new_settings) -> None:
+    """Apply changed settings to running components.
+
+    Args:
+        bundle: ComponentBundle with references to running components.
+        changes: Dict of {field_name: (old_value, new_value)} from Settings.diff().
+        new_settings: The newly loaded Settings instance.
+    """
+    for field_name, (old_val, new_val) in changes.items():
+        logger.info("Config changed: %s = %r (was %r)", field_name, new_val, old_val)
+
+    if "min_village_distance" in changes:
+        bundle.world_state._min_village_distance = new_settings.min_village_distance
+
+    if "zombie_threshold_seconds" in changes:
+        bundle.agent_inference._zombie_threshold_seconds = new_settings.zombie_threshold_seconds
+
+    if "tick_rate" in changes:
+        bundle.simulation.set_tick_rate(new_settings.tick_rate)
+
+    if "mcp_port" in changes:
+        logger.warning(
+            "mcp_port changed to %d — restart required for this to take effect",
+            new_settings.mcp_port,
+        )
 
 
 def _check_port_conflict(port: int) -> str | None:
@@ -92,9 +123,24 @@ async def _run_daemon(port: int) -> int:
             "Hamlet daemon running on port %d — press Ctrl-C or send SIGTERM to stop", port
         )
 
-        # Wait until a shutdown signal is received
+        # Wait until a shutdown signal is received, reloading config every RELOAD_INTERVAL seconds
+        last_reload = time.monotonic()
+        current_settings = settings
+
         while not _shutdown_requested:
             await asyncio.sleep(0.5)
+            now = time.monotonic()
+            if now - last_reload >= RELOAD_INTERVAL:
+                # Update before load so a broken config file does not cause tight-loop retries
+                last_reload = now
+                try:
+                    new_settings = Settings.load()
+                    changes = current_settings.diff(new_settings)
+                    if changes:
+                        _apply_config_changes(bundle, changes, new_settings)
+                        current_settings = new_settings
+                except Exception:
+                    logger.exception("Config reload failed, keeping current settings")
 
         logger.info("Shutdown requested, stopping components...")
 

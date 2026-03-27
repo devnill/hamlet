@@ -145,3 +145,75 @@ class TestCoordinates:
         assert bounds.min_y == 38
         assert bounds.max_x == 90
         assert bounds.max_y == 62
+
+    def test_world_to_screen_with_zoom(self) -> None:
+        """Test world-to-screen coordinate translation with zoom."""
+        viewport_center = Position(50, 50)
+        viewport_size = Size(80, 24)
+
+        # At 1x zoom, center should map to screen center
+        screen = world_to_screen(Position(50, 50), viewport_center, viewport_size, zoom=1)
+        assert screen.x == 40
+        assert screen.y == 12
+
+        # At 2x zoom, each world cell is 2 screen cells
+        # World position (50, 50) should still map to screen center
+        screen = world_to_screen(Position(50, 50), viewport_center, viewport_size, zoom=2)
+        assert screen.x == 40
+        assert screen.y == 12
+
+        # At 2x zoom, world position (51, 51) should be 2 screen cells away from center
+        screen = world_to_screen(Position(51, 51), viewport_center, viewport_size, zoom=2)
+        assert screen.x == 42  # (51 - 50) * 2 + 40
+        assert screen.y == 14  # (51 - 50) * 2 + 12
+
+        # At 4x zoom, world position (52, 52) should be 8 screen cells from center
+        screen = world_to_screen(Position(52, 52), viewport_center, viewport_size, zoom=4)
+        assert screen.x == 48  # (52 - 50) * 4 + 40
+        assert screen.y == 20  # (52 - 50) * 4 + 12
+
+    def test_screen_to_world_with_zoom(self) -> None:
+        """Test screen-to-world coordinate translation with zoom."""
+        viewport_center = Position(50, 50)
+        viewport_size = Size(80, 24)
+
+        # At 1x zoom, screen center should map to world center
+        world = screen_to_world(Position(40, 12), viewport_center, viewport_size, zoom=1)
+        assert world.x == 50
+        assert world.y == 50
+
+        # At 2x zoom, screen center still maps to world center
+        world = screen_to_world(Position(40, 12), viewport_center, viewport_size, zoom=2)
+        assert world.x == 50
+        assert world.y == 50
+
+        # At 2x zoom, screen position (42, 14) should map to world (51, 51)
+        world = screen_to_world(Position(42, 14), viewport_center, viewport_size, zoom=2)
+        assert world.x == 51  # (42 - 40) // 2 + 50
+        assert world.y == 51  # (14 - 12) // 2 + 50
+
+        # At 4x zoom, screen position (48, 20) should map to world (52, 52)
+        world = screen_to_world(Position(48, 20), viewport_center, viewport_size, zoom=4)
+        assert world.x == 52  # (48 - 40) // 4 + 50
+        assert world.y == 52  # (20 - 12) // 4 + 50
+
+    def test_get_visible_bounds_with_zoom(self) -> None:
+        """Test get_visible_bounds with zoom factor."""
+        viewport_center = Position(50, 50)
+        viewport_size = Size(80, 24)
+
+        # At 1x zoom
+        bounds_1x = get_visible_bounds(viewport_center, viewport_size, zoom=1)
+
+        # At 2x zoom, we should see fewer world cells
+        bounds_2x = get_visible_bounds(viewport_center, viewport_size, zoom=2)
+
+        # The visible range should be roughly half at 2x zoom
+        width_1x = bounds_1x.max_x - bounds_1x.min_x + 1
+        width_2x = bounds_2x.max_x - bounds_2x.min_x + 1
+        assert width_2x <= width_1x // 2 + 1
+
+        # At 4x zoom, even fewer cells visible
+        bounds_4x = get_visible_bounds(viewport_center, viewport_size, zoom=4)
+        width_4x = bounds_4x.max_x - bounds_4x.min_x + 1
+        assert width_4x <= width_2x // 2 + 1

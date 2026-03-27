@@ -1,5 +1,163 @@
 # Project Journal
 
+## [refine] 2026-03-22 — Kitty graphics protocol pivot planned
+Trigger: notcurses 3.0.17 + Python 3.14 segfault (unfixable C extension incompatibility)
+Principles changed: none
+Decision: replace notcurses ctypes backend with Kitty graphics protocol (pure Python escape sequences). Renderer infrastructure (RendererProtocol, SymbolConfig, zoom, sprites, app architecture) carries forward. Only the backend implementation changes. Next step: /ideate:refine in a fresh session to decompose work items.
+
+## [execute] 2026-03-22 — notcurses runtime segfault investigation
+Status: blocked
+notcurses 3.0.17 segfaults with Python 3.14 on ARM64 macOS. Internal input_thread corrupts Python's memory allocator after 2-5 seconds. All mitigations failed (signal handlers, threading, subprocess IPC). Decision: pivot to Kitty graphics protocol (pure Python escape sequences, no C library). Renderer infrastructure (RendererProtocol, SymbolConfig, zoom, sprites) carries forward.
+
+## [review] 2026-03-22 — Comprehensive review completed (cycle 015)
+Critical findings: 0
+Significant findings: 0
+Minor findings: 7
+Suggestions: 3
+Items requiring user input: 0
+Curator: ran
+Note: Three reviewers ran out of turns; findings synthesized from investigation transcripts.
+
+## [execute] 2026-03-22 — Work item 274: Notcurses availability diagnostic
+Status: complete
+doctor_command prints notcurses availability, version, TERM, tmux detection, recommended renderer. 7 tests pass.
+
+## [execute] 2026-03-22 — Work item 273: Notcurses viewer app and entry point
+Status: complete
+NotcursesApp with 30fps loop, input dispatch, follow mode, zoom, legend. CLI --renderer flag added to view subparser. _run_viewer_notcurses entry point added. 22 tests pass (19 app + 3 CLI).
+
+## [execute] 2026-03-22 — Work item 271: Multi-resolution zoom system
+Status: complete
+ZoomLevel enum, ZoomConfig, cycling functions, renderer set_zoom integration. 28 tests pass.
+
+## [execute] 2026-03-22 — Work item 272: Sprite asset system and PNG loading
+Status: complete with rework
+Rework: 1 significant, 2 minor findings fixed. S1: cleanup() now unconditionally destroys ncvisuals. M2: docstring corrected for _snap_size.
+
+## [execute] 2026-03-22 — Work item 269: Notcurses renderer implementation
+Status: complete with rework
+Rework: 2 significant, 3 minor findings fixed. S1: putstr fg/bg guards changed from truthiness to None check (fixes black color). S2: viewport size now derived from plane_dim instead of viewport_state.size.
+
+## [execute] 2026-03-22 — Work item 267: Notcurses ctypes binding layer
+Status: complete
+46 tests pass. Ported ctypes bindings from test project. NOTCURSES_AVAILABLE flag, 4 structs, 13 wrapper functions. Review incomplete (reviewer ran out of turns).
+
+## [execute] 2026-03-22 — Work item 268: Renderer protocol and symbol config extraction
+Status: complete
+RendererProtocol defined, SymbolConfig extracted, symbols.py refactored to delegate. 31 tests pass. Meadow color corrected to match existing test expectations. Review incomplete (reviewer ran out of turns).
+
+## [execute] 2026-03-22 — Work item 270: Settings and CLI integration for renderer selection
+Status: complete with rework
+Rework: 2 minor findings fixed from incremental review. M1: fixed test to exercise real detect_renderer except branch. M2: added 4 renderer validation tests to test_settings.py.
+
+## [refine] 2026-03-22 — Refinement planning completed (refine-18)
+Trigger: new requirements — notcurses graphical rendering backend
+Principles changed: GP-3 expanded (backend-agnostic thematic consistency)
+Constraints changed: D1 amended (ASCII default, optional sprite backend)
+New work items: 267-274
+Notcurses ctypes bindings, renderer protocol, notcurses renderer, settings/CLI integration, multi-resolution zoom, sprite asset system, viewer app, diagnostic command. 8 items in 4 dependency groups.
+
+## [review] 2026-03-22 — Comprehensive review completed (cycle 014)
+Critical findings: 0
+Significant findings: 3 (all pre-existing in service.py/daemon.py — fixed as rework)
+Minor findings: 4
+Suggestions: 0
+Items requiring user input: 0
+Curator: ran
+
+## [execute] 2026-03-22 — Work item 264: Add min_village_distance to Settings
+Status: complete with rework
+Rework: 1 minor finding fixed from incremental review. Added 5 validation tests for min_village_distance field.
+
+## [execute] 2026-03-22 — Work item 265: Add hamlet settings CLI command
+Status: complete with rework
+Rework: 2 significant, 1 minor findings fixed from incremental review. Details: S1 — added TerrainConfig construction for terrain sub-key validation; S2 — added 18 tests for settings CLI; M1 — fixed misleading boolean error message. Also improved type coercion for nullable terrain fields.
+
+## [execute] 2026-03-22 — Work item 266: Add periodic config reload to daemon
+Status: complete with rework
+Rework: 2 significant, 1 minor findings fixed from incremental review. Details: S1 — added 5 tests for Settings.diff(); S2 — added 5 tests for _apply_config_changes propagation; M1 — added comment explaining last_reload timing.
+
+## [refine] 2026-03-22 — Refinement planning completed
+Trigger: user request — CLI settings management, configurable village spacing, config hot-reload
+Principles changed: none
+New work items: 264-266
+Settings CLI (`hamlet settings get/set`), min_village_distance as configurable setting (previously hardcoded at 15), periodic config reload in daemon (30s interval). Three work items in two groups: WI-264 and WI-265 parallel, WI-266 depends on both.
+
+## [review] 2026-03-22 — Comprehensive review completed (cycle 013)
+Critical findings: 0
+Significant findings: 1 (meadow_threshold validation range — fixed during rework)
+Minor findings: 3
+Suggestions: 0
+Items requiring user input: 0
+Curator: ran — updated terrain domain (2 policies, 3 decisions, 4 questions closed, 6 new questions)
+Rework: Fixed all noise-based threshold validation to use [-1, 1] range instead of [0, 1].
+
+## [execute] 2026-03-22 — Work item 258: Fix Water Bias Formula Documentation
+Status: complete
+Updated comment in terrain.py line 651 from "Max ±0.3 adjustment" to "Max ±0.15 adjustment" to match actual formula output.
+
+## [execute] 2026-03-22 — Work item 259: Add Missing Parameters to Parameter Panel
+Status: complete
+Added 10 missing TerrainConfig parameters to TERRAIN_PARAMS in parameter_panel.py: region_scale, region_blending, river_count, pond_count, min_pond_size, max_pond_size, water_percentage_target, forest_water_adjacency_bonus, forest_region_bias_strength, forest_percentage_target.
+
+## [execute] 2026-03-22 — Work item 260: Update Settings Docstring
+Status: complete
+Added note to Settings class docstring referencing TerrainConfig for full parameter list (Option 2 from spec).
+
+## [execute] 2026-03-22 — Work item 261: Refactor Bounds Calculation
+Status: complete
+Replaced duplicate bounds calculation in MapViewer.get_visible_bounds() with delegation to shared utility from coordinates.py. All tests pass.
+
+## [execute] 2026-03-22 — Work item 262: Add Legend Toggle to MapApp
+Status: complete
+Added LegendOverlay import, `/` keybinding, and action_toggle_legend to MapApp. Legend hidden by default via LegendOverlay.DEFAULT_CSS.
+
+## [execute] 2026-03-22 — Work item 263: Add Parameter Validation to TerrainConfig
+Status: complete with rework
+Rework: 1 significant finding fixed from incremental review.
+Added __post_init__ to TerrainConfig with validation warnings for out-of-range parameters. Reworked water_threshold validation to use [-1, 1] range instead of [0, 1] since the default value (-0.25) is a valid noise threshold that would have triggered a spurious warning on every instantiation.
+
+## [execute] 2026-03-22 — Work item 249: Terrain Legend Enhancement
+Status: complete
+Legend overlay updated to display terrain types: water (~), mountain (^), forest (♣), meadow ("), plain (.). Each terrain type shows symbol with its color. Legend height adjusted for new terrain section.
+
+## [execute] 2026-03-22 — Work item 250: TerrainConfig Parameter System
+Status: complete
+TerrainConfig dataclass extended with all adjustable parameters. Parameters include: elevation_scale, moisture_scale, smoothing_passes, forest_grove_count, forest_growth_iterations, water_threshold, mountain_threshold, forest_threshold, meadow_threshold, ridge_count, min_lake_size, lake_expansion_factor, domain_warp_strength, octaves, lacunarity, persistence, plus new parameters: region_scale, region_blending, water_percentage_target, forest_water_adjacency_bonus, forest_region_bias_strength, forest_percentage_target. TerrainGenerator accepts TerrainConfig and uses all parameters.
+
+## [execute] 2026-03-22 — Work item 251: Config Persistence for Terrain Parameters
+Status: complete
+Settings dataclass includes terrain_config field. Config loading reads terrain parameters from .hamlet/config.json. Default values used when config lacks terrain section.
+
+## [execute] 2026-03-22 — Work item 252: Map Viewer Mode with Parameter Adjustment
+Status: complete with rework
+Rework: 1 minor finding fixed (type hint `callable` changed to `Callable` with proper import).
+New CLI flag `hamlet map-viewer` launches map viewer mode. MapApp shows terrain without agents/structures. Side panel has sliders for terrain parameters. Regenerate button regenerates terrain with new parameters. Save button persists parameters to config file.
+
+## [execute] 2026-03-22 — Work item 253: Zoom Functionality for Map Viewer
+Status: complete with rework
+Rework: 1 significant finding fixed (removed dead code in scroll method — scaled_delta_x/y variables unused).
+Zoom levels: 1x (default), 2x, 4x, 8x. Zoom in/out with + and - keys. Coordinate transformation adjusts for zoom level. Viewport center preserved during zoom. Zoom level displayed in status bar.
+
+## [execute] 2026-03-22 — Work item 254: Biome Region Generation
+Status: complete with rework
+Rework: 1 critical finding fixed (water bias formula inverted — changed `(biome_char + 1.0) * 0.5` to `(-biome_char) * 0.5` so wet regions get higher water bias).
+Macro-scale noise (low frequency) defines biome regions. Each region has dominant terrain type tendency. Region blending creates gradual transitions. Performance: generation under 500ms for 200x200 world.
+
+## [execute] 2026-03-22 — Work item 255: Realistic Water Features
+Status: complete with rework
+Rework: 1 critical finding fixed (water_percentage_target parameter not implemented — added `_enforce_water_percentage()` method and integrated into pipeline at Step 10).
+Rivers: Linear water features following elevation gradients. Ponds: Small isolated water bodies (5-15 cells). Lakes: Large connected water bodies with organic shapes (existing detection works with region system). Water features connect naturally. Water percentage configurable via parameter.
+
+## [execute] 2026-03-22 — Work item 256: Forest Clustering Near Features
+Status: complete
+Forests preferentially spawn near water features (seeds near water get probability bonus). Forest density varies by biome region (region bias influences growth threshold). Forest groves use existing seeding and growth algorithm. Forests form coherent clusters. Forest percentage configurable via parameter.
+
+## [execute] 2026-03-22 — Work item 257: Terrain Smoothing and Transition Rules
+Status: complete with rework
+Rework: Added performance test for 50x50 viewport smoothing (verifies < 100ms).
+CA smoothing rules apply to all terrain types (water isolation, forest expansion/contraction, mountain foothills, meadow-plain transitions). Forests expand into adjacent passable terrain with 5+ forest neighbors. Isolated forests (fewer than 2 neighbors) contract to meadow. Transition rules create gradual boundaries between similar biomes. Smoothing passes configurable via existing smoothing_passes parameter. Performance: smoothing adds < 100ms to generation time.
+
 ## [refine] 2026-03-22 — refine-15 planning completed
 Trigger: User feedback on terrain generation aesthetics
 Principles changed: none
@@ -1565,3 +1723,166 @@ Convergence: achieved — all work items complete, no outstanding issues
 Total cycles: 2
 Total work items: 9 (WI-240 through WI-248)
 Final status: Converged
+
+## [review] 2026-03-22 — Comprehensive review completed (Cycle 012)
+Critical findings: 0
+Significant findings: 6 (S1-S4 code quality, G1-G2 gap analysis)
+Minor findings: 9 (M1-M5 code quality, M1-M4 gap analysis)
+Items requiring user input: 3 (Q-5 legend accessibility, Q-6 parameter validation, Q-11 missing parameters)
+Curator: ran — new terrain domain created, 12 decisions added, 7 questions added
+Verdict: Fail — unmet acceptance criterion (WI-252 AC3) and significant findings require attention
+
+### Review Summary
+- Code quality: 4 significant, 5 minor — verdict Fail
+- Spec adherence: 0 violations, all principles followed — verdict Pass
+- Gap analysis: 2 significant, 4 minor — identified implementation gaps
+- Decision log: 12 decisions recorded, 7 open questions identified
+
+### Key Findings
+1. **S2: Missing Parameters** — Ten TerrainConfig parameters not exposed in parameter panel (unmet AC)
+2. **S1: Water Bias Documentation** — Formula produces 0.15 max, comment says 0.3
+3. **G1: Legend Accessibility** — Legend not available in map viewer mode
+4. **G2: Parameter Validation** — No validation for extreme/nonsensical values
+
+### Proposed Refinement
+- Priority 1: Add missing parameters to TERRAIN_PARAMS (WI-252 AC3)
+- Priority 2: Fix documentation (S1, S3)
+- Priority 3: Refactor bounds calculation (S4)
+- Priority 4: Add legend to MapApp (G1)
+
+## [review] 2026-03-22 — Metrics summary
+Agents spawned: 4 (code-reviewer, spec-reviewer, gap-analyst, journal-keeper, domain-curator)
+Total wall-clock: ~560s
+Models used: sonnet
+Slowest agent: gap-analyst — 167s
+
+## [refine] 2026-03-22 — Refine-16 planning completed
+Trigger: Cycle 012 review findings (1 unmet AC, 6 significant findings)
+Principles changed: none
+New work items: WI-258 through WI-263 (6 items)
+
+Review findings addressed:
+- S1 (documentation): Fix water bias formula comment — WI-258
+- S2 (unmet AC): Add missing parameters to parameter panel — WI-259
+- S3 (documentation): Update settings docstring — WI-260
+- S4 (code quality): Refactor bounds calculation — WI-261
+- G1 (gap): Add legend toggle to MapApp — WI-262
+- G2 (gap): Add parameter validation — WI-263
+
+User decisions:
+- Q-5 (legend): Toggle with `/` key in MapApp
+- Q-6 (validation): Warn but accept for out-of-range values
+- Q-11 (missing params): Add all parameters to TERRAIN_PARAMS
+
+Open questions deferred:
+- Q-7 (help toggle): Not addressed in this cycle
+- Q-8 (river min length): Not addressed in this cycle
+- Q-9 (save status): Not addressed in this cycle
+- Q-10 (water bias): Addressed by WI-258
+
+All work items are independent and can run in parallel.
+
+## [refine] 2026-03-22 — Refinement planning completed (refine-19)
+Trigger: notcurses Python 3.14 segfault (fundamental incompatibility) + cycle 015 review findings
+Principles changed: GP-3 updated (notcurses → Kitty), Design Constraint 1 updated (added pure Python requirement)
+New work items: WI-275 through WI-282 (8 items)
+Summary: Replace notcurses ctypes backend with pure Python Kitty graphics protocol backend. Delete gui/notcurses/ entirely (failed experiment). Create gui/kitty/ with protocol layer, sprites, renderer, zoom, app, state fetcher. Address all cycle 015 findings: Q-10 (ROAD symbol crash), Q-11 (terrain not connected), Q-12 (SpriteSheet invalidation), Q-15 (legend no-op), Q-20 (architecture.md).
+
+## [refine] 2026-03-22 — Metrics summary
+Agents spawned: 3 (architect, researcher, decomposer)
+Models used: opus
+
+## [execute] 2026-03-22 — Work item 275: Remove notcurses backend
+Status: complete
+Deleted gui/notcurses/ directory, 3 notcurses test files, and 2 additional test files (test_sprites.py, test_zoom.py) that referenced notcurses. Updated detect.py, settings.py, cli/__init__.py, __main__.py with temporary stubs. Also cleaned up doctor.py, gui/__init__.py, renderer_protocol.py docstrings, and updated test_cli.py, test_renderer_detect.py, test_settings.py.
+
+## [execute] 2026-03-22 — Work item 276: Kitty graphics protocol layer
+Status: complete
+Created gui/kitty/__init__.py, gui/kitty/protocol.py, tests/test_kitty_protocol.py. 19 tests. Implements encode_image_upload (with chunking), encode_image_display, encode_image_delete, encode_delete_all, detect_kitty_support.
+
+## [execute] 2026-03-22 — Work item 277: Kitty sprite system
+Status: complete
+Created gui/kitty/sprites.py, tests/test_kitty_sprites.py. 22 tests. SpriteHandle frozen dataclass with immutable image IDs (Q-12 fix). SpriteManager with caching, naming conventions, graceful degradation.
+
+## [execute] 2026-03-22 — Work item 279: Multi-resolution zoom for Kitty
+Status: complete
+Created gui/kitty/zoom.py, tests/test_kitty_zoom.py. 15 tests. ZoomLevel IntEnum, ZoomConfig frozen dataclass, next_zoom/prev_zoom cycling.
+
+## [execute] 2026-03-22 — Work item 278: Kitty renderer implementation
+Status: complete with rework
+Rework: 1 critical, 2 significant, 4 minor findings fixed from incremental review.
+Critical: encode_image_display was receiving character-cell indices instead of pixel offsets — fixed by multiplying by tile_pixels.
+Significant: Added sprite rendering path test; added public SpriteManager.is_uploaded() method to avoid private attribute access.
+Minor: HUD row exclusion in _in_bounds, flush() calls, small terminal guard, comment fix.
+
+## [execute] 2026-03-22 — Work item 280: Detection, settings, CLI updates for Kitty
+Status: complete with rework
+Rework: 0 critical, 2 significant, 1 minor findings fixed from incremental review.
+C1 (KittyApp not found) was a dependency timing issue — resolved by WI-281 creating app.py.
+Significant: Added "kitty" to test_view_renderer_argument_choices; added tests for kitty code path in _view_command and main().
+Minor: Fixed stale docstring in resolve_renderer.
+
+## [execute] 2026-03-22 — Work item 281: Kitty viewer app, state fetching, legend overlay
+Status: complete with rework
+Rework: 0 critical, 2 significant, 4 minor findings fixed from incremental review.
+Significant: Added legend overlay test (Q-15 verification); fixed blocking read on partial arrow-key escape sequence with select.select guard.
+Minor: check_health response closure, initial terminal size before fetch, per-key terrain parse error handling, follow toggle empty string guard.
+
+## [execute] 2026-03-22 — Work item 282: Doctor command and architecture docs
+Status: complete
+Rewrote doctor.py for Kitty diagnostics. Updated architecture.md with GUI MODULE section (Q-20 fix). Updated test_doctor.py. 9 tests.
+
+## [execute] 2026-03-22 — Metrics summary
+Agents spawned: 16 (8 workers, 8 code-reviewers)
+Models used: sonnet (WI-275, WI-279, WI-282 workers + all reviewers), opus (WI-276, WI-277, WI-278, WI-280, WI-281 workers + rework agents)
+Slowest agent: worker — 275-remove-notcurses — 664420ms
+
+## [review] 2026-03-22 — Comprehensive review completed
+Critical findings: 0
+Significant findings: 1 (sprite upload pipeline disconnected — dormant, no runtime impact)
+Minor findings: 8
+Suggestions: 4
+Items requiring user input: 0
+Curator: ran — 6 questions resolved, 6 new questions added, 7 decisions recorded, 1 policy amended
+
+## [review] 2026-03-22 — Metrics summary
+Agents spawned: 5 (code-reviewer, spec-reviewer, gap-analyst, journal-keeper, domain-curator)
+Models used: sonnet
+Slowest agent: domain-curator — 499449ms
+
+## [refine] 2026-03-23 — Refinement planning completed (refine-20)
+Trigger: Runtime crash — StateFetcher returns raw dicts, KittyRenderer expects dataclass objects
+Principles changed: none
+New work items: WI-283–WI-286
+Summary: Fix dict-to-dataclass conversion in Kitty StateFetcher using existing parsers from tui/remote_world_state.py. Add functional integration tests with real daemon fixtures. Mandatory manual smoke test gate.
+
+## [execute] 2026-03-23 — Work item 283: Parse API responses into dataclass objects
+Status: complete
+state_fetcher.py: imported _parse_agent/_parse_structure/_parse_village from tui/remote_world_state.py. Added _try_parse helper for graceful per-item degradation. Replaced raw dict assignment with parsed dataclass lists.
+
+## [execute] 2026-03-23 — Work item 284: Fix KittyApp dict access patterns
+Status: complete
+app.py: replaced isinstance(v, dict) / .get() patterns throughout. Village: v.center.x/y. Follow loop: agent.id, agent.position.x/y. _toggle_follow: first.id or None.
+
+## [execute] 2026-03-23 — Work item 285: Functional integration tests with real API fixtures
+Status: complete
+Created tests/fixtures/ with real daemon responses (2 agents, 17 structures, 16 villages, 10201 terrain cells, 100 events). Created tests/test_kitty_integration.py with 12 tests covering: dataclass type verification, attribute access, render output contains terrain symbols, malformed entry graceful skip, enum type verification. All 12 pass.
+
+## [execute] 2026-03-23 — Work item 286: Manual regression test
+Status: complete
+hamlet view --renderer kitty: launched, rendered terrain with ASCII tiles, no crash, no traceback. hamlet view (textual): no regression. hamlet doctor: printed Kitty diagnostics without error. 103 kitty tests pass. Minor: slight flicker at FAR zoom (full-screen redraw each frame) — deferred.
+
+
+## [review] 2026-03-23 — Comprehensive review completed
+Critical findings: 0
+Significant findings: 2
+Minor findings: 8
+Suggestions: 3
+Items requiring user input: 0
+Curator: ran
+
+## [review] 2026-03-23 — Metrics summary
+Agents spawned: 5 (code-reviewer, spec-reviewer, gap-analyst, journal-keeper, domain-curator)
+Total wall-clock: N/A (main-session execution, no subagent wall-clock recorded)
+Models used: sonnet
+Slowest agent: N/A

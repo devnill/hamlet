@@ -44,8 +44,8 @@
 - **Question:** `install.py` validates the MCP server by calling `http://localhost:8080/hamlet/health`, but the HTTP server registers only `/hamlet/event`. Should a GET `/hamlet/health` route be added?
 - **Source:** archive/cycles/003/gap-analysis.md (G5)
 - **Impact:** Every `hamlet install` run produces a misleading "MCP server not reachable" warning even when Hamlet is running. Violates GP-11 (low-friction setup).
-- **Status:** open
-- **Reexamination trigger:** Cycle 004 infrastructure work items.
+- **Status:** resolved
+- **Resolution:** GET /hamlet/health endpoint implemented in mcp_server/server.py. Returns {"status": "ok"} with HTTP 200. Confirmed by full audit 2026-03-26.
 
 ## Q-7: Hook port hardcoding fix level
 - **Question:** Hook scripts hardcode `SERVER_URL = "http://localhost:8080/hamlet/event"`. When `mcp_port != 8080`, install check passes but all events are silently dropped. Two options: (A) Full fix — add `server_url` to `~/.hamlet/config.json` written by `install.py`; hooks read it at startup. (B) Partial fix — warn in `install_command()` when `mcp_port != 8080`.
@@ -75,8 +75,8 @@
 - **Question:** `EVENT_SCHEMA` constrains `tool_output` to `["object", "null"]`. Bash tool returns stdout as a plain string. Every Bash PostToolUse event with string output is silently discarded by schema validation. Should the schema type be widened to include `"string"`, or should `post_tool_use.py` wrap string responses in an object?
 - **Source:** archive/cycles/005/decision-log.md (OQ6); archive/cycles/005/gap-analysis.md (MG2)
 - **Impact:** Bash-heavy agents generate no world-state changes. Structures driven by Bash activity (forges) are never built from real tool activity.
-- **Status:** open
-- **Reexamination trigger:** Next validation or event processing work item.
+- **Status:** resolved
+- **Resolution:** EVENT_SCHEMA tool_output type widened to ["object", "string", "null"] in validation.py. Bash string responses accepted. Confirmed by full audit 2026-03-26.
 
 ## Q-11: notification_message extracted but never consumed downstream
 - **Question:** `InternalEvent.notification_message` is populated by `event_processor.py` but `_handle_notification()` in `engine.py` is an explicit no-op placeholder. `WorldStateManager` builds event log entries as `"{hook_type}: {tool_name or ''}"`, so every Notification entry reads `"Notification: "` — message content is discarded. Should `_handle_notification()` be implemented and `WorldStateManager` updated to include the message?
@@ -95,7 +95,7 @@
 - **Resolved in:** cycle 006
 
 ## Q-13: stop_reason behavioral differentiation
-- **Question:** Should "tool" (mid-tool interruption) and "stop" (clean termination) values of `stop_reason` produce different agent state transitions? Currently both receive identical treatment — zombie eviction handles stale pending_tools via TTL regardless of stop reason.
+- **Question:** Should "tool" (mid-tool interruption) and "stop" (clean termination) values of `stop_reason` produce different agent state transitions? Currently both receive identical treatment — zombie eviction handles stale `pending_tools` via TTL regardless of stop reason.
 - **Source:** archive/cycles/006/decision-log.md (D-R3, OQ1); archive/cycles/006/gap-analysis.md (MG1)
 - **Impact:** Interrupted sessions accumulate stale `pending_tools` entries until zombie TTL fires. Proactive cleanup on "tool" stop could reduce the delay.
 - **Status:** open
@@ -128,3 +128,39 @@
 - **Impact:** Minor — requires an unusual plugin name coincidence. The silent suppression (returns 0 with a warning) makes it visible but the heuristic is weak.
 - **Status:** open
 - **Reexamination trigger:** Plugin installation issues or next install.py work item.
+
+## Q-18: _check_port_conflict hardcodes "localhost" which may resolve to IPv6
+- **Question:** `_check_port_conflict` in `daemon.py` connects to `"localhost"` for the TCP probe. On macOS systems where `localhost` resolves to `::1` (IPv6), a daemon bound to `127.0.0.1` will not be detected, falsely reporting the port as free. Should the probe use `"127.0.0.1"` explicitly, or probe both addresses?
+- **Source:** archive/cycles/014/code-quality.md (M1), archive/cycles/014/decision-log.md (OQ-1)
+- **Impact:** Port conflict detection silently fails on affected systems. The daemon itself binds to all interfaces, making this edge case low-frequency but non-zero.
+- **Status:** open
+- **Reexamination trigger:** Next daemon.py or networking work item.
+
+## Q-19: hamlet service and settings commands undocumented in README
+- **Question:** README.md does not document `hamlet service install/start/stop/restart/uninstall` or `hamlet settings get/set`. Users must read source code to discover these commands.
+- **Source:** archive/cycles/014/gap-analysis.md (G2), archive/cycles/014/decision-log.md (OQ-2)
+- **Impact:** Reduces discoverability of service management and settings CLI. Violates GP-11 (Low-Friction Setup) for new users.
+- **Status:** open
+- **Reexamination trigger:** Next documentation or onboarding work item.
+
+## Q-20: architecture.md component map does not include the gui/ module tree
+- **Question:** `specs/plan/architecture.md` component map showed only the TUI module as the rendering layer. The new `gui/` module tree (renderer protocol, backend, symbol config, detect modules) was not documented.
+- **Source:** archive/cycles/015/spec-adherence.md (M1); archive/cycles/015/decision-log.md (OQ-7)
+- **Impact:** Workers scoping GUI-adjacent work items would not know where to look or what interfaces exist.
+- **Status:** resolved
+- **Resolution:** Fixed in cycle 016. GUI MODULE section added to architecture.md component map covering the Kitty backend, RendererProtocol, SymbolConfig, detect.py, and StateFetcher.
+- **Resolved in:** cycle 016
+
+## Q-21: Process Constraint 3 inconsistency — tile-based graphics listed as excluded but delivered
+- **Question:** `specs/steering/constraints.md` Process Constraint 3 lists "Tile-based graphics (replacing ASCII)" as excluded from MVP. The Kitty graphics protocol backend delivers exactly that (PNG sprites via Kitty protocol). Design Constraint 1 was correctly updated with the pure Python requirement, but Process Constraint 3 was not updated.
+- **Source:** archive/cycles/016/decision-log.md (OQ-8); archive/cycles/016/spec-adherence.md (M1)
+- **Impact:** Minor inconsistency between constraints. Design Constraint 1 is authoritative. Future workers reading Process Constraint 3 in isolation may incorrectly believe tile graphics are still excluded.
+- **Status:** open
+- **Reexamination trigger:** Next constraints.md or steering documentation work item.
+
+## Q-22: _parse_* helpers should be promoted to a shared public module
+- **Question:** Should `_parse_agent`, `_parse_structure`, `_parse_village` be moved from `tui/remote_world_state.py` to a shared module (e.g., `world_state/parsers.py`) with explicit public exports?
+- **Source:** archive/cycles/017/decision-log.md (OQ-1); archive/cycles/017/code-quality.md (M3); archive/cycles/017/spec-adherence.md (M2)
+- **Impact:** Both `tui/remote_world_state.py` and `gui/kitty/state_fetcher.py` currently consume these helpers via cross-module import of `_`-prefixed, unexported symbols. Any internal refactoring of `tui/remote_world_state.py` silently breaks the Kitty backend — no static analysis tool will flag the breakage until runtime. Three reviewers converged on this issue independently (CR1).
+- **Status:** open
+- **Reexamination trigger:** Next work item touching `tui/remote_world_state.py`, `gui/kitty/state_fetcher.py`, or any new backend that needs to parse daemon API responses.

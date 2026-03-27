@@ -12,7 +12,10 @@
 
 ## Design Constraints
 
-1. **ASCII-only rendering.** No tile-based graphics, images, or non-text rendering. The visual language is ASCII characters with color.
+1. **ASCII rendering is the default and must always be available.** The Textual backend uses ASCII characters with color and works in all terminals including tmux. Sprite-based rendering via the Kitty graphics protocol is permitted as an optional backend for terminals that support it (Ghostty, kitty, WezTerm). The system must gracefully degrade to ASCII when the graphical backend is unavailable. The graphical backend must be pure Python (no C libraries) to avoid interpreter compatibility issues.
+
+> _Changed in refinement (2026-03-22): Expanded from "ASCII-only" to allow optional sprite-based backend while preserving ASCII as the universal fallback._
+> _Changed in refinement (2026-03-22): Specified Kitty graphics protocol (pure Python) as the graphical backend. notcurses (C library via ctypes) removed due to Python 3.14 segfaults. Added "pure Python" constraint to prevent future C library dependencies in the rendering layer._
 
 2. **Terminal UI.** The application runs in a terminal, not a browser or native GUI window. It must work in standard terminal emulators.
 
@@ -33,7 +36,6 @@
 2. **Silent failure on errors.** If the MCP server is unreachable, hook scripts exit cleanly without blocking Claude Code. No retry logic, no error states in the UI.
 
 3. **No out-of-scope features.** The following are explicitly excluded from MVP:
-   - Tile-based graphics (replacing ASCII)
    - Sound effects
    - Multiplayer/spectator viewing
    - Replay/history scrubbing

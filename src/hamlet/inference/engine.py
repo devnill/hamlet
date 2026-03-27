@@ -78,7 +78,15 @@ class AgentInferenceEngine:
           and evicts the matching ``PendingTool`` entry.
         - **Notification**: refreshes ``last_seen`` timestamps for session agents.
         - **Stop**: refreshes ``last_seen`` and logs the stop reason.
-        - All other hook types: logged as a warning; no state is mutated.
+        - **SessionStart**: creates session state entry, materialises
+          project/session/agent in world state, updates last_seen.
+        - **SessionEnd**: marks session agents as ZOMBIE.
+        - **SubagentStart**: spawns a new agent for the explicit agent_id with
+          the session's primary agent as parent.
+        - **SubagentStop**: despawns the agent identified by event.agent_id.
+        - **TeammateIdle**: refreshes ``last_seen`` timestamps for session agents.
+        - **TaskCompleted, PostToolUseFailure, UserPromptSubmit, PreCompact,
+          PostCompact, StopFailure**: update last_seen only (passthrough).
 
         Per guiding principle 7 (graceful degradation), handler exceptions are
         caught and logged — inference failures are non-fatal.
@@ -95,8 +103,25 @@ class AgentInferenceEngine:
                 await self._handle_notification(event)
             elif event.hook_type == HookType.Stop:
                 await self._handle_stop(event)
-            else:
-                logger.warning("process_event: unhandled hook_type %s", event.hook_type)
+            elif event.hook_type == HookType.SessionStart:
+                await self._handle_session_start(event)
+            elif event.hook_type == HookType.SessionEnd:
+                await self._handle_session_end(event)
+            elif event.hook_type == HookType.SubagentStart:
+                await self._handle_subagent_start(event)
+            elif event.hook_type == HookType.SubagentStop:
+                await self._handle_subagent_stop(event)
+            elif event.hook_type == HookType.TeammateIdle:
+                await self._handle_teammate_idle(event)
+            elif event.hook_type in (
+                HookType.TaskCompleted,
+                HookType.PostToolUseFailure,
+                HookType.UserPromptSubmit,
+                HookType.PreCompact,
+                HookType.PostCompact,
+                HookType.StopFailure,
+            ):
+                await self._handle_passthrough(event)
         except Exception:
             logger.exception("Error processing event %s", event.id)
 
@@ -399,6 +424,153 @@ class AgentInferenceEngine:
 
         if event.stop_reason:
             logger.debug("Stop [session=%s, reason=%s]", event.session_id, event.stop_reason)
+
+    async def _handle_session_start(self, event: InternalEvent) -> None:
+        """Handle SessionStart events.
+
+        Creates session state if not already present, materialises the project,
+        session, and primary agent in world state, and updates last_seen.
+        """
+        state = self._state
+
+        # Create the session state entry if not already present.
+        if event.session_id not in state.sessions:
+            state.sessions[event.session_id] = SessionState(
+                session_id=event.session_id,
+                project_id=event.project_id,
+            )
+
+        # Materialise the project, session, and primary agent in world state.
+        await self._world_state.get_or_create_project(event.project_id, event.project_name)
+        await self._world_state.get_or_create_session(event.session_id, event.project_id)
+        agent = await self._world_state.get_or_create_agent(event.session_id, None)
+
+        session = state.sessions[event.session_id]
+        if agent.id not in session.agent_ids:
+            session.agent_ids.append(agent.id)
+
+        # Update last_seen for all agents in this session.
+        for agent_id in session.agent_ids:
+            state.last_seen[agent_id] = event.received_at
+
+        logger.debug(
+            "_handle_session_start: session=%s agent=%s", event.session_id, agent.id
+        )
+
+    async def _handle_session_end(self, event: InternalEvent) -> None:
+        """Handle SessionEnd events.
+
+        Marks all agents in the session as ZOMBIE and records zombie_since,
+        mirroring the stop_reason='tool' path in _handle_stop.
+        """
+        state = self._state
+        session = state.sessions.get(event.session_id)
+        if session:
+            for agent_id in list(session.agent_ids):
+                try:
+                    await self._world_state.update_agent(agent_id, state=AgentState.ZOMBIE)
+                    state.zombie_since[agent_id] = datetime.now(UTC)
+                except Exception:
+                    logger.exception(
+                        "_handle_session_end: failed to zombie agent %s", agent_id
+                    )
+        logger.debug("_handle_session_end: session=%s", event.session_id)
+
+    async def _handle_subagent_start(self, event: InternalEvent) -> None:
+        """Handle SubagentStart events.
+
+        Spawns a new agent for the sub-agent, using the session's primary agent
+        as the parent. The explicit event.agent_id identifies the new sub-agent,
+        but since get_or_create_agent keys on session_id we record the agent
+        returned and track it in inference state.
+        """
+        state = self._state
+
+        # Ensure session state exists.
+        if event.session_id not in state.sessions:
+            state.sessions[event.session_id] = SessionState(
+                session_id=event.session_id,
+                project_id=event.project_id,
+            )
+
+        # Find parent agent from session's existing agents.
+        parent_agent = await self._get_primary_agent(event.session_id)
+        parent_id = parent_agent.id if parent_agent else None
+
+        # Materialise project and session, then spawn the sub-agent.
+        await self._world_state.get_or_create_project(event.project_id, event.project_name)
+        await self._world_state.get_or_create_session(event.session_id, event.project_id)
+        agent = await self._world_state.get_or_create_agent(event.session_id, parent_id)
+
+        session = state.sessions[event.session_id]
+        if agent.id not in session.agent_ids:
+            session.agent_ids.append(agent.id)
+
+        # Update last_seen for all agents in this session.
+        for agent_id in session.agent_ids:
+            state.last_seen[agent_id] = event.received_at
+
+        logger.debug(
+            "_handle_subagent_start: session=%s agent=%s parent=%s",
+            event.session_id,
+            agent.id,
+            parent_id,
+        )
+
+    async def _handle_subagent_stop(self, event: InternalEvent) -> None:
+        """Handle SubagentStop events.
+
+        Despawns the agent identified by event.agent_id and cleans up
+        last_seen and zombie_since for that agent.
+        """
+        state = self._state
+        agent_id = event.agent_id
+        if agent_id is None:
+            logger.debug(
+                "_handle_subagent_stop: no agent_id on event, skipping; session=%s",
+                event.session_id,
+            )
+            return
+
+        try:
+            await self._world_state.despawn_agent(agent_id)
+            state.last_seen.pop(agent_id, None)
+            state.zombie_since.pop(agent_id, None)
+        except Exception:
+            logger.exception(
+                "_handle_subagent_stop: failed to despawn agent %s", agent_id
+            )
+
+        # Also remove agent from session's agent_ids list if present.
+        session = state.sessions.get(event.session_id)
+        if session and agent_id in session.agent_ids:
+            session.agent_ids.remove(agent_id)
+
+        logger.debug(
+            "_handle_subagent_stop: despawned agent=%s session=%s",
+            agent_id,
+            event.session_id,
+        )
+
+    async def _handle_teammate_idle(self, event: InternalEvent) -> None:
+        """Handle TeammateIdle events — update last_seen for session agents."""
+        session = self._state.sessions.get(event.session_id)
+        if session:
+            for agent_id in session.agent_ids:
+                self._state.last_seen[agent_id] = event.received_at
+        logger.debug("TeammateIdle [session=%s]", event.session_id)
+
+    async def _handle_passthrough(self, event: InternalEvent) -> None:
+        """Handle passthrough hook types — update last_seen only.
+
+        Covers: TaskCompleted, PostToolUseFailure, UserPromptSubmit,
+        PreCompact, PostCompact, StopFailure.
+        """
+        session = self._state.sessions.get(event.session_id)
+        if session:
+            for agent_id in session.agent_ids:
+                self._state.last_seen[agent_id] = event.received_at
+        logger.debug("passthrough [hook_type=%s session=%s]", event.hook_type, event.session_id)
 
     def _check_zombie(self, agent_id: str) -> bool:
         """Return True if the agent has not been seen within zombie_threshold_seconds."""

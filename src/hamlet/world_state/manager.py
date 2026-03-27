@@ -48,11 +48,11 @@ __all__ = ["WorldStateManager"]
 class WorldStateManager:
     """Manages the in-memory world state and synchronises it with persistence."""
 
-    # Minimum distance between village centers
-    MIN_VILLAGE_DISTANCE = 15
-
     def __init__(
-        self, persistence: "PersistenceProtocol", terrain_config: TerrainConfig | None = None
+        self,
+        persistence: "PersistenceProtocol",
+        terrain_config: TerrainConfig | None = None,
+        min_village_distance: int = 15,
     ) -> None:
         self._persistence = persistence
         self._lock = asyncio.Lock()
@@ -60,6 +60,7 @@ class WorldStateManager:
         self._grid = PositionGrid()
         self._terrain_grid: TerrainGrid | None = None
         self._terrain_config = terrain_config  # Optional config from settings
+        self._min_village_distance = min_village_distance
 
     async def load_from_persistence(self) -> None:
         """Load all entities from persistence and rebuild the in-memory world state.
@@ -224,7 +225,7 @@ class WorldStateManager:
         Searches from origin (0, 0) outward, checking:
         1. Terrain is passable (not WATER or MOUNTAIN)
         2. Position is not occupied by an existing entity
-        3. Position is at least MIN_VILLAGE_DISTANCE from other village centers
+        3. Position is at least min_village_distance from other village centers
 
         Raises RuntimeError if no valid position found within MAX_SEARCH_RADIUS.
 
@@ -257,7 +258,7 @@ class WorldStateManager:
                             candidate.x - village.center.x,
                             candidate.y - village.center.y,
                         )
-                        if dist < self.MIN_VILLAGE_DISTANCE:
+                        if dist < self._min_village_distance:
                             too_close = True
                             break
                     if too_close:
@@ -740,42 +741,71 @@ class WorldStateManager:
             logger.debug("Could not queue structure write: %s", exc)
         return structure
 
+    MAX_SEED_RADIUS = 5
+
     async def _seed_initial_structures(self, village: Village) -> None:
         """Create one LIBRARY, WORKSHOP, and FORGE near the village center.
 
         Must be called WITHOUT holding self._lock — delegates to create_structure
-        which acquires the lock itself. Skips positions already occupied. Logs
-        and continues on failure so village creation is never blocked.
+        which acquires the lock itself. Uses a spiral search (increasing Chebyshev
+        distance) so structures can be placed even when the immediate neighbors are
+        impassable or occupied. Checks both grid occupancy and terrain passability
+        before attempting placement. Logs and continues on failure so village
+        creation is never blocked.
         """
         center = village.center
-        offsets = [(1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2)]
         types_to_seed = [StructureType.LIBRARY, StructureType.WORKSHOP, StructureType.FORGE]
         placed = 0
-        for dx, dy in offsets:
+
+        for radius in range(1, self.MAX_SEED_RADIUS + 1):
             if placed >= len(types_to_seed):
                 break
-            pos = Position(x=center.x + dx, y=center.y + dy)
-            if self._grid.is_occupied(pos):
-                continue
-            structure_type = types_to_seed[placed]
-            try:
-                await self.create_structure(
-                    village_id=village.id,
-                    structure_type=structure_type,
-                    position=pos,
-                )
-                placed += 1
-            except Exception as exc:
-                logger.warning(
-                    "_seed_initial_structures: failed to create %s at %s: %s",
-                    structure_type,
-                    pos,
-                    exc,
-                )
+            # Enumerate all positions at exactly this Chebyshev distance.
+            # Walk the perimeter of the square with side (2*radius+1):
+            #   top row, right column, bottom row, left column — no corner repeats.
+            candidates: list[tuple[int, int]] = []
+            r = radius
+            # Top row: y = -r, x from -r to r
+            for x in range(-r, r + 1):
+                candidates.append((x, -r))
+            # Right column: x = r, y from -r+1 to r
+            for y in range(-r + 1, r + 1):
+                candidates.append((r, y))
+            # Bottom row: y = r, x from r-1 down to -r
+            for x in range(r - 1, -r - 1, -1):
+                candidates.append((x, r))
+            # Left column: x = -r, y from r-1 down to -r+1
+            for y in range(r - 1, -r, -1):
+                candidates.append((-r, y))
+
+            for dx, dy in candidates:
+                if placed >= len(types_to_seed):
+                    break
+                pos = Position(x=center.x + dx, y=center.y + dy)
+                if self._grid.is_occupied(pos):
+                    continue
+                if self._terrain_grid is not None and not self._terrain_grid.is_passable(pos):
+                    continue
+                structure_type = types_to_seed[placed]
+                try:
+                    await self.create_structure(
+                        village_id=village.id,
+                        structure_type=structure_type,
+                        position=pos,
+                    )
+                    placed += 1
+                except Exception as exc:
+                    logger.warning(
+                        "_seed_initial_structures: failed to create %s at %s: %s",
+                        structure_type,
+                        pos,
+                        exc,
+                    )
+
         if placed < len(types_to_seed):
             logger.warning(
-                "Village %s: only seeded %d/%d initial structures — not enough unoccupied adjacent positions",
-                village.id, placed, len(types_to_seed)
+                "Village %s: only seeded %d/%d initial structures — no unoccupied passable position found within radius %d",
+                village.id, placed, len(types_to_seed), self.MAX_SEED_RADIUS,
             )
 
     async def create_structure(
@@ -1138,7 +1168,7 @@ class WorldStateManager:
                     (existing.center.x - center.x) ** 2
                     + (existing.center.y - center.y) ** 2
                 ) ** 0.5
-                if dist < 5:
+                if dist < self._min_village_distance:
                     if originating_village_id in self._state.villages:
                         self._state.villages[originating_village_id].has_expanded = True
                         try:

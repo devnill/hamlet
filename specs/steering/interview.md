@@ -141,3 +141,109 @@ A: WATER (impassable), MOUNTAIN (impassable), FOREST, MEADOW, PLAIN (all passabl
 
 **Q: How should terrain render?**
 A: ASCII tiles: `~` water, `^` mountain, `♣` forest, `"` meadow, `.` plain. Render as background layer, then structures, then agents.
+
+---
+## Refinement Interview — 2026-03-22
+
+**Context**: User wants daemon configurability without manual JSON editing, configurable village spacing, and hot-reload of settings.
+
+**Q: What specific changes do you want to make?**
+A: Allow the daemon to be easily configured through the app. A settings menu accessible at minimum for daemon port number. Also configurable village spacing (how far villages spawn from one another).
+
+**Q: Where should the settings menu be accessible?**
+A: Standalone command — `hamlet settings` CLI.
+
+**Q: Should village spacing be configurable or just documented?**
+A: Make it configurable — add min_village_distance to settings.
+
+**Q: TUI form or CLI get/set?**
+A: CLI get/set. `hamlet settings` shows current, `hamlet settings set key value` modifies.
+
+**Q: Which settings should be editable?**
+A: Key settings only — the ones users are most likely to change (port, village distance, zombie thresholds, terrain).
+
+**Q: Should settings changes require daemon restart?**
+A: Hot reload — daemon should pick up changes without restart.
+
+**Q: Hot reload implementation approach?**
+A: Periodic re-read — daemon checks config.json every N seconds (simple, no new deps).
+
+**Q: Any other changes?**
+A: That's everything for this cycle.
+
+**Q: Do guiding principles still hold?**
+A: All still hold.
+
+---
+## Refinement Interview — 2026-03-22 (refine-18: Notcurses Backend)
+
+**Context**: User wants to add a notcurses graphical rendering backend with SNES/16-bit aesthetic. Plan document at specs/prompts/notcurses-gui-plan.md with viability testing results from ~/code/notcurses_test/.
+
+**Q: The plan conflicts with Design Constraint 1 (ASCII-only rendering). How should this be resolved?**
+A: Change the constraint. ASCII should always be available for any terminal but we should support multiple backends for better UI when the device supports it.
+
+**Q: Should the notcurses backend be selected via CLI flag, auto-detected, or both?**
+A: We should have a flag with the default being settable in the settings tool.
+
+**Q: How should the ctypes bindings be packaged?**
+A: Don't want to require brew. Bundled ctypes bindings with runtime detection via find_library() — the Pythonic pattern used by Pillow, pygame, cryptography.
+
+**Q: What sprite resolution?**
+A: Want a 16-bit SNES-style aesthetic. Like to zoom in and out, so different resolutions at different zoom levels — 16x16 close, 8x8 medium, character-based far. Think Stardew Valley or Thronglets from Black Mirror's "Plaything."
+
+**Q: Should we investigate Kitty protocol passthrough in tmux?**
+A: Simple split — Textual for tmux, notcurses for capable terminals.
+
+**Q: Should GP-3 (Thematic Consistency) be expanded?**
+A: Rework it. This is a simulation-style idle game. In terminal, Dwarf Fortress/ADOM makes sense. In 16-bit, SNES sim game style.
+
+**Q: Scope boundary — only renderer + abstraction + settings?**
+A: Correct. Don't touch core.
+
+---
+## Refinement Interview — 2026-03-22 (refine-19: Kitty Backend Pivot)
+
+**Context**: notcurses 3.0.17 segfaults with Python 3.14 on ARM64 macOS due to memory allocator incompatibility. All mitigations failed (see steering/research/notcurses-python314-segfault.md). User wants to replace the notcurses backend with Kitty graphics protocol (pure Python escape sequences). Also addressing all cycle 015 review findings.
+
+**Q: Do guiding principles still apply?**
+A: Yes. GP-3 updated to reference Kitty instead of notcurses. Design Constraint 1 updated to specify pure Python requirement for graphical backend.
+
+**Q: Should the gui/notcurses/ directory be deleted entirely, or kept as dead code?**
+A: Delete it. This was a failed experiment.
+
+**Q: Should the Kitty backend support all three zoom levels from the start, or start with character-mode?**
+A: Completely replace notcurses with Kitty. Identical scope — all three zoom levels (16x16 sprites, 8x8 medium, character-based far).
+
+**Q: Cycle 015 findings — address now, defer, or dismiss?**
+A: Address all findings. The Kitty backend replacement naturally resolves most of them:
+- Q-10 (ROAD symbol crash): Kitty renderer must use SymbolConfig with proper fallback
+- Q-11 (terrain not connected): Kitty app must connect to terrain endpoint
+- Q-15 (legend no-op): Kitty app must implement legend overlay
+- Q-20 (architecture.md): Update with Kitty backend documentation
+- Q-12 (SpriteSheet invalidation): Redesign in Kitty sprite system
+- Q-13 (destroy_plane): N/A — no native planes in pure Python Kitty approach
+
+---
+## Refinement Interview — 2026-03-23 (refine-20: StateFetcher fix)
+
+**Context**: Runtime crash — `hamlet view --renderer kitty` fails with `'dict' object has no attribute 'position'`. StateFetcher returns raw JSON dicts but KittyRenderer expects Agent/Structure dataclass objects. Tests didn't catch this because they used mock objects.
+
+**Q: What is the fix?**
+A: Import _parse_agent, _parse_structure, _parse_village from tui/remote_world_state.py in the state fetcher. Parse raw dicts into proper dataclass objects before storing in StateSnapshot. Same pattern the Textual viewer uses.
+
+---
+## Refinement Interview — 2026-03-25
+
+**Context**: User reported hamlet viewer not working — status bar showing 0 agents, 0 structures despite daemon having data and agents visible on the map. Live debugging revealed dead code, a schema mismatch, plus cycle 017 test coverage gaps.
+
+**Q: Do the guiding principles still hold?**
+A: Yes, all 11 principles still hold.
+
+**Q: Are you here to address cycle 017 findings, to make other changes, or both?**
+A: (Implicit) User reported live bugs. Debugging revealed: (1) _update_state() in HamletApp is dead code — nothing calls it, so StatusBar/EventLog never update; (2) EVENT_SCHEMA error field typed as object-null but PostToolUseFailure hook sends strings — events get 400-rejected. User confirmed seeing one agent on the map but status bar showing zeros. Scope expanded to also address cycle 017 significant findings (G1: agent @ symbol not tested, G2: empty state not tested).
+
+**Q: Should the refinement include all four items (2 live bugs + 2 test gaps)?**
+A: All 4.
+
+**Q: Anything about execution strategy that should change?**
+A: No — all items are low complexity. Batched parallel execution appropriate.

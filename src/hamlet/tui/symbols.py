@@ -1,7 +1,12 @@
-"""Symbol and color mappings for TUI rendering of agents and structures."""
+"""Symbol and color mappings for TUI rendering of agents and structures.
+
+All values are now sourced from hamlet.gui.symbol_config.default_config().
+Public exports are preserved identically for backwards compatibility.
+"""
 from __future__ import annotations
 
-from hamlet.world_state.types import Agent, AgentState, AgentType, Structure, StructureType
+from hamlet.gui.symbol_config import default_config
+from hamlet.world_state.types import Agent, AgentState, Structure, StructureType
 
 __all__ = [
     "AGENT_SYMBOL",
@@ -18,49 +23,25 @@ __all__ = [
     "get_terrain_color",
 ]
 
-AGENT_SYMBOL = "@"
+_config = default_config()
 
-AGENT_COLORS: dict[AgentType, str] = {
-    AgentType.RESEARCHER: "cyan",
-    AgentType.CODER: "yellow",
-    AgentType.EXECUTOR: "orange1",
-    AgentType.PLANNER: "dark_green",
-    AgentType.ARCHITECT: "magenta",
-    AgentType.TESTER: "blue",
-    AgentType.GENERAL: "white",
-}
+AGENT_SYMBOL: str = _config.agent.symbol
+AGENT_COLORS = _config.agent.colors
+
+STRUCTURE_SYMBOLS = _config.structure.symbols
+MATERIAL_COLORS = _config.structure.material_colors
+STAGE_SYMBOLS = _config.structure.stage_symbols
+
+TERRAIN_SYMBOLS = _config.terrain.symbols
+TERRAIN_COLORS = _config.terrain.colors
 
 
 def get_agent_color(agent: Agent) -> str:
     """Return the display color for an agent, accounting for zombie state."""
     base_color = AGENT_COLORS.get(agent.inferred_type, "white")
     if agent.state == AgentState.ZOMBIE:
-        return "green"
+        return _config.agent.zombie_color
     return base_color
-
-
-STRUCTURE_SYMBOLS: dict[StructureType, str] = {
-    StructureType.HOUSE: "∩",
-    StructureType.WORKSHOP: "◊",
-    StructureType.LIBRARY: "⌂",
-    StructureType.FORGE: "▲",
-    StructureType.TOWER: "⎔",
-    # ROAD intentionally omitted — roads use STAGE_SYMBOLS in get_structure_symbol
-    StructureType.WELL: "○",
-}
-
-MATERIAL_COLORS: dict[str, str] = {
-    "wood": "dark_orange",
-    "stone": "grey50",
-    "brick": "red",
-}
-
-STAGE_SYMBOLS: dict[int, str] = {
-    0: "░",
-    1: "▒",
-    2: "▓",
-    3: "█",
-}
 
 
 def get_structure_symbol(structure: Structure) -> str:
@@ -76,24 +57,6 @@ def get_structure_symbol(structure: Structure) -> str:
 def get_structure_color(structure: Structure) -> str:
     """Return the display color for a structure based on its material."""
     return MATERIAL_COLORS.get(structure.material, "white")
-
-
-# Terrain symbols (background layer)
-TERRAIN_SYMBOLS: dict[str, str] = {
-    "water": "~",
-    "mountain": "^",
-    "forest": "♣",
-    "meadow": '"',
-    "plain": ".",
-}
-
-TERRAIN_COLORS: dict[str, str] = {
-    "water": "blue",
-    "mountain": "grey85",
-    "forest": "green",
-    "meadow": "bright_green",
-    "plain": "white",
-}
 
 
 def get_terrain_symbol(terrain_type: str) -> str:

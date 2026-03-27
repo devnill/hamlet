@@ -36,3 +36,11 @@ All agent type color assignments must be defined in `inference/types.py` `TYPE_C
 - **Established:** cycle 004
 - **Amended:** cycle 006 — scope changed from "EXECUTOR must be red in all color tables" to "single authoritative table." `AGENT_BASE_COLORS` was removed from `animation.py` (WI-123); `TYPE_COLORS` in `inference/types.py` is now the sole color authority. The multi-table requirement is no longer applicable.
 - **Status:** active
+
+## P-6: Graphical backend must use constrained pixel-art visual conventions
+The graphical backend (Kitty graphics protocol) must use pixel-art sprites with a constrained 16-32 color palette, SNES-era proportions, and zoom-dependent resolution. Self-colored outlines, chibi character proportions, and 3/4 perspective are required for agent sprites. The warm saturated palette and medieval village theme must be consistent with the ASCII backend's thematic identity (GP-3). The backend is implemented as pure Python escape sequences — no C library or ctypes bindings.
+
+- **Derived from:** D-12, D-17, D-18, archive/cycles/015/decision-log.md (D8), archive/cycles/016/decision-log.md (D1)
+- **Established:** cycle 015
+- **Amended:** cycle 016 — replaced notcurses with Kitty graphics protocol. notcurses segfaults with Python 3.14 on ARM64 macOS (mimalloc corruption). Kitty backend is pure Python. See visualization D-16.
+- **Status:** active

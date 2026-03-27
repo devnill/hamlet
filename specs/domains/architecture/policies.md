@@ -86,3 +86,24 @@ Hook types that can interrupt Claude Code processing (PreToolUse, PreCompact) mu
 - **Derived from:** D-21, archive/cycles/008/decision-log.md
 - **Established:** cycle 008
 - **Status:** active
+
+## P-13: Restart-required settings must not be applied via hot-reload
+Settings that require subsystem initialization (`mcp_port`, `db_path`, `terrain`) must be excluded from the daemon's periodic config reload. Changes to these fields must be detected, logged as warnings, and deferred until the daemon is restarted. Hot-applying them without restarting the affected subsystem leaves the daemon in an inconsistent state.
+
+- **Derived from:** D-28, archive/cycles/014/decision-log.md (D5)
+- **Established:** cycle 014
+- **Status:** active
+
+## P-14: Module-level signal handler flags must be reset at function entry
+When a module-level boolean flag is set by a signal handler and read inside a loop in a named function, that function must reset the flag to its initial value at entry (before the loop). Without a reset, a second invocation of the function in the same Python process inherits the flag state from the previous run and may exit immediately without performing any work.
+
+- **Derived from:** D-29, archive/cycles/014/code-quality.md (S1)
+- **Established:** cycle 014
+- **Status:** active
+
+## P-15: Rendering pipeline integration tests must mock only the network transport boundary
+Integration tests for rendering pipelines (Kitty, or any future graphical backend) must patch only the HTTP transport call (e.g., `urllib.request.urlopen`) and let the full parse→dataclass→render chain execute. Mocking at the dataclass level bypasses `StateFetcher` and cannot catch type-mismatch crashes between the API response shape and the renderer's expectations.
+
+- **Derived from:** D-36, archive/cycles/017/decision-log.md (D5)
+- **Established:** cycle 017
+- **Status:** active

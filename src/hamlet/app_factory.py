@@ -69,7 +69,11 @@ async def build_components(settings: Settings, port: int | None = None) -> Compo
         terrain_config = None
         if hasattr(settings, 'terrain') and settings.terrain:
             terrain_config = TerrainConfig(**settings.terrain)
-        world_state = WorldStateManager(persistence, terrain_config=terrain_config)
+        world_state = WorldStateManager(
+            persistence,
+            terrain_config=terrain_config,
+            min_village_distance=settings.min_village_distance,
+        )
         await world_state.load_from_persistence()
 
         # 2a. Initialize agent inference engine

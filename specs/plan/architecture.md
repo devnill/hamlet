@@ -87,6 +87,20 @@ Hamlet is a terminal-based idle game that visualizes Claude Code agent activity 
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        GUI MODULE                                    │   │
+│  │  gui/renderer_protocol.py — RendererProtocol (render_frame+cleanup) │   │
+│  │  gui/symbol_config.py — SymbolConfig, AgentVisual, etc.            │   │
+│  │  gui/detect.py — detect_renderer(), resolve_renderer()              │   │
+│  │  gui/kitty/                                                         │   │
+│  │    protocol.py — Kitty APC escape sequences (upload/display/delete) │   │
+│  │    renderer.py — KittyRenderer (implements RendererProtocol)        │   │
+│  │    sprites.py — SpriteManager, SpriteHandle (PNG loading+caching)   │   │
+│  │    app.py — KittyApp (30fps render loop, input, legend)            │   │
+│  │    state_fetcher.py — HTTP state polling (urllib, no subprocess)    │   │
+│  │    zoom.py — ZoomLevel, ZoomConfig (CLOSE/MEDIUM/FAR)              │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │                     PERSISTENCE MODULE                               │   │
 │  │  - SQLite database                                                   │   │
 │  │  - Schema: projects, villages, agents, structures, events          │   │

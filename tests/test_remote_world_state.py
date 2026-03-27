@@ -4,7 +4,8 @@ from __future__ import annotations
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from hamlet.tui.remote_world_state import RemoteWorldState, _parse_structure
+from hamlet.tui.remote_world_state import RemoteWorldState
+from hamlet.world_state.parsers import parse_structure
 
 
 @pytest.fixture
@@ -125,7 +126,7 @@ async def test_events_fetch_failure_retains_stale_events(remote_state, mock_prov
 
 
 def test_parse_structure_reads_size_tier():
-    result = _parse_structure({
+    result = parse_structure({
         "id": "s1",
         "village_id": "v1",
         "type": "house",
@@ -135,7 +136,7 @@ def test_parse_structure_reads_size_tier():
 
 
 def test_parse_structure_defaults_size_tier_to_1():
-    result = _parse_structure({
+    result = parse_structure({
         "id": "s1",
         "village_id": "v1",
         "type": "house",
@@ -191,3 +192,93 @@ async def test_is_passable_defaults_to_true():
     result = await state.is_passable(0, 0)
 
     assert result is True
+
+
+# ---------------------------------------------------------------------------
+# Per-item try_parse resilience tests
+# ---------------------------------------------------------------------------
+
+async def test_malformed_agent_does_not_drop_valid_agents(mock_provider):
+    """A single malformed agent dict must not cause all agents to be lost."""
+    good_agent = {
+        "id": "a1",
+        "session_id": "s1",
+        "project_id": "p1",
+        "village_id": "v1",
+        "inferred_type": "general",
+        "color": "white",
+        "position": {"x": 1, "y": 2},
+        "last_seen": None,
+        "state": "active",
+        "parent_id": None,
+        "current_activity": None,
+        "total_work_units": 0,
+        "created_at": None,
+        "updated_at": None,
+    }
+    # inferred_type value "INVALID_TYPE" will raise ValueError in AgentType()
+    bad_agent = {"id": "bad", "inferred_type": "INVALID_TYPE"}
+    mock_provider.fetch_state = AsyncMock(return_value={
+        "agents": [good_agent, bad_agent],
+        "structures": [],
+        "villages": [],
+        "projects": [],
+        "animation_frames": {},
+    })
+    state = RemoteWorldState(mock_provider)
+    await state.refresh()
+    agents = await state.get_all_agents()
+    assert len(agents) == 1
+    assert agents[0].id == "a1"
+
+
+async def test_malformed_structure_does_not_drop_valid_structures(mock_provider):
+    """A single malformed structure dict must not cause all structures to be lost."""
+    good_structure = {
+        "id": "s1",
+        "village_id": "v1",
+        "type": "house",
+        "position": {"x": 0, "y": 0},
+        "stage": 0,
+        "material": "wood",
+        "work_units": 0,
+        "work_required": 100,
+        "size_tier": 1,
+        "created_at": None,
+        "updated_at": None,
+    }
+    # "type" value "INVALID_TYPE" will raise ValueError in StructureType()
+    bad_structure = {"id": "bad", "type": "INVALID_STRUCTURE_TYPE"}
+    mock_provider.fetch_state = AsyncMock(return_value={
+        "agents": [],
+        "structures": [good_structure, bad_structure],
+        "villages": [],
+        "projects": [],
+        "animation_frames": {},
+    })
+    state = RemoteWorldState(mock_provider)
+    await state.refresh()
+    structures = await state.get_all_structures()
+    assert len(structures) == 1
+    assert structures[0].id == "s1"
+
+
+async def test_malformed_event_log_entry_does_not_drop_valid_entries(mock_provider):
+    """A single malformed event dict must not cause all event log entries to be lost."""
+    good_event = {
+        "id": "e1",
+        "timestamp": None,
+        "session_id": "",
+        "project_id": "",
+        "hook_type": "",
+        "tool_name": None,
+        "summary": "ok",
+    }
+    # None is not a dict; parse_event_log_entry will raise AttributeError
+    bad_event = None
+    mock_provider.fetch_events = AsyncMock(return_value=[good_event, bad_event])
+    state = RemoteWorldState(mock_provider)
+    await state.refresh()
+    log = await state.get_event_log()
+    assert len(log) == 1
+    assert log[0].id == "e1"

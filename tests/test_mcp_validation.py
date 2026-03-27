@@ -109,3 +109,57 @@ class TestValidation:
         assert result.valid is True
         assert result.payload == payload
         assert result.error is None
+
+    def test_validate_event_accepts_string_error(self) -> None:
+        """PostToolUseFailure with error as a string passes schema validation."""
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "hamlet/event",
+            "params": {
+                "session_id": "sess1",
+                "project_id": "proj1",
+                "hook_type": "PostToolUseFailure",
+                "timestamp": "2024-01-01T00:00:00Z",
+                "error": "Tool execution failed: exit code 1",
+            }
+        }
+        result = validate_event(payload)
+        assert result.valid is True
+        assert result.payload == payload
+        assert result.error is None
+
+    def test_validate_event_accepts_object_error(self) -> None:
+        """PostToolUseFailure with error as an object passes schema validation."""
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "hamlet/event",
+            "params": {
+                "session_id": "sess1",
+                "project_id": "proj1",
+                "hook_type": "PostToolUseFailure",
+                "timestamp": "2024-01-01T00:00:00Z",
+                "error": {"code": 1, "message": "Tool execution failed"},
+            }
+        }
+        result = validate_event(payload)
+        assert result.valid is True
+        assert result.payload == payload
+        assert result.error is None
+
+    def test_validate_event_accepts_null_error(self) -> None:
+        """PostToolUseFailure with error as null passes schema validation."""
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "hamlet/event",
+            "params": {
+                "session_id": "sess1",
+                "project_id": "proj1",
+                "hook_type": "PostToolUseFailure",
+                "timestamp": "2024-01-01T00:00:00Z",
+                "error": None,
+            }
+        }
+        result = validate_event(payload)
+        assert result.valid is True
+        assert result.payload == payload
+        assert result.error is None

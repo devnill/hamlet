@@ -15,11 +15,14 @@ Hook scripts should do minimal processing — just enough to extract essential t
 **How to apply:** Hook scripts should contain no business logic. They extract agent name, tool name, and basic context, then immediately push to the server. No local state, no complex parsing.
 
 ## 3. Thematic Consistency
-Visual design should feel like Dwarf Fortress, ADOM, or Nethack — ASCII characters with semantic meaning, where experienced players "see through" the text to the world underneath. Animations, symbols, and interactions should follow roguelike conventions where possible.
+This is a simulation-style idle game. Thematic consistency must hold regardless of rendering backend. In the ASCII backend (Textual), the aesthetic is Dwarf Fortress / ADOM / Nethack — characters with semantic meaning where experienced players "see through" the text. In the graphical backend (Kitty graphics protocol), the aesthetic is SNES/16-bit simulation — think Stardew Valley or the Thronglets game from Black Mirror's "Plaything." Both backends share the same medieval village theme; only the visual language changes.
 
-**Why:** User explicitly referenced these games as the visual target: "to an experienced player the text fades away and they just see what the characters represent."
+**Why:** User specified roguelike games as the ASCII visual target and SNES/Stardew Valley as the graphical target: "In a terminal, dwarf fortress makes sense. In 16 bit, this would be a 16 bit sim game."
 
-**How to apply:** Use established symbol conventions (`@` for humanoids, `.` for floor, `#` for walls). Color should indicate status (green=zombie/idle, white=active, red=error). Structure types should feel like they belong in a medieval village.
+**How to apply:** ASCII backend: use established symbol conventions (`@` for humanoids, `.` for floor, `#` for walls), color indicates status. Graphical backend: use pixel-art sprites with constrained 16-32 color palette, SNES-era proportions, zoom-dependent resolution via Kitty graphics protocol (pure Python escape sequences, no C library). Both: structure types feel like a medieval village, agents are visually distinct by type, zombie state is always visible.
+
+> _Changed in refinement (2026-03-22): Expanded from ASCII-only roguelike to backend-agnostic thematic consistency. Added SNES/Stardew graphical aesthetic alongside existing Dwarf Fortress ASCII aesthetic._
+> _Changed in refinement (2026-03-22): Replaced notcurses with Kitty graphics protocol. notcurses segfaults with Python 3.14 due to memory allocator incompatibility (see steering/research/notcurses-python314-segfault.md). Kitty protocol is pure Python — no C library needed._
 
 ## 4. Modularity for Iteration
 All mappings (tool-to-action, agent-type-to-color, structure progression) should be configurable and swappable. The first version won't be perfect, so the architecture must support easy iteration on visual and gameplay elements.

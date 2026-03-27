@@ -138,15 +138,45 @@ async def _run_viewer(base_url: str) -> int:
     return 0
 
 
+def _run_viewer_kitty(base_url: str) -> int:
+    """Run the Hamlet Kitty graphics viewer, connecting to a running daemon.
+
+    No subprocess isolation needed — pure Python.
+
+    Returns:
+        Exit code (0 for success, non-zero for errors).
+    """
+    from hamlet.gui.kitty.app import KittyApp
+    return KittyApp(base_url).run()
+
+
 def main() -> None:
     """Main entry point for the Hamlet TUI application."""
     args = sys.argv[1:]
 
+    # Handle --map-viewer flag
+    if "--map-viewer" in args:
+        from hamlet.tui.map_app import MapApp
+        app = MapApp()
+        exit_code = asyncio.run(app.run_async())
+        sys.exit(exit_code if exit_code is not None else 0)
+        return
+
     if not args:
         # No subcommand: launch viewer mode (backward compatible)
         from hamlet.config.settings import Settings
+        from hamlet.gui.detect import resolve_renderer
+
         settings = Settings.load()
-        exit_code = asyncio.run(_run_viewer(f"http://localhost:{settings.mcp_port}"))
+        url = f"http://localhost:{settings.mcp_port}"
+        renderer = resolve_renderer(None, settings.renderer)
+
+        if renderer == "kitty":
+            exit_code = _run_viewer_kitty(url)
+            sys.exit(exit_code if exit_code is not None else 0)
+            return
+
+        exit_code = asyncio.run(_run_viewer(url))
         sys.exit(exit_code if exit_code is not None else 0)
         return
 

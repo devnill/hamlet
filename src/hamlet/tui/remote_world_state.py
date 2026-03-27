@@ -3,16 +3,20 @@ from __future__ import annotations
 
 import logging
 import math
-from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from hamlet.world_state.parsers import (
+    parse_agent,
+    parse_event_log_entry,
+    parse_structure,
+    parse_village,
+    parse_project,
+    try_parse,
+)
 from hamlet.world_state.state import EventLogEntry
 from hamlet.world_state.terrain import TerrainType
 from hamlet.world_state.types import (
     Agent,
-    AgentState,
-    AgentType,
-    Bounds,
     Position,
     Project,
     Session,
@@ -28,122 +32,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 __all__ = ["RemoteWorldState"]
-
-
-# ---------------------------------------------------------------------------
-# Deserialization helpers
-# ---------------------------------------------------------------------------
-
-def _parse_datetime(value: Any) -> datetime:
-    """Parse an ISO timestamp string to a timezone-aware datetime, or return now."""
-    if isinstance(value, datetime):
-        return value
-    if isinstance(value, str):
-        try:
-            dt = datetime.fromisoformat(value)
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=UTC)
-            return dt
-        except ValueError:
-            pass
-    return datetime.now(UTC)
-
-
-def _parse_position(value: Any) -> Position:
-    """Parse a position dict {"x": int, "y": int} to a Position."""
-    if isinstance(value, dict):
-        return Position(x=int(value.get("x", 0)), y=int(value.get("y", 0)))
-    return Position(x=0, y=0)
-
-
-def _parse_bounds(value: Any) -> Bounds:
-    """Parse a bounds dict to a Bounds object."""
-    if isinstance(value, dict):
-        return Bounds(
-            min_x=int(value.get("min_x", 0)),
-            min_y=int(value.get("min_y", 0)),
-            max_x=int(value.get("max_x", 0)),
-            max_y=int(value.get("max_y", 0)),
-        )
-    return Bounds(min_x=0, min_y=0, max_x=0, max_y=0)
-
-
-def _parse_agent(d: dict) -> Agent:
-    """Deserialize a dict to an Agent dataclass."""
-    return Agent(
-        id=d.get("id", ""),
-        session_id=d.get("session_id", ""),
-        project_id=d.get("project_id", ""),
-        village_id=d.get("village_id", ""),
-        inferred_type=AgentType(d.get("inferred_type", "general")),
-        color=d.get("color", "white"),
-        position=_parse_position(d.get("position", {})),
-        last_seen=_parse_datetime(d.get("last_seen")),
-        state=AgentState(d.get("state", "active")),
-        parent_id=d.get("parent_id"),
-        current_activity=d.get("current_activity"),
-        total_work_units=int(d.get("total_work_units", 0)),
-        created_at=_parse_datetime(d.get("created_at")),
-        updated_at=_parse_datetime(d.get("updated_at")),
-    )
-
-
-def _parse_structure(d: dict) -> Structure:
-    """Deserialize a dict to a Structure dataclass."""
-    return Structure(
-        id=d.get("id", ""),
-        village_id=d.get("village_id", ""),
-        type=StructureType(d.get("type", "house")),
-        position=_parse_position(d.get("position", {})),
-        stage=int(d.get("stage", 0)),
-        material=d.get("material", "wood"),
-        work_units=int(d.get("work_units", 0)),
-        work_required=int(d.get("work_required", 100)),
-        size_tier=int(d.get("size_tier", 1)),
-        created_at=_parse_datetime(d.get("created_at")),
-        updated_at=_parse_datetime(d.get("updated_at")),
-    )
-
-
-def _parse_village(d: dict) -> Village:
-    """Deserialize a dict to a Village dataclass."""
-    return Village(
-        id=d.get("id", ""),
-        project_id=d.get("project_id", ""),
-        name=d.get("name", ""),
-        center=_parse_position(d.get("center", {})),
-        bounds=_parse_bounds(d.get("bounds", {})),
-        structure_ids=list(d.get("structure_ids", [])),
-        agent_ids=list(d.get("agent_ids", [])),
-        has_expanded=bool(d.get("has_expanded", False)),
-        created_at=_parse_datetime(d.get("created_at")),
-        updated_at=_parse_datetime(d.get("updated_at")),
-    )
-
-
-def _parse_project(d: dict) -> Project:
-    """Deserialize a dict to a Project dataclass."""
-    return Project(
-        id=d.get("id", ""),
-        name=d.get("name", ""),
-        village_id=d.get("village_id", ""),
-        config=dict(d.get("config", {})),
-        created_at=_parse_datetime(d.get("created_at")),
-        updated_at=_parse_datetime(d.get("updated_at")),
-    )
-
-
-def _parse_event_log_entry(d: dict) -> EventLogEntry:
-    """Deserialize a dict to an EventLogEntry dataclass."""
-    return EventLogEntry(
-        id=d.get("id", ""),
-        timestamp=_parse_datetime(d.get("timestamp")),
-        session_id=d.get("session_id", ""),
-        project_id=d.get("project_id", ""),
-        hook_type=d.get("hook_type", ""),
-        tool_name=d.get("tool_name"),
-        summary=d.get("summary", ""),
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -187,27 +75,30 @@ class RemoteWorldState:
             self._cached_state = state
 
             self._agents = [
-                _parse_agent(d)
-                for d in state.get("agents", [])
+                a for d in state.get("agents", [])
+                if (a := try_parse(parse_agent, d)) is not None
             ]
             self._structures = [
-                _parse_structure(d)
-                for d in state.get("structures", [])
+                s for d in state.get("structures", [])
+                if (s := try_parse(parse_structure, d)) is not None
             ]
             self._villages = [
-                _parse_village(d)
-                for d in state.get("villages", [])
+                v for d in state.get("villages", [])
+                if (v := try_parse(parse_village, d)) is not None
             ]
             self._projects = [
-                _parse_project(d)
-                for d in state.get("projects", [])
+                p for d in state.get("projects", [])
+                if (p := try_parse(parse_project, d)) is not None
             ]
         except Exception as exc:
             logger.debug("RemoteWorldState.refresh: state fetch failed: %s", exc)
 
         try:
             events_raw = await self._provider.fetch_events()
-            self._event_log = [_parse_event_log_entry(d) for d in events_raw]
+            self._event_log = [
+                e for d in events_raw
+                if (e := try_parse(parse_event_log_entry, d)) is not None
+            ]
         except Exception as exc:
             logger.debug("RemoteWorldState.refresh: events fetch failed: %s", exc)
 

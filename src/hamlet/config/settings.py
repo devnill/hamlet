@@ -10,6 +10,8 @@ Config file format (~/.hamlet/config.json):
     "activity_model": "claude-haiku-4-5-20251001",
     "zombie_despawn_seconds": 300,
     "zombie_threshold_seconds": 300,
+    "min_village_distance": 15,
+    "renderer": "auto",
     "terrain": {
         "seed": null,
         "world_size": 200,
@@ -33,6 +35,13 @@ Config file format (~/.hamlet/config.json):
         "ridge_count": null
     }
 }
+
+Note: The terrain object accepts many additional parameters (region_scale,
+region_blending, river_count, pond_count, min_pond_size, max_pond_size,
+water_percentage_target, forest_water_adjacency_bonus,
+forest_region_bias_strength, forest_percentage_target, and more).
+See TerrainConfig in src/hamlet/world_state/terrain.py for the full list
+with defaults and descriptions.
 """
 
 import json
@@ -55,6 +64,8 @@ class Settings:
     activity_model: str = "claude-haiku-4-5-20251001"
     zombie_despawn_seconds: int = 300
     zombie_threshold_seconds: int = 300
+    min_village_distance: int = 15
+    renderer: str = "auto"
     # Terrain configuration as dict for JSON serialization
     # Actual TerrainConfig is constructed from this in app_factory
     terrain: dict[str, Any] = field(default_factory=dict)
@@ -93,6 +104,19 @@ class Settings:
             raise ValueError(
                 f"zombie_threshold_seconds must be > 0, got: {self.zombie_threshold_seconds!r}"
             )
+        if isinstance(self.min_village_distance, bool) or not isinstance(self.min_village_distance, int):
+            raise ValueError(
+                f"min_village_distance must be an integer, got: {self.min_village_distance!r}"
+            )
+        if self.min_village_distance <= 0:
+            raise ValueError(
+                f"min_village_distance must be > 0, got: {self.min_village_distance!r}"
+            )
+        valid_renderers = {"auto", "textual", "kitty"}
+        if self.renderer not in valid_renderers:
+            raise ValueError(
+                f"renderer must be one of {sorted(valid_renderers)}, got: {self.renderer!r}"
+            )
         # terrain is a dict, validation of its contents happens in TerrainConfig
 
     @classmethod
@@ -117,6 +141,16 @@ class Settings:
         settings._validate()
         settings.save()
         return settings
+
+    def diff(self, other: "Settings") -> dict[str, tuple[Any, Any]]:
+        """Return {field_name: (old_value, new_value)} for fields that differ."""
+        changes = {}
+        for f in fields(self.__class__):
+            old = getattr(self, f.name)
+            new = getattr(other, f.name)
+            if old != new:
+                changes[f.name] = (old, new)
+        return changes
 
     def save(self) -> None:
         """Persist settings to config file."""

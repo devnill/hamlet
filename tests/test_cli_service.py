@@ -74,12 +74,18 @@ class TestInstallCommand:
                 "hamlet.cli.commands.service._launchctl",
                 return_value=(0, ""),
             ),
+            patch("hamlet.cli.commands.service._service_is_running", return_value=False),
+            patch("hamlet.cli.commands.service.PLIST_PATH"),
         ]
 
     def test_happy_path(self, capsys) -> None:
         """install writes the plist and loads it via launchctl."""
         patches = self._patch_common()
-        with patches[0], patches[1], patches[2], patches[3], patches[4] as mock_launchctl:
+        with patches[0], patches[1], patches[2], patches[3], patches[4] as mock_launchctl, \
+             patches[5], patches[6] as mock_plist_path:
+            mock_plist_path.exists.return_value = False
+            mock_plist_path.__str__ = lambda self: str(PLIST_PATH)
+            mock_plist_path.parent = PLIST_PATH.parent
             result = _run_service("install")
 
         assert result == 0
@@ -98,8 +104,12 @@ class TestInstallCommand:
         with patch("sys.platform", "darwin"), \
              patch("shutil.which", return_value="/usr/local/bin/hamlet"), \
              patch.object(Path, "mkdir", return_value=None), \
-             patch.object(Path, "write_text", side_effect=capture_write), \
-             patch("hamlet.cli.commands.service._launchctl", return_value=(0, "")):
+             patch("hamlet.cli.commands.service._launchctl", return_value=(0, "")), \
+             patch("hamlet.cli.commands.service._service_is_running", return_value=False), \
+             patch("hamlet.cli.commands.service.PLIST_PATH") as mock_plist_path:
+            mock_plist_path.exists.return_value = False
+            mock_plist_path.parent = PLIST_PATH.parent
+            mock_plist_path.write_text.side_effect = capture_write
             _run_service("install")
 
         assert written_content, "write_text was never called"
@@ -137,7 +147,11 @@ class TestInstallCommand:
              patch("shutil.which", return_value="/usr/local/bin/hamlet"), \
              patch.object(Path, "mkdir", return_value=None), \
              patch.object(Path, "write_text", return_value=None), \
-             patch("hamlet.cli.commands.service._launchctl", return_value=(1, "error msg")):
+             patch("hamlet.cli.commands.service._launchctl", return_value=(1, "error msg")), \
+             patch("hamlet.cli.commands.service._service_is_running", return_value=False), \
+             patch("hamlet.cli.commands.service.PLIST_PATH") as mock_plist_path:
+            mock_plist_path.exists.return_value = False
+            mock_plist_path.parent = PLIST_PATH.parent
             result = _run_service("install")
 
         assert result == 1

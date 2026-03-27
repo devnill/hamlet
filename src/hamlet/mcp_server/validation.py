@@ -46,7 +46,7 @@ EVENT_SCHEMA: dict[str, Any] = {
                 "task_subject": {"type": ["string", "null"]},
                 "task_description": {"type": ["string", "null"]},
                 "teammate_name": {"type": ["string", "null"]},
-                "error": {"type": ["object", "null"]},
+                "error": {"type": ["object", "string", "null"]},
                 "is_interrupt": {"type": ["boolean", "null"]},
                 "prompt": {"type": ["string", "null"]},
             },

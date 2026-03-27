@@ -71,3 +71,9 @@
 - **Rationale:** No stored mapping from teammate name to Agent entity exists. Adding one requires extending the data model.
 - **Source:** archive/cycles/008/decision-log.md (decision 4)
 - **Status:** settled
+
+## D-12: min_village_distance promoted from class constant to Settings field
+- **Decision:** `MIN_VILLAGE_DISTANCE = 15` moved from a `WorldStateManager` class constant to `Settings.min_village_distance: int = 15`. The value is wired through `app_factory.py` at startup. Default behavior is unchanged.
+- **Rationale:** Village spacing is a tunable world-generation parameter. Keeping it as a class constant prevented users from adjusting it without code changes. The Settings/config pattern is the established mechanism for user-tunable parameters.
+- **Source:** archive/cycles/014/decision-log.md (D1)
+- **Status:** settled

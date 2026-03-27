@@ -1,4 +1,4 @@
-"""Tests for AgentInferenceEngine._handle_stop stop_reason behavioural differentiation (WI-222)."""
+"""Tests for AgentInferenceEngine handler behaviour (WI-222, WI-296)."""
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
@@ -305,3 +305,254 @@ async def test_startup_seeds_zombie_since_from_world_state() -> None:
     assert engine._state.zombie_since.get(zombie_agent.id) == zombie_time
     # ACTIVE agent is not seeded
     assert active_agent.id not in engine._state.zombie_since
+
+
+# ---------------------------------------------------------------------------
+# WI-296: newer hook type handlers
+# ---------------------------------------------------------------------------
+
+
+def _make_event(
+    session_id: str,
+    hook_type: HookType,
+    project_id: str = "proj-1",
+    project_name: str = "proj-1",
+    agent_id: str | None = None,
+    stop_reason: str | None = None,
+) -> InternalEvent:
+    return InternalEvent(
+        id=str(uuid4()),
+        sequence=1,
+        received_at=datetime.now(UTC),
+        session_id=session_id,
+        project_id=project_id,
+        project_name=project_name,
+        hook_type=hook_type,
+        agent_id=agent_id,
+        stop_reason=stop_reason,
+    )
+
+
+def _make_engine_with_world_state() -> tuple[AgentInferenceEngine, MagicMock]:
+    """Return an engine with a fully-mocked world state."""
+    world_state = MagicMock()
+    world_state.update_agent = AsyncMock()
+    world_state.despawn_agent = AsyncMock()
+    world_state.get_or_create_project = AsyncMock()
+    world_state.get_or_create_session = AsyncMock()
+    world_state.get_agents_by_session = AsyncMock(return_value=[])
+    # Default: get_or_create_agent returns a mock agent with a stable id
+    mock_agent = MagicMock()
+    mock_agent.id = str(uuid4())
+    world_state.get_or_create_agent = AsyncMock(return_value=mock_agent)
+    engine = AgentInferenceEngine(world_state=world_state)
+    return engine, world_state
+
+
+async def test_session_start_creates_session_state_and_materialises_agent() -> None:
+    """SessionStart creates session state, materialises agent, and updates last_seen."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    event = _make_event(session_id, HookType.SessionStart)
+
+    await engine.process_event(event)
+
+    # Session state should now exist
+    session = engine._state.sessions.get(session_id)
+    assert session is not None
+    assert session.session_id == session_id
+
+    # World state materialisation calls must have been made
+    world_state.get_or_create_project.assert_awaited_once()
+    world_state.get_or_create_session.assert_awaited_once()
+    world_state.get_or_create_agent.assert_awaited_once()
+
+    # last_seen should be updated for the spawned agent
+    agent_id = world_state.get_or_create_agent.return_value.id
+    assert agent_id in engine._state.last_seen
+
+
+async def test_session_start_idempotent_for_existing_session() -> None:
+    """SessionStart on an already-tracked session does not duplicate agent_ids."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    agent_id = world_state.get_or_create_agent.return_value.id
+
+    # Pre-seed the session with the agent already in agent_ids.
+    engine._state.sessions[session_id] = SessionState(
+        session_id=session_id,
+        project_id="proj-1",
+        agent_ids=[agent_id],
+    )
+
+    event = _make_event(session_id, HookType.SessionStart)
+    await engine.process_event(event)
+
+    session = engine._state.sessions[session_id]
+    # agent_id should appear exactly once
+    assert session.agent_ids.count(agent_id) == 1
+
+
+async def test_session_end_marks_agents_zombie() -> None:
+    """SessionEnd marks all session agents as ZOMBIE and records zombie_since."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    agent_id_1 = str(uuid4())
+    agent_id_2 = str(uuid4())
+
+    engine._state.sessions[session_id] = SessionState(
+        session_id=session_id,
+        project_id="proj-1",
+        agent_ids=[agent_id_1, agent_id_2],
+    )
+
+    event = _make_event(session_id, HookType.SessionEnd)
+    await engine.process_event(event)
+
+    # Both agents should have been zombified
+    zombied_ids = {call.args[0] for call in world_state.update_agent.await_args_list}
+    assert agent_id_1 in zombied_ids
+    assert agent_id_2 in zombied_ids
+
+    # zombie_since should be recorded for both
+    assert agent_id_1 in engine._state.zombie_since
+    assert agent_id_2 in engine._state.zombie_since
+
+    # despawn should NOT be called
+    world_state.despawn_agent.assert_not_awaited()
+
+
+async def test_session_end_no_session_is_noop() -> None:
+    """SessionEnd for an unknown session does nothing (no crash, no world state calls)."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+
+    event = _make_event(session_id, HookType.SessionEnd)
+    await engine.process_event(event)
+
+    world_state.update_agent.assert_not_awaited()
+    world_state.despawn_agent.assert_not_awaited()
+
+
+async def test_subagent_start_spawns_agent_with_parent() -> None:
+    """SubagentStart materialises a new agent using the session's primary as parent."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    parent_agent_id = str(uuid4())
+
+    # Set up a parent agent in the world state for get_agents_by_session
+    parent_mock = MagicMock()
+    parent_mock.id = parent_agent_id
+    parent_mock.last_seen = datetime.now(UTC)
+    world_state.get_agents_by_session = AsyncMock(return_value=[parent_mock])
+
+    # New agent returned by get_or_create_agent
+    new_agent_id = str(uuid4())
+    new_agent_mock = MagicMock()
+    new_agent_mock.id = new_agent_id
+    world_state.get_or_create_agent = AsyncMock(return_value=new_agent_mock)
+
+    event = _make_event(session_id, HookType.SubagentStart, agent_id=str(uuid4()))
+    await engine.process_event(event)
+
+    # Session should now exist
+    session = engine._state.sessions.get(session_id)
+    assert session is not None
+
+    # Agent was created with parent_id
+    world_state.get_or_create_agent.assert_awaited_once_with(session_id, parent_agent_id)
+
+    # New agent in session.agent_ids
+    assert new_agent_id in session.agent_ids
+
+    # last_seen updated
+    assert new_agent_id in engine._state.last_seen
+
+
+async def test_subagent_stop_despawns_agent() -> None:
+    """SubagentStop despawns the agent identified by event.agent_id."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    agent_id = str(uuid4())
+
+    engine._state.sessions[session_id] = SessionState(
+        session_id=session_id,
+        project_id="proj-1",
+        agent_ids=[agent_id],
+    )
+    engine._state.last_seen[agent_id] = datetime.now(UTC)
+    engine._state.zombie_since[agent_id] = datetime.now(UTC)
+
+    event = _make_event(session_id, HookType.SubagentStop, agent_id=agent_id)
+    await engine.process_event(event)
+
+    world_state.despawn_agent.assert_awaited_once_with(agent_id)
+    assert agent_id not in engine._state.last_seen
+    assert agent_id not in engine._state.zombie_since
+
+    # Also removed from session.agent_ids
+    session = engine._state.sessions[session_id]
+    assert agent_id not in session.agent_ids
+
+
+async def test_subagent_stop_no_agent_id_is_noop() -> None:
+    """SubagentStop with no agent_id does nothing."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+
+    event = _make_event(session_id, HookType.SubagentStop, agent_id=None)
+    await engine.process_event(event)
+
+    world_state.despawn_agent.assert_not_awaited()
+
+
+async def test_teammate_idle_updates_last_seen() -> None:
+    """TeammateIdle refreshes last_seen for session agents."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    agent_id = str(uuid4())
+
+    old_time = datetime.now(UTC) - timedelta(seconds=60)
+    engine._state.sessions[session_id] = SessionState(
+        session_id=session_id,
+        project_id="proj-1",
+        agent_ids=[agent_id],
+    )
+    engine._state.last_seen[agent_id] = old_time
+
+    event = _make_event(session_id, HookType.TeammateIdle)
+    await engine.process_event(event)
+
+    # last_seen should have been refreshed to event.received_at
+    assert engine._state.last_seen[agent_id] == event.received_at
+    assert engine._state.last_seen[agent_id] > old_time
+
+
+async def test_passthrough_hooks_update_last_seen() -> None:
+    """Passthrough hook types (TaskCompleted, etc.) update last_seen for session agents."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    agent_id = str(uuid4())
+
+    old_time = datetime.now(UTC) - timedelta(seconds=120)
+    engine._state.sessions[session_id] = SessionState(
+        session_id=session_id,
+        project_id="proj-1",
+        agent_ids=[agent_id],
+    )
+    engine._state.last_seen[agent_id] = old_time
+
+    passthrough_types = [
+        HookType.TaskCompleted,
+        HookType.PostToolUseFailure,
+        HookType.UserPromptSubmit,
+        HookType.PreCompact,
+        HookType.PostCompact,
+        HookType.StopFailure,
+    ]
+    for hook_type in passthrough_types:
+        event = _make_event(session_id, hook_type)
+        await engine.process_event(event)
+        assert engine._state.last_seen[agent_id] == event.received_at, (
+            f"last_seen not updated for {hook_type}"
+        )

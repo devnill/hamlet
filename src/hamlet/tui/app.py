@@ -171,6 +171,8 @@ class HamletApp(App):
         except Exception as exc:
             logger.debug("_refresh_remote_state: failed: %s", exc)
 
+        await self._update_state()
+
     def _refresh_world(self) -> None:
         """Refresh world state — stub, implemented in a later work item."""
         pass

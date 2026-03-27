@@ -192,3 +192,91 @@ class TestSettingsZombieThreshold:
         """_validate accepts any positive integer for zombie_threshold_seconds."""
         Settings(zombie_threshold_seconds=1)._validate()
         Settings(zombie_threshold_seconds=600)._validate()
+
+
+class TestSettingsMinVillageDistance:
+    """Validation tests for min_village_distance field."""
+
+    def test_validate_rejects_zero(self) -> None:
+        with pytest.raises(ValueError, match="min_village_distance"):
+            Settings(min_village_distance=0)._validate()
+
+    def test_validate_rejects_negative(self) -> None:
+        with pytest.raises(ValueError, match="min_village_distance"):
+            Settings(min_village_distance=-1)._validate()
+
+    def test_validate_rejects_non_int(self) -> None:
+        s = Settings()
+        s.min_village_distance = "15"  # type: ignore
+        with pytest.raises(ValueError, match="min_village_distance"):
+            s._validate()
+
+    def test_validate_rejects_bool(self) -> None:
+        s = Settings()
+        s.min_village_distance = True  # type: ignore
+        with pytest.raises(ValueError, match="min_village_distance"):
+            s._validate()
+
+    def test_validate_accepts_positive(self) -> None:
+        Settings(min_village_distance=1)._validate()
+        Settings(min_village_distance=15)._validate()
+        Settings(min_village_distance=100)._validate()
+
+
+class TestSettingsDiff:
+    """Tests for Settings.diff() method."""
+
+    def test_no_changes_returns_empty(self) -> None:
+        a = Settings()
+        b = Settings()
+        assert a.diff(b) == {}
+
+    def test_single_field_change(self) -> None:
+        a = Settings(mcp_port=8080)
+        b = Settings(mcp_port=9090)
+        result = a.diff(b)
+        assert result == {"mcp_port": (8080, 9090)}
+
+    def test_multiple_fields_changed(self) -> None:
+        a = Settings(mcp_port=8080, tick_rate=30.0)
+        b = Settings(mcp_port=9090, tick_rate=60.0)
+        result = a.diff(b)
+        assert "mcp_port" in result
+        assert "tick_rate" in result
+        assert result["mcp_port"] == (8080, 9090)
+        assert result["tick_rate"] == (30.0, 60.0)
+
+    def test_terrain_dict_change_detected(self) -> None:
+        a = Settings(terrain={"seed": 42})
+        b = Settings(terrain={"seed": 99})
+        result = a.diff(b)
+        assert "terrain" in result
+        assert result["terrain"] == ({"seed": 42}, {"seed": 99})
+
+    def test_unchanged_fields_excluded(self) -> None:
+        a = Settings(mcp_port=8080, tick_rate=30.0)
+        b = Settings(mcp_port=9090, tick_rate=30.0)
+        result = a.diff(b)
+        assert "mcp_port" in result
+        assert "tick_rate" not in result
+
+
+class TestSettingsRenderer:
+    """Validation tests for renderer field."""
+
+    def test_validate_accepts_auto(self) -> None:
+        Settings(renderer="auto")._validate()
+
+    def test_validate_accepts_textual(self) -> None:
+        Settings(renderer="textual")._validate()
+
+    def test_validate_accepts_kitty(self) -> None:
+        Settings(renderer="kitty")._validate()
+
+    def test_validate_rejects_notcurses(self) -> None:
+        with pytest.raises(ValueError, match="renderer"):
+            Settings(renderer="notcurses")._validate()
+
+    def test_validate_rejects_invalid(self) -> None:
+        with pytest.raises(ValueError, match="renderer"):
+            Settings(renderer="pygame")._validate()

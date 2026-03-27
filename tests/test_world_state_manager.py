@@ -1345,8 +1345,8 @@ class TestWorldStateManager:
         # Distance should be at least MIN_VILLAGE_DISTANCE
         import math
         distance = math.hypot(second_pos.x - first_pos.x, second_pos.y - first_pos.y)
-        assert distance >= manager.MIN_VILLAGE_DISTANCE, (
-            f"Villages should be at least {manager.MIN_VILLAGE_DISTANCE} apart, "
+        assert distance >= manager._min_village_distance, (
+            f"Villages should be at least {manager._min_village_distance} apart, "
             f"but got {distance}"
         )
 
@@ -1526,7 +1526,67 @@ class TestWorldStateManager:
         # Verify all pairwise distances are at least MIN_VILLAGE_DISTANCE
         for v1, v2 in [(village1, village2), (village1, village3), (village2, village3)]:
             dist = math.hypot(v1.center.x - v2.center.x, v1.center.y - v2.center.y)
-            assert dist >= manager.MIN_VILLAGE_DISTANCE, (
+            assert dist >= manager._min_village_distance, (
                 f"Villages {v1.id} and {v2.id} are only {dist} units apart, "
-                f"should be at least {manager.MIN_VILLAGE_DISTANCE}"
+                f"should be at least {manager._min_village_distance}"
+            )
+
+    async def test_seed_initial_structures_skips_impassable_immediate_neighbors(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """_seed_initial_structures places all 3 structures even when the 8 immediate
+        neighbors of the village center are impassable (water/mountain).
+
+        The spiral search extends to MAX_SEED_RADIUS so structures are still placed
+        at radius 2 (or beyond) when radius-1 positions are all impassable.
+        """
+        from unittest.mock import MagicMock
+        from hamlet.world_state.terrain import TerrainGrid, TerrainType
+
+        # Build a fake terrain grid that marks all radius-1 neighbors as impassable
+        # but leaves everything else passable.
+        center = Position(0, 0)
+        impassable_positions = {
+            Position(center.x + dx, center.y + dy)
+            for dx in range(-1, 2)
+            for dy in range(-1, 2)
+            if not (dx == 0 and dy == 0)  # exclude center itself
+        }
+
+        fake_terrain_grid = MagicMock(spec=TerrainGrid)
+
+        def _is_passable(pos: Position) -> bool:
+            return pos not in impassable_positions
+
+        fake_terrain_grid.is_passable.side_effect = _is_passable
+
+        manager._terrain_grid = fake_terrain_grid
+
+        # Create a village at the center
+        village_id = "village-spiral-test"
+        village = Village(
+            id=village_id,
+            project_id="proj-spiral",
+            name="Spiral Test Village",
+            center=center,
+        )
+        manager._state.villages[village_id] = village
+
+        # Run the seeding (no lock held — correct per P-7)
+        await manager._seed_initial_structures(village)
+
+        # All 3 initial structures must have been placed
+        structures_for_village = [
+            s for s in manager._state.structures.values()
+            if s.village_id == village_id
+        ]
+        assert len(structures_for_village) == 3, (
+            f"Expected 3 seeded structures (LIBRARY, WORKSHOP, FORGE) but got "
+            f"{len(structures_for_village)}: {[s.type for s in structures_for_village]}"
+        )
+
+        # All placed structures must be on passable positions (not in the blocked ring)
+        for s in structures_for_village:
+            assert s.position not in impassable_positions, (
+                f"Structure {s.type} was placed at impassable position {s.position}"
             )
