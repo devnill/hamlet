@@ -1,7 +1,7 @@
 id: WI-083
 type: work_item
 title: Simulation Engine Core Tests - Engine, AgentUpdater, StructureUpdater
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -23,17 +23,17 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 083 - Simulation Engine Core Tests
-  
+
   ## Scope
-  
+
   Test SimulationEngine tick loop and lifecycle, AgentUpdater state transitions, StructureUpdater stage advancement.
-  
+
   ## Testing Patterns
-  
+
   ### SimulationEngine Tests
-  
+
   Mock WorldStateManager and other dependencies:
-  
+
   ```python
   @pytest.fixture
   def engine():
@@ -42,79 +42,79 @@ notes: |
       world_state._state.structures = {}
       return SimulationEngine(world_state)
   ```
-  
+
   Test lifecycle:
-  
+
   ```python
   async def test_start():
       await engine.start()
       assert engine._task is not None
       assert engine._state.running
-  
+
   async def test_stop():
       await engine.start()
       await engine.stop()
       assert engine._task is None
       assert not engine._state.running
   ```
-  
+
   Test tick behavior:
-  
+
   ```python
   async def test_tick():
       with patch.object(engine, '_agent_updater') as mock_updater:
           await engine._tick()
           mock_updater.update_agents.assert_called_once()
   ```
-  
+
   Test error handling (GP-7):
-  
+
   ```python
   async def test_tick_error_continues():
       engine._agent_updater.update_agents.side_effect = Exception("boom")
       await engine._tick()  # Should not raise
       # Verify engine still running
   ```
-  
+
   ### AgentUpdater Tests
-  
+
   Test state transitions:
-  
+
   ```python
   def test_active_stays_active():
       agent = Mock()
       agent.last_seen = datetime.now(UTC)
       agent.state = AgentState.ACTIVE
-  
+
       updater.update_agents([agent], world_state)
       assert agent.state == AgentState.ACTIVE
-  
+
   def test_idle_after_threshold():
       agent.last_seen = datetime.now(UTC) - timedelta(seconds=61)
       agent.state = AgentState.ACTIVE
-  
+
       updater.update_agents([agent], world_state)
       assert agent.state == AgentState.IDLE
   ```
-  
+
   ### StructureUpdater Tests
-  
+
   Test stage advancement:
-  
+
   ```python
   def test_stage_advance():
       structure = Mock()
       structure.stage = 0
       structure.work_units = 100  # Threshold for house
       structure.type = StructureType.HOUSE
-  
+
       updater.update_structures([structure], world_state)
       assert structure.stage == 1
       assert structure.material == "stone"
   ```
-  
+
   ## Key Test Scenarios
-  
+
   1. **Engine lifecycle** - Start, stop, task management
   2. **Tick loop** - Calls all updaters
   3. **Tick errors** - Logged, continue (GP-7)
@@ -125,6 +125,7 @@ notes: |
   8. **Structure complete** - Stage 3 no change
 cycle_created: 1
 cycle_modified: null
-content_hash: "96f0c1be43eb9ec00d7e4c438f548690fd7644ba1d0708f7fa72c15739db310d"
-token_count: 928
+content_hash: 19f040575c7ad4e477adbe3528adf20e02bb9f7646821abe3c682e8a291aa8ae
+token_count: 957
 file_path: .ideate/work-items/WI-083.yaml
+resolution: tests/test_simulation_engine.py, test_agent_updater.py, test_structure_updater.py all exist with GP-7 tests

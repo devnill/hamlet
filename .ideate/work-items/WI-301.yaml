@@ -1,0 +1,25 @@
+id: WI-301
+type: work_item
+title: Fix village name to use project name from config
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/world_state/manager.py
+  - op: modify
+    path: tests/test_world_state.py
+depends: []
+blocks: []
+criteria:
+  - Villages created via get_or_create_project use project name from config
+  - Village name is '{project_name} village' format consistently
+  - Existing villages with placeholder names ('village', 'test village') are updated on load
+  - VillageMenu displays correct village name from Village.name attribute
+domain: core
+notes: "# WI-301: Fix village name to use project name from config"
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 3677391382e8b6e610907a9ba28f3515c43471c8aedec2e5f08454d12ea099b6
+token_count: 177
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-301.yaml

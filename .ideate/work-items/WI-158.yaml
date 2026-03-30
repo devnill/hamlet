@@ -1,7 +1,7 @@
 id: WI-158
 type: work_item
 title: Fix hook scripts to read stdin and implement find_config()
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -19,21 +19,21 @@ module: null
 domain: null
 notes: |
   # WI-158: Fix hook scripts to read stdin and implement find_config()
-  
+
   ## Context
   All four hook scripts never read from stdin. They use `os.environ.get("CLAUDE_TOOL_NAME", "")` which is not a Claude Code environment variable and always returns empty string. They also use `os.environ.get("CLAUDE_PROJECT_ID", "unknown")` which is similarly not a real variable — all events arrive with `project_id="unknown"`.
-  
+
   Claude Code delivers hook data as JSON on stdin. For PreToolUse/PostToolUse, stdin contains `tool_name`, `tool_input`, `tool_response` (PostToolUse), `session_id`, etc.
-  
+
   ## Root Cause (Gap-analyst G3, G4, Code-quality S3)
   - G3: hooks never call `json.load(sys.stdin)`
   - G4: hooks use fabricated env vars for project identity
   - S3: tool_input and duration_ms never sent (so TESTER inference and work-unit scaling are dead)
-  
+
   ## Changes
-  
+
   ### All four hook scripts (pre_tool_use.py, post_tool_use.py, notification.py, stop.py)
-  
+
   Add `find_config()` function:
   ```python
   def find_config() -> tuple[str, str]:
@@ -55,26 +55,26 @@ notes: |
       cwd_hash = hashlib.sha256(str(cwd).encode()).hexdigest()[:16]
       return f"project-{cwd_hash}", cwd.name
   ```
-  
+
   Read stdin at start of `main()`:
   ```python
   hook_input = json.load(sys.stdin)
   ```
-  
+
   Extract fields from hook_input per hook type:
   - PreToolUse: `hook_input.get("tool_name")`, `hook_input.get("tool_input")`
   - PostToolUse: `hook_input.get("tool_name")`, `hook_input.get("tool_input")`, `hook_input.get("tool_response")`, `hook_input.get("duration_ms")`
   - Notification: `hook_input.get("message")`, `hook_input.get("notification_type", "generic")`
   - Stop: `hook_input.get("stop_reason", "unknown")`
-  
+
   Use `find_config()` instead of `os.environ.get("CLAUDE_PROJECT_ID", "unknown")`.
-  
+
   Fix error log to append:
   ```python
   with log_file.open("a") as f:
       f.write(f"{error_msg}\n")
   ```
-  
+
   ## Notes
   - Read each hook script before modifying
   - Verify the actual Claude Code hook stdin schema by reading existing hook scripts carefully — look at what fields they already try to extract
@@ -82,6 +82,7 @@ notes: |
   - Keep the JSON-RPC envelope structure for the HTTP POST — only the data extraction changes
 cycle_created: 1
 cycle_modified: null
-content_hash: "08834458f0879476e2a77676d2c51de8bf962a7823ad8234a1dc1835a2a8671b"
-token_count: 988
+content_hash: e2706a241d48e616b8f57b53a9e386c5a5fd933867cbc42507244c5fc12f3268
+token_count: 986
 file_path: .ideate/work-items/WI-158.yaml
+resolution: Same as WI-113 - all hooks read stdin and use find_config

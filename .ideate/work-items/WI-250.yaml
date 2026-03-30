@@ -1,7 +1,7 @@
 id: WI-250
 type: work_item
 title: TerrainConfig Parameter System
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -16,6 +16,7 @@ domain: null
 notes: null
 cycle_created: 1
 cycle_modified: null
-content_hash: bf0ff18ad657731e6c7011ebbed9d8e093ae54c2a859846ce9da591425c4e9ed
-token_count: 198
+content_hash: 4c4125d495fdb4b908040c6deb86477af6cae3d9528d88f4ec7f8b45b1c5af1f
+token_count: 199
 file_path: .ideate/work-items/WI-250.yaml
+resolution: TerrainConfig has parameter system with all parameters

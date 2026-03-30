@@ -1,0 +1,47 @@
+id: WI-303
+type: work_item
+title: Migrate existing overlapping villages to valid positions
+status: pending
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/world_state/manager.py
+  - op: modify
+    path: tests/test_world_state_manager.py
+depends:
+  - WI-302
+blocks: []
+criteria:
+  - Migration runs on daemon startup when overlapping villages detected
+  - Larger villages (more structures) are moved less, smaller villages moved more
+  - Villages at same position are spread using spiral placement
+  - Migration persists new positions to database
+  - All villages have unique center positions after migration
+domain: core
+notes: |
+  ## WI-303: Migrate Overlapping Villages
+
+  Add migration in `load_from_persistence()` to reposition overlapping villages.
+
+  ### Approach
+
+  1. Detect overlaps: villages with `center == (0,0)` or same position as another
+  2. Sort by structure count (descending) - larger villages stay closer to origin
+  3. For each overlapping village, use `find_village_position()` to place it
+  4. Update bounds to reflect new position
+  5. Persist changes
+
+  ### Code Location
+
+  Add after existing migrations in `WorldStateManager.load_from_persistence()`:
+
+  ```python
+  # Migrate overlapping villages
+  await self._migrate_overlapping_villages()
+  ```
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 77139ff33a277bb8acef57839158b8ed23f7abda6a6fc537d2f1fa2ce6c8f2d2
+token_count: 336
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-303.yaml

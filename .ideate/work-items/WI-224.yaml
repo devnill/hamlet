@@ -1,7 +1,7 @@
 id: WI-224
 type: work_item
 title: TUI/persistence/install test coverage for Q-15 gaps and hotfixes
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -17,19 +17,19 @@ module: null
 domain: null
 notes: |
   # WI-224 Implementation Notes
-  
+
   ## Context
-  
+
   Test coverage gaps from Q-15 and two hotfixes applied outside the formal cycle:
   1. WorldView.on_resize() — calls viewport.resize()
   2. WorldView.render() — syncs viewport to self.size each frame
   3. is_plugin_active() in install.py — tests for both JSON formats
   4. PersistenceFacade.stop() — drains queue before cancelling task
-  
+
   ## tests/test_tui_world_view.py
-  
+
   ### on_resize test
-  
+
   ```python
   async def test_on_resize_calls_viewport_resize():
       mock_viewport = MagicMock()
@@ -39,9 +39,9 @@ notes: |
       view.on_resize(event)
       mock_viewport.resize.assert_called_once_with(80, 24)
   ```
-  
+
   ### render viewport sync test
-  
+
   ```python
   async def test_render_syncs_viewport_to_size():
       mock_viewport = MagicMock()
@@ -52,19 +52,19 @@ notes: |
       view.render()
       mock_viewport.resize.assert_called_with(120, 40)
   ```
-  
+
   ## tests/test_cli_install.py
-  
+
   ### is_plugin_active tests
-  
+
   Find `is_plugin_active` in cli/commands/install.py or init.py. Test:
   1. Create a temp settings JSON file with a plugin entry containing `"installPath"`. Assert True.
   2. Pass a non-existent path. Assert False.
-  
+
   ## tests/test_persistence_facade.py
-  
+
   ### stop() drain test
-  
+
   ```python
   async def test_stop_drains_queue_before_cancel():
       mock_queue = AsyncMock()
@@ -74,9 +74,9 @@ notes: |
       facade._write_queue = mock_queue
       facade._write_task = asyncio.create_task(asyncio.sleep(100))
       facade._db = AsyncMock()
-  
+
       await facade.stop()
-  
+
       # join() must have been called (queue drain)
       mock_queue.join.assert_awaited_once()
       # Task should be cancelled after drain
@@ -84,6 +84,7 @@ notes: |
   ```
 cycle_created: 1
 cycle_modified: null
-content_hash: "34066448da20d4abfd402212528bbc3e3be0e1a803c4da7e1711d97aa1739f6f"
-token_count: 754
+content_hash: f1ddf8bf13831444161fe7debd4f165593c4eee619d5695b34e717694e591f5a
+token_count: 765
 file_path: .ideate/work-items/WI-224.yaml
+resolution: TUI/persistence/install test coverage for gaps implemented

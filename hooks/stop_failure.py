@@ -21,7 +21,17 @@ def main():
         server_url = find_server_url()
         project_id, project_name = find_config()
 
-        error_dict = hook_input.get("error") or {}
+        error_field = hook_input.get("error")
+        if isinstance(error_field, dict):
+            error_dict = error_field
+            error_type = error_dict.get("type", "")
+            error_reason = error_dict.get("reason", "")
+        elif isinstance(error_field, str):
+            error_type = "error"
+            error_reason = error_field
+        else:
+            error_type = ""
+            error_reason = ""
         payload = {
             "jsonrpc": "2.0",
             "method": "hamlet/event",
@@ -31,8 +41,8 @@ def main():
                 "project_id": project_id,
                 "project_name": project_name,
                 "error": {
-                    "type": error_dict.get("type", ""),
-                    "reason": error_dict.get("reason", ""),
+                    "type": error_type,
+                    "reason": error_reason,
                 },
                 "timestamp": datetime.now(timezone.utc).isoformat()
             }

@@ -1,7 +1,7 @@
 id: WI-081
 type: work_item
 title: Persistence Layer Data Tests - Writer, Loader, Queue, EventLog
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -26,17 +26,17 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 081 - Persistence Layer Data Tests
-  
+
   ## Scope
-  
+
   Test WriteExecutor batch operations, StateLoader entity loading, WriteQueue batching, and EventLogManager append/prune.
-  
+
   ## Testing Patterns
-  
+
   ### WriteExecutor Tests
-  
+
   Test batch execution with real SQLite in memory:
-  
+
   ```python
   @pytest.fixture
   async def executor():
@@ -46,46 +46,46 @@ notes: |
       yield WriteExecutor(db)
       await db.__aexit__(None, None, None)
   ```
-  
+
   Test INSERT OR REPLACE for each entity type:
   - Project with config_json
   - Session with agent_ids_json
   - Agent with all fields
   - Structure with stage/material
   - Village with bounds
-  
+
   Test DELETE operations via `_TABLE_MAP`.
-  
+
   Test rollback on error using side_effect=Exception.
-  
+
   ### StateLoader Tests
-  
+
   Test loading from database with JSON fields parsed:
-  
+
   ```python
   # Insert test data
   await db.execute("INSERT INTO projects ...", (...))
-  
+
   # Load and verify
   loader = StateLoader(db)
   state = await loader.load_state()
   assert len(state.projects) == 1
   assert state.projects[0]["config_json"] == {"key": "value"}
   ```
-  
+
   Test graceful degradation on missing table:
-  
+
   ```python
   # Drop table, then load
   await db.execute("DROP TABLE projects")
   state = await loader.load_state()
   assert state.projects == []  # Empty list, not exception
   ```
-  
+
   ### WriteQueue Tests
-  
+
   Test async queue operations:
-  
+
   ```python
   queue = WriteQueue(max_size=2)
   await queue.put(op1)
@@ -93,42 +93,42 @@ notes: |
   # Third put should drop silently
   await queue.put(op3)  # No exception
   ```
-  
+
   Test batch retrieval:
-  
+
   ```python
   batch = await queue.get_batch(max_items=2)
   assert len(batch) == 2
   ```
-  
+
   Test task_done/join protocol:
-  
+
   ```python
   batch = await queue.get_batch()
   for _ in batch:
       queue.task_done()
   await queue.join()  # Should complete
   ```
-  
+
   ### EventLogManager Tests
-  
+
   Test append with pruning:
-  
+
   ```python
   manager = EventLogManager(db, max_entries=5)
   for i in range(10):
       await manager.append(entry)
-  
+
   # Verify only 5 entries remain
   await db.execute("SELECT COUNT(*) FROM event_log")
   row = await db.fetchone()
   assert row[0] == 5
   ```
-  
+
   Test transaction rollback on error.
-  
+
   ## Key Test Scenarios
-  
+
   1. **WriteExecutor batch insert** - All entity types
   2. **WriteExecutor batch delete** - Via operation type
   3. **WriteExecutor rollback** - On batch failure
@@ -141,6 +141,7 @@ notes: |
   10. **EventLogManager transaction** - Atomic insert+prune
 cycle_created: 1
 cycle_modified: null
-content_hash: "5378da316845e7da9983b9743faa44ad78011bced4d48c00561811931e48e662"
-token_count: 1030
+content_hash: 011974b6853f3dd5b6e4a644735516ed06d37e410508764893a605a9f55f7c6a
+token_count: 1065
 file_path: .ideate/work-items/WI-081.yaml
+resolution: tests/test_persistence_writer.py, test_persistence_loader.py, test_persistence_queue.py, test_persistence_event_log.py all exist

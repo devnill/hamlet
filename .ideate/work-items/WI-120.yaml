@@ -1,7 +1,7 @@
 id: WI-120
 type: work_item
 title: Validation schema fix and InternalEvent notification/stop fields
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,17 +17,17 @@ module: null
 domain: null
 notes: |
   # WI-120: Validation schema fix and InternalEvent notification/stop fields
-  
+
   ## Context
-  
+
   Two related gaps identified in Cycle 004 review:
-  
+
   1. **Stale validation schema**: `validation.py` EVENT_SCHEMA defines event-specific fields nested under a `"data"` sub-object in params. The actual wire format (all 4 hook scripts + architecture.md canonical contract) is flat — these fields are siblings of `session_id` at the top level of params. Due to `additionalProperties: True`, real events pass validation without error, but no type constraints on individual fields are ever evaluated. The `"data"` block is dead code from a superseded format.
-  
+
   2. **Missing InternalEvent fields**: `InternalEvent` has no `notification_message` or `stop_reason` typed fields. `event_processor.py` does not extract them. Both values arrive in `raw_payload` only — inaccessible through the typed model.
-  
+
   ## Fix 1: validation.py EVENT_SCHEMA
-  
+
   Current state (approximate):
   ```python
   EVENT_SCHEMA = {
@@ -63,7 +63,7 @@ notes: |
       }
   }
   ```
-  
+
   After fix:
   ```python
   "params": {
@@ -87,42 +87,43 @@ notes: |
       "additionalProperties": True
   }
   ```
-  
+
   Read the actual file before modifying — the current schema may differ slightly from the above approximation. Use what is actually in the file.
-  
+
   ## Fix 2: InternalEvent — add notification_message and stop_reason fields
-  
+
   Current `InternalEvent` in `event_processing/internal_event.py` has fields:
   - session_id, project_id, project_name, hook_type
   - tool_name, tool_input, tool_output, success, duration_ms
   - raw_payload, id, sequence, received_at
-  
+
   Add:
   ```python
   notification_message: str | None = None
   stop_reason: str | None = None
   ```
-  
+
   Read the actual InternalEvent definition before modifying — use `from __future__ import annotations` if needed for the `str | None` syntax.
-  
+
   ## Fix 3: event_processor.py — extract new fields in process_event()
-  
+
   In the method that creates an `InternalEvent` from a raw event dict, add extraction of the two new fields alongside the existing ones:
-  
+
   ```python
   notification_message=raw.get("notification_message"),
   stop_reason=raw.get("stop_reason"),
   ```
-  
+
   Read `event_processor.py` to find the exact location of `InternalEvent(...)` construction.
-  
+
   ## Key files
-  
+
   - `src/hamlet/mcp_server/validation.py` — EVENT_SCHEMA (read first, then modify)
   - `src/hamlet/event_processing/internal_event.py` — InternalEvent dataclass
   - `src/hamlet/event_processing/event_processor.py` — process_event() / InternalEvent construction
 cycle_created: 1
 cycle_modified: null
-content_hash: "0c323c648d5740773fcb2dbbcf52f200744e03f874aff9500f8a6f78928adfcd"
-token_count: 1435
+content_hash: f0e370ab03c6b2191702438ab9bd2c14a54bd2df0b256c714903a3d48e2b94e8
+token_count: 1400
 file_path: .ideate/work-items/WI-120.yaml
+resolution: EVENT_SCHEMA has flat params, HookType has 15 values, InternalEvent has all fields

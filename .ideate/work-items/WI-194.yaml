@@ -1,7 +1,7 @@
 id: WI-194
 type: work_item
 title: Code health — remove orphaned saver.py and deduplicate startup sequence
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,23 +17,23 @@ module: null
 domain: null
 notes: |
   # WI-194: Code health — remove orphaned saver.py and deduplicate startup sequence
-  
+
   ## Context
-  
+
   `src/hamlet/persistence/saver.py` defines an `EntitySaver` class but is not imported anywhere. It's dead code.
-  
+
   `src/hamlet/__main__.py::_run_app()` and `src/hamlet/cli/commands/daemon.py::_run_daemon()` each contain ~50 lines of near-identical component initialization (creating PersistenceFacade, WorldStateManager, AgentInferenceEngine, SimulationEngine, MCPServer, EventProcessor, starting them, and registering shutdown). The only difference: `_run_app` creates a Textual app and runs it; `_run_daemon` loops on `asyncio.sleep(0.5)`.
-  
+
   ## Step 1: Remove saver.py
-  
+
   Verify: `grep -r "saver" src/ tests/` returns no imports. Then delete `src/hamlet/persistence/saver.py`.
-  
+
   ## Step 2: Create app_factory.py
-  
+
   Create `src/hamlet/app_factory.py` with an `async def build_components(settings) -> ComponentBundle` function.
-  
+
   `ComponentBundle` should be a dataclass or NamedTuple with fields for: `persistence`, `world_state`, `agent_inference`, `event_processor`, `simulation`, `mcp_server`, `animation_manager`.
-  
+
   The function should:
   1. Create `PersistenceFacade(settings)`
   2. Await `persistence.start()` and `persistence.load_state()`
@@ -45,31 +45,32 @@ notes: |
   8. Create `EventProcessor(world_state, agent_inference, persistence)` with event_queue from MCPServer
   9. Start MCPServer and EventProcessor
   10. Return ComponentBundle
-  
+
   ## Step 3: Update __main__.py
-  
+
   Replace the inline initialization in `_run_app()` with:
   ```python
   bundle = await build_components(settings)
   ```
   Then use `bundle.mcp_server`, `bundle.world_state`, etc. to create and run the TUI.
-  
+
   ## Step 4: Update daemon.py
-  
+
   Replace the inline initialization in `_run_daemon()` with:
   ```python
   bundle = await build_components(settings)
   ```
   Then loop `while running: await asyncio.sleep(0.5)`. Shutdown still in `finally` using `bundle`.
-  
+
   ## Important considerations
-  
+
   - Daemon mode does file logging before component init — keep that in `_run_daemon`, not in `build_components`.
   - Viewport is created separately in `_run_app` (after components), not in `build_components`.
   - Signal handler registration stays in the callers.
   - Read both `__main__.py` and `daemon.py` in full before making changes to understand the exact initialization sequence and shutdown order.
 cycle_created: 1
 cycle_modified: null
-content_hash: e92aa3d61c3c9ec7104b3c02990cc91af7ab7117f40e5d485d6591072c34bf72
-token_count: 879
+content_hash: b63182f1747bd6bb946e7436e2a4cf9f3d457e79afd8034a4f86e7bfb6c495f0
+token_count: 888
 file_path: .ideate/work-items/WI-194.yaml
+resolution: src/hamlet/persistence/saver.py does not exist - removed in WI-194

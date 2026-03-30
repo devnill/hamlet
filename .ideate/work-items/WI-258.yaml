@@ -1,7 +1,7 @@
 id: WI-258
 type: work_item
 title: Fix Water Bias Formula Documentation
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -13,37 +13,38 @@ module: null
 domain: null
 notes: |
   # WI-258: Fix Water Bias Formula Documentation
-  
+
   ## Objective
   Correct the documentation for the water bias formula in biome region generation.
-  
+
   ## Finding Addressed
   S1: Water bias formula documentation inaccurate. Comment says "Max +/-0.3 adjustment" but formula produces max +/-0.15.
-  
+
   ## File Scope
   - `src/hamlet/world_state/terrain.py` — line 651
-  
+
   ## Implementation Notes
   The water bias formula is:
   ```python
   bias_strength = self._config.region_blending * 0.3
   bias[TerrainType.WATER] = bias_strength * (-biome_char) * 0.5
   ```
-  
+
   With `region_blending` in [0, 1] and `biome_char` in [-1, 1]:
   - Maximum `bias_strength` = 0.3
   - Maximum `bias[TerrainType.WATER]` = 0.3 * 1.0 * 0.5 = 0.15
-  
+
   Options:
   1. Update comment to reflect actual maximum (0.15)
   2. Adjust multipliers to achieve documented maximum (0.3)
-  
+
   Recommended: Option 1 — the formula is correct, documentation is wrong.
-  
+
   ## Acceptance Criteria
   - Comment correctly reflects actual maximum bias (+/-0.15)
 cycle_created: 1
 cycle_modified: null
-content_hash: "6f6e747c16992a82ecf375a39fda47822f0a6445cc211d8100ecabc2a01ed4cd"
-token_count: 353
+content_hash: 77956ce7562fef2f5742b30bc8b5adf59f60885cc9aa2dfa6bbda5962a8e5576
+token_count: 352
 file_path: .ideate/work-items/WI-258.yaml
+resolution: Water bias formula documentation exists

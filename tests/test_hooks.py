@@ -46,7 +46,8 @@ class TestPreToolUse:
     def test_pre_tool_use(self, monkeypatch, tmp_path):
         payload = {
             **BASE_PAYLOAD,
-            "data": {"tool_name": "Read", "tool_input": {"path": "/tmp/x"}},
+            "tool_name": "Read",
+            "tool_input": {"path": "/tmp/x"},
         }
         module = load_hook("pre_tool_use")
 
@@ -75,7 +76,8 @@ class TestPostToolUse:
     def test_post_tool_use(self, monkeypatch, tmp_path):
         payload = {
             **BASE_PAYLOAD,
-            "data": {"tool_name": "Write", "success": True},
+            "tool_name": "Write",
+            "success": True,
         }
         module = load_hook("post_tool_use")
 
@@ -438,3 +440,32 @@ class TestStopFailure:
         body = json.loads(captured_request.data.decode())
         assert body["method"] == "hamlet/event"
         assert body["params"]["hook_type"] == "StopFailure"
+
+    def test_stop_failure_string_error(self, monkeypatch):
+        """WI-291: StopFailure hook handles error field as string."""
+        payload = {
+            **BASE_PAYLOAD,
+            "error": "Tool execution failed: exit code 1",
+        }
+        module = load_hook("stop_failure")
+
+        mock_urlopen = make_urlopen_mock()
+        monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))
+        monkeypatch.setattr(module, "find_server_url", lambda: SERVER_URL)
+        monkeypatch.setattr(module, "find_config", lambda: (PROJECT_ID, PROJECT_NAME))
+        monkeypatch.setattr(module.os, "chdir", lambda path: None)
+        monkeypatch.setattr(module.os.path, "isdir", lambda path: True)
+        monkeypatch.setattr(module.urllib.request, "urlopen", mock_urlopen)
+
+        with pytest.raises(SystemExit) as exc_info:
+            module.main()
+
+        assert exc_info.value.code == 0
+        assert mock_urlopen.called
+
+        captured_request = mock_urlopen.call_args[0][0]
+        body = json.loads(captured_request.data.decode())
+        assert body["method"] == "hamlet/event"
+        assert body["params"]["hook_type"] == "StopFailure"
+        assert body["params"]["error"]["type"] == "error"
+        assert body["params"]["error"]["reason"] == "Tool execution failed: exit code 1"

@@ -1,0 +1,27 @@
+id: interview-refine-22
+type: interview
+entries:
+  - answer: Housekeeping cycle to address open questions and fix bugs found during investigation. User also reported hamlets not growing despite active work sessions.
+    domain: null
+    question: What is driving this refinement cycle?
+  - answer: Investigate all 23 open questions in visualization domain. Close resolved/invalid ones. Fix Q-09 (color map consolidation) and Q-12/Q-18 (SpriteManager crash). Defer Q-04 (viewport persistence) and Q-19 (hardcoded placement_id).
+    domain: null
+    question: What is the scope for open questions?
+  - answer: "Three critical bugs: (1) Hook scripts extract tool_name from wrong location (data.tool_name vs top-level tool_name), causing work units to never accumulate. (2) StopFailure hook crashes when error is string not dict. (3) PostToolUseFailure events are unhandled in inference engine."
+    domain: null
+    question: What bugs were found?
+  - answer: Yes, all 11 guiding principles still apply. No changes needed.
+    domain: null
+    question: Are the guiding principles still valid?
+  - answer: No, defer to future cycle.
+    domain: null
+    question: Should viewport persistence (Q-04) be included?
+  - answer: No, defer to future housekeeping cycle.
+    domain: null
+    question: Should log rotation be included?
+  - answer: "Future work items: log rotation, better error visibility in hooks, telemetry for work unit accumulation. Not in this cycle."
+    domain: null
+    question: What observability follow-ups should be captured?
+content_hash: 1c39d6681e18324dcd972876c8fbd0a2b3723d9ffa850808b6ee1766d8b0d508
+token_count: 386
+file_path: .ideate/interviews/interview-refine-22.yaml

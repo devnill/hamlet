@@ -1,7 +1,7 @@
 id: WI-183
 type: work_item
 title: Daemon handling for new event types with visual triggers
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -18,10 +18,10 @@ module: null
 domain: null
 notes: |
   # WI-183 Notes: Daemon handling for new event types
-  
+
   ## Context
   WorldStateManager.handle_event() needs to handle 11 new HookType values without errors, and trigger visual activity for each.
-  
+
   ## Mapping guidance (visual interest over accuracy)
   SessionStart → get_or_create_project + get_or_create_session (entities exist for downstream)
   SessionEnd → set all agents in session to AgentState.IDLE
@@ -34,10 +34,10 @@ notes: |
   PreCompact → log only
   PostCompact → log only
   StopFailure → log only
-  
+
   ## Error handling
   All state mutations wrapped in try/except with logger.warning per GP-7. Failure to trigger visual effect must never propagate.
-  
+
   ## EventLogEntry summary format
   Use event.hook_type.value as fallback. Specific formats:
   "SessionStart: {event.source or 'startup'}"
@@ -50,6 +50,7 @@ notes: |
   "UserPromptSubmit" / "PreCompact" / "PostCompact" / "StopFailure"
 cycle_created: 1
 cycle_modified: null
-content_hash: f265a8843e3b7440ba02d2fcaa3e127a21e0ee4d758d1807962c113006f2840a
-token_count: 597
+content_hash: 21b3f5c2bb9d160a8ee15be4675514bd3fc170acf44f8350fb7a7cb05f2476f2
+token_count: 603
 file_path: .ideate/work-items/WI-183.yaml
+resolution: engine.py handles all 11 new event types with appropriate state updates

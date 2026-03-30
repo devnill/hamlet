@@ -1,14 +1,14 @@
 id: WI-052
 type: work_item
 title: Viewport State Dataclass
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
 blocks: []
 criteria:
   - File `src/hamlet/viewport/state.py` exists
-  - "`ViewportState` dataclass with `center: Position`, `size: Size`, `follow_mode: \"center\" | \"free\"`, `follow_target: str | None`"
+  - '`ViewportState` dataclass with `center: Position`, `size: Size`, `follow_mode: "center" | "free"`, `follow_target: str | None`'
   - Default viewport size is 80x24 (standard terminal)
   - Default follow_mode is "center"
   - Default follow_target is None
@@ -19,10 +19,11 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 052
-  
+
   Scroll operations automatically switch to "free" mode. Setting a follow target switches to "center" mode. The state is mutable for updates from the simulation.
 cycle_created: 1
 cycle_modified: null
-content_hash: ab8772d8eac36b74d52f7d6d4b544fe2766aef4a699322400b503024d0916d5b
-token_count: 257
+content_hash: 3b0fc148da167adfcd8f5cc9df0a1cb35685292217bfb62ff6818f08ab0e0df6
+token_count: 268
 file_path: .ideate/work-items/WI-052.yaml
+resolution: ViewportState dataclass exists in viewport/state.py with all fields, defaults, and methods

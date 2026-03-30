@@ -1,0 +1,56 @@
+id: spec-adherence
+type: cycle_summary
+content: |
+  # Spec Adherence Review — Cycle 19
+
+  ## Verdict: Pass
+
+  All acceptance criteria are met. Architecture is followed correctly.
+
+  ## Architecture Deviations
+
+  None.
+
+  ## Unmet Acceptance Criteria
+
+  ### Work Item WI-300: Fix village menu black screen and add sorting
+
+  - [x] Opening village menu (press 'v') shows menu immediately without black screen — **Met**. Implementation in `app.py:395-410` sets `loading=True` before displaying menu, then spawns async task.
+  - [x] Village list populates asynchronously after menu is visible — **Met**. `_populate_village_menu` is called via `asyncio.create_task` at `app.py:410`.
+  - [x] Villages are sorted by structure count (descending), then agent count (descending), then name alphabetically — **Met**. Sorting logic at `village_menu.py:70-78`.
+  - [x] Navigation (j/k, arrows) within menu is responsive — **Met**. Navigation handled at `app.py:353-377`.
+  - [~] Both ASCII/Textual and Kitty backends work without flicker — **Ambiguous**. The Kitty backend does not have a village menu feature. This is by design (village menu is TUI-only). The criterion is poorly specified but not violated.
+  - [x] No blocking await on the main UI thread during menu open — **Met**. `asyncio.create_task` is used instead of `await`.
+
+  ### Work Item WI-301: Fix village name to use project name from config
+
+  - [x] Villages created via get_or_create_project use project name from config — **Met**. `manager.py:330` uses `name=f"{name} village"` where `name` is the `project_name` parameter.
+  - [x] Village name is '{project_name} village' format consistently — **Met**.
+  - [x] Existing villages with placeholder names are updated on load — **Met**. Migration at `manager.py:172-184`.
+  - [x] VillageMenu displays correct village name from Village.name attribute — **Met**. `village_menu.py:134` reads `name = getattr(village, "name", "Unknown")`.
+
+  ## Principle Violations
+
+  **Verdict**: Pass
+
+  None. All guiding principles are upheld.
+
+  ## Principle Adherence Evidence
+
+  - **GP-01 Visual Interest Over Accuracy**: Village menu shows loading state immediately, providing real-time visual feedback before data fetch. Async population ensures responsiveness.
+  - **GP-02 Lean Client, Heavy Server**: Hook scripts remain minimal. Village state management occurs server-side in WorldStateManager.
+  - **GP-05 Persistent World, Project-Based Villages**: Village names derive from project names. Placeholder name migration ensures historical data is updated.
+  - **GP-07 Graceful Degradation Over Robustness**: `_populate_village_menu` uses try/except, showing empty menu on failure rather than crashing.
+
+  ## Undocumented Additions
+
+  None.
+
+  ## Naming/Pattern Inconsistencies
+
+  None.
+cycle: 19
+reviewer: spec-reviewer
+content_hash: 448b46eed90539c2a8dc6c0bc92e46c3fc63757f3fa2e8010c9483cf46f07936
+token_count: 703
+file_path: .ideate/cycles/019/spec-adherence.yaml

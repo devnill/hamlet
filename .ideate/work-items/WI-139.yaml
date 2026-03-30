@@ -1,7 +1,7 @@
 id: WI-139
 type: work_item
 title: Fix stale legend key tests and update README
-status: pending
+status: done
 complexity: small
 scope: []
 depends: []
@@ -15,26 +15,26 @@ module: null
 domain: null
 notes: |
   # WI-139: Fix stale legend key tests and update README
-  
+
   ## Context
   WI-132 changed legend toggle from `?` to `/`. Tests were not updated. README still references `?` for legend.
-  
+
   ## Existing Code
   - `tests/test_tui_app.py` — lines pressing `"?"` for legend, asserting `"?" in binding_keys` for toggle_legend
   - `tests/test_tui_legend.py` — line asserting `"Press ? to toggle"` and `"question_mark" in binding_keys`
   - `README.md` — line referencing `` `?` - Toggle legend ``
-  
+
   ## Changes
-  
+
   ### `tests/test_tui_app.py`
   - Change all `pilot.press("?")` calls for legend toggle to `pilot.press("/")`
   - Change any `"?" in binding_keys` assertions for toggle_legend to `"/" in binding_keys`
   - Add assertion for `"?" in binding_keys` for toggle_help (if not already present)
-  
+
   ### `tests/test_tui_legend.py`
   - Change `"Press ? to toggle"` assertion to `"Press / to toggle"`
   - Change `"question_mark" in binding_keys` assertion to `"slash" in binding_keys`
-  
+
   ### `README.md`
   - Update legend key reference from `?` to `/`
   - Add daemon/viewer workflow section documenting:
@@ -43,11 +43,12 @@ notes: |
     - `hamlet init` — initialize project config
     - `?` — help overlay in TUI
     - `/` — legend in TUI
-  
+
   ## Notes
   Read each file carefully before making changes — identify all occurrences of the old key references.
 cycle_created: 1
 cycle_modified: null
-content_hash: "50f318b47adb95c319541132c6962d83a83b09c07d97cd0f542ff05631695162"
-token_count: 501
+content_hash: acbe4de8ce6d3376e2b5e3dcd13669ef0aef3b1a934f81fc80be876d244b8813
+token_count: 495
 file_path: .ideate/work-items/WI-139.yaml
+resolution: Tests use correct legend key, README is accurate

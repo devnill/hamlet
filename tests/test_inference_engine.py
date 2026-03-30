@@ -556,3 +556,49 @@ async def test_passthrough_hooks_update_last_seen() -> None:
         assert engine._state.last_seen[agent_id] == event.received_at, (
             f"last_seen not updated for {hook_type}"
         )
+
+
+async def test_post_tool_use_failure_decrements_active_tools() -> None:
+    """WI-288: PostToolUseFailure evicts pending tool and decrements active_tools."""
+    engine, world_state = _make_engine_with_world_state()
+    session_id = str(uuid4())
+    agent_id = str(uuid4())
+
+    # Create session with one agent
+    engine._state.sessions[session_id] = SessionState(
+        session_id=session_id,
+        project_id="proj-1",
+        agent_ids=[agent_id],
+    )
+
+    # Simulate a PreToolUse that incremented active_tools
+    event_id = str(uuid4())
+    engine._state.pending_tools[event_id] = PendingTool(
+        session_id=session_id,
+        tool_name="Read",
+        tool_input={"file_path": "/tmp/test"},
+    )
+    engine._state.sessions[session_id].active_tools = 1
+
+    # Verify initial state
+    assert len(engine._state.pending_tools) == 1
+    assert engine._state.sessions[session_id].active_tools == 1
+
+    # Process PostToolUseFailure
+    event = InternalEvent(
+        id=str(uuid4()),
+        sequence=1,
+        hook_type=HookType.PostToolUseFailure,
+        session_id=session_id,
+        project_id="proj-1",
+        project_name="Test",
+        tool_name="Read",
+        tool_input={"file_path": "/tmp/test"},
+        error="Permission denied",
+        received_at=datetime.now(UTC),
+    )
+    await engine.process_event(event)
+
+    # Verify pending tool evicted and active_tools decremented
+    assert len(engine._state.pending_tools) == 0, "pending_tools should be evicted"
+    assert engine._state.sessions[session_id].active_tools == 0, "active_tools should be decremented"

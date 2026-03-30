@@ -1,0 +1,30 @@
+id: WI-300
+type: work_item
+title: Fix village menu black screen and add sorting
+status: done
+complexity: medium
+scope:
+  - op: modify
+    path: src/hamlet/tui/app.py
+  - op: modify
+    path: src/hamlet/tui/village_menu.py
+  - op: modify
+    path: tests/test_village_menu.py
+depends:
+  - WI-301
+blocks: []
+criteria:
+  - Opening village menu (press 'v') shows menu immediately without black screen
+  - Village list populates asynchronously after menu is visible
+  - Villages are sorted by structure count (descending), then agent count (descending), then name alphabetically
+  - Navigation (j/k, arrows) within menu is responsive
+  - Both ASCII/Textual and Kitty backends work without flicker
+  - No blocking await on the main UI thread during menu open
+domain: visualization
+notes: "# WI-300: Fix village menu black screen and add sorting"
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: da96ed161fddcf37dbd692ea203724108f23a6c86f518221a56322c6d32e2f7f
+token_count: 224
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-300.yaml

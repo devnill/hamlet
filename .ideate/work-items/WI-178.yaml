@@ -1,7 +1,7 @@
 id: WI-178
 type: work_item
 title: Add error logging in hamlet_hook_utils.py on malformed config JSON
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -15,15 +15,15 @@ module: null
 domain: null
 notes: |
   # WI-178 Notes: Add error logging on malformed config JSON in hamlet_hook_utils.py
-  
+
   ## Context
   Gap analysis EC2 (significant): `find_config()` falls through to a phantom `project_id` when `.hamlet/config.json` contains malformed JSON. `except Exception: pass` swallows the error silently, routing hook events to a ghost village. EC1 (minor): same issue in `find_server_url()`.
-  
+
   The fix is to call `_log_error` inside each `except` block before continuing, matching the error-handling pattern already used in the hook scripts' `main()` functions.
-  
+
   ## File to modify
   `/Users/dan/code/hamlet/hooks/hamlet_hook_utils.py`
-  
+
   ## Current find_config() (lines ~46-64)
   ```python
   def find_config() -> tuple[str, str]:
@@ -41,7 +41,7 @@ notes: |
                   pass
       return f"project-{_cwd_hash(cwd)}", cwd.name
   ```
-  
+
   ## Desired find_config()
   ```python
   def find_config() -> tuple[str, str]:
@@ -59,7 +59,7 @@ notes: |
                   _log_error("find_config", exc)
       return f"project-{_cwd_hash(cwd)}", cwd.name
   ```
-  
+
   ## Current find_server_url() project-level except
   ```python
       for directory in [cwd, *cwd.parents]:
@@ -73,7 +73,7 @@ notes: |
               except Exception:
                   pass
   ```
-  
+
   ## Desired find_server_url() project-level except
   ```python
       for directory in [cwd, *cwd.parents]:
@@ -87,15 +87,16 @@ notes: |
               except Exception as exc:
                   _log_error("find_server_url", exc)
   ```
-  
+
   ## Note on global config except blocks
   The outer try/except in `find_server_url()` (reading `~/.hamlet/config.json`) can also be updated similarly but is less critical — the global config is rarely malformed. Include for completeness.
-  
+
   ## Acceptance Criteria
   All 4 `except Exception: pass` blocks in the two functions become `except Exception as exc: _log_error(...)`.
   No other logic changes.
 cycle_created: 1
 cycle_modified: null
-content_hash: e0329c52bf8b967508ca44ca3ccd25311ca04e7892f6f9880962f798e7ca43d8
-token_count: 1048
+content_hash: 862c94b2bd590c43e0540b8e5893298636aa7a4a2cd911362c4eebdc0452aa81
+token_count: 1057
 file_path: .ideate/work-items/WI-178.yaml
+resolution: hamlet_hook_utils.py calls _log_error in except blocks for find_config and find_server_url

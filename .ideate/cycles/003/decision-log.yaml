@@ -1,0 +1,69 @@
+id: decision-log
+type: cycle_summary
+content: |-
+  ## Decision Log — Cycle 003
+
+  ### Planning Phase
+
+  **When**: Planning — WI-293 scoping
+  **Decision**: Accumulate work units in pending pool when target structure type doesn't exist
+  **Rationale**: Work units should contribute to world growth per GP-08
+  **Implications**: Pending work units stored in memory; ephemeral per GP-07
+
+  **When**: Planning — WI-294 scoping
+  **Decision**: Add hook connectivity check as optional `--check-hooks` flag
+  **Rationale**: Diagnostic should be optional to keep basic `hamlet doctor` simple
+
+  ### Execution Phase
+
+  **When**: Execution — WI-293
+  **Decision**: Add `pending_work_units` field to `WorldState` and apply when structure created
+  **Rationale**: Agent work should contribute to construction immediately when structure appears
+
+  **When**: Execution — WI-294
+  **Decision**: Use stdlib-only networking (`urllib.request`) for hook connectivity check
+  **Rationale**: Consistent with hook scripts that run outside the venv
+
+  ### Review Phase
+
+  **When**: Review — Cycle 003
+  **Decision**: Accept flaky test as pre-existing issue
+  **Rationale**: `world_with_data` fixture issue predates current cycle
+
+  **When**: Review — Cycle 003
+  **Decision**: Defer pending work units persistence
+  **Rationale**: Short-lived units; low impact; requires schema changes
+
+  ---
+
+  ## Open Questions
+
+  ### OQ-08: Pending Work Units Persistence
+  **Question**: Should `pending_work_units` be persisted to survive daemon restarts?
+  **Impact**: Pending units lost on crash; agents receive credit but construction acceleration lost
+  **Status**: Defer — requires schema changes
+
+  ### OQ-09: Q-09 Status Not Updated
+  **Question**: Why is Q-09 still open when WI-284 consolidated TYPE_COLORS?
+  **Status**: Needs closure
+
+  ### OQ-10: Q-15 Status Potentially Outdated
+  **Question**: Is Q-15 still accurate given KittyApp shows working toggle?
+  **Status**: Needs verification
+
+  ### OQ-11: Version Mismatch
+  **Question**: Should `__init__.py` be updated to match `pyproject.toml` (0.7.0)?
+  **Status**: Technical fix needed
+
+  ### OQ-12: Flaky Test
+  **Question**: How should `test_checkpoint_ensures_durability` handle random terrain?
+  **Status**: Pre-existing; needs fix
+
+  ### OQ-13: Wrong HTTP Method in Spec
+  **Question**: Should WI-294 work item say GET instead of POST?
+  **Status**: Documentation fix
+cycle: 3
+reviewer: journal-keeper
+content_hash: a87dd899bb048cc69bb24c32a26f00540c9431d568a38448a551452a14db9a55
+token_count: 609
+file_path: .ideate/cycles/003/decision-log.yaml

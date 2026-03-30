@@ -1,7 +1,7 @@
 id: WI-184
 type: work_item
 title: Adaptive viewport — wire WorldView to terminal size
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -16,10 +16,10 @@ module: null
 domain: null
 notes: |
   # WI-184 Notes: Adaptive viewport
-  
+
   ## Context
   ViewportManager.resize(width, height) exists at viewport/manager.py:82 but is never called. ViewportState defaults to Size(80, 24). WorldView needs to call resize on mount and on Textual resize events.
-  
+
   ## Implementation
   In world_view.py:
   1. Add: from textual.events import Resize
@@ -28,11 +28,12 @@ notes: |
   3. Add method:
      def on_resize(self, event: Resize) -> None:
          self._viewport.resize(event.size.width, event.size.height)
-  
+
   self._viewport is the ViewportManager. self.size is the Textual widget's current Size (width, height).
   The Resize event has event.size with .width and .height.
 cycle_created: 1
 cycle_modified: null
-content_hash: "61e633163140e7ad28a0fef9705d738bbfd1c22a7a72baadccc016047dd574e1"
-token_count: 368
+content_hash: 2f1ee85b8ff8b304fa7164efbe7b39017577c4cd8b5e76b59e874e04d0b4fb34
+token_count: 379
 file_path: .ideate/work-items/WI-184.yaml
+resolution: test_on_resize_calls_resize_with_event_dimensions exists in test_tui_world_view.py

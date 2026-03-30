@@ -1,7 +1,7 @@
 id: WI-181
 type: work_item
 title: Update hooks.json — register all 15 hooks, fix PreToolUse async
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -18,14 +18,14 @@ module: null
 domain: null
 notes: |
   # WI-181 Notes: Update hooks.json — 15 hooks, fix PreToolUse async
-  
+
   ## Context
   Two changes: (1) remove async:true from PreToolUse (it's a blocking event — async unsupported, likely causing "1 error during load"), (2) register all 11 new hook types.
-  
+
   ## Async rules per Claude Code docs
   - async: true NOT supported on: PreToolUse, PermissionRequest, PreCompact
   - async: true supported on all other hook types
-  
+
   ## 15 hooks and their async setting
   PreToolUse: NO async
   PostToolUse: async true
@@ -44,6 +44,7 @@ notes: |
   StopFailure: async true
 cycle_created: 1
 cycle_modified: null
-content_hash: "682423fbff07087f20878aa9d2d130b85c4ac52e64045fb6bb496b688a4556ca"
-token_count: 437
+content_hash: 6912ccae66670b9b1f850eb2e7e361de3ee38243a2bab37b3c5e6b58ba64de5b
+token_count: 442
 file_path: .ideate/work-items/WI-181.yaml
+resolution: hooks.json has exactly 15 entries with correct async flags

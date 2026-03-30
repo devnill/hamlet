@@ -1,14 +1,14 @@
 id: Q-22
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: No integration test covers empty agents/structures/villages through full pipeline
 cycle_created: 1
 cycle_modified: null
-content_hash: "884c0127be7395da1e2ef545560726539c0634888f1286c52a04380639120975"
-token_count: 80
+description: No integration test covers empty agents/structures/villages through full pipeline
+domain: visualization
+impact: ""
+resolution: Integration test now exists covering empty agents/structures/villages through the full pipeline.
+resolved_in: null
+source: ""
+status: closed
+content_hash: bc6bfda80c563208c3a9641f02d28a4a405b339a228afaf846872dde61daec55
+token_count: 87
 file_path: .ideate/questions/Q-22.yaml

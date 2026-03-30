@@ -1,7 +1,7 @@
 id: WI-092
 type: work_item
 title: Hook Installation Command
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -18,56 +18,56 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 092 - Hook Installation Command
-  
+
   ## Scope
-  
+
   Create `hamlet install` command that configures Claude Code to use Hamlet hooks.
-  
+
   ## Implementation
-  
+
   ### Command Structure
-  
+
   ```python
   # src/hamlet/cli/commands/install.py
   import json
   import shutil
   from pathlib import Path
   import click  # or argparse
-  
+
   CLAUDE_SETTINGS_PATH = Path.home() / ".claude" / "settings.json"
   HAMLET_HOOKS_DIR = Path(__file__).parent.parent.parent.parent / "hooks"
-  
+
   def install_hooks():
       settings = load_settings()
       backup_settings(settings)
-  
+
       # Add MCP server config
       settings["mcpServers"] = settings.get("mcpServers", {})
       settings["mcpServers"]["hamlet"] = {
           "command": "python",
           "args": [str(hook_path)]  # Actually hooks are separate scripts
       }
-  
+
       # Actually, Claude Code hooks are different from MCP servers
       # Need to configure hooks, not MCP servers
       # Research needed on exact Claude Code hook config format
-  
+
       save_settings(settings)
-  
+
   def load_settings() -> dict:
       if CLAUDE_SETTINGS_PATH.exists():
           return json.loads(CLAUDE_SETTINGS_PATH.read_text())
       return {}
-  
+
   def backup_settings(settings: dict):
       backup_path = CLAUDE_SETTINGS_PATH.with_suffix(".json.backup")
       backup_path.write_text(json.dumps(settings, indent=2))
   ```
-  
+
   ### Claude Code Hook Configuration
-  
+
   Research needed on exact format. Likely:
-  
+
   ```json
   {
     "hooks": {
@@ -78,41 +78,41 @@ notes: |
     }
   }
   ```
-  
+
   ## Implementation Steps
-  
+
   1. Auto-detect `CLAUDE_SETTINGS_PATH` env var or use default
   2. Validate settings.json is valid JSON
   3. Create backup
   4. Add/modify hooks section
   5. Validate result
   6. Print success message with paths
-  
+
   ## Error Handling (GP-11)
-  
+
   - Claude Code not installed → "Claude Code not found. Install from..."
   - settings.json invalid → "Corrupted settings. Restore from backup at..."
   - hooks directory not found → "Hamlet not properly installed. Reinstall with pip..."
-  
+
   ## Uninstall Command
-  
+
   ```bash
   $ hamlet uninstall
   ```
-  
+
   Removes hooks from settings.json, restores from backup if exists.
-  
+
   ## Testing
-  
+
   ```bash
   # Install
   $ hamlet install
   ✓ Hooks installed to ~/.claude/settings.json
   ✓ Backup created at ~/.claude/settings.json.backup
-  
+
   # Verify
   $ cat ~/.claude/settings.json | grep hamlet
-  
+
   # Uninstall
   $ hamlet uninstall
   ✓ Hooks removed
@@ -120,6 +120,7 @@ notes: |
   ```
 cycle_created: 1
 cycle_modified: null
-content_hash: "2553b278cc7ae03007fae86ce92aca35a3d319673ff7dd2cd98431f605d79b5d"
-token_count: 870
+content_hash: e67d1d92348e0b53a994b67b999c38033fe1b9ec735721707b2d98c883049406
+token_count: 879
 file_path: .ideate/work-items/WI-092.yaml
+resolution: install.py has install_command() and uninstall_command() with backup and validation

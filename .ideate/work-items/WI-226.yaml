@@ -1,59 +1,60 @@
 id: WI-226
 type: work_item
 title: StatusBar village name from viewport center
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
 blocks: []
 criteria:
-  - "StatusBar shows \"Village:\" label instead of \"Project:\""
+  - StatusBar shows "Village:" label instead of "Project:"
   - StatusBar has a `village_name` reactive attribute
-  - "When village_name is empty, the field displays \"Village: —\""
-  - "When village_name is non-empty, the field displays \"Village: {village_name}\""
-  - "A test verifies render() output contains \"Village: TestVillage\" when village_name is \"TestVillage\""
-  - "A test verifies render() output contains \"Village: —\" when village_name is empty"
+  - 'When village_name is empty, the field displays "Village: —"'
+  - 'When village_name is non-empty, the field displays "Village: {village_name}"'
+  - 'A test verifies render() output contains "Village: TestVillage" when village_name is "TestVillage"'
+  - 'A test verifies render() output contains "Village: —" when village_name is empty'
 module: null
 domain: null
 notes: |
   # WI-226 Implementation Notes
-  
+
   ## Context
-  
+
   StatusBar currently shows a "Project:" line from a `project_name` reactive. Replace with
   "Village:" showing the name of the village the viewport is centered on.
-  
+
   Depends on WI-225 providing `get_nearest_village_to()`.
-  
+
   ## src/hamlet/tui/status_bar.py
-  
+
   1. Read the current StatusBar implementation first to understand all reactives and render().
   2. Replace `project_name: reactive[str] = reactive("")` with `village_name: reactive[str] = reactive("")`.
   3. Update render() to use "Village: {name or '—'}" instead of "Project: {name}".
-  
+
   ## Caller (tui/app.py or world_view update loop)
-  
+
   Search for `.project_name =` assignments to StatusBar instances. Replace with village name
   lookup:
-  
+
   ```python
   village = await self._world_state.get_nearest_village_to(
       self._viewport.center.x, self._viewport.center.y
   )
   self._status_bar.village_name = village.name if village else ""
   ```
-  
+
   Update this call at the same cadence as the existing state refresh (500ms RemoteStateProvider
   poll or 4Hz animation tick — match whatever currently updates project_name).
-  
+
   ## Tests in tests/test_tui_status_bar.py
-  
+
   Modify existing tests:
   1. Set `status_bar.village_name = "TestVillage"`. Assert render() output contains "Village: TestVillage".
   2. Set `status_bar.village_name = ""`. Assert render() output contains "Village: —".
   3. Assert "Project:" does NOT appear in render() output.
 cycle_created: 1
 cycle_modified: null
-content_hash: "0f7a7ab1d42ee5191caa03554da895ad3047a6f840ce1e38ad80a4fce3fa1d7d"
-token_count: 552
+content_hash: 0e6ec92948b766bf52a5506880a5e463a1ee4bd14b8dccd3c16acc3705833129
+token_count: 546
 file_path: .ideate/work-items/WI-226.yaml
+resolution: StatusBar village name from viewport center

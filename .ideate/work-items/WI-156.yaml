@@ -1,7 +1,7 @@
 id: WI-156
 type: work_item
 title: Fix get_hooks_dir() path off-by-one in install.py
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -14,34 +14,35 @@ module: null
 domain: null
 notes: |
   # WI-156: Fix get_hooks_dir() path off-by-one in install.py
-  
+
   ## Context
   WI-141 fixed install.py to write nested array hook format, but the path resolution for get_hooks_dir() uses .parent×6 (or similar) from the install.py file location, which resolves one level too high — reaching /Users/dan/code instead of /Users/dan/code/hamlet.
-  
+
   ## Existing Code
   - `src/hamlet/cli/commands/install.py` — get_hooks_dir() function (or similar)
-  
+
   ## Fix
   Read install.py to find the current path resolution. Fix to use correct number of .parent traversals:
   - install.py is at: src/hamlet/cli/commands/install.py
   - Project root is at: /Users/dan/code/hamlet/ (or wherever the repo root is)
   - From install.py: .parent×4 = project root (src/hamlet/cli/commands → src/hamlet/cli → src/hamlet → src → project root)
-  
+
   Alternatively, use a more robust approach:
   ```python
   import importlib.resources
   # Or use __file__ relative path:
   PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
   ```
-  
+
   Or use a config value from settings.
-  
+
   ## Notes
   - Read install.py before modifying
   - Verify the correct .parent count by counting directory levels
   - The Claude Code settings hooks directory depends on the OS; check existing code for that path
 cycle_created: 1
 cycle_modified: null
-content_hash: "3308cdda26bc230ef4a27facc15e1cc8c7506ca097f12e81635a6d66cae26c2c"
-token_count: 438
+content_hash: 8e7015e47a6fc5cafe5ac0274c2ec6176af8e6d8bc4e30d5300009e9f9bc8cfe
+token_count: 440
 file_path: .ideate/work-items/WI-156.yaml
+resolution: Path resolution uses correct 5-parent traversal

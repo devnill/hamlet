@@ -1,7 +1,7 @@
 id: WI-180
 type: work_item
 title: New hook scripts — system/observation events
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -17,10 +17,10 @@ module: null
 domain: null
 notes: |
   # WI-180 Notes: New hook scripts — system/observation events
-  
+
   ## Context
   v0.4.0 hook expansion. These 5 scripts cover system and observation events: PostToolUseFailure, UserPromptSubmit, PreCompact, PostCompact, StopFailure.
-  
+
   ## stdin field locations (per Claude Code docs)
   All fields at top level:
   - PostToolUseFailure: session_id, cwd, hook_event_name, tool_name, tool_input, tool_use_id, error, is_interrupt
@@ -28,13 +28,14 @@ notes: |
   - PreCompact: session_id, cwd, hook_event_name (minimal payload)
   - PostCompact: session_id, cwd, hook_event_name (minimal payload)
   - StopFailure: session_id, cwd, hook_event_name, error (dict with type and reason)
-  
+
   ## Notes
   - stop_failure.py: error is a dict with type (rate_limit/authentication_failed/billing_error/etc.) and reason string
   - pre_compact.py and post_compact.py: send base fields only (no event-specific data needed)
   - Same pattern as WI-179 for all
 cycle_created: 1
 cycle_modified: null
-content_hash: c69f9cfcb854dc8b123fcdc8c082d3b6af4cf88cb76d16df01bf4d351fe9ed10
-token_count: 481
+content_hash: d920ec0d4d94166d4f194160bdc31304ccaac5cbf6cbe48c9350e5faf8b32b60
+token_count: 495
 file_path: .ideate/work-items/WI-180.yaml
+resolution: post_tool_use_failure.py, user_prompt_submit.py, pre_compact.py, post_compact.py, stop_failure.py all exist

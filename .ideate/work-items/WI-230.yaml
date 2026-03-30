@@ -1,7 +1,7 @@
 id: WI-230
 type: work_item
 title: Multi-cell structure rendering in WorldView with box-drawing characters
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -20,13 +20,13 @@ module: null
 domain: null
 notes: |
   # WI-230 Implementation Notes
-  
+
   ## src/hamlet/tui/world_view.py
-  
+
   Replace the simple `struct_by_pos` single-cell dict with multi-cell expansion.
-  
+
   Change the struct_by_pos type to `dict[tuple[int, int], tuple[str, str]]` (char, color):
-  
+
   ```python
   struct_by_pos: dict[tuple[int, int], tuple[str, str]] = {}
   for structure in self._structures:
@@ -58,32 +58,33 @@ notes: |
                       char, char_color = symbol, color  # interior + center
                   struct_by_pos[(cx, cy)] = (char, char_color)
   ```
-  
+
   Update the render loop:
-  
+
   ```python
   elif key in struct_by_pos:
       char, style = struct_by_pos[key]
       text.append(char, style=style)
   ```
-  
+
   Agent rendering still checked first (agent takes priority).
-  
+
   ## Tests in tests/test_tui_world_view.py
-  
+
   1. Create a structure at Position(5,5) with size_tier=2. Mock _structures. Call render().
      Parse the rendered Text. Verify:
      - (4,4)="+", (5,4)="-", (6,4)="+"
      - (4,5)="|", (5,5)=structure_symbol, (6,5)="|"
      - (4,6)="+", (5,6)="-", (6,6)="+"
-  
+
   2. Add an agent at Position(4,5). Verify that position renders as the agent symbol, not "|".
-  
+
   Note: render() returns a rich.text.Text object. You can iterate its spans or convert to plain
   string to extract characters at specific positions. Alternatively, compute the expected grid
   line-by-line from bounds.
 cycle_created: 1
 cycle_modified: null
-content_hash: af0ad3c785233316d029a0077de42a94358fd805ed5e81f82dd6cbcee76a6db5
-token_count: 847
+content_hash: b85139a4f9d64be9c869377968973b2ef609b89d60e2360a5f110dddf7b7f0bb
+token_count: 857
 file_path: .ideate/work-items/WI-230.yaml
+resolution: WorldView.render() expands structures with size_tier >= 2 into full footprint

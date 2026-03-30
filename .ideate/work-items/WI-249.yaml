@@ -1,13 +1,13 @@
 id: WI-249
 type: work_item
 title: Terrain Legend Enhancement
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
 blocks: []
 criteria:
-  - "Legend overlay displays terrain types: water (~), mountain (^), forest (♣), meadow (\"), plain (.)"
+  - 'Legend overlay displays terrain types: water (~), mountain (^), forest (♣), meadow ("), plain (.)'
   - Each terrain type shows symbol with its color
   - Legend maintains existing agents, structures, materials, states sections
   - Legend height adjusted for new terrain section
@@ -16,6 +16,7 @@ domain: null
 notes: null
 cycle_created: 1
 cycle_modified: null
-content_hash: "3508178c717056b761187cd9c2eb578660a06a052008a361c3f5ea1665a60b0f"
-token_count: 139
+content_hash: 9f88871ee1855cedfbcea1fcb8949456f4c8bf36c58f75d6ec410bdc20bbc4cb
+token_count: 135
 file_path: .ideate/work-items/WI-249.yaml
+resolution: LegendOverlay includes terrain section

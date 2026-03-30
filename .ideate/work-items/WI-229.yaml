@@ -1,7 +1,7 @@
 id: WI-229
 type: work_item
 title: Multi-cell footprint in PositionGrid and agent displacement on tier upgrade
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -19,11 +19,11 @@ module: null
 domain: null
 notes: |
   # WI-229 Implementation Notes
-  
+
   ## src/hamlet/world_state/grid.py
-  
+
   Add helper and two public methods to PositionGrid:
-  
+
   ```python
   def _footprint_positions(self, center: "Position", tier: int) -> list["Position"]:
       """Return all positions in (2*tier-1) x (2*tier-1) footprint centered on center."""
@@ -33,7 +33,7 @@ notes: |
           for dx in range(-half, half + 1)
           for dy in range(-half, half + 1)
       ]
-  
+
   def occupy_footprint(self, position: "Position", tier: int, entity_id: str) -> None:
       """Mark all cells in the tier footprint as occupied by entity_id."""
       for pos in self._footprint_positions(position, tier):
@@ -41,21 +41,21 @@ notes: |
           if occupied_by is not None and occupied_by != entity_id:
               raise ValueError(f"Position {pos} already occupied by '{occupied_by}'")
           self._grid[pos] = entity_id
-  
+
   def vacate_footprint(self, position: "Position", tier: int, entity_id: str) -> None:
       """Clear all footprint cells that are occupied by entity_id."""
       for pos in self._footprint_positions(position, tier):
           if self._grid.get(pos) == entity_id:
               del self._grid[pos]
   ```
-  
+
   Read the existing PositionGrid implementation first to match internal dict field name
   (`self._grid`, `self._occupied`, or similar).
-  
+
   ## src/hamlet/world_state/manager.py
-  
+
   Replace the stub `upgrade_structure_tier` from WI-228 with full implementation:
-  
+
   ```python
   async def upgrade_structure_tier(self, structure_id: str, new_tier: int) -> None:
       async with self._lock:
@@ -91,9 +91,9 @@ notes: |
       # Queue persistence outside lock
       await self._persistence.queue_write("structure", structure_id, self._state.structures[structure_id])
   ```
-  
+
   Add spiral search helper:
-  
+
   ```python
   def _find_free_position_outside(self, center: "Position", tier: int) -> "Position":
       """Find nearest free cell outside the (2*tier-1)x(2*tier-1) footprint."""
@@ -107,30 +107,31 @@ notes: |
                           return pos
       return Position(center.x + 50, center.y + 50)  # fallback
   ```
-  
+
   Read existing WorldStateManager methods (vacate, occupy, get_entity_at) to match field names.
-  
+
   ## src/hamlet/tui/remote_world_state.py
-  
+
   Add stub:
-  
+
   ```python
   async def upgrade_structure_tier(self, structure_id: str, new_tier: int) -> None:
       raise NotImplementedError("RemoteWorldState does not support upgrade_structure_tier")
   ```
-  
+
   ## Tests
-  
+
   ### tests/test_position_grid.py
   - occupy_footprint tier 2 at (5,5): verify 9 cells (4–6, 4–6) are occupied
   - vacate_footprint: verify cells cleared
   - occupy_footprint raises ValueError if cell occupied by different entity
-  
+
   ### tests/test_world_state_manager.py
   - Place structure at (5,5) tier 1; place agent at (4,5). Upgrade to tier 2.
   - Verify agent position is now outside the 3x3 footprint centered at (5,5).
 cycle_created: 1
 cycle_modified: null
-content_hash: bbffd01c5ec2892d1e8c678e0f510879ad27bd70245e6196c4ff7da2f8081223
-token_count: 1466
+content_hash: 4ffa11b5fc94390413d8dabf78215e6f4305e00ff925adddac1d7b1ccb7c2614
+token_count: 1483
 file_path: .ideate/work-items/WI-229.yaml
+resolution: PositionGrid has footprint_positions, occupy_footprint, vacate_footprint methods

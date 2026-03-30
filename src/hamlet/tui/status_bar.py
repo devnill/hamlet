@@ -15,6 +15,7 @@ class StatusBar(Static):
     village_name: reactive[str] = reactive("")
     viewport_pos: reactive[tuple[int, int]] = reactive((0, 0))
     current_activity: reactive[str] = reactive("")
+    cursor_summary: reactive[str] = reactive("")
 
     def render(self) -> str:
         x, y = self.viewport_pos
@@ -25,6 +26,8 @@ class StatusBar(Static):
             f"Village: {village_display} │ "
             f"({x}, {y})"
         )
+        if self.cursor_summary:
+            base = f"{base} │ {self.cursor_summary}"
         if self.current_activity:
             return f"{base} │ {self.current_activity}"
         return base

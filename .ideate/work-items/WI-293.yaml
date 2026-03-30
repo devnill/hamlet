@@ -1,0 +1,41 @@
+id: WI-293
+type: work_item
+title: Handle work units when target structure type doesn't exist
+status: done
+complexity: medium
+scope:
+  - op: modify
+    path: src/hamlet/inference/engine.py
+  - op: modify
+    path: src/hamlet/world_state/manager.py
+  - op: modify
+    path: tests/test_inference_engine.py
+depends: []
+blocks: []
+criteria:
+  - When agent performs tool mapping to structure type not present in village, work units are accumulated appropriately (pending pool or auto-create structure)
+  - add_work_units logs warning and handles gracefully without discarding work
+  - Behavior documented in code comments or architecture
+domain: inference
+notes: |-
+  **Context**: Gap analysis EC1 (Cycle 002)
+
+  Current behavior: `add_work_units` in `src/hamlet/inference/engine.py` lines 335-344 logs a warning and discards work units when no matching structure exists.
+
+  Affects GP-08 (agent-driven world building). Work performed by agents should contribute to world growth.
+
+  **Options**:
+  1. Accumulate in pending pool until structure created
+  2. Auto-create structure when work units arrive
+  3. Document as expected behavior
+
+  **Acceptance criteria**:
+  - Work units not silently discarded
+  - Behavior clearly documented
+  - Tests for new behavior
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 864b6506214e20cb43e90b982a761f60b5399564efae5daf1703a19478348fc2
+token_count: 328
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-293.yaml

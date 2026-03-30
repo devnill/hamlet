@@ -1,7 +1,7 @@
 id: WI-168
 type: work_item
 title: Register hamlet in claude-marketplace
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -17,10 +17,10 @@ module: null
 domain: null
 notes: |
   # WI-168 Notes: Register hamlet in claude-marketplace
-  
+
   ## File to modify
   `~/code/claude-marketplace/.claude-plugin/marketplace.json`
-  
+
   ## What to add
   Append to the `plugins` array:
   ```json
@@ -34,17 +34,18 @@ notes: |
     "version": "0.1.0"
   }
   ```
-  
+
   ## Version note
   Version `0.1.0` matches the hamlet repo's `.claude-plugin/plugin.json`. The repo is not yet published on GitHub — the entry is added now so it is ready when published. The `release.sh sync` command can update the version later if needed.
-  
+
   ## Do not run release.sh add
   The `add` subcommand fetches the remote plugin.json from GitHub. Since the repo is not yet public, this would fail. Edit marketplace.json directly.
-  
+
   ## Existing entries
   Do not modify beepboop, moodring, ideate, outpost, or cyberbrain entries.
 cycle_created: 1
 cycle_modified: null
-content_hash: e72c4c8446bb11e8eab207e3d23a316ee15306138624c3f40ece582b2391cb89
-token_count: 410
+content_hash: 8a2b18e7ec3ed251481587a7291108d7467ade4d4f89c84f81c177641a193fbe
+token_count: 403
 file_path: .ideate/work-items/WI-168.yaml
+resolution: hamlet registered in marketplace.json

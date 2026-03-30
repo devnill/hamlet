@@ -1,7 +1,7 @@
 id: WI-090
 type: work_item
 title: Hook Scripts - PreToolUse and PostToolUse
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -9,7 +9,7 @@ blocks: []
 criteria:
   - File hooks/pre_tool_use.py exists and is executable
   - pre_tool_use.py extracts agent_name, tool_name, session_id, project_id from environment
-  - "pre_tool_use.py sends JSON-RPC event to MCP server via HTTP POST to localhost:8080"
+  - pre_tool_use.py sends JSON-RPC event to MCP server via HTTP POST to localhost:8080
   - pre_tool_use.py exits 0 on success, logs errors but never blocks Claude Code (GP-7, GP-11)
   - File hooks/post_tool_use.py exists and is executable
   - post_tool_use.py extracts same fields plus token_count (if available)
@@ -19,15 +19,15 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 090 - Hook Scripts - PreToolUse and PostToolUse
-  
+
   ## Scope
-  
+
   Create minimal client-side hook scripts that extract telemetry and send to the MCP server.
-  
+
   ## Hook Script Requirements
-  
+
   ### pre_tool_use.py
-  
+
   ```python
   #!/usr/bin/env python3
   """Send PreToolUse event to Hamlet MCP server."""
@@ -35,9 +35,9 @@ notes: |
   import os
   import urllib.request
   import sys
-  
+
   SERVER_URL = "http://localhost:8080/hamlet/event"
-  
+
   def main():
       try:
           payload = {
@@ -52,7 +52,7 @@ notes: |
                   "timestamp": datetime.utcnow().isoformat()
               }
           }
-  
+
           req = urllib.request.Request(
               SERVER_URL,
               data=json.dumps(payload).encode(),
@@ -64,39 +64,40 @@ notes: |
           pass  # GP-7: fail silently
       finally:
           sys.exit(0)
-  
+
   if __name__ == "__main__":
       main()
   ```
-  
+
   ### post_tool_use.py
-  
+
   Same structure but extracts `token_count` if available in environment.
-  
+
   ## Key Design Decisions
-  
+
   1. **No external dependencies** - Use stdlib only for portability
   2. **Hardcoded localhost:8080** - Server runs locally, no config needed
   3. **1-second timeout** - Never block Claude Code
   4. **Always exit 0** - Never fail the Claude Code operation
   5. **Minimal payload** - Just what's needed for inference
-  
+
   ## Testing
-  
+
   Test manually:
   ```bash
   $ CLAUDE_SESSION_ID=test123 CLAUDE_TOOL_NAME=Read python hooks/pre_tool_use.py
   $ echo $?  # Should be 0
   ```
-  
+
   ## Acceptance Criteria Checklist
-  
+
   - [ ] Scripts are executable (`chmod +x`)
   - [ ] Scripts use stdlib only
   - [ ] Scripts exit 0 even on error
   - [ ] Scripts complete in <100ms
 cycle_created: 1
 cycle_modified: null
-content_hash: "81d0f871d704b3122b365df289f4039f966e7914ec2d69a6668bf4b40b4594d7"
-token_count: 780
+content_hash: c777de12db2c1ffa0e9e03c17715fc452b2343c5a2fe91c87c0eab38e9a5bf2b
+token_count: 795
 file_path: .ideate/work-items/WI-090.yaml
+resolution: hooks/pre_tool_use.py and post_tool_use.py exist with stdin reading, find_config, find_server_url, exit 0 in finally

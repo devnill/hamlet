@@ -1,7 +1,7 @@
 id: WI-240
 type: work_item
 title: TerrainConfig v2 — configuration parameters for multi-octave noise
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -17,18 +17,18 @@ module: null
 domain: null
 notes: |
   # WI-240: TerrainConfig v2 — configuration parameters for multi-octave noise
-  
+
   ## Context
-  
+
   The current `TerrainConfig` dataclass contains basic parameters for single-frequency Perlin noise generation. For realistic terrain with fractal Brownian motion (fBm) and domain warping, we need additional parameters.
-  
+
   ## Implementation Notes
-  
+
   ### Location
   - `src/hamlet/world_state/terrain.py` — modify `TerrainConfig` dataclass
-  
+
   ### Current State
-  
+
   ```python
   @dataclass
   class TerrainConfig:
@@ -41,30 +41,31 @@ notes: |
       water_threshold: float = -0.3
       mountain_threshold: float = 0.7
   ```
-  
+
   ### Required Additions
-  
+
   Add parameters for multi-octave noise (fBm):
   - `octaves: int = 4` — number of noise layers to combine
   - `lacunarity: float = 2.0` — frequency multiplier per octave (standard value)
   - `persistence: float = 0.5` — amplitude decay per octave (standard value)
-  
+
   Add parameter for domain warping:
   - `domain_warp_strength: float = 0.5` — strength of coordinate distortion
-  
+
   ### Thresholds
-  
+
   The existing threshold parameters (`water_threshold`, `mountain_threshold`, `forest_threshold`, `meadow_threshold`) will be repurposed in WI-242 for the unified heightmap classification. The interpretation changes from "separate noise map threshold" to "heightmap elevation threshold" — but the values and parameter names can remain the same.
-  
+
   ### Backward Compatibility
-  
+
   The default values for new parameters should produce reasonable terrain without requiring user configuration. The existing `TerrainConfig(seed=42)` instantiation pattern must continue to work.
-  
+
   ### Reference
-  
+
   See `specs/steering/research/procedural-terrain-generation.md` section on fBm parameters and domain warping strength recommendations.
 cycle_created: 1
 cycle_modified: null
-content_hash: b8f90e6f5b1103958ece51ce38f7495db3f61016f64ea079da4491de1ed497cc
-token_count: 656
+content_hash: 19a5c6400afd6405522d5bb12f47135e41cb971e8bd076d8a6baddf818f1745b
+token_count: 662
 file_path: .ideate/work-items/WI-240.yaml
+resolution: TerrainConfig has all parameters for multi-octave noise

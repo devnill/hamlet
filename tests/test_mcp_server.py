@@ -79,7 +79,8 @@ class TestMCPServer:
         assert response.status == 200
         import json
         body = json.loads(response.body)
-        assert body == {"status": "ok"}
+        assert body["status"] == "ok"
+        assert "version" in body
 
     @pytest.mark.asyncio
     async def test_terrain_endpoint_returns_terrain_data(self) -> None:

@@ -1,0 +1,22 @@
+id: WI-291
+type: work_item
+title: Add StopFailure string format test
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: tests/test_hooks.py
+depends: []
+blocks: []
+criteria:
+  - Test sends StopFailure with string error field
+  - Test verifies hook processes without crash
+  - "Test verifies error normalized to {type: 'error', reason: <string>}"
+domain: testing
+notes: "# WI-291: Add StopFailure string format test"
+resolution: null
+cycle_created: 2
+cycle_modified: null
+content_hash: a928f6bbf62f3c05ad52801b9a475890b56a4dfd32bee93b7576774c8ad5ba62
+token_count: 120
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-291.yaml

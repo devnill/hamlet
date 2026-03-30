@@ -1,0 +1,28 @@
+id: WI-285
+type: work_item
+title: Add SpriteManager stale handle guard
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/gui/kitty/sprites.py
+  - op: modify
+    path: tests/test_sprites.py
+depends: []
+blocks: []
+criteria:
+  - SpriteManager.get_upload_sequence() handles stale handles gracefully
+  - No KeyError when handle.image_id not in _png_data
+  - Returns empty string or logs warning instead of crashing
+  - Tests verify stale handle behavior
+domain: visualization
+notes: |-
+  Q-12/Q-18: After cleanup(), SpriteManager._png_data is cleared but existing SpriteHandle objects still reference the old image_id. Calling get_upload_sequence() with a stale handle raises KeyError.
+
+  Fix: Add a guard check in get_upload_sequence() to handle missing image_id gracefully. Return empty string or log a warning.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 3444df04c4dd0b69ca56cdfa3a64c766d36132ed9521beaea97ca569cdd28145
+token_count: 222
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-285.yaml

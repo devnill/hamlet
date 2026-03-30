@@ -1,7 +1,7 @@
 id: WI-097
 type: work_item
 title: End-to-End Integration Tests
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -19,17 +19,17 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 097 - End-to-End Integration Tests
-  
+
   ## Scope
-  
+
   Create integration tests that verify the full system works together.
-  
+
   ## Test Strategy
-  
+
   ### test_e2e_hook_to_render.py
-  
+
   Full flow: Hook script → MCP server → Event processor → World state → TUI render
-  
+
   ```python
   @pytest.mark.asyncio
   async def test_hook_event_reaches_viewport_render():
@@ -43,9 +43,9 @@ notes: |
       # Use real components but stub external deps
       pass
   ```
-  
+
   ### test_e2e_persistence_roundtrip.py
-  
+
   ```python
   @pytest.mark.asyncio
   async def test_save_and_load_world_state():
@@ -57,9 +57,9 @@ notes: |
       """
       pass
   ```
-  
+
   ## Test Fixtures
-  
+
   ```python
   @pytest.fixture
   async def e2e_components(tmp_path):
@@ -67,12 +67,12 @@ notes: |
       db_path = tmp_path / "test.db"
       persistence = PersistenceFacade(db_path=db_path)
       await persistence.start()
-  
+
       world_state = WorldStateManager(persistence)
       event_processor = EventProcessor()
       simulation = SimulationEngine(world_state)
       mcp_server = MCPServer()
-  
+
       yield {
           "persistence": persistence,
           "world_state": world_state,
@@ -80,43 +80,43 @@ notes: |
           "simulation": simulation,
           "mcp_server": mcp_server,
       }
-  
+
       # Cleanup
       await mcp_server.stop()
       await simulation.stop()
       await event_processor.stop()
       await persistence.stop()
   ```
-  
+
   ## Key Testing Patterns
-  
+
   1. **Use temp directories** - Don't pollute user's ~/.hamlet
   2. **Use real SQLite** - Not mocks, verify actual persistence
   3. **Use short timeouts** - E2E tests should be fast
   4. **Test degradation** - Verify system continues when components fail (GP-7)
-  
+
   ## Example Test
-  
+
   ```python
   async def test_multiple_sessions_create_multiple_agents(e2e_components):
       components = e2e_components
-  
+
       # Simulate events from session 1
       await send_mock_hook_event(session_id="sess1", tool_name="Read")
-  
+
       # Simulate events from session 2
       await send_mock_hook_event(session_id="sess2", tool_name="Write")
-  
+
       # Process events
       await asyncio.sleep(0.1)  # Let pipeline process
-  
+
       # Verify two agents exist
       agents = await components["world_state"].get_all_agents()
       assert len(agents) == 2
   ```
-  
+
   ## Acceptance Criteria
-  
+
   - [ ] Tests use real components (not mocks)
   - [ ] Tests use temp directories
   - [ ] Tests verify full flow from hook to render
@@ -124,6 +124,7 @@ notes: |
   - [ ] Tests run in <30 seconds total
 cycle_created: 1
 cycle_modified: null
-content_hash: d09b1dfbc9ca0f9f00cdef9936c528cebbb54b78199da20f01c77d24ae34ced5
-token_count: 914
+content_hash: 4f8cdd89206c29f893f33ec852c50ecb02fad9b3f7492fa2aa7c19f3f8409c21
+token_count: 931
 file_path: .ideate/work-items/WI-097.yaml
+resolution: tests/test_e2e_hook_to_render.py, test_e2e_persistence_roundtrip.py exist with full flow tests

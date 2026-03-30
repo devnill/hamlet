@@ -110,9 +110,10 @@ class TestWorldStateManager:
         assert project.village_id == village_id
 
         # Verify villages restored
+        # Note: "Test Village" is migrated to "{project_name} village" by the placeholder name fix
         assert village_id in manager._state.villages
         village = manager._state.villages[village_id]
-        assert village.name == "Test Village"
+        assert village.name == "Test Project village"
         assert village.center == Position(10, 20)
         assert village.bounds == Bounds(0, 0, 100, 100)
 
@@ -1590,3 +1591,182 @@ class TestWorldStateManager:
             assert s.position not in impassable_positions, (
                 f"Structure {s.type} was placed at impassable position {s.position}"
             )
+
+    async def test_get_or_create_agent_creates_village_with_project_name(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """get_or_create_agent() creates fallback village with project name."""
+        # Set up project and session WITHOUT a village (simulates orphaned state)
+        project_id = "proj-with-name"
+        session_id = "session-no-village"
+
+        manager._state.projects[project_id] = Project(
+            id=project_id, name="MyProject", village_id=""
+        )
+        manager._state.sessions[session_id] = Session(
+            id=session_id, project_id=project_id
+        )
+
+        # Call get_or_create_agent - should create a fallback village
+        agent = await manager.get_or_create_agent(session_id)
+
+        # Find the created village
+        villages = list(manager._state.villages.values())
+        assert len(villages) == 1
+        village = villages[0]
+
+        # Village name should use project name
+        assert village.name == "MyProject village", (
+            f"Expected 'MyProject village' but got '{village.name}'"
+        )
+        assert village.project_id == project_id
+
+    async def test_get_or_create_agent_creates_village_without_project(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """get_or_create_agent() creates fallback village with generic name when no project."""
+        session_id = "session-no-project"
+
+        # Session exists but no project for this session
+        manager._state.sessions[session_id] = Session(
+            id=session_id, project_id="nonexistent-project"
+        )
+
+        # Call get_or_create_agent - should create a fallback village
+        agent = await manager.get_or_create_agent(session_id)
+
+        # Find the created village
+        villages = list(manager._state.villages.values())
+        assert len(villages) == 1
+        village = villages[0]
+
+        # Village name should be generic fallback
+        assert village.name == "village", (
+            f"Expected 'village' but got '{village.name}'"
+        )
+
+    async def test_load_from_persistence_fixes_placeholder_village_name(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """load_from_persistence() fixes villages with placeholder names."""
+        # Create mock data with placeholder village name
+        mock_data = MagicMock()
+        mock_data.projects = [
+            {
+                "id": "proj-1",
+                "name": "ideate",
+                "village_id": "village-1",
+                "config_json": {},
+            }
+        ]
+        mock_data.villages = [
+            {
+                "id": "village-1",
+                "project_id": "proj-1",
+                "name": "village",  # Placeholder name
+                "center_x": 0,
+                "center_y": 0,
+                "bounds_min_x": 0,
+                "bounds_min_y": 0,
+                "bounds_max_x": 0,
+                "bounds_max_y": 0,
+                "has_expanded": False,
+            }
+        ]
+        mock_data.sessions = []
+        mock_data.agents = []
+        mock_data.structures = []
+        mock_data.metadata = {}
+        mock_persistence.load_state = AsyncMock(return_value=mock_data)
+
+        await manager.load_from_persistence()
+
+        # Village name should be fixed to project name
+        village = manager._state.villages["village-1"]
+        assert village.name == "ideate village", (
+            f"Expected 'ideate village' but got '{village.name}'"
+        )
+
+    async def test_load_from_persistence_fixes_test_village_name(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """load_from_persistence() fixes villages with 'test village' placeholder."""
+        # Create mock data with placeholder village name
+        mock_data = MagicMock()
+        mock_data.projects = [
+            {
+                "id": "proj-2",
+                "name": "MyApp",
+                "village_id": "village-2",
+                "config_json": {},
+            }
+        ]
+        mock_data.villages = [
+            {
+                "id": "village-2",
+                "project_id": "proj-2",
+                "name": "test village",  # Another placeholder name
+                "center_x": 0,
+                "center_y": 0,
+                "bounds_min_x": 0,
+                "bounds_min_y": 0,
+                "bounds_max_x": 0,
+                "bounds_max_y": 0,
+                "has_expanded": False,
+            }
+        ]
+        mock_data.sessions = []
+        mock_data.agents = []
+        mock_data.structures = []
+        mock_data.metadata = {}
+        mock_persistence.load_state = AsyncMock(return_value=mock_data)
+
+        await manager.load_from_persistence()
+
+        # Village name should be fixed to project name
+        village = manager._state.villages["village-2"]
+        assert village.name == "MyApp village", (
+            f"Expected 'MyApp village' but got '{village.name}'"
+        )
+
+    async def test_load_from_persistence_preserves_valid_village_name(
+        self, manager: WorldStateManager, mock_persistence: MagicMock
+    ) -> None:
+        """load_from_persistence() preserves villages with valid names."""
+        # Create mock data with valid village name
+        mock_data = MagicMock()
+        mock_data.projects = [
+            {
+                "id": "proj-3",
+                "name": "AnotherProject",
+                "village_id": "village-3",
+                "config_json": {},
+            }
+        ]
+        mock_data.villages = [
+            {
+                "id": "village-3",
+                "project_id": "proj-3",
+                "name": "AnotherProject village",  # Already correct
+                "center_x": 0,
+                "center_y": 0,
+                "bounds_min_x": 0,
+                "bounds_min_y": 0,
+                "bounds_max_x": 0,
+                "bounds_max_y": 0,
+                "has_expanded": False,
+            }
+        ]
+        mock_data.sessions = []
+        mock_data.agents = []
+        mock_data.structures = []
+        mock_data.metadata = {}
+        mock_persistence.load_state = AsyncMock(return_value=mock_data)
+
+        await manager.load_from_persistence()
+
+        # Village name should remain unchanged
+        village = manager._state.villages["village-3"]
+        assert village.name == "AnotherProject village", (
+            f"Expected 'AnotherProject village' but got '{village.name}'"
+        )

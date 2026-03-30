@@ -1,7 +1,7 @@
 id: WI-280
 type: work_item
 title: Detection, settings, and CLI updates for Kitty
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -18,10 +18,10 @@ module: null
 domain: null
 notes: |
   # WI-280: Detection, settings, and CLI updates for Kitty
-  
+
   ## Context
   Wires the Kitty backend into the existing detection, settings, and CLI infrastructure. Replaces temporary stubs from WI-275.
-  
+
   ## detect.py
   ```python
   def detect_renderer() -> str:
@@ -33,7 +33,7 @@ notes: |
           pass
       return "textual"
   ```
-  
+
   ## __main__.py
   ```python
   def _run_viewer_kitty(base_url: str) -> int:
@@ -41,16 +41,17 @@ notes: |
       return KittyApp(base_url).run()
   ```
   No subprocess isolation needed — pure Python.
-  
+
   ## cli/__init__.py
   - `--renderer` choices: `["auto", "textual", "kitty"]`
   - `renderer == "kitty"` branch calls `KittyApp(url).run()` directly
-  
+
   ## Test updates
   - `test_renderer_detect.py`: monkeypatch `hamlet.gui.kitty.KITTY_AVAILABLE`
   - `test_settings.py`: `"kitty"` valid, `"notcurses"` invalid
 cycle_created: 1
 cycle_modified: null
-content_hash: "61ef4ab2fb796e822738a26a6d776d3d75317923142f17ad87daec1c550003c0"
-token_count: 426
+content_hash: 165f938c5f49465c11151c81029d61844db9a6c154ea75077a5c466eef96a2a8
+token_count: 431
 file_path: .ideate/work-items/WI-280.yaml
+resolution: detect_renderer returns kitty when available, Settings validates renderer choices

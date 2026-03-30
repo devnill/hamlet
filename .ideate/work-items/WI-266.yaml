@@ -1,7 +1,7 @@
 id: WI-266
 type: work_item
 title: Add periodic config reload to daemon
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -20,11 +20,11 @@ module: null
 domain: null
 notes: |
   # WI-266: Add periodic config reload to daemon
-  
+
   ## Implementation Notes
-  
+
   ### Settings.diff() method (settings.py)
-  
+
   Add a method that compares two Settings instances and returns a dict of changed fields:
   ```python
   def diff(self, other: "Settings") -> dict[str, tuple[Any, Any]]:
@@ -37,23 +37,23 @@ notes: |
               changes[f.name] = (old, new)
       return changes
   ```
-  
+
   ### Daemon reload loop (daemon.py)
-  
+
   In `_run_daemon()`, the main loop currently is:
   ```python
   while not _shutdown_requested:
       await asyncio.sleep(0.5)
   ```
-  
+
   Change to a reload-aware loop. Track last reload time. Every 30 seconds, re-read config:
-  
+
   ```python
   import time
   RELOAD_INTERVAL = 30  # seconds
   last_reload = time.monotonic()
   current_settings = settings
-  
+
   while not _shutdown_requested:
       await asyncio.sleep(0.5)
       now = time.monotonic()
@@ -68,47 +68,48 @@ notes: |
           except Exception:
               logger.exception("Config reload failed, keeping current settings")
   ```
-  
+
   ### _apply_config_changes() function
-  
+
   Create a helper in daemon.py that applies changed settings to running components:
-  
+
   ```python
   def _apply_config_changes(bundle, changes, new_settings):
       for field_name, (old_val, new_val) in changes.items():
           logger.info("Config changed: %s = %r (was %r)", field_name, new_val, old_val)
-  
+
       if "min_village_distance" in changes:
           bundle.world_state_manager._min_village_distance = new_settings.min_village_distance
-  
+
       if "zombie_threshold_seconds" in changes:
           bundle.inference_engine._zombie_threshold = new_settings.zombie_threshold_seconds
-  
+
       if "tick_rate" in changes:
           bundle.simulation_engine._tick_rate = new_settings.tick_rate
-  
+
       if "mcp_port" in changes:
           logger.warning("mcp_port changed to %d — restart required for this to take effect",
                          new_settings.mcp_port)
   ```
-  
+
   ### Important: Check attribute names
-  
+
   The exact attribute names on the running components need to be verified:
   - `WorldStateManager._min_village_distance` — created by WI-264
   - `AgentInferenceEngine` — check what attribute stores the zombie threshold. Grep for `zombie_threshold` in `inference/engine.py`.
   - `SimulationEngine` — check what attribute stores tick_rate. Grep for `tick_rate` in `simulation/engine.py`.
-  
+
   If any component doesn't expose these as mutable attributes, add a setter or make the attribute settable. Keep changes minimal.
-  
+
   ### Scope boundary
-  
+
   - Do NOT reload `mcp_port` at runtime (requires server restart)
   - Do NOT reload `db_path` at runtime (requires persistence restart)
   - Do NOT reload `terrain` config at runtime (terrain is generated once at startup)
   - Only reload settings that can be safely changed on a running daemon
 cycle_created: 1
 cycle_modified: null
-content_hash: daa9c03cf6ab2fa49b1898ce304da7cbec26e485c37024ab68f78a05904f360d
-token_count: 1067
+content_hash: de64d5ee1174848463a47c203c6237bd8fbcc780770976524b6131c4f569abf1
+token_count: 1075
 file_path: .ideate/work-items/WI-266.yaml
+resolution: Daemon config reload every 30 seconds implemented

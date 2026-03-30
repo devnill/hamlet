@@ -84,6 +84,36 @@ class TestStatusBar:
 
         assert bar.village_name == "test-village"
 
+    def test_render_shows_cursor_summary_when_set(self) -> None:
+        """StatusBar render output includes cursor_summary when non-empty."""
+        bar = StatusBar()
+        bar.cursor_summary = "coder, Edit, TestVillage"
+
+        text = bar.render()
+
+        assert "coder, Edit, TestVillage" in text
+
+    def test_render_hides_cursor_summary_when_empty(self) -> None:
+        """StatusBar render output does not show empty cursor_summary."""
+        bar = StatusBar()
+        bar.cursor_summary = ""
+
+        text = bar.render()
+
+        # The output should not have an extra separator for empty cursor_summary
+        assert "│ │" not in text
+
+    def test_cursor_summary_appears_after_viewport_position(self) -> None:
+        """Cursor summary appears after viewport position in the output."""
+        bar = StatusBar()
+        bar.viewport_pos = (5, 10)
+        bar.cursor_summary = "House L3, MyVillage"
+
+        text = bar.render()
+
+        # The cursor_summary should appear after the viewport position
+        assert "(5, 10) │ House L3, MyVillage" in text
+
     async def test_render_integration(self) -> None:
         """Integration test using Textual's testing patterns."""
         from textual.app import App
@@ -104,3 +134,22 @@ class TestStatusBar:
             assert "Structures: 4" in text
             assert "Village: IntegrationVillage" in text
             assert "Project:" not in text
+
+    async def test_render_integration_with_cursor_summary(self) -> None:
+        """Integration test with cursor_summary."""
+        from textual.app import App
+
+        class TestStatusApp(App):
+            def compose(self):
+                yield StatusBar()
+
+        async with TestStatusApp().run_test() as pilot:
+            status = pilot.app.query_one(StatusBar)
+            status.agent_count = 3
+            status.village_name = "CursorTest"
+            status.cursor_summary = "plain"
+            await pilot.pause()
+
+            text = status.render()
+            assert "plain" in text
+            assert "Village: CursorTest" in text

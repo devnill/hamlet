@@ -44,3 +44,7 @@ class WorldState:
         self.structures: dict[str, Structure] = {}
         self.event_log: list[EventLogEntry] = []
         self.world_metadata: dict[str, str] = {}
+        # Pending work units for structures that don't exist yet.
+        # Maps village_id -> structure_type -> accumulated units.
+        # When a structure is created, any pending units for that type are applied.
+        self.pending_work_units: dict[str, dict[StructureType, int]] = {}

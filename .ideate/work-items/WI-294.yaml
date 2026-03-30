@@ -1,0 +1,40 @@
+id: WI-294
+type: work_item
+title: Add hook connectivity check to hamlet doctor
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/cli/commands/doctor.py
+  - op: modify
+    path: tests/test_doctor.py
+depends: []
+blocks: []
+criteria:
+  - hamlet doctor command includes --check-hooks flag or subcommand
+  - Test attempts POST to daemon /hamlet/health endpoint
+  - Reports pass/fail with actionable error messages
+  - Does not fail if daemon not running (reports 'daemon not running')
+domain: cli
+notes: |-
+  **Context**: Gap analysis MI1 (Cycle 002)
+
+  Current behavior: `hamlet doctor` does not verify hook script connectivity. Users may not realize hooks are misconfigured until game doesn't update.
+
+  Affects GP-11 (low-friction setup). Error messages should guide users to fixes.
+
+  **Implementation**:
+  - Add --check-hooks flag to `hamlet doctor`
+  - Send test POST to daemon /hamlet/health endpoint
+  - Report clear status and next steps
+
+  **Acceptance criteria**:
+  - Doctor command has hook connectivity check
+  - Clear error messages guide users
+  - Graceful handling when daemon not running
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 4c08ef16647988f0eeaefe89ff8ad016df087b60d983e1074b37511c252ea539
+token_count: 295
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-294.yaml

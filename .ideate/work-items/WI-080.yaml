@@ -1,7 +1,7 @@
 id: WI-080
 type: work_item
 title: Persistence Layer Core Tests - Facade, Connection, Migrations
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -23,17 +23,17 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 080 - Persistence Layer Core Tests
-  
+
   ## Scope
-  
+
   Test the persistence layer core: PersistenceFacade lifecycle, DatabaseConnection context manager, and migrations.
-  
+
   ## Testing Patterns
-  
+
   ### Async Database Tests
-  
+
   Use `pytest-asyncio` with `@pytest.mark.asyncio` decorator. For database tests, use a temporary database file:
-  
+
   ```python
   @pytest.fixture
   async def temp_db():
@@ -46,66 +46,67 @@ notes: |
       await db.__aexit__(None, None, None)
       os.unlink(db_path)
   ```
-  
+
   ### Testing WAL Mode
-  
+
   Verify `PRAGMA journal_mode` returns 'wal' after connection opens:
-  
+
   ```python
   await db.execute("PRAGMA journal_mode")
   row = await db.fetchone()
   assert row[0] == "wal"
   ```
-  
+
   ### Testing Transactions
-  
+
   Verify begin_transaction/commit/rollback work:
-  
+
   ```python
   await db.begin_transaction()
   await db.execute("INSERT ...")
   await db.rollback()  # or commit()
   # Verify state
   ```
-  
+
   ### Testing Facade Lifecycle
-  
+
   Use mocks to avoid real database for facade tests:
-  
+
   ```python
   @pytest.fixture
   def facade():
       config = PersistenceConfig(db_path=":memory:")
       return PersistenceFacade(config)
   ```
-  
+
   ### GP-7 Error Handling
-  
+
   Verify errors are logged, not raised:
-  
+
   ```python
   with patch('hamlet.persistence.facade.logger') as mock_logger:
       facade.enqueue_write(operation)  # When queue full
       mock_logger.debug.assert_called()
   ```
-  
+
   ## Key Test Scenarios
-  
+
   1. **Facade.start()** - Creates db, runs migrations, starts write loop
   2. **Facade.stop()** - Drains queue, closes connection
   3. **Facade.checkpoint()** - Joins queue, runs PRAGMA wal_checkpoint
   4. **Connection.__aenter__** - Opens with WAL mode
   5. **Connection transaction lifecycle** - begin, execute, commit/rollback
   6. **Migrations** - Creates all tables, idempotent
-  
+
   ## Dependencies
-  
+
   - pytest
   - pytest-asyncio
   - aiosqlite (for integration tests)
   - unittest.mock for mocking
 cycle_created: 1
 cycle_modified: null
-content_hash: "5b7e50047478c0ec2fa010080fcb5fb1ea3b763684830cb9c4ed268003df7c1c"
-token_count: 825
+content_hash: bec079ded4d08127beb4561dcd13108ac8813eba6ad82d4240c113fb10993a75
+token_count: 855
 file_path: .ideate/work-items/WI-080.yaml
+resolution: tests/test_persistence_facade.py, test_persistence_connection.py, test_persistence_migrations.py all exist with complete coverage

@@ -1,0 +1,28 @@
+id: WI-287
+type: work_item
+title: Fix StopFailure hook error handling
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: hooks/stop_failure.py
+  - op: modify
+    path: tests/test_hooks.py
+depends: []
+blocks: []
+criteria:
+  - stop_failure.py handles error as string or dict
+  - No AttributeError when error is string
+  - Error is correctly passed to daemon
+  - Tests verify both string and dict error formats
+domain: architecture
+notes: |-
+  BUG: stop_failure.py assumes error is a dict and calls error_dict.get('type', ''), but the error field can be a string, causing AttributeError.
+
+  Fix: Check if error is dict before accessing .get(), or handle both string and dict cases.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 24a1a994eacdc19659cf9853766add7e064da50ee2d0a755b109ef94b2b07952
+token_count: 187
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-287.yaml

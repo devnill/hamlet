@@ -1,7 +1,7 @@
 id: WI-149
 type: work_item
 title: Wire AgentInferenceEngine to EventProcessor in __main__.py
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -14,22 +14,22 @@ module: null
 domain: null
 notes: |
   # WI-149: Wire AgentInferenceEngine to EventProcessor
-  
+
   ## Context
   `src/hamlet/__main__.py` initializes EventProcessor with `agent_inference=None`, breaking the event flow. AgentInferenceEngine is created elsewhere but never connected to the event pipeline. Same issue in daemon.py.
-  
+
   ## Existing Code
   - `src/hamlet/__main__.py` — creates EventProcessor
   - `src/hamlet/cli/commands/daemon.py` — creates EventProcessor for daemon mode
   - `src/hamlet/inference/engine.py` — AgentInferenceEngine class
-  
+
   ## Changes
-  
+
   ### Both __main__.py and daemon.py
   Ensure AgentInferenceEngine is instantiated before EventProcessor:
   ```python
   from hamlet.inference.engine import AgentInferenceEngine
-  
+
   agent_inference = AgentInferenceEngine(world_state)
   event_processor = EventProcessor(
       event_queue=event_queue,
@@ -38,13 +38,14 @@ notes: |
       persistence=persistence,
   )
   ```
-  
+
   ## Notes
   - Read both files before modifying
   - Depends on WI-146 (AgentType consolidation) to avoid conversion errors
   - AgentInferenceEngine constructor signature: check engine.py before coding
 cycle_created: 1
 cycle_modified: null
-content_hash: "576994d3b443efde3750cc553043774ff9538fb5d2d02b1b68c900211a3053ff"
-token_count: 416
+content_hash: a950fe4cae1e3c843310ade1e0db8ed09292ff3f29ce47c84369bfcfe9940368
+token_count: 422
 file_path: .ideate/work-items/WI-149.yaml
+resolution: AgentInferenceEngine wired to EventProcessor in app_factory.py

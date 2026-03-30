@@ -1,7 +1,7 @@
 id: WI-153
 type: work_item
 title: Implement work unit accumulation in PostToolUse handler
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -15,15 +15,15 @@ module: null
 domain: null
 notes: |
   # WI-153: Implement work unit accumulation in PostToolUse handler
-  
+
   ## Context
   `inference/engine.py` PostToolUse handler infers agent type but does not add work units to structures based on duration_ms. This means structures never receive work units and never progress through stages. Violates GP-8 (Agent-Driven World Building).
-  
+
   ## Existing Code
   - `src/hamlet/inference/engine.py` — _handle_post_tool_use method
   - `src/hamlet/world_state/manager.py` — add_work_units method (look for it)
   - `src/hamlet/simulation/config.py` — work_unit_scale config value
-  
+
   ## Fix in inference/engine.py
   In _handle_post_tool_use, after type inference, add work units:
   ```python
@@ -33,7 +33,7 @@ notes: |
   # (may need to query agent's village, then active structure)
   await self._world_state.add_work_units(structure_id, work_units)
   ```
-  
+
   ## Notes
   - Read _handle_post_tool_use in engine.py first to understand current structure
   - Read add_work_units in manager.py to understand its signature
@@ -42,6 +42,7 @@ notes: |
   - SimulationConfig.work_unit_scale should be 0.01 (1 unit per 100ms) per architecture spec
 cycle_created: 1
 cycle_modified: null
-content_hash: "558aff7299c5516c86395406863fd67d380d4d4e63d91db6df195a5f4911789e"
-token_count: 488
+content_hash: 14c7deb90e55e764d4abbe244eb38beffbcf8d364f3421098ce8b9fd0c32532a
+token_count: 499
 file_path: .ideate/work-items/WI-153.yaml
+resolution: add_work_units called in _handle_post_tool_use with duration-based work units

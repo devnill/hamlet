@@ -1,7 +1,7 @@
 id: WI-201
 type: work_item
 title: Test WorldStateManager.handle_event Stop/end_turn IDLE transition
-status: pending
+status: done
 complexity: trivial
 scope: []
 depends: []
@@ -13,27 +13,27 @@ module: null
 domain: null
 notes: |
   # WI-201: Test WorldStateManager.handle_event Stop/end_turn IDLE transition
-  
+
   ## Context
-  
+
   WI-199 added "end_turn" to the stop_reason IDLE transition guard in both `AgentInferenceEngine._handle_stop` and `WorldStateManager.handle_event`. The engine-side path is covered by `test_stop_end_turn_reason_marks_idle` in `tests/test_inference_engine.py`. The manager-side path at `manager.py:883` has no test.
-  
+
   ## Changes Required
-  
+
   ### tests/test_world_state_manager.py
-  
+
   Add a test alongside the existing `test_handle_event_session_end_sets_agents_idle`. The test should:
-  
+
   1. Create a manager with mock persistence
   2. Create an agent in a session (via `get_or_create_project`, `get_or_create_session`, `get_or_create_agent`)
   3. Build a Stop InternalEvent with `stop_reason="end_turn"` for that session
   4. Call `await manager.handle_event(event)`
   5. Assert the agent's state is `AgentState.IDLE` (via `get_all_agents()`)
-  
+
   No `@pytest.mark.asyncio` decorator — asyncio_mode=auto is set in pyproject.toml.
-  
+
   Look at `test_handle_event_session_end_sets_agents_idle` (around line 400 in the file) for the pattern — it creates agents and checks their state after a SessionEnd event. The same setup pattern applies here.
-  
+
   The Stop InternalEvent should look like:
   ```python
   event = InternalEvent(
@@ -49,6 +49,7 @@ notes: |
   ```
 cycle_created: 1
 cycle_modified: null
-content_hash: "170f67c62df51a3c0be8c53952adea055b4bb0a2a87aae381a3096f5333905ea"
-token_count: 519
+content_hash: 7e124722c2a0e8be9c814315e01e5c80768710115ef5498e2024e31b75e0ba02
+token_count: 525
 file_path: .ideate/work-items/WI-201.yaml
+resolution: Tests exist in test_world_state_manager.py for Stop/end_turn IDLE transition

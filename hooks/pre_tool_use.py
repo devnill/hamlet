@@ -31,9 +31,8 @@ def main():
         project_id, project_name = find_config()
 
         session_id = hook_input.get("session_id", "")
-        data = hook_input.get("data", {})
-        tool_name = data.get("tool_name", "")
-        tool_input = data.get("tool_input")
+        tool_name = hook_input.get("tool_name", "")
+        tool_input = hook_input.get("tool_input")
 
         record_start_time(session_id, tool_name)
 

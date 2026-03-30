@@ -1,0 +1,27 @@
+id: interview-refine-23
+type: interview
+entries:
+  - answer: A cursor that shows information about the currently selected item. The cursor remains in the middle of the screen but shows what is currently focused. When idle for a couple of seconds, the cursor goes away. The agents/structures/village at the top should reflect the current hamlet being viewed.
+    domain: null
+    question: What specific changes do you want to make?
+  - answer: The viewport moves as it currently does, but a cursor is displayed for a short time after keypress to indicate what is being viewed. Option A - viewport center auto-selected.
+    domain: visualization
+    question: How should the cursor selection work?
+  - answer: The village/project which the cursor is over. The closest village model is good, just need more clarity over where the center of the radius is. The status bar is fine for now.
+    domain: visualization
+    question: What should the status bar display?
+  - answer: ASCII for now. Kitty backend not in scope for this feature.
+    domain: null
+    question: What backend should this support?
+  - answer: 3 seconds. Any movement key resets it.
+    domain: null
+    question: What is the idle timeout?
+  - answer: "A menu to list all villages and be selectable to jump to one. Keybinding 'v' for village menu. Cursor summary showing primary item plus context (e.g., 'House L3, Village: foo'). Village menu should show agent and structure counts per village."
+    domain: visualization
+    question: What additional features should be included?
+  - answer: Yes, all principles still apply. The cursor feature aligns with GP-1 (visual interest), GP-7 (graceful degradation), and GP-11 (low-friction setup).
+    domain: null
+    question: Do the guiding principles still hold?
+content_hash: e2bc091c68e7b11b6b35e947ca8d06eb50a1907d7c5b4159fd6c858aab573b37
+token_count: 444
+file_path: .ideate/interviews/interview-refine-23.yaml

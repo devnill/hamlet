@@ -1,7 +1,7 @@
 id: WI-235
 type: work_item
 title: WorldStateManager terrain integration and village placement
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -17,33 +17,33 @@ module: null
 domain: null
 notes: |
   # WI-235: WorldStateManager terrain integration and village placement
-  
+
   ## Summary
   Integrate `TerrainGrid` into `WorldStateManager`, modify village placement to use terrain validation, and add terrain validation for structure placement.
-  
+
   ## Implementation
-  
+
   ### src/hamlet/world_state/manager.py
-  
+
   Add imports and field:
-  
+
   ```python
   from .terrain import TerrainGenerator, TerrainGrid, TerrainConfig, TerrainType
-  
+
   class WorldStateManager:
       def __init__(self, persistence: "PersistenceProtocol") -> None:
           # ... existing fields ...
           self._terrain_grid: TerrainGrid | None = None
   ```
-  
+
   Modify `load_from_persistence`:
-  
+
   ```python
   async def load_from_persistence(self) -> None:
       async with self._lock:
           data = await self._persistence.load_state()
           # ... existing loading ...
-  
+
           # Initialize terrain
           terrain_seed = self._state.world_metadata.get("terrain_seed")
           if terrain_seed is None:
@@ -52,25 +52,25 @@ notes: |
           config = TerrainConfig(seed=int(terrain_seed))
           self._terrain_grid = TerrainGrid(TerrainGenerator(config))
   ```
-  
+
   Add new methods:
-  
+
   ```python
   async def get_terrain_at(self, x: int, y: int) -> TerrainType:
       """Return terrain type at position (x, y)."""
       if self._terrain_grid is None:
           return TerrainType.PLAIN  # Default before initialization
       return self._terrain_grid.get_terrain(Position(x, y))
-  
+
   async def is_passable(self, x: int, y: int) -> bool:
       """Check if position is passable for agents and structures."""
       if self._terrain_grid is None:
           return True  # Default before initialization
       return self._terrain_grid.is_passable(Position(x, y))
   ```
-  
+
   Modify `_find_village_position` (new private method):
-  
+
   ```python
   def _find_village_position(
       self,
@@ -78,7 +78,7 @@ notes: |
       occupied_positions: set[Position]
   ) -> Position:
       """Find a valid position for a new village.
-  
+
       Spiral search from origin (0, 0), checking:
       1. Terrain is passable
       2. Position is not occupied
@@ -86,7 +86,7 @@ notes: |
       """
       MIN_VILLAGE_DISTANCE = 15
       MAX_SEARCH_RADIUS = 100
-  
+
       for radius in range(0, MAX_SEARCH_RADIUS + 1):
           for dx in range(-radius, radius + 1):
               for dy in range(-radius, radius + 1):
@@ -100,57 +100,57 @@ notes: |
                   if any(self._distance(candidate, v.center) < MIN_VILLAGE_DISTANCE for v in existing_villages):
                       continue
                   return candidate
-  
+
       raise RuntimeError("No valid village position found within search radius")
-  
+
   def _distance(self, a: Position, b: Position) -> float:
       """Euclidean distance between two positions."""
       return math.hypot(a.x - b.x, a.y - b.y)
   ```
-  
+
   Modify `get_or_create_project` to use terrain-aware placement:
-  
+
   ```python
   async def get_or_create_project(self, project_id: str, project_name: str) -> Project:
       async with self._lock:
           project = self._state.projects.get(project_id)
           if project is not None:
               return project
-  
+
           # Find valid village position using terrain
           occupied = {s.position for s in self._state.structures.values()}
           village_pos = self._find_village_position(list(self._state.villages.values()), occupied)
-  
+
           # Create village at valid position
           village = Village(id=str(uuid4()), project_id=project_id, center=village_pos, ...)
           # ... rest of village creation ...
   ```
-  
+
   Modify `create_structure` to validate terrain:
-  
+
   ```python
   async def create_structure(self, village_id: str, structure_type: StructureType, position: Position | None = None) -> Structure:
       async with self._lock:
           # ... existing code to find position ...
-  
+
           # Validate terrain
           if not self._terrain_grid.is_passable(position):
               raise ValueError(f"Cannot build structure on {self._terrain_grid.get_terrain(position)} terrain at {position}")
-  
+
           # ... rest of structure creation ...
   ```
-  
+
   ### src/hamlet/protocols.py
-  
+
   Add new protocol methods:
-  
+
   ```python
   async def get_terrain_at(self, x: int, y: int) -> "TerrainType": ...
   async def is_passable(self, x: int, y: int) -> bool: ...
   ```
-  
+
   ## Acceptance Criteria
-  
+
   - `WorldStateManager` has `_terrain_grid` field initialized in `load_from_persistence`
   - `get_terrain_at(x, y)` returns correct `TerrainType`
   - `is_passable(x, y)` returns `True` for FOREST/MEADOW/PLAIN, `False` for WATER/MOUNTAIN
@@ -161,6 +161,7 @@ notes: |
   - A test verifies structure creation fails on impassable terrain
 cycle_created: 1
 cycle_modified: null
-content_hash: "7563f5031cb12e7514863c55e694654261db566931d303fd57cf3b2a56781f1e"
-token_count: 1512
+content_hash: cac533f29de49dd186992042d285e28e0cc2ef2f7d18b64d999e87995c80385c
+token_count: 1529
 file_path: .ideate/work-items/WI-235.yaml
+resolution: WorldStateManager has _terrain_grid, get_terrain_at, is_passable methods

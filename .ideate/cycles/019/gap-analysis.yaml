@@ -1,0 +1,85 @@
+id: gap-analysis
+type: cycle_summary
+content: |
+  # Gap Analysis — Cycle 19
+
+  ## Verdict: Pass
+
+  No critical or significant gaps identified. Minor gaps are explicitly deferred future work.
+
+  ## Missing Requirements from Interview
+
+  ### MR1: Work Unit Accumulation Observability
+  - **Interview reference**: Work units accumulated silently, users reported hamlets not growing
+  - **Current state**: Bug fixed (tool_name extraction), but no visibility for users
+  - **Gap**: No telemetry or UI showing work unit progress
+  - **Severity**: Significant (deferred)
+  - **Status**: Interview explicitly defers "telemetry for work unit accumulation" to future cycle
+
+  ### MR2: Deferred Items Confirmed as Future Work
+  - **Interview reference**: Log rotation, better error visibility in hooks
+  - **Current state**: Unimplemented
+  - **Gap**: Explicitly deferred, not a gap in current cycle
+  - **Severity**: Minor
+
+  ## Unhandled Edge Cases
+
+  ### EC1: Timing File Orphan on Daemon Restart
+  - **Component**: `hooks/pre_tool_use.py`, `hooks/post_tool_use.py`
+  - **Scenario**: PreToolUse creates timing file, daemon restarts, PostToolUse computes None duration, orphan persists
+  - **Severity**: Minor
+  - **Recommendation**: Defer — timing files are small and ephemeral
+
+  ### EC2: PreToolUse Without Matching PostToolUse
+  - **Status**: Already handled correctly — inference engine evicts stale pending_tools entries
+
+  ### EC3: Multiple Sessions for Same Project
+  - **Status**: Handled correctly — each session gets its own session_id, agents tracked per-session
+
+  ## Incomplete Integrations
+
+  ### II1: Hook Error Log Not User-Accessible
+  - **Interface**: Hook scripts -> `~/.hamlet/hooks.log`
+  - **Gap**: Users have no visibility into hook failures without manually inspecting log file
+  - **Severity**: Minor (deferred)
+  - **Status**: Interview explicitly defers "better error visibility in hooks"
+
+  ### II2: Service Support Limited to macOS
+  - **Gap**: No systemd support for Linux
+  - **Severity**: Minor
+  - **Status**: C-04 states "Deployment is future scope"
+
+  ## Missing Infrastructure
+
+  ### MI1: Documentation Beyond README
+  - **Gap**: No `docs/` directory, limited contributor guide
+  - **Severity**: Minor
+  - **Status**: C-01 (MVP focus) prioritizes functionality
+
+  ### MI2: Log Rotation
+  - **Gap**: `~/.hamlet/hamlet.log` and `~/.hamlet/hooks.log` grow unbounded
+  - **Severity**: Minor
+  - **Status**: Explicitly deferred in interview
+
+  ### MI3: Viewport State Persistence
+  - **Gap**: Viewport center resets when viewer restarts
+  - **Severity**: Minor
+  - **Status**: Q-04 explicitly deferred
+
+  ## Implicit Requirements
+
+  ### IR1: User-Visible Activity Summary
+  - **Status**: Met — StatusBar shows current_activity; cursor overlay provides detailed info
+
+  ### IR2: Graceful Daemon Recovery After Crash
+  - **Current state**: Agents reset to ZOMBIE correctly, pending_tools lost (acceptable per GP-7)
+  - **Recommendation**: Document reset behavior or add warning in doctor
+  - **Severity**: Minor
+
+  ### IR3: Terminal Compatibility Documentation
+  - **Status**: Met — doctor command provides compatibility diagnostics
+cycle: 19
+reviewer: gap-analyst
+content_hash: bedf745bb8c426bd4768a927dfd27e26a61e7c6fa2535a66304992496a0c86df
+token_count: 796
+file_path: .ideate/cycles/019/gap-analysis.yaml

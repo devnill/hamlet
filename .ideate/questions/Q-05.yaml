@@ -1,14 +1,14 @@
 id: Q-05
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: EXECUTOR absent from animation.py AGENT_BASE_COLORS
 cycle_created: 1
 cycle_modified: null
-content_hash: "9d3fd60d31a2acfdd879b6b94e61b828a110caa4fc1405fee466f6dca9973b36"
-token_count: 72
+description: EXECUTOR absent from animation.py AGENT_BASE_COLORS
+domain: visualization
+impact: ""
+resolution: EXECUTOR color is present in TYPE_COLORS in inference/types.py. The AGENT_BASE_COLORS in animation.py was consolidated to use TYPE_COLORS as the single source of truth per domain policy P-05.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 23abb5dd8d393da7578f8614a55a80999387e9069d095bc1a4670b47c11d21e8
+token_count: 103
 file_path: .ideate/questions/Q-05.yaml

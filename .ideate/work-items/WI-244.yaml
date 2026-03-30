@@ -1,7 +1,7 @@
 id: WI-244
 type: work_item
 title: Mountain Ridge Generation
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,18 +17,18 @@ module: null
 domain: null
 notes: |
   # WI-244: Mountain Ridge Generation
-  
+
   ## Context
-  
+
   Mountains from noise can form scattered peaks. Ridge generation creates connected mountain chains using midpoint displacement.
-  
+
   ## Implementation Notes
-  
+
   ### Location
   - `src/hamlet/world_state/terrain.py` — add `generate_ridge_chain()` method
-  
+
   ### Midpoint Displacement Algorithm
-  
+
   ```python
   def generate_ridge_chain(
       self,
@@ -38,60 +38,60 @@ notes: |
   ) -> list[Position]:
       """Generate a ridge chain from start to end using midpoint displacement."""
       points = [start, end]
-  
+
       # Iterate until segments are small enough
       while True:
           new_points = []
           for i in range(len(points) - 1):
               p1, p2 = points[i], points[i + 1]
-  
+
               # Midpoint
               mid_x = (p1.x + p2.x) // 2
               mid_y = (p1.y + p2.y) // 2
-  
+
               # Perpendicular displacement (along ridge)
               # Use seeded random for determinism
               self._random.seed(self._seed + hash((p1, p2)))
               displacement = self._random.uniform(-roughness, roughness) * abs(p2.x - p1.x + p2.y - p1.y)
-  
+
               # Apply displacement perpendicular to line
               dx, dy = p2.x - p1.x, p2.y - p1.y
               length = (dx * dx + dy * dy) ** 0.5
               if length == 0:
                   continue
-  
+
               # Perpendicular direction
               perp_x, perp_y = -dy / length, dx / length
               mid_x += int(perp_x * displacement)
               mid_y += int(perp_y * displacement)
-  
+
               new_points.append(Position(mid_x, mid_y))
-  
+
           if not new_points:
               break
-  
+
           # Insert new points
           for j, p in enumerate(new_points):
               points.insert(2 * j + 1, p)
-  
+
           # Stop when segments are unit length
           if all(abs(points[i].x - points[i + 1].x) + abs(points[i].y - points[i + 1].y) <= 1
                  for i in range(len(points) - 1)):
               break
-  
+
       return points
   ```
-  
+
   ### Ridge Seeding
-  
+
   After initial terrain generation, identify high-elevation points as ridge seeds:
-  
+
   ```python
   def _generate_ridge_seeds(self, heightmap: dict[Position, float]) -> list[tuple[Position, Position]]:
       """Find pairs of high points to connect with ridges."""
       # Sample high-elevation points
       peaks = [pos for pos, h in heightmap.items() if h > self._config.mountain_threshold * 0.8]
-  
+
       # Select N pairs to connect (where N = world_size / 50 roughly)
       num_ridges = max(1, self._config.world_size // 50)
       self._random.seed(self._seed + 9999)
@@ -102,11 +102,11 @@ notes: |
               pairs.append((p1, p2))
       return pairs
   ```
-  
+
   ### Integration
-  
+
   After fBm terrain classification, generate ridges:
-  
+
   ```python
   # In main generation pipeline:
   ridges = []
@@ -115,15 +115,16 @@ notes: |
       for pos in ridge:
           terrain[pos] = TerrainType.MOUNTAIN
   ```
-  
+
   ### Tests
-  
+
   - Test that ridge chain connects start and end points
   - Test that same seed produces same ridge
   - Test that roughness affects ridge variability
   - Verify visually that ridges appear as connected chains
 cycle_created: 1
 cycle_modified: null
-content_hash: "9bf9a2965f7a863121263641eab94e7a87d01b6bd9c40e0a21f883ecd9ef584b"
-token_count: 991
+content_hash: 028ec5ef24d307bce971c971cc0dec852b86f84af3725e78fcf87bc6957f1520
+token_count: 1005
 file_path: .ideate/work-items/WI-244.yaml
+resolution: generate_ridge_chain() with midpoint displacement implemented

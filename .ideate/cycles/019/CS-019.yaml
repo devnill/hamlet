@@ -1,0 +1,84 @@
+id: CS-019
+type: cycle_summary
+content: |
+  # Cycle 19 Summary — Village Menu and Naming Fixes
+
+  ## Work Completed
+
+  This cycle completed 2 work items:
+
+  1. **WI-300**: Fix village menu black screen and add sorting
+  2. **WI-301**: Fix village name to use project name from config
+
+  ## Test Results
+
+  - **Total tests**: 1129 passed, 30 skipped
+  - **Test failure fixed**: `test_health_endpoint` updated to expect version field
+
+  ## Review Verdict
+
+  ### Code Quality: Pass
+
+  After fixing the test failure, all tests pass. The code quality review found:
+
+  - **Critical**: 0
+  - **Significant**: 0 (test failure was fixed)
+  - **Minor**: 2
+    - Broad exception clauses in hooks (acceptable per GP-7)
+    - Kitty backend lacks village menu (by design)
+
+  ### Spec Adherence: Pass
+
+  All acceptance criteria met:
+
+  - Village menu shows immediately with loading state
+  - Village list populates asynchronously
+  - Villages sorted by structures desc, agents desc, name asc
+  - Navigation responsive
+  - No blocking await on main UI thread
+  - Village names use project name consistently
+  - Placeholder village names migrated on load
+
+  ### Gap Analysis: Pass
+
+  No critical or significant gaps identified. Minor gaps are explicitly deferred future work:
+
+  - Work unit accumulation observability (deferred)
+  - Hook error log visibility (deferred)
+  - Log rotation (deferred)
+
+  ## Convergence Status
+
+  **Converged: True**
+
+  - **Condition A**: Zero critical/significant findings — **PASS**
+  - **Condition B**: Principle adherence — **PASS**
+
+  ## Open Questions
+
+  None blocking. Minor questions documented in decision log:
+
+  1. Test suite version field maintenance (Q1)
+  2. Work unit accumulation observability (Q2)
+  3. Hook error log visibility (Q3)
+  4. Viewport state persistence (Q4)
+  5. Log rotation strategy (Q5)
+
+  ## Files Modified
+
+  - `src/hamlet/world_state/manager.py`: Village name fix, migration
+  - `src/hamlet/tui/app.py`: Async village menu population
+  - `src/hamlet/tui/village_menu.py`: Loading state, sorting
+  - `tests/test_world_state.py`: Village naming tests
+  - `tests/test_village_menu.py`: Menu tests
+  - `tests/test_mcp_server.py`: Health endpoint test fix
+cycle: 19
+findings:
+  critical: 0
+  minor: 2
+  significant: 0
+  suggestions: 0
+principle_verdict: pass
+content_hash: 891acb2376665adf059599656a28f8fefd9878e14da485a16fe6ab373b608d49
+token_count: 575
+file_path: .ideate/cycles/019/CS-019.yaml

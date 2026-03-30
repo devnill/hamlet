@@ -1,14 +1,14 @@
 id: Q-09
 type: domain_question
 domain: visualization
-status: open
+status: closed
 impact: ""
 source: ""
-resolution: null
-resolved_in: null
+resolution: "WI-284 consolidated TYPE_COLORS in inference/types.py as single source of truth; symbol_config.py imports from it"
+resolved_in: WI-284
 description: Dual authoritative color maps will diverge silently
 cycle_created: 1
-cycle_modified: null
+cycle_modified: 3
 content_hash: "31c7edb88225a2d9051c775bb36b6892ef8b0df1f1c75c81a8e62c2a37105c0c"
 token_count: 72
 file_path: .ideate/questions/Q-09.yaml

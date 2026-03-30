@@ -1,14 +1,14 @@
 id: Q-20
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: No sprite PNG assets — SNES visual experience not evaluable (continued from Q-14)
 cycle_created: 1
 cycle_modified: null
-content_hash: a77b952459e8fecaddcce38169c90d7bf71a7b18c3b8832aea07819dce0b8877
-token_count: 80
+description: No sprite PNG assets — SNES visual experience not evaluable (continued from Q-14)
+domain: visualization
+impact: ""
+resolution: Duplicate of Q-14. No PNG assets is intentional - the system uses procedural rendering via Kitty graphics protocol.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 0d8e24d4b4b75b062fe4d99c2f216c4aa6914171dc868b75c7fdc19f9211ca2f
+token_count: 92
 file_path: .ideate/questions/Q-20.yaml

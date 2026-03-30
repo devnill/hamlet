@@ -1,0 +1,41 @@
+id: spec-adherence
+type: cycle_summary
+content: |-
+  ## Spec Adherence Review
+
+  **Verdict: Pass**
+
+  All guiding principles are upheld. No architecture deviations detected.
+
+  ### Principle Violations
+
+  **Principle Violation Verdict: Pass**
+
+  None.
+
+  ### Principle Adherence Evidence
+
+  - **GP-02 (Lean Client, Heavy Server)**: Hook scripts contain minimal processing — they extract telemetry fields and POST to the MCP server. All hooks use `urllib.request` (stdlib) and call `sys.exit(0)` in finally blocks.
+
+  - **GP-07 (Graceful Degradation Over Robustness)**: All 16 hook scripts implement graceful degradation with `_log_error()` for exception logging and `sys.exit(0)` in finally blocks, ensuring hook failures never block Claude Code.
+
+  - **GP-06 (Deterministic Agent Identity)**: The inference engine derives agent type deterministically from tool patterns via `TYPE_RULES` and `TYPE_COLORS` mappings.
+
+  - **GP-04 (Modularity for Iteration)**: Tool-to-action mappings use configurable data structures (`TOOL_TO_STRUCTURE` in `src/hamlet/world_state/rules.py`, `TYPE_RULES` in `src/hamlet/inference/rules.py`), enabling easy iteration without core logic changes.
+
+  ### Unmet Acceptance Criteria
+
+  None. All acceptance criteria verified:
+  - WI-289: Test creates sprite handle, calls cleanup(), calls get_upload_sequence() with stale handle, asserts empty string returned
+  - WI-290: Test creates session with active_tools=1, adds PendingTool entry, processes PostToolUseFailure event, asserts counter decremented
+  - WI-291: Test sends StopFailure with string error field, verifies hook processes without crash, verifies error normalized
+  - WI-292: Q-12 and Q-18 status changed to closed, resolution fields reference WI-285
+
+  ### Naming/Pattern Inconsistencies
+
+  None.
+cycle: 2
+reviewer: spec-reviewer
+content_hash: a3588675bab74e6be91225d512b0be89e690f78052468e35cb66e9ad6302544c
+token_count: 455
+file_path: .ideate/cycles/002/spec-adherence.yaml

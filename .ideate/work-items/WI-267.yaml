@@ -1,7 +1,7 @@
 id: WI-267
 type: work_item
 title: Notcurses ctypes binding layer
-status: pending
+status: obsolete
 complexity: medium
 scope: []
 depends: []
@@ -18,31 +18,32 @@ module: null
 domain: null
 notes: |
   # WI-267: Notcurses ctypes binding layer
-  
+
   ## Implementation Notes
-  
+
   ### Source reference
   Port from `~/code/notcurses_test/nc.py` — working ctypes bindings validated on macOS ARM with Ghostty.
-  
+
   ### Library loading
   Load three dylibs at import time via `ctypes.util.find_library()`:
   - `libnotcurses` — contains `notcurses_init`
   - `libnotcurses-core` — most functions (planes, visuals, input)
   - `libnotcurses-ffi` — contains `notcurses_render`, `ncplane_putstr_yx`
-  
+
   If any library fails, set `NOTCURSES_AVAILABLE = False`. Do NOT raise at import time. All wrapper functions raise `RuntimeError("notcurses not available")` when called if libraries are missing.
-  
+
   ### Struct definitions
   Copy from nc.py. Must match notcurses 3.0.x ABI:
   - `NotcursesOptions`, `NcPlaneOptions`, `NcVisualOptions`, `NcInput`
-  
+
   ### Key detail
   `init()` must open `/dev/tty` via libc `fopen(b"/dev/tty", b"w")` so notcurses writes to the real terminal, not stdout.
-  
+
   ### Tests
   Must pass when notcurses is NOT installed. Test `NOTCURSES_AVAILABLE = False` path, struct `_fields_`, function existence. Do NOT call `init()` in tests.
 cycle_created: 1
 cycle_modified: null
-content_hash: "2e9033bb989a17a71c4080708b8f81fa742909e71095ef3249960301efdbc97b"
-token_count: 493
+content_hash: 670c1b8ed24033f426ff012acc6360e67ad44ec3e62d80f49cc28cc9403b4e22
+token_count: 500
 file_path: .ideate/work-items/WI-267.yaml
+resolution: Notcurses backend removed - project uses Kitty graphics protocol

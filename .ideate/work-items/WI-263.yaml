@@ -1,7 +1,7 @@
 id: WI-263
 type: work_item
 title: Add Parameter Validation to TerrainConfig
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,24 +17,24 @@ module: null
 domain: null
 notes: |
   # WI-263: Add Parameter Validation to TerrainConfig
-  
+
   ## Objective
   Add validation to TerrainConfig that warns about out-of-range parameter values.
-  
+
   ## Finding Addressed
   G2: Terrain parameter validation missing. Parameters accept any numeric values without warnings.
-  
+
   ## File Scope
   - `src/hamlet/world_state/terrain.py` — TerrainConfig dataclass
-  
+
   ## Implementation Notes
   Add `__post_init__` method to TerrainConfig that validates parameters and logs warnings.
-  
+
   ```python
   from hamlet.logging import get_logger
-  
+
   logger = get_logger(__name__)
-  
+
   @dataclass
   class TerrainConfig:
       # ... existing fields ...
@@ -63,7 +63,7 @@ notes: |
           if self.forest_percentage_target and (self.forest_percentage_target < 0 or self.forest_percentage_target > 50):
               logger.warning(f"forest_percentage_target={self.forest_percentage_target}; recommended range is 0-50")
   ```
-  
+
   ## Acceptance Criteria
   - `__post_init__` validates parameters and logs warnings
   - Validation does not raise exceptions (warn but accept)
@@ -71,6 +71,7 @@ notes: |
   - Parameters still accepted after warnings
 cycle_created: 1
 cycle_modified: null
-content_hash: "986bcfabd9b21c259dda74d7e956502213a2674bfb156455a09941639328a956"
-token_count: 727
+content_hash: ad3d3a802db996a975dfe618e9af597f3da220f34d6e285cb6c1aa73feff00f6
+token_count: 736
 file_path: .ideate/work-items/WI-263.yaml
+resolution: TerrainConfig.__post_init__ parameter validation implemented

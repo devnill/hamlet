@@ -1,0 +1,58 @@
+id: gap-analysis
+type: cycle_summary
+content: |
+  # Gap Analysis — Cycle 001
+
+  ## Summary
+
+  The work items completed this cycle are largely implemented correctly, but there are gaps in test coverage and question status consistency.
+
+  ## Critical Gaps
+
+  None identified.
+
+  ## Significant Gaps
+
+  ### SG1: Missing stale handle test for WI-285
+  - **Work item**: WI-285 "Add SpriteManager stale handle guard"
+  - **Location**: `tests/test_kitty_sprites.py`
+  - **Current state**: Implementation correctly handles stale handles (returns empty string), but no test verifies this behavior.
+  - **Gap**: Acceptance criteria requires "Tests verify stale handle behavior."
+  - **Recommendation**: Add test case that creates handle, calls cleanup(), then calls get_upload_sequence() to verify empty string return.
+
+  ### SG2: Missing PostToolUseFailure active_tools decrement test
+  - **Work item**: WI-288 "Add PostToolUseFailure handling in inference engine"
+  - **Location**: `tests/test_inference_engine.py`
+  - **Current state**: Implementation correctly handles PostToolUseFailure by evicting pending tools and decrementing active_tools. However, only last_seen update is tested.
+  - **Gap**: Acceptance criteria requires "Tests verify PostToolUseFailure processing." The core fix is untested.
+  - **Recommendation**: Add test that creates session with active_tools=1, adds PendingTool, processes PostToolUseFailure, and asserts counter decrement.
+
+  ### SG3: Questions Q-12 and Q-18 remain open despite being resolved
+  - **Location**: `.ideate/questions/Q-12.yaml` and `.ideate/questions/Q-18.yaml`
+  - **Current state**: Both questions are marked `status: open` but describe issues fixed by WI-285.
+  - **Gap**: WI-283 was supposed to close all resolved questions. These were missed.
+  - **Recommendation**: Update both question files to `status: closed` with resolution referencing WI-285.
+
+  ## Minor Gaps
+
+  ### MG1: Wrong test file path in WI-285 scope
+  - **Work item**: WI-285
+  - **Gap**: Scope lists `tests/test_sprites.py` but actual file is `tests/test_kitty_sprites.py`.
+  - **Severity**: Minor — documentation accuracy issue only.
+
+  ## Verdict
+
+  The core implementations for all five work items are correct:
+  - **WI-283**: Questions properly closed (except Q-12/Q-18)
+  - **WI-284**: Color map consolidation correctly implemented with TYPE_COLORS import
+  - **WI-285**: Stale handle guard correctly implemented (but untested)
+  - **WI-286**: Hook scripts correctly read tool_name from top-level hook_input
+  - **WI-287**: StopFailure hook correctly handles both string and dict error formats
+  - **WI-288**: PostToolUseFailure handler correctly decrements active_tools (but untested)
+
+  Two work items have unmet test criteria, and two questions should have been closed. These are significant gaps.
+cycle: 1
+reviewer: gap-analyst
+content_hash: d12890be1b4db44c814975a17fdc948127d9300112b6752d7408de2008822048
+token_count: 712
+file_path: .ideate/cycles/001/gap-analysis.yaml

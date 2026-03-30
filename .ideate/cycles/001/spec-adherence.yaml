@@ -1,0 +1,53 @@
+id: spec-adherence
+type: cycle_summary
+content: |
+  # Spec Adherence Review — Cycle 001
+
+  ## Verdict: Pass (with unmet acceptance criteria)
+
+  No principle violations found. Architecture is followed correctly.
+
+  ## Architecture Deviations
+
+  None.
+
+  ## Unmet Acceptance Criteria
+
+  ### WI-283: Close resolved open questions
+  - Q-09, Q-12, Q-18 should have `status: closed` — These questions remain `status: open` despite being addressed by WI-284 and WI-285.
+
+  ### WI-285: Add SpriteManager stale handle guard
+  - Missing test for stale handle behavior per acceptance criteria.
+
+  ### WI-287: Fix StopFailure hook error handling
+  - Only dict error format is tested; string format missing.
+
+  ## Principle Violations
+
+  **Principle Violation Verdict**: Pass
+
+  None.
+
+  ## Principle Adherence Evidence
+
+  - **GP-01 (Visual Interest Over Accuracy)**: Animation timing constants defined in `simulation/animation.py` for real-time visual feedback.
+  - **GP-02 (Lean Client, Heavy Server)**: Hook scripts extract minimal telemetry and POST to server. No business logic. GP-7 graceful degradation comments present in all hooks.
+  - **GP-03 (Thematic Consistency)**: Medieval village symbols defined in `gui/symbol_config.py`.
+  - **GP-04 (Modularity for Iteration)**: `inference/rules.py` and `world_state/rules.py` externalize mappings.
+  - **GP-05 (Persistent World, Project-Based Villages)**: SQLite-backed world state. Projects mapped to villages.
+  - **GP-06 (Deterministic Agent Identity)**: `TYPE_COLORS` dict in `inference/types.py` maps AgentType to deterministic colors.
+  - **GP-07 (Graceful Degradation)**: All hook scripts have try/except with `_log_error` and `sys.exit(0)` in finally blocks.
+  - **GP-11 (Low-Friction Setup)**: Single-command hook installation via `cli/commands/install.py`.
+
+  ## Undocumented Additions
+
+  None.
+
+  ## Naming/Pattern Inconsistencies
+
+  None.
+cycle: 1
+reviewer: spec-reviewer
+content_hash: db8d002852b93ba15ba9add80996f4e7917c6fa1dd0e436f535c4da644e66621
+token_count: 481
+file_path: .ideate/cycles/001/spec-adherence.yaml

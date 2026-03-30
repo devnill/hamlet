@@ -1,14 +1,14 @@
 id: Q-06
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: PLANNER color inconsistent across color tables
 cycle_created: 1
 cycle_modified: null
-content_hash: b9de52655391a64ce202c0fcff835fbd057eed7e4d86f4c9c41ab8b2c63eefb8
-token_count: 71
+description: PLANNER color inconsistent across color tables
+domain: visualization
+impact: ""
+resolution: PLANNER color is now consistent across all color tables. TYPE_COLORS in inference/types.py serves as the single source of truth for agent colors per domain policy P-05.
+resolved_in: null
+source: ""
+status: closed
+content_hash: fef47ccd284a1db32b3a6c9658b4b2696490aee179b3bed2e4d2e2964fea0337
+token_count: 96
 file_path: .ideate/questions/Q-06.yaml

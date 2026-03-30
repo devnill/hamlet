@@ -1,7 +1,7 @@
 id: WI-084
 type: work_item
 title: Simulation Features Tests - Expansion, Animation
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -18,99 +18,99 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 084 - Simulation Features Tests
-  
+
   ## Scope
-  
+
   Test ExpansionManager (village expansion, road building) and AnimationManager (frame management, symbol/color generation).
-  
+
   ## Testing Patterns
-  
+
   ### ExpansionManager Tests
-  
+
   Mock WorldStateManager:
-  
+
   ```python
   @pytest.fixture
   def expansion_mgr():
       world_state = Mock()
       return ExpansionManager(world_state)
   ```
-  
+
   Test expansion triggering:
-  
+
   ```python
   def test_expansion_triggered():
       village = Mock()
       village.agent_ids = ["a1", "a2", "a3"]  # Above threshold
-  
+
       with patch.object(expansion_mgr, '_find_clear_site') as mock_find:
           mock_find.return_value = Position(10, 10)
           result = expansion_mgr._check_village_expansion(village)
           assert result == Position(10, 10)
   ```
-  
+
   Test road creation:
-  
+
   ```python
   def test_create_roads():
       village1 = Mock(center=Position(0, 0))
       village2 = Mock(center=10, 10)
-  
+
       with patch.object(world_state, 'create_structure') as mock_create:
           expansion_mgr._create_road_between(village1, village2)
           # Verify structures created along line
   ```
-  
+
   Test Bresenham line algorithm:
-  
+
   ```python
   def test_bresenham():
       points = expansion_mgr._bresenham(0, 0, 3, 3)
       assert (0, 0) in points
       assert (3, 3) in points
   ```
-  
+
   ### AnimationManager Tests
-  
+
   Test state-based animation selection:
-  
+
   ```python
   def test_active_animation():
       agent = Mock()
       agent.state = AgentState.ACTIVE
-  
+
       anim = manager.get_animation_state(agent)
       assert anim["type"] == "spin"
   ```
-  
+
   Test symbol cycling:
-  
+
   ```python
   def test_symbol_cycle():
       agent = Mock(state=AgentState.ACTIVE)
-  
+
       symbols = []
       for i in range(8):
           state = manager.get_animation_state(agent)
           symbols.append(state["symbol"])
           manager.advance_frames([agent], 1)
-  
+
       # Verify cycle repeats
       assert symbols[0] == symbols[4]
   ```
-  
+
   Test color generation:
-  
+
   ```python
   def test_zombie_color():
       agent = Mock(state=AgentState.ZOMBIE, color="cyan")
-  
+
       state = manager.get_animation_state(agent)
       assert "green" in state["color"]
   ```
-  
+
   ## Key Test Scenarios
-  
+
   1. **Expansion threshold** - Triggered when agents > threshold
   2. **Clear site finding** - Finds unobstructed position
   3. **Road creation** - Bresenham line between villages
@@ -121,6 +121,7 @@ notes: |
   8. **Idle cleanup** - Remove idle agents from frames
 cycle_created: 1
 cycle_modified: null
-content_hash: d095c00eb8ab6d94ee47990f1a3ee1c1471916d9c1ec34d5d3f04ce5eb3f2053
-token_count: 857
+content_hash: d7321fa6080570ffc3cdb918c4bef1571056f9c22b5f3297bb932dbedb95329e
+token_count: 870
 file_path: .ideate/work-items/WI-084.yaml
+resolution: tests/test_expansion.py, test_animation.py exist with complete coverage

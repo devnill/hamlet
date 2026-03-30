@@ -1,7 +1,7 @@
 id: WI-274
 type: work_item
 title: Notcurses availability diagnostic (hamlet doctor)
-status: pending
+status: obsolete
 complexity: low
 scope: []
 depends: []
@@ -15,20 +15,21 @@ module: null
 domain: null
 notes: |
   # WI-274: Notcurses availability diagnostic (hamlet doctor)
-  
+
   ## Implementation Notes
-  
+
   ### doctor_command
   Prints: notcurses library path/availability, bindings status, version, TERM value, tmux detection (TMUX env var), recommended renderer.
   Warns if inside tmux. Always returns 0.
-  
+
   ### CLI registration
   Add `doctor` subparser to create_parser() with deferred import shim `_doctor_command`. Pattern matches existing commands.
-  
+
   ### Tests
   Call doctor_command with mock args. Assert return 0. Capture stdout, verify "Renderer" in output. Mock os.environ for tmux detection.
 cycle_created: 1
 cycle_modified: null
-content_hash: eb4238676ec6886de3be7dea6c795d3fe792e38cb04af414e8d12d77e6ed4db6
-token_count: 276
+content_hash: 3504754cce74922f4ff47527e826f02a358d99328c8d0cfd864e979d544bab9a
+token_count: 274
 file_path: .ideate/work-items/WI-274.yaml
+resolution: Replaced by WI-282 (Doctor for Kitty)

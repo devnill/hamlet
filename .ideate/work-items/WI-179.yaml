@@ -1,7 +1,7 @@
 id: WI-179
 type: work_item
 title: New hook scripts — agent/session lifecycle
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -20,10 +20,10 @@ module: null
 domain: null
 notes: |
   # WI-179 Notes: New hook scripts — agent/session lifecycle
-  
+
   ## Context
   v0.4.0 adds all available Claude Code hook types. These 6 scripts cover agent and session lifecycle events: SessionStart, SessionEnd, SubagentStart, SubagentStop, TeammateIdle, TaskCompleted.
-  
+
   ## Pattern
   Follow hooks/notification.py exactly. Key points:
   - sys.path.insert(0, str(Path(__file__).parent)) before hamlet_hook_utils import
@@ -33,7 +33,7 @@ notes: |
   - Per docs: SubagentStart/Stop have agent_id, agent_type at top level of stdin
   - find_config() uses cwd — pass hook_input.get("cwd") or os.getcwd()
   - POST with urllib.request, timeout=1, exit 0 in finally
-  
+
   ## stdin field locations (per Claude Code docs)
   All fields are at the top level of the stdin JSON object:
   - SessionStart: session_id, cwd, hook_event_name, source
@@ -44,6 +44,7 @@ notes: |
   - TaskCompleted: session_id, cwd, hook_event_name, task_id, task_subject, task_description, teammate_name
 cycle_created: 1
 cycle_modified: null
-content_hash: fc5a20dae64f9f93b2288d9554e34f0cbd437c434598dcf7813ebc8135c85e97
-token_count: 659
+content_hash: 22d9a7ac61c3e8a4267cefca6ebdc8c22f0b5db9b98dc7f3b430a3ef059fccbf
+token_count: 677
 file_path: .ideate/work-items/WI-179.yaml
+resolution: session_start.py, session_end.py, subagent_start.py, subagent_stop.py, teammate_idle.py, task_completed.py all exist

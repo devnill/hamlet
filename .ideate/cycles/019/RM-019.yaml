@@ -1,0 +1,33 @@
+id: RM-019
+type: review_manifest
+cycle: 19
+manifest:
+  - criteria_met: true
+    file_scope:
+      - src/hamlet/tui/app.py
+      - src/hamlet/tui/village_menu.py
+      - tests/test_village_menu.py
+    id: WI-300
+    incremental_verdict: pass
+    notes: All acceptance criteria met. Test failure in unrelated test fixed.
+    review_path: /Users/dan/code/hamlet/.ideate/cycles/019/code-quality.yaml
+    title: Fix village menu black screen and add sorting
+    work_item_path: /Users/dan/code/hamlet/.ideate/work-items/WI-300.yaml
+  - criteria_met: true
+    file_scope:
+      - src/hamlet/world_state/manager.py
+      - tests/test_world_state.py
+    id: WI-301
+    incremental_verdict: pass
+    notes: All acceptance criteria met.
+    review_path: /Users/dan/code/hamlet/.ideate/cycles/019/code-quality.yaml
+    title: Fix village name to use project name from config
+    work_item_path: /Users/dan/code/hamlet/.ideate/work-items/WI-301.yaml
+review_date: 2026-03-29
+total_findings:
+  critical: 0
+  minor: 2
+  significant: 0
+content_hash: c0587c3ba1f207f5dd1c4be5766ac24bc6f4a96ea9805872114c954c41246e7a
+token_count: 255
+file_path: .ideate/cycles/019/RM-019.yaml

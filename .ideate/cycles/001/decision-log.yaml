@@ -1,0 +1,53 @@
+id: decision-log
+type: cycle_summary
+content: |
+  # Decision Log — Cycle 001 (refine-22)
+
+  ## Planning Decisions
+
+  ### D-P1: Scope to open questions and critical bugs only
+  - **Decision**: Housekeeping cycle with two tracks: (1) close resolved open questions, (2) fix three critical bugs in hooks and inference engine
+  - **Rationale**: User reported hamlets not growing; investigation revealed three bugs blocking core functionality
+
+  ### D-P2: Defer Q-04 (viewport persistence) to future cycle
+  - **Decision**: Mark Q-04 as deferred rather than implementing in this cycle
+  - **Rationale**: Viewport persistence is a convenience feature, not blocking core functionality
+
+  ## Execution Decisions
+
+  ### D-E1: Hook scripts read tool_name from top-level hook_input (WI-286)
+  - **Decision**: Change `data.get('tool_name', '')` to `hook_input.get('tool_name', '')`
+  - **Rationale**: Claude Code hook format puts `tool_name` at top level, not nested under `data`
+
+  ### D-E2: PostToolUseFailure decrements active_tools (WI-288)
+  - **Decision**: Add handler that evicts pending tools and decrements `active_tools`
+  - **Rationale**: Unhandled events caused counter drift
+
+  ### D-E3: StopFailure handles both string and dict error formats (WI-287)
+  - **Decision**: Check `isinstance(error, dict)` before calling `.get()`
+  - **Rationale**: Error field can be string or dict
+
+  ### D-E4: SpriteManager returns empty string on stale handle (WI-285)
+  - **Decision**: Guard `get_upload_sequence()` with existence check
+  - **Rationale**: Handles stale references after cleanup()
+
+  ### D-E5: Consolidate color map to TYPE_COLORS (WI-284)
+  - **Decision**: Import TYPE_COLORS from inference/types.py in symbol_config.py
+  - **Rationale**: Single source of truth for agent colors
+
+  ## Review Decisions
+
+  ### D-R1: Accept test failure as pre-existing
+  - **Decision**: `test_checkpoint_ensures_durability` failure is pre-existing and unrelated to this cycle
+  - **Rationale**: Test creates structure at position that may land on impassable terrain
+
+  ### D-R2: Accept stale handle test gap as known
+  - **Decision**: WI-285 implementation correct; test coverage gap documented for future cycle
+
+  ### D-R3: Accept PostToolUseFailure test gap as known
+  - **Decision**: WI-288 correctly decrements counter; only last_seen tested
+cycle: 1
+reviewer: journal-keeper
+content_hash: 1dabb30f480ad7f77c43481048b1bf680342c79c440aabd59c028427b59e60ce
+token_count: 590
+file_path: .ideate/cycles/001/decision-log.yaml

@@ -328,3 +328,138 @@ class TestHamletApp:
             assert "/" in binding_keys  # toggle_legend
             assert "?" in binding_keys  # toggle_help
             assert "f" in binding_keys  # toggle_follow
+            assert "v" in binding_keys  # toggle_village_menu
+
+    @pytest.mark.asyncio
+    async def test_village_menu_binding(
+        self, mock_world_state: Mock, mock_viewport: Mock
+    ) -> None:
+        """Pressing 'v' toggles VillageMenu visibility."""
+
+        class TestHamletApp(HamletApp):
+            def __init__(self) -> None:
+                super().__init__(mock_world_state, mock_viewport)
+
+        # Mock get_all_villages for village menu population
+        mock_village = Mock()
+        mock_village.id = "v1"
+        mock_village.name = "Test Village"
+        mock_village.project_id = "p1"
+        mock_village.agent_ids = []
+        mock_village.structure_ids = []
+        mock_world_state.get_all_villages = AsyncMock(return_value=[mock_village])
+        mock_world_state.get_nearest_village_to = AsyncMock(return_value=None)
+
+        async with TestHamletApp().run_test() as pilot:
+            from hamlet.tui.village_menu import VillageMenu
+
+            village_menu = pilot.app.query_one(VillageMenu)
+
+            # Initially hidden (display: none in CSS)
+            assert village_menu.display is False
+
+            # Press 'v' to show menu
+            await pilot.press("v")
+            await pilot.pause()
+
+            assert village_menu.display is True
+
+            # Press 'v' again to hide menu
+            await pilot.press("v")
+            await pilot.pause()
+
+            assert village_menu.display is False
+
+    @pytest.mark.asyncio
+    async def test_movement_keys_reset_cursor_activity(
+        self, mock_world_state: Mock, mock_viewport: Mock
+    ) -> None:
+        """Movement keys (h/j/k/l and arrows) reset cursor activity."""
+        import time
+        from hamlet.tui.cursor import CursorState
+
+        class TestHamletApp(HamletApp):
+            def __init__(self) -> None:
+                super().__init__(mock_world_state, mock_viewport)
+
+        async with TestHamletApp().run_test() as pilot:
+            cursor_state = pilot.app._cursor_state
+
+            # Set cursor to old activity time
+            cursor_state.last_activity = time.time() - 10.0
+            cursor_state.visible = False
+
+            # Press 'h' (scroll left)
+            await pilot.press("h")
+            await pilot.pause()
+
+            # Cursor activity should be reset
+            assert cursor_state.visible is True
+            assert time.time() - cursor_state.last_activity < 1.0
+
+    @pytest.mark.asyncio
+    async def test_cursor_visibility_cycle(
+        self, mock_world_state: Mock, mock_viewport: Mock
+    ) -> None:
+        """Cursor visibility follows cycle: movement -> visible -> 3s -> hidden."""
+        import time
+        from hamlet.tui.cursor import CursorState
+        from hamlet.tui.cursor_overlay import CursorOverlay
+
+        class TestHamletApp(HamletApp):
+            def __init__(self) -> None:
+                super().__init__(mock_world_state, mock_viewport)
+
+        async with TestHamletApp().run_test() as pilot:
+            cursor_state = pilot.app._cursor_state
+            cursor_overlay = pilot.app.query_one(CursorOverlay)
+
+            # Start with hidden cursor (simulate 10 seconds of inactivity)
+            cursor_state.last_activity = time.time() - 10.0
+            cursor_state.visible = True  # visible=True but timed out
+
+            # Cursor should not be visible due to timeout
+            assert cursor_state.is_visible() is False
+            assert cursor_overlay._check_visibility() is False
+
+            # Press movement key
+            await pilot.press("j")
+            await pilot.pause()
+
+            # Cursor should now be visible
+            assert cursor_state.visible is True
+            assert time.time() - cursor_state.last_activity < 1.0
+
+            # Manually check visibility immediately after activity reset
+            assert cursor_state.is_visible() is True
+
+            # Simulate 4 seconds passing (beyond fade_after_seconds of 3.0)
+            cursor_state.last_activity = time.time() - 4.0
+
+            # Cursor should now be hidden due to inactivity timeout
+            assert cursor_state.is_visible() is False
+
+    @pytest.mark.asyncio
+    async def test_arrow_keys_reset_cursor_activity(
+        self, mock_world_state: Mock, mock_viewport: Mock
+    ) -> None:
+        """Arrow keys also reset cursor activity."""
+        import time
+
+        class TestHamletApp(HamletApp):
+            def __init__(self) -> None:
+                super().__init__(mock_world_state, mock_viewport)
+
+        async with TestHamletApp().run_test() as pilot:
+            cursor_state = pilot.app._cursor_state
+
+            # Test each arrow key
+            for key in ["up", "down", "left", "right"]:
+                cursor_state.last_activity = time.time() - 10.0
+                cursor_state.visible = False
+
+                await pilot.press(key)
+                await pilot.pause()
+
+                assert cursor_state.visible is True
+                assert time.time() - cursor_state.last_activity < 1.0

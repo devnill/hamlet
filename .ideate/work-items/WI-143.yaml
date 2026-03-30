@@ -1,7 +1,7 @@
 id: WI-143
 type: work_item
 title: Fix mcp/start.sh path resolution
-status: pending
+status: done
 complexity: small
 scope: []
 depends: []
@@ -15,14 +15,14 @@ module: null
 domain: null
 notes: |
   # WI-143: Fix mcp/start.sh path resolution
-  
+
   ## Context
   `mcp/start.sh` sets `SCRIPT_DIR="${CLAUDE_PLUGIN_ROOT}/mcp"` which breaks when `CLAUDE_PLUGIN_ROOT` is not set (expands to `/mcp`). The script should derive its location from `BASH_SOURCE[0]`.
-  
+
   Additionally, the `python3` fallback doesn't process PEP 723 inline script metadata and will fail at `from mcp.server import Server` unless `mcp` is pre-installed.
-  
+
   ## Change to `mcp/start.sh`
-  
+
   ```bash
   #!/usr/bin/env bash
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -33,7 +33,7 @@ notes: |
       exec python3 "${SCRIPT_DIR}/server.py"
   fi
   ```
-  
+
   ## Notes
   - `BASH_SOURCE[0]` gives the path to the script itself, even when sourced or called via symlink
   - `$(cd ... && pwd)` resolves to the canonical absolute path
@@ -41,6 +41,7 @@ notes: |
   - Read the current file first to preserve any existing logic
 cycle_created: 1
 cycle_modified: null
-content_hash: "2c4b35b79e8506c3578cf960d52f4a0841d6439e7a5ac0de63763078b530931e"
+content_hash: de6552b956b0ef0417717027e097526d9263f4264452d156031813e0588cde50
 token_count: 413
 file_path: .ideate/work-items/WI-143.yaml
+resolution: start.sh uses $0 for SCRIPT_DIR (POSIX-compatible)

@@ -1,7 +1,7 @@
 id: WI-259
 type: work_item
 title: Add Missing Parameters to Parameter Panel
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -22,19 +22,19 @@ module: null
 domain: null
 notes: |
   # WI-259: Add Missing Parameters to Parameter Panel
-  
+
   ## Objective
   Expose all TerrainConfig parameters in the map viewer parameter panel.
-  
+
   ## Finding Addressed
   S2: Ten TerrainConfig parameters missing from TERRAIN_PARAMS. This is an unmet acceptance criterion from WI-252.
-  
+
   ## File Scope
   - `src/hamlet/tui/parameter_panel.py` — TERRAIN_PARAMS list
-  
+
   ## Implementation Notes
   Add the following parameters to TERRAIN_PARAMS with appropriate min/max/step values:
-  
+
   ```python
   ("region_scale", "Region Scale", 50.0, 200.0, 10.0, "Biome region size (cells)"),
   ("region_blending", "Region Blend", 0.0, 1.0, 0.1, "Biome transition sharpness"),
@@ -47,15 +47,16 @@ notes: |
   ("forest_region_bias_strength", "Forest Bias", 0.0, 1.0, 0.1, "Regional forest density bias"),
   ("forest_percentage_target", "Forest %", 0.0, 50.0, 1.0, "Target forest coverage"),
   ```
-  
+
   Reference existing TERRAIN_PARAMS entries for format.
-  
+
   ## Acceptance Criteria
   - All 10 parameters displayed with labels and descriptions
   - Parameters have appropriate min/max ranges matching TerrainConfig defaults
   - Parameters update the terrain when changed
 cycle_created: 1
 cycle_modified: null
-content_hash: "22b4a346da6375257eb493bd6d03ebd845f15600f3a532e85730effc7f6a7a35"
-token_count: 681
+content_hash: 3463281c591df560de2b17f6a29545303587b113aa302cb6d0b57c6ed7ffad2c
+token_count: 671
 file_path: .ideate/work-items/WI-259.yaml
+resolution: ParameterPanel has all terrain parameters

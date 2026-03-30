@@ -1,14 +1,14 @@
 id: Q-21
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: Agent @ symbol assertion missing from render pipeline integration test
 cycle_created: 1
 cycle_modified: null
-content_hash: "00c9999bfa952a8c21022167663ad232244e412a75c0c4faf855160d7401721d"
-token_count: 77
+description: Agent @ symbol assertion missing from render pipeline integration test
+domain: visualization
+impact: ""
+resolution: Integration test now exists and includes assertion for agent @ symbol in render pipeline output.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 10f92c793027c27fd89017d3ca0e22b0bba24052bd070429bdbb08b03f822f0b
+token_count: 84
 file_path: .ideate/questions/Q-21.yaml

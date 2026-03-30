@@ -1,0 +1,51 @@
+id: WI-304
+type: work_item
+title: Expand village bounds as structures are added
+status: pending
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/world_state/manager.py
+  - op: modify
+    path: tests/test_world_state_manager.py
+depends:
+  - WI-303
+blocks: []
+criteria:
+  - Village bounds expand to include new structures
+  - Bounds maintain minimum margin around structures
+  - Bounds never shrink (monotonic growth)
+  - Bounds update persisted to database
+domain: core
+notes: |
+  ## WI-304: Village Bounds Expansion
+
+  Villages should grow their bounds as structures are added, creating visual territory.
+
+  ### Approach
+
+  When a structure is created:
+  1. Get the village it belongs to
+  2. Check if structure position is outside current bounds
+  3. If so, expand bounds to include position + margin
+  4. Queue write for updated village
+
+  ### Bounds Growth
+
+  ```python
+  def expand_bounds_for_structure(village, position, margin=5):
+      village.bounds.min_x = min(village.bounds.min_x, position.x - margin)
+      village.bounds.max_x = max(village.bounds.max_x, position.x + margin)
+      village.bounds.min_y = min(village.bounds.min_y, position.y - margin)
+      village.bounds.max_y = max(village.bounds.max_y, position.y + margin)
+  ```
+
+  ### Center Updates
+
+  The village center should be the centroid of all structure positions, recalculated when bounds change.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: c686267624e6a71a2c6f3c03f1ef41ee3f6559894ce041df1325db18a9479d5a
+token_count: 361
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-304.yaml

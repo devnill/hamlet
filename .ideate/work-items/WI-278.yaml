@@ -1,7 +1,7 @@
 id: WI-278
 type: work_item
 title: Kitty renderer implementation
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -22,34 +22,34 @@ module: null
 domain: null
 notes: |
   # WI-278: Kitty renderer implementation
-  
+
   ## Context
   Implements `RendererProtocol` using terminal escape sequences. Fixes Q-10 (ROAD symbol) and Q-11 (terrain rendering).
-  
+
   ## Output model
   Writes escape sequences to `IO[str]` (sys.stdout in prod, StringIO in tests).
-  
+
   ### Cursor positioning
   - Home: `\x1b[H`
   - Position: `\x1b[{row};{col}H` (1-based)
   - FG color: `\x1b[38;2;{r};{g};{b}m`
   - BG color: `\x1b[48;2;{r};{g};{b}m`
   - Reset: `\x1b[0m`
-  
+
   ## Layer order
   1. Clear screen
   2. Terrain background (terrain_data items → world_to_screen → symbol + color)
   3. Structures (SymbolConfig with `.get(type, "?")` fallback — **fixes Q-10**)
   4. Agents (@ symbol, type color, zombie_color for zombie state)
   5. HUD: status bar (row 0), event log (bottom 5 rows)
-  
+
   ## Zoom behavior
   - `FAR`: Characters via ANSI escape sequences
   - `MEDIUM`/`CLOSE`: Attempt sprite blit via `encode_image_display`. If sprite_manager is None or sprite not found, fall back to character rendering
-  
+
   ## _RICH_TO_RGB
   Port the 13-entry color map from notcurses renderer: cyan, yellow, orange1, dark_green, magenta, blue, white, green, red, grey50, grey85, dark_orange, chartreuse.
-  
+
   ## Testing
   Use `io.StringIO` as output. After render_frame, read string and verify:
   - No KeyError for ROAD structures
@@ -57,6 +57,7 @@ notes: |
   - Zombie agent uses green color
 cycle_created: 1
 cycle_modified: null
-content_hash: "00d3d4b63ceaf3df57f73516d85580560771a1059afe941ceeea888cc4604023"
-token_count: 642
+content_hash: b69711db180601daf94ed5829ff8781c6095b1a4593bf0009ec9b795b5b8f2d9
+token_count: 662
 file_path: .ideate/work-items/WI-278.yaml
+resolution: "KittyRenderer implements RendererProtocol with layer order: clear, terrain, structures, agents, HUD"

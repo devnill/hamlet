@@ -1,14 +1,14 @@
 id: Q-10
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: StructureType.ROAD has no symbol in SymbolConfig — crash path in renderer
 cycle_created: 1
 cycle_modified: null
-content_hash: "55b0db6db1f97f90831e123ed5ee6506e6ffbb70a7e4ca912f9d0645e4a5ff02"
-token_count: 78
+description: StructureType.ROAD has no symbol in SymbolConfig — crash path in renderer
+domain: visualization
+impact: ""
+resolution: StructureType.ROAD now uses a fallback symbol in SymbolConfig. The renderer handles missing symbols gracefully without crashing.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 24ecfd966c0bad2dff50c66ad974bd755b0e9144abc96f69b512105f866bb6cb
+token_count: 93
 file_path: .ideate/questions/Q-10.yaml

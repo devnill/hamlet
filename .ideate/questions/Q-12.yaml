@@ -1,14 +1,14 @@
 id: Q-12
 type: domain_question
 domain: visualization
-status: open
+status: closed
 impact: ""
 source: ""
-resolution: null
-resolved_in: null
+resolution: "Fixed by WI-285: SpriteManager.get_upload_sequence() now returns empty string when handle.image_id is not in _png_data after cleanup(). Graceful degradation per GP-07."
+resolved_in: 1
 description: SpriteSheet references silently invalidated after cleanup
 cycle_created: 1
-cycle_modified: null
+cycle_modified: 2
 content_hash: a2b2c5b329cd9d5aa5d901cddf780a2ba8b0a1c1ea23e7bde9f4e496e09d05bd
 token_count: 74
 file_path: .ideate/questions/Q-12.yaml

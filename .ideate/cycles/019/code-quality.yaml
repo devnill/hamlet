@@ -1,0 +1,51 @@
+id: code-quality
+type: cycle_summary
+content: |
+  # Code Quality Review — Cycle 19
+
+  ## Verdict: Fail
+
+  One test failure prevents the build from passing cleanly.
+
+  ## Critical Findings
+
+  None.
+
+  ## Significant Findings
+
+  ### S1: Test fails after health endpoint version addition
+  - **File**: `tests/test_mcp_server.py:82`
+  - **Issue**: The test `test_health_endpoint` asserts `body == {"status": "ok"}` but the health endpoint now returns `{"status": "ok", "version": "0.7.2"}`. The test was not updated when version was added to the response.
+  - **Impact**: Test suite has 1 failure, blocking CI/CD validation.
+  - **Suggested fix**: Update the test to expect the version field:
+  ```python
+  assert body == {"status": "ok", "version": "0.7.2"}
+  # or more flexibly:
+  assert body["status"] == "ok"
+  assert "version" in body
+  ```
+
+  ## Minor Findings
+
+  ### M1: Broad exception clauses in hook scripts
+  - **File**: Multiple files in `hooks/`
+  - **Issue**: Hook scripts use `except Exception as exc:` patterns broadly. While consistent with GP-7 (graceful degradation), this could mask programming errors.
+  - **Suggested fix**: Consider logging the full exception traceback at debug level for debugging purposes. Current implementation is acceptable per GP-7.
+
+  ### M2: Kitty backend lacks village menu feature
+  - **File**: `src/hamlet/gui/kitty/app.py`
+  - **Issue**: The Kitty graphical backend does not have a village menu overlay. The 'v' key binding exists in the Textual TUI but not in the Kitty viewer.
+  - **Suggested fix**: This is by design per the overview.yaml scope ("ASCII/Textual backend only"). Document this limitation.
+
+  ## Unmet Acceptance Criteria
+
+  None. Both work items (WI-300, WI-301) satisfy their acceptance criteria.
+
+  ## Dynamic Testing Results
+
+  Test failure in `test_health_endpoint` prevents clean build. All other tests pass.
+cycle: 19
+reviewer: code-reviewer
+content_hash: 521daccb11a2af3bfa15e70fb5e1bd5f3df1e1e9795fcabbae448e0879ad40b5
+token_count: 478
+file_path: .ideate/cycles/019/code-quality.yaml

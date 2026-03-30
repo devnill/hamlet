@@ -1,7 +1,7 @@
 id: WI-142
 type: work_item
 title: Fix HelpOverlay visibility mechanism
-status: pending
+status: done
 complexity: small
 scope: []
 depends: []
@@ -17,35 +17,35 @@ module: null
 domain: null
 notes: |
   # WI-142: Fix HelpOverlay visibility mechanism
-  
+
   ## Context
   `HelpOverlay` declares `visible: reactive[bool] = reactive(False)` which shadows Textual's `DOMNode.visible` framework property. This breaks Textual's internal layout calculations. Additionally, `HelpOverlay` extends `Static` which has `can_focus = False`, making the widget's own `on_key` handler and `BINDINGS` permanently unreachable.
-  
+
   WI-135 already moved the `?` binding to `HamletApp.BINDINGS` and uses `overlay.display = not overlay.display` — this is the right approach. The fix here removes the broken reactive and ensures consistent display control.
-  
+
   ## Existing Code
   - `src/hamlet/tui/help_overlay.py` — has `visible: reactive[bool]`, `watch_visible`, `on_key`, `BINDINGS`
   - `src/hamlet/tui/app.py` — `action_toggle_help` uses `overlay.display = not overlay.display`
-  
+
   ## Changes to `src/hamlet/tui/help_overlay.py`
-  
+
   Remove:
   - `visible: reactive[bool] = reactive(False)`
   - `watch_visible()` method
   - `on_key()` method (app.py handles ? via BINDINGS)
   - `BINDINGS` tuple (bindings moved to HamletApp)
-  
+
   Keep:
   - `DEFAULT_CSS = "HelpOverlay { display: none; }"` (ensures hidden on startup)
   - `render()` method (unchanged)
-  
+
   Result:
   ```python
   class HelpOverlay(Static):
       """Modal overlay showing keyboard controls. Toggled by ?."""
-  
+
       DEFAULT_CSS = "HelpOverlay { display: none; }"
-  
+
       def render(self) -> str:
           return (
               "┌─ Help ──────────────────────────────┐\n"
@@ -59,10 +59,10 @@ notes: |
               "└──────────────────────────────────────┘"
           )
   ```
-  
+
   ## Changes to `src/hamlet/tui/app.py`
   Add `Escape` binding when help is visible. The cleanest approach: add an `Escape` binding in `HamletApp.BINDINGS` that calls `action_close_help` — but only trigger it when overlay is visible.
-  
+
   Or simpler: modify `action_toggle_help` to act as close when overlay is visible:
   ```python
   def action_toggle_help(self) -> None:
@@ -73,13 +73,14 @@ notes: |
           logger.debug("toggle_help: %s", exc)
   ```
   This already handles both open and close. The `Escape` binding can route to `action_toggle_help` only when overlay is displayed — check if Textual supports conditional binding activation.
-  
+
   ## Notes
   - Read the actual files before making changes — verify current state of help_overlay.py and app.py
   - The `action_toggle_help` in app.py (WI-135) uses `overlay.display` not `overlay.visible` — this is correct, keep it
   - Escape handling: if Textual doesn't support conditional bindings, add a separate `action_close_help` that only acts when overlay is displayed
 cycle_created: 1
 cycle_modified: null
-content_hash: "88e9ef661c7b99aaa8736c85cf8ae9c9e83d52de091c81a94df3a03138bb248b"
-token_count: 958
+content_hash: 94b1cb7a3b5159a9ba7ce895d2cc670e27d0785549326bc39c2dbb96a0e56f55
+token_count: 960
 file_path: .ideate/work-items/WI-142.yaml
+resolution: HelpOverlay uses display:none CSS, no visible:reactive

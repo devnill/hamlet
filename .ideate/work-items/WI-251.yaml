@@ -1,7 +1,7 @@
 id: WI-251
 type: work_item
 title: Config Persistence for Terrain Parameters
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -16,6 +16,7 @@ domain: null
 notes: null
 cycle_created: 1
 cycle_modified: null
-content_hash: cbc252387db4dfbb835bf264a5e60f2994ff0e4faaaa68169ac7b77da2a70467
-token_count: 141
+content_hash: 5b867308f9839fec0e6ca93fe0ec2e72e8efb0b8ffe39359ed3769460d88d3b1
+token_count: 148
 file_path: .ideate/work-items/WI-251.yaml
+resolution: Settings.terrain dict for config persistence, Settings.diff() for change detection

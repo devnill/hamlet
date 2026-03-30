@@ -113,9 +113,10 @@ class AgentInferenceEngine:
                 await self._handle_subagent_stop(event)
             elif event.hook_type == HookType.TeammateIdle:
                 await self._handle_teammate_idle(event)
+            elif event.hook_type == HookType.PostToolUseFailure:
+                await self._handle_post_tool_use_failure(event)
             elif event.hook_type in (
                 HookType.TaskCompleted,
-                HookType.PostToolUseFailure,
                 HookType.UserPromptSubmit,
                 HookType.PreCompact,
                 HookType.PostCompact,
@@ -563,7 +564,7 @@ class AgentInferenceEngine:
     async def _handle_passthrough(self, event: InternalEvent) -> None:
         """Handle passthrough hook types — update last_seen only.
 
-        Covers: TaskCompleted, PostToolUseFailure, UserPromptSubmit,
+        Covers: TaskCompleted, UserPromptSubmit,
         PreCompact, PostCompact, StopFailure.
         """
         session = self._state.sessions.get(event.session_id)
@@ -571,6 +572,46 @@ class AgentInferenceEngine:
             for agent_id in session.agent_ids:
                 self._state.last_seen[agent_id] = event.received_at
         logger.debug("passthrough [hook_type=%s session=%s]", event.hook_type, event.session_id)
+
+    async def _handle_post_tool_use_failure(self, event: InternalEvent) -> None:
+        """Handle PostToolUseFailure events.
+
+        Like PostToolUse, this must evict the matching PendingTool and decrement
+        active_tools. Without this, a failed tool call would leave active_tools
+        permanently incremented (no matching PostToolUse would arrive).
+        """
+        session = self._state.sessions.get(event.session_id)
+
+        # Update last_seen for all agents in this session.
+        if session:
+            for agent_id in session.agent_ids:
+                self._state.last_seen[agent_id] = event.received_at
+
+        # Evict the matching pending tool and decrement active_tools.
+        tool_name = event.tool_name or ""
+        matching_key = None
+        oldest_started_at = None
+        for key, pending in self._state.pending_tools.items():
+            if pending.session_id == event.session_id and pending.tool_name == tool_name:
+                if oldest_started_at is None or pending.started_at < oldest_started_at:
+                    oldest_started_at = pending.started_at
+                    matching_key = key
+        if matching_key is not None:
+            del self._state.pending_tools[matching_key]
+            if session is not None:
+                session.active_tools = max(0, session.active_tools - 1)
+        else:
+            logger.debug(
+                "_handle_post_tool_use_failure: no matching pending tool found for session=%s tool=%s",
+                event.session_id,
+                tool_name,
+            )
+
+        logger.debug(
+            "_handle_post_tool_use_failure: session=%s tool=%s",
+            event.session_id,
+            tool_name,
+        )
 
     def _check_zombie(self, agent_id: str) -> bool:
         """Return True if the agent has not been seen within zombie_threshold_seconds."""

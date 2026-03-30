@@ -1,0 +1,28 @@
+id: WI-288
+type: work_item
+title: Add PostToolUseFailure handling in inference engine
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/inference/engine.py
+  - op: modify
+    path: tests/test_inference_engine.py
+depends: []
+blocks: []
+criteria:
+  - AgentInferenceEngine.process_event() handles PostToolUseFailure
+  - No WARNING log for unhandled PostToolUseFailure
+  - Failure events contribute to agent state (e.g., decrement active_tools)
+  - Tests verify PostToolUseFailure processing
+domain: architecture
+notes: |-
+  GAP: PostToolUseFailure events are logged but produce WARNING: 'process_event: unhandled hook_type HookType.PostToolUseFailure'.
+
+  The inference engine should handle these events similar to PostToolUse, potentially decrementing active_tools and updating agent state.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: e14376b17822321c50bc42a2add983bce8ba982165d671f17d7565318ca56749
+token_count: 217
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-288.yaml

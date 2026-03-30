@@ -1,7 +1,7 @@
 id: WI-174
 type: work_item
 title: Extract hook utilities to hamlet_hook_utils.py
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -16,15 +16,15 @@ module: null
 domain: null
 notes: |
   # WI-174 Notes: Extract hook utilities to hamlet_hook_utils.py
-  
+
   ## Context
   All four hook scripts contain identical copies of `_cwd_hash`, `find_server_url`, `find_config`, and `_log_error`. Extracting these to a shared module eliminates ~200 lines of duplicated code.
-  
+
   ## File to create
   `/Users/dan/code/hamlet/hooks/hamlet_hook_utils.py`
-  
+
   Content: copy the four shared functions verbatim from pre_tool_use.py. No changes to logic.
-  
+
   ```python
   #!/usr/bin/env python3
   """Shared utilities for Hamlet hook scripts."""
@@ -34,12 +34,12 @@ notes: |
   import traceback
   from datetime import datetime, timezone
   from pathlib import Path
-  
-  
+
+
   def _cwd_hash(cwd: Path) -> str:
       return hashlib.sha256(str(cwd).encode()).hexdigest()[:16]
-  
-  
+
+
   def find_server_url() -> str:
       """Read server_url: check project config first, then global, then default."""
       default = "http://localhost:8080/hamlet/event"
@@ -63,8 +63,8 @@ notes: |
       except Exception:
           pass
       return default
-  
-  
+
+
   def find_config() -> tuple[str, str]:
       """Traverse from cwd up to root looking for .hamlet/config.json with project_id."""
       cwd = Path(os.getcwd())
@@ -79,8 +79,8 @@ notes: |
               except Exception:
                   pass
       return f"project-{_cwd_hash(cwd)}", cwd.name
-  
-  
+
+
   def _log_error(hook_name: str, exc: Exception) -> None:
       """Log hook errors to file for debugging."""
       try:
@@ -93,11 +93,11 @@ notes: |
       except Exception:
           pass
   ```
-  
+
   Note: `import os` is moved to module level (removing the deferred `import os` inside function bodies — minor improvement already noted in prior review M3).
-  
+
   ## Files to modify
-  
+
   Each hook script needs:
   1. Add `sys.path.insert(0, str(Path(__file__).parent))` before the hamlet_hook_utils import — this ensures the hooks/ directory is on sys.path regardless of how the script is invoked
   2. Add `from hamlet_hook_utils import find_server_url, find_config, _log_error`
@@ -105,15 +105,15 @@ notes: |
   4. Remove `import hashlib` (no longer needed in hook scripts)
   5. Remove `import traceback` (no longer needed in hook scripts)
   6. Remove the `import os` inside function bodies (moved to hamlet_hook_utils)
-  
+
   For `pre_tool_use.py` and `post_tool_use.py`: also remove `from datetime import datetime, timezone` only if it's no longer used for anything other than the payload timestamp — actually, `datetime` IS still used in `main()` for the timestamp field, so keep it.
-  
+
   Check each file:
   - `pre_tool_use.py`: keeps `import time`, `record_start_time`, `TIMING_DIR`, `datetime`
   - `post_tool_use.py`: keeps `import time`, `compute_duration`, `TIMING_DIR`, `datetime`
   - `notification.py`: keeps `datetime`
   - `stop.py`: keeps `datetime`
-  
+
   The sys.path.insert pattern:
   ```python
   import sys
@@ -121,11 +121,12 @@ notes: |
   sys.path.insert(0, str(Path(__file__).parent))
   from hamlet_hook_utils import find_server_url, find_config, _log_error
   ```
-  
+
   `Path` is already imported in all four scripts, so no new import needed for the path expression.
   `sys` is already imported in all four scripts.
 cycle_created: 1
 cycle_modified: null
-content_hash: a6030dcf3998c879b81f3ee276092adb43d574a7fb1c537a47f65a6e9141ec27
-token_count: 1336
+content_hash: fba000901982b8e0e9c1fc6057e8cd7bc13c1ed7c967d789fdcc5b25e914875f
+token_count: 1348
 file_path: .ideate/work-items/WI-174.yaml
+resolution: hooks/hamlet_hook_utils.py exists with _cwd_hash, find_server_url, find_config, _log_error

@@ -1,7 +1,7 @@
 id: WI-253
 type: work_item
 title: Zoom Functionality for Map Viewer
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,6 +17,7 @@ domain: null
 notes: null
 cycle_created: 1
 cycle_modified: null
-content_hash: e105283106f3246dcaa9a08e473a77f1b866bdaa97f61b6c1885c8323fa7dd7b
-token_count: 137
+content_hash: 6efd00470802fbdee31abc6d529c06c25ac2521a15ecc9d71d62840aaca83b71
+token_count: 136
 file_path: .ideate/work-items/WI-253.yaml
+resolution: Zoom functionality for map viewer implemented

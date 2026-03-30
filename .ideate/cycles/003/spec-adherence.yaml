@@ -1,0 +1,48 @@
+id: spec-adherence
+type: cycle_summary
+content: |-
+  ## Verdict: Pass
+
+  All guiding principles are upheld. All acceptance criteria satisfied.
+
+  ## Principle Violations
+
+  **Principle Violation Verdict: Pass**
+
+  None.
+
+  ## Principle Adherence Evidence
+
+  ### GP-02: Lean Client, Heavy Server
+  Hook scripts contain no business logic. They extract essential fields and immediately POST to the daemon. (`hooks/pre_tool_use.py:33-50`, `hooks/post_tool_use.py:37-55`)
+
+  ### GP-04: Modularity for Iteration
+  `TYPE_COLORS` defined once in `inference/types.py:79-87` and imported by `gui/symbol_config.py:12`. `STRUCTURE_RULES` defines thresholds in a data-driven table. Color mappings and structure progression are configurable.
+
+  ### GP-05: Persistent World, Project-Based Villages
+  `WorldStateManager` creates and persists villages tied to `project_id`. `WorldState.villages` maps project IDs to village objects.
+
+  ### GP-06: Deterministic Agent Identity
+  Agent color derived deterministically from `TYPE_COLORS` based on `inferred_type`. Agent type inferred from tool patterns.
+
+  ### GP-07: Graceful Degradation Over Robustness
+  All hook scripts use `try/except` with `finally: sys.exit(0)` to fail silently. `SpriteManager.get_upload_sequence` returns empty string for stale handles.
+
+  ### GP-08: Agent-Driven World Building
+  `add_work_units` accumulates work units when target structure doesn't exist (`pending_work_units`). `create_structure` applies pending units. Work contributes to construction progress.
+
+  ### GP-11: Low-Friction Setup
+  `hamlet doctor --check-hooks` provides clear diagnostics with actionable error messages. Falls back to default port if settings fail.
+
+  ## Unmet Acceptance Criteria
+
+  None.
+
+  ## Naming/Pattern Inconsistencies
+
+  None.
+cycle: 3
+reviewer: spec-reviewer
+content_hash: 3475c5f05f384e760b3f89f0e08a4fe812d6e3436f42b7b03b5f0584c320cc0e
+token_count: 452
+file_path: .ideate/cycles/003/spec-adherence.yaml

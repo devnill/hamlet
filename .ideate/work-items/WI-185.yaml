@@ -1,7 +1,7 @@
 id: WI-185
 type: work_item
 title: Plugin update hygiene — hamlet install detects plugin and skips hooks
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -19,14 +19,14 @@ module: null
 domain: null
 notes: |
   # WI-185 Notes: Plugin update hygiene
-  
+
   ## Context
   When both hamlet install and the plugin are active, hooks fire twice. install_command() should detect the plugin and skip hook installation.
-  
+
   ## installed_plugins.json structure
   Dict format: {"hamlet@marketplace": {"scope": "user", "installPath": "...", "version": "...", ...}}
   Detection: any key containing "hamlet" with a non-empty installPath.
-  
+
   ## Implementation
   Add before hook installation section (after MCP server check and server_url write):
   ```python
@@ -44,10 +44,11 @@ notes: |
           pass
       return False
   ```
-  
+
   The server_url write and MCP check still run before this detection. Hooks writing is skipped. Returns 0.
 cycle_created: 1
 cycle_modified: null
-content_hash: "39e5f0fbc390a85dc64621a033fe129272648d3a5580831a486973821cc6e56d"
-token_count: 557
+content_hash: 4c970414a88fa7c9713f3bf98271a7a722baaff6f72293937db78ccbfcf55efb
+token_count: 560
 file_path: .ideate/work-items/WI-185.yaml
+resolution: is_plugin_active() exists in install.py with tests in test_cli_install.py

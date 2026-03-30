@@ -1,7 +1,7 @@
 id: WI-241
 type: work_item
 title: fBm Noise Implementation
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,18 +17,18 @@ module: null
 domain: null
 notes: |
   # WI-241: fBm Noise Implementation
-  
+
   ## Context
-  
+
   The current `_generate_with_noise()` method uses single-frequency Perlin noise with independent maps for water and mountain. This produces scattered, disconnected terrain cells. We need to replace this with fractal Brownian motion (fBm) combined with domain warping.
-  
+
   ## Implementation Notes
-  
+
   ### Location
   - `src/hamlet/world_state/terrain.py` — add new methods, replace `_generate_with_noise()`
-  
+
   ### fBm Algorithm
-  
+
   ```python
   def _fbm(self, x: float, y: float, octaves: int, lacunarity: float,
            persistence: float, base: int) -> float:
@@ -37,7 +37,7 @@ notes: |
       amplitude = 1.0
       frequency = 1.0
       max_value = 0.0
-  
+
       for _ in range(octaves):
           value += amplitude * noise.pnoise2(
               x * frequency, y * frequency, base=base
@@ -45,53 +45,54 @@ notes: |
           max_value += amplitude
           amplitude *= persistence
           frequency *= lacunarity
-  
+
       return value / max_value
   ```
-  
+
   ### Domain Warping
-  
+
   Domain warping distorts coordinates before sampling, creating organic flowing shapes:
-  
+
   ```python
   def _warped_fbm(self, x: float, y: float) -> float:
       """fBm with domain warping for organic terrain shapes."""
       warp = self._config.domain_warp_strength
-  
+
       # First warp pass
       wx = x + warp * noise.pnoise2(x, y, base=self._seed)
       wy = y + warp * noise.pnoise2(x, y, base=self._seed + 100)
-  
+
       # Second warp pass for more organic shapes
       wx = wx + warp * 0.5 * noise.pnoise2(wx, wy, base=self._seed + 200)
       wy = wy + warp * 0.5 * noise.pnoise2(wx, wy, base=self._seed + 300)
-  
+
       return self._fbm(wx, wy, self._config.octaves,
                       self._config.lacunarity, self._config.persistence,
                       self._seed)
   ```
-  
+
   ### Replacing _generate_with_noise
-  
+
   The unified heightmap replaces the dual noise approach:
   1. Call `_warped_fbm()` for elevation
   2. Generate a secondary moisture noise (simple fBm with different seed)
   3. Classify terrain from combined elevation + moisture (done in WI-242)
-  
+
   For this work item, focus on implementing `_fbm()` and `_warped_fbm()`. The classification logic is WI-242.
-  
+
   ### Performance
-  
+
   fBm with 4 octaves and domain warping will be slower than single-frequency noise (~200ms for 200x200 world). This is acceptable per user interview.
-  
+
   ### Tests
-  
+
   - Test that `_fbm()` returns values in approximately [-1, 1] range
   - Test that `_warped_fbm()` is deterministic (same input → same output)
   - Test that different seeds produce different results
   - Test that octaves, lacunarity, persistence affect output smoothness
 cycle_created: 1
 cycle_modified: null
-content_hash: "17e414f13f80dd6e42f5817fa99a4fc577755cc10b158442e2e3b2dd431daab1"
-token_count: 857
+content_hash: 0dfa2ca89bb1a24de85938a1e589cf317509608f866b3ed12b6e8fa000d7e8cc
+token_count: 869
 file_path: .ideate/work-items/WI-241.yaml
+resolution: _fbm() and _warped_fbm() implement fractal Brownian motion with domain warping

@@ -1,14 +1,14 @@
 id: Q-02
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: Structure Type Mapping
 cycle_created: 1
 cycle_modified: null
-content_hash: a287b657ba7f602a2f25242c05e1955b8c891b6bed4e83ac926d02c7cdeb2433
-token_count: 65
+description: Structure Type Mapping
+domain: visualization
+impact: ""
+resolution: Structure type mapping is now properly defined in SymbolConfig with correct symbol assignments for all structure types.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 0c7b1457d87d11395689d3ba6a475b9891fd4a3aa93330de505acbed782f7182
+token_count: 78
 file_path: .ideate/questions/Q-02.yaml

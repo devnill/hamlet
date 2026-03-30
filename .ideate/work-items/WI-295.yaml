@@ -1,0 +1,29 @@
+id: WI-295
+type: work_item
+title: Add CursorState to track cursor visibility and selection
+status: done
+complexity: small
+scope:
+  - op: create
+    path: src/hamlet/tui/cursor.py
+  - op: create
+    path: tests/test_cursor.py
+depends: []
+blocks:
+  - WI-296
+  - WI-297
+criteria:
+  - CursorState dataclass exists in tui/cursor.py
+  - "Fields: visible (bool), last_activity (float timestamp), fade_after_seconds (float, default 3.0)"
+  - viewport_center (Position), selected_item (Optional[dict] with type and id)
+  - is_visible() method returns True if last_activity within fade_after_seconds
+  - reset_activity() method updates timestamp to now
+  - Unit tests for CursorState in tests/test_cursor.py
+domain: visualization
+notes: "# WI-295: Add CursorState to track cursor visibility and selection"
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 818bf2b89a2e4659a6394821aece116b97d1f82f9ddbaef09ead44dcf5d0b3cb
+token_count: 213
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-295.yaml

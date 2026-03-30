@@ -1,7 +1,7 @@
 id: WI-182
 type: work_item
 title: Extend event schema for new hook types
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,13 +17,13 @@ module: null
 domain: null
 notes: |
   # WI-182 Notes: Extend event schema for new hook types
-  
+
   ## Context
   The HookType enum, InternalEvent dataclass, EVENT_SCHEMA, and EventProcessor all need updating for the 11 new hook types.
-  
+
   ## HookType location
   HookType is defined in src/hamlet/event_processing/internal_event.py (not world_state/types.py).
-  
+
   ## New InternalEvent fields
   All optional (default None), added after existing fields:
   - agent_id: str | None = None
@@ -37,7 +37,7 @@ notes: |
   - error: dict[str, Any] | None = None
   - is_interrupt: bool | None = None
   - prompt_text: str | None = None  (maps from raw "prompt" key)
-  
+
   ## EventProcessor extraction
   In the from_raw_params() method or equivalent, add:
   agent_id=params.get("agent_id"),
@@ -53,6 +53,7 @@ notes: |
   prompt_text=params.get("prompt"),
 cycle_created: 1
 cycle_modified: null
-content_hash: "3d308305617445b58be72504c8edc6414b8cb69240bcbfc6d4d564cdeefced73"
-token_count: 581
+content_hash: 398a2a496a616bcd4e84e947203b0edcd6788d407e75410ff234a5245b331d57
+token_count: 592
 file_path: .ideate/work-items/WI-182.yaml
+resolution: HookType enum has 15 members, InternalEvent has all new fields, EVENT_SCHEMA has all properties

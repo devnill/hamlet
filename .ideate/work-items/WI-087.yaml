@@ -1,7 +1,7 @@
 id: WI-087
 type: work_item
 title: TUI Integration Tests - WorldView, HamletApp
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -20,17 +20,17 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 087 - TUI Integration Tests
-  
+
   ## Scope
-  
+
   Test WorldView rendering and HamletApp integration using Textual's testing framework.
-  
+
   ## Testing Patterns
-  
+
   ### WorldView Tests
-  
+
   Mock world state:
-  
+
   ```python
   @pytest.fixture
   def world_view():
@@ -38,9 +38,9 @@ notes: |
       world_state = Mock()
       return WorldView(viewport, world_state)
   ```
-  
+
   Test render with agents:
-  
+
   ```python
   def test_render_agents():
       agent = Mock(
@@ -49,50 +49,50 @@ notes: |
           color="cyan"
       )
       world_state.get_agents_in_view.return_value = [agent]
-  
+
       text = world_view.render()
       assert "-" in text or "|" in text  # Spin symbol
   ```
-  
+
   ### HamletApp Tests
-  
+
   Use TestApp for full integration:
-  
+
   ```python
   async def test_app():
       class TestHamletApp(HamletApp):
           def __init__(self):
               super().__init__(Mock(), Mock())
-  
+
       async with TestHamletApp().run_test() as pilot:
           # Test actions
           await pilot.press("h")
           await pilot.pause()
   ```
-  
+
   Test actions:
-  
+
   ```python
   async def test_scroll_action():
       with patch.object(app._viewport, 'scroll') as mock_scroll:
           await pilot.press("h")
           mock_scroll.assert_called_with(-1, 0)
   ```
-  
+
   Test state updates:
-  
+
   ```python
   async def test_update_state():
       with patch.object(app, '_world_state') as mock_ws:
           mock_ws.get_agents_in_view.return_value = [Mock(), Mock()]
           await app._update_state()
-  
+
           status = app.query_one(StatusBar)
           assert status.agent_count == 2
   ```
-  
+
   ## Key Test Scenarios
-  
+
   1. **WorldView render agents** - Symbols at positions
   2. **WorldView render structures** - Structure symbols
   3. **WorldView empty cells** - Dots for floor
@@ -104,6 +104,7 @@ notes: |
   9. **App update state** - Status bar updated
 cycle_created: 1
 cycle_modified: null
-content_hash: dfd6488b71d78c6b1d50c103b0fdbd2929f65e98a2c3255e7db576a612a2599b
-token_count: 733
+content_hash: e00adf5cd35f90bd1ece038db23b1ade73545cd75593b235f34a4e43b01fea16
+token_count: 750
 file_path: .ideate/work-items/WI-087.yaml
+resolution: tests/test_tui_world_view.py, test_tui_app.py exist with render and action tests

@@ -1,14 +1,14 @@
 id: Q-15
 type: domain_question
 domain: visualization
-status: open
+status: closed
 impact: ""
 source: ""
-resolution: null
-resolved_in: null
+resolution: "KittyApp implements working legend toggle via _show_legend flag (line 235) and _render_legend method (lines 267-314)"
+resolved_in: WI-281
 description: Legend toggle is a no-op in graphical viewer
 cycle_created: 1
-cycle_modified: null
+cycle_modified: 3
 content_hash: f709fcf55e5ec9dd75b08d42a3424679b9caed4b653badaf0c10e514d08b6b22
 token_count: 70
 file_path: .ideate/questions/Q-15.yaml

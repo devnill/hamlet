@@ -1,0 +1,30 @@
+id: WI-296
+type: work_item
+title: Implement CursorOverlay widget with transient display
+status: done
+complexity: small
+scope:
+  - op: create
+    path: src/hamlet/tui/cursor_overlay.py
+  - op: create
+    path: tests/test_cursor_overlay.py
+depends:
+  - WI-295
+blocks: []
+criteria:
+  - CursorOverlay widget exists in tui/cursor_overlay.py
+  - Renders a cursor character (+ or crosshair) at viewport center
+  - "CSS display: none when cursor not visible, display: block when visible"
+  - "Layer: overlay (above world view, below menus)"
+  - Widget queries CursorState.is_visible() on each render
+  - ComposeResult includes CursorOverlay in HamletApp
+  - app.py imports and instantiates CursorOverlay with CursorState
+  - No mouse interaction required — purely visual
+domain: visualization
+notes: "# WI-296: Implement CursorOverlay widget with transient display"
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 135e6e1ec776163c82311b376ef9c46899e2b5ed8c5595d3b3f4c9f728230563
+token_count: 229
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-296.yaml

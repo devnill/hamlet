@@ -1,0 +1,56 @@
+id: WI-302
+type: work_item
+title: Implement village placement algorithm with spiral search
+status: pending
+complexity: medium
+scope:
+  - op: modify
+    path: src/hamlet/world_state/manager.py
+  - op: add
+    path: tests/test_village_placement.py
+depends: []
+blocks:
+  - WI-303
+criteria:
+  - New villages are placed using spiral search from origin
+  - Placement respects minimum distance from existing village centers
+  - Distance scales with existing village size (larger villages need more buffer)
+  - Placement finds valid position within reasonable bounds
+  - If no valid position found within max_radius, place at furthest searched position
+domain: core
+notes: |
+  ## WI-302: Village Placement Algorithm
+
+  Implement a placement algorithm for new villages that prevents overlapping.
+
+  ### Approach
+
+  Use a **spiral search** from origin (0,0) to find the nearest valid position:
+
+  ```python
+  def find_village_position(existing_villages, min_distance_func):
+      # Spiral search: (0,0), (1,0), (1,1), (0,1), (-1,1), ...
+      for each position in spiral order:
+          min_spacing = calculate_min_spacing(existing_villages, position)
+          if all_positions_valid(position, existing_villages, min_spacing):
+              return position
+      # Fallback: return position furthest from any village
+  ```
+
+  ### Spacing Rules
+
+  - Base minimum: 30 cells between village centers
+  - Larger villages need more buffer: `min_distance = max(30, village.structure_count * 2)`
+  - This ensures large cities have room to grow
+
+  ### Implementation
+
+  1. Add `find_village_position()` method to WorldStateManager
+  2. Call it in `get_or_create_project()` when creating new village
+  3. Add configuration for `min_village_distance` in Settings
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: ddaaa0258e90100b36b7642dad2f2244761445b02783f528efa55585320b0d60
+token_count: 450
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-302.yaml

@@ -1,14 +1,14 @@
 id: Q-11
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: KittyApp / NotcursesApp does not integrate with daemon terrain endpoint
 cycle_created: 1
 cycle_modified: null
-content_hash: "8783a6063609200d8fd2623d716b79c3893dd8194503c8cec048231b6ec05617"
-token_count: 77
+description: KittyApp / NotcursesApp does not integrate with daemon terrain endpoint
+domain: visualization
+impact: ""
+resolution: Kitty terrain endpoint integration has been fixed. KittyApp now properly integrates with the daemon terrain endpoint for rendering.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 294a830cd8542e51ba355b79a7379f702b01c3fcdd124318b7b7ff393a572e8b
+token_count: 93
 file_path: .ideate/questions/Q-11.yaml

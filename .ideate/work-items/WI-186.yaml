@@ -1,7 +1,7 @@
 id: WI-186
 type: work_item
 title: Version bump to 0.4.0
-status: pending
+status: obsolete
 complexity: low
 scope: []
 depends: []
@@ -16,17 +16,18 @@ module: null
 domain: null
 notes: |
   # WI-186 Notes: Version bump to 0.4.0
-  
+
   ## Files and exact locations
   - pyproject.toml line 7: version = "0.3.0" -> "0.4.0"
   - .claude-plugin/plugin.json line 3: "version": "0.3.0" -> "0.4.0"
   - src/hamlet/__init__.py line 8: __version__ = "0.3.0" -> "0.4.0"
   - src/hamlet/cli/__init__.py line 29: version="%(prog)s 0.3.0" -> "%(prog)s 0.4.0"
-  
+
   ## Cache note
   The marketplace cache at ~/.claude/plugins/cache/marketplace/hamlet/0.4.0/ will be created when the plugin is published and installed. No action needed during this work item — the cache reflects what's been pushed to the marketplace, not local state.
 cycle_created: 1
 cycle_modified: null
-content_hash: ac67ed43bc3a985d43053ae2d78d68a6fca178222daa81a98464f902f067fecd
-token_count: 317
+content_hash: 8cd3a4cda0d8dfcd0ac6a7224a3dd75ddc01cf8f9685b985cca644894df11be2
+token_count: 311
 file_path: .ideate/work-items/WI-186.yaml
+resolution: Version bump to 0.4.0 - current version is 0.7.0

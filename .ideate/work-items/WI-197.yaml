@@ -1,7 +1,7 @@
 id: WI-197
 type: work_item
 title: stop_reason behavioral differentiation — use telemetry to mark agents IDLE (Q-13)
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -18,30 +18,30 @@ module: null
 domain: null
 notes: |
   # WI-197: stop_reason behavioral differentiation
-  
+
   ## Context
-  
+
   Q-13: When a Stop event arrives with `stop_reason == "tool"` (mid-tool interrupt), Claude Code was interrupted while an agent was actively using a tool. We have accurate telemetry about this. We should use it to immediately transition agents to IDLE and flush pending tools, rather than waiting for zombie TTL to fire.
-  
+
   The zombie state is reserved for agents where we genuinely cannot infer status — where no explicit signal has arrived. When a Stop event provides `stop_reason`, we should trust it.
-  
+
   ## Behavior specification
-  
+
   **stop_reason == "tool"** (interrupted mid-tool):
   - In `inference/engine.py` `_handle_stop()`: evict all `pending_tools` entries for `event.session_id` from `self._state.pending_tools`. Decrement `session.active_tools` accordingly. Call `self._world_state.update_agent(agent_id, state=AgentState.IDLE)` for each agent in the session.
   - In `world_state/manager.py` Stop branch: set agents in the session to IDLE.
-  
+
   **stop_reason == "stop"** (clean exit):
   - Same as "tool" but without flushing pending_tools (a clean stop shouldn't have any pending tools, but defensively still mark agents IDLE).
   - In `inference/engine.py` and `world_state/manager.py`: mark agents IDLE.
-  
+
   **stop_reason is None** (no explicit signal):
   - Do NOT mark agents IDLE. Zombie TTL handles it. This preserves existing behavior.
-  
+
   ## Implementation
-  
+
   ### src/hamlet/inference/engine.py
-  
+
   Find `_handle_stop()`. Add:
   ```python
   if event.stop_reason in ("tool", "stop"):
@@ -58,11 +58,11 @@ notes: |
           for agent_id in session.agent_ids:
               await self._world_state.update_agent(agent_id, state=AgentState.IDLE)
   ```
-  
+
   **Read `_handle_stop` and `InferenceState` carefully before implementing** — the exact key format for `pending_tools` and the session structure need to match what's there.
-  
+
   ### src/hamlet/world_state/manager.py
-  
+
   In the Stop branch of `handle_event()`, add:
   ```python
   if event.stop_reason in ("tool", "stop"):
@@ -73,17 +73,18 @@ notes: |
                   if agent_id in self._state.agents:
                       self._state.agents[agent_id].state = AgentState.IDLE
   ```
-  
+
   Follow the same pattern as the SessionEnd branch (already does this).
-  
+
   ### tests/test_inference_engine.py
-  
+
   Add three tests:
   1. `test_stop_tool_reason_flushes_pending_and_marks_idle`: Set up a session with an agent and pending tools. Send Stop event with `stop_reason="tool"`. Assert pending tools cleared and agent state is IDLE.
   2. `test_stop_clean_reason_marks_idle`: Set up a session with an agent. Send Stop with `stop_reason="stop"`. Assert agent state is IDLE.
   3. `test_stop_no_reason_does_not_mark_idle`: Set up a session with an agent. Send Stop with `stop_reason=None`. Assert agent state is NOT IDLE (zombie TTL handles it).
 cycle_created: 1
 cycle_modified: null
-content_hash: d1cc8bee5814a5991a6bff30d159d25dbe14874b994019fa2086d4118581fc26
-token_count: 1150
+content_hash: 9815f31de1db153831dc31251cee872544bf196a3d0f90b2cd316f00e79bf74c
+token_count: 1158
 file_path: .ideate/work-items/WI-197.yaml
+resolution: "engine.py differentiates stop_reason: tool -> ZOMBIE, stop/end_turn -> despawn"

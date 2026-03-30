@@ -1,7 +1,7 @@
 id: WI-233
 type: work_item
 title: TerrainGenerator — deterministic terrain from seed
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,51 +17,51 @@ module: null
 domain: null
 notes: |
   # WI-233: TerrainGenerator — deterministic terrain from seed
-  
+
   ## Summary
   Implement `TerrainGenerator` class that produces deterministic terrain from a seed using Perlin noise or seeded random.
-  
+
   ## Implementation
-  
+
   ### src/hamlet/world_state/terrain.py
-  
+
   Add to existing file:
-  
+
   ```python
   import random
   from typing import Iterator
-  
+
   try:
       import noise  # type: ignore
       HAS_NOISE = True
   except ImportError:
       HAS_NOISE = False
-  
+
   from .types import Position
-  
-  
+
+
   class TerrainGenerator:
       """Generates terrain deterministically from a seed."""
-  
+
       def __init__(self, config: TerrainConfig | None = None) -> None:
           self._config = config or TerrainConfig()
           self._seed = self._config.seed if self._config.seed is not None else random.randint(0, 2**31 - 1)
           self._random = random.Random(self._seed)
-  
+
       @property
       def seed(self) -> int:
           return self._seed
-  
+
       def generate_terrain(self, position: Position) -> "TerrainType":
           """Generate terrain type for a single position.
-  
+
           Deterministic: same seed + position always returns same terrain type.
           Uses Perlin noise if available, otherwise falls back to seeded random.
           """
           if HAS_NOISE:
               return self._generate_with_noise(position)
           return self._generate_with_random(position)
-  
+
       def _generate_with_noise(self, position: Position) -> "TerrainType":
           """Generate terrain using Perlin noise."""
           x, y = position.x, position.y
@@ -72,12 +72,12 @@ notes: |
           mountain_val = noise.pnoise2(x * self._config.mountain_frequency,
                                        y * self._config.mountain_frequency,
                                        base=self._seed + 1000)
-  
+
           if water_val < self._config.water_threshold:
               return TerrainType.WATER
           if mountain_val > self._config.mountain_threshold:
               return TerrainType.MOUNTAIN
-  
+
           # Use combined noise for forest/meadow/plain
           combined = (water_val + mountain_val) / 2
           if combined < self._config.forest_threshold:
@@ -85,13 +85,13 @@ notes: |
           if combined < self._config.meadow_threshold:
               return TerrainType.MEADOW
           return TerrainType.PLAIN
-  
+
       def _generate_with_random(self, position: Position) -> "TerrainType":
           """Generate terrain using seeded random (fallback when noise lib unavailable)."""
           # Deterministic hash from position
           self._random.seed(self._seed + hash((position.x, position.y)))
           val = self._random.random()
-  
+
           if val < 0.15:  # ~15% water
               return TerrainType.WATER
           if val > 0.90:  # ~10% mountains
@@ -101,31 +101,31 @@ notes: |
           if val < 0.65:  # ~25% meadow
               return TerrainType.MEADOW
           return TerrainType.PLAIN  # ~25% plain
-  
+
       def generate_chunk(
           self,
           bounds: "Bounds"
       ) -> Iterator[tuple[Position, "TerrainType"]]:
           """Generate terrain for all positions within bounds.
-  
+
           Yields (position, terrain_type) tuples for each cell in the bounding box.
           """
           for y in range(bounds.min_y, bounds.max_y + 1):
               for x in range(bounds.min_x, bounds.max_x + 1):
                   pos = Position(x, y)
                   yield pos, self.generate_terrain(pos)
-  
+
       def is_passable(self, position: Position) -> bool:
           """Check if position is passable (not water or mountain)."""
           return self.generate_terrain(position).passable
   ```
-  
+
   ## Dependencies
-  
+
   - pyproject.toml: Add `noise` as optional dependency (or keep as fallback-only)
-  
+
   ## Acceptance Criteria
-  
+
   - `TerrainGenerator(seed=42).generate_terrain(Position(5, 5))` returns same result every time
   - Different seeds produce different terrain at same position
   - All 5 terrain types can be generated
@@ -134,6 +134,7 @@ notes: |
   - Fallback to seeded random works when `noise` library not installed
 cycle_created: 1
 cycle_modified: null
-content_hash: "7035cecfe714eb990ea5e43e4124b22a58cf3c27e524fbc03258cbccec39d364"
-token_count: 1295
+content_hash: 17754b69a89c73a911976b7fa4a413cac54ed2f19ec283e7af95f5eb15dd1a2c
+token_count: 1309
 file_path: .ideate/work-items/WI-233.yaml
+resolution: TerrainGenerator with deterministic terrain, Perlin noise, generate_terrain methods

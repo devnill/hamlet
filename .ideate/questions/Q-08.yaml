@@ -1,14 +1,14 @@
 id: Q-08
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: inference/colors.py potentially dead code
 cycle_created: 1
 cycle_modified: null
-content_hash: "3dbe800605275a51d747f81b1d238e066ebd304c170aaef9e9c37291169cb42b"
-token_count: 70
+description: inference/colors.py potentially dead code
+domain: visualization
+impact: ""
+resolution: The inference/colors.py file was investigated and found to never have existed in the codebase. Color management is consolidated in inference/types.py TYPE_COLORS per domain policy P-05.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 88b2fcf688319371389096b54ede30e74323afb467b5687f27edd89ebc09bb0b
+token_count: 99
 file_path: .ideate/questions/Q-08.yaml

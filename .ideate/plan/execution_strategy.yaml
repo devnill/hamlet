@@ -1,0 +1,44 @@
+id: execution_strategy
+type: execution_strategy
+agent_model: default
+dependency_graph:
+  WI-295: []
+  WI-296:
+    - WI-295
+  WI-297:
+    - WI-295
+  WI-298: []
+  WI-299:
+    - WI-295
+    - WI-296
+    - WI-297
+    - WI-298
+groups:
+  - items:
+      - WI-295
+      - WI-298
+    name: Cursor foundation
+    order: 1
+    parallel: true
+  - items:
+      - WI-296
+      - WI-297
+    name: Cursor display
+    order: 2
+    parallel: true
+  - items:
+      - WI-299
+    name: Integration
+    order: 3
+    parallel: false
+mode: batched_parallel
+notes: |-
+  Group 1 (parallel): CursorState (WI-295) and VillageMenu (WI-298) have no dependencies and can run concurrently.
+  Group 2 (parallel): CursorOverlay (WI-296) and StatusBar summary (WI-297) both depend on CursorState but are independent of each other.
+  Group 3 (sequential): Integration (WI-299) requires all prior work items to be complete.
+parallelism: 2
+review_cadence: incremental
+worktree: false
+content_hash: da0ac03d1d19858a0ed3bcb4911d4734d5fe9ff84071ed2487f23add0da1fb7a
+token_count: 236
+file_path: .ideate/plan/execution_strategy.yaml

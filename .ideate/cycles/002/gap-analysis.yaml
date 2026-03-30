@@ -1,0 +1,56 @@
+id: gap-analysis
+type: cycle_summary
+content: |-
+  ## Gap Analysis Review
+
+  **Verdict: Pass with Recommendations**
+
+  ### Critical Findings
+
+  None.
+
+  ### Significant Findings
+
+  **EC1: Work Unit Accumulation Without Matching Structure**
+  - Component: `/Users/dan/code/hamlet/src/hamlet/inference/engine.py` (line 335-344)
+  - Scenario: An agent performs a tool that maps to a structure type (e.g., Read -> library), but no structure of that type exists in the village yet
+  - Current behavior: `add_work_units` logs a warning and work units are discarded
+  - Impact: Affects GP-08 (agent-driven world building). Work performed by agents should contribute to world growth.
+  - Severity: Significant
+  - Recommendation: Address in future cycle
+
+  **MI1: No Health Check for Hook Script Execution**
+  - Category: Error handling
+  - Gap: The `hamlet doctor` command exists but does not verify that hook scripts can successfully POST to the daemon
+  - Impact: Users may not realize hooks are misconfigured until they notice the game not updating
+  - Severity: Significant
+  - Recommendation: Address in future cycle (aligns with GP-11)
+
+  ### Minor Findings
+
+  Multiple minor findings were identified and appropriately deferred:
+  - MR1: Log rotation for hook errors (deferred per interview)
+  - MR2: Telemetry for work unit accumulation (deferred per C-02)
+  - MR3: Better error visibility in hooks (deferred per GP-07)
+  - EC2: Session without prior PreToolUse receives PostToolUse (handled gracefully)
+  - II1: Q-09 dual color maps may diverge (not an issue - TYPE_COLORS is constant)
+  - II2: Q-15 legend toggle status unclear (may be outdated)
+  - IR1: No confirmation for destructive operations (none exist)
+  - IR2: Live integration test coverage (addressed)
+
+  ### Missing Requirements from Interview
+
+  All identified missing requirements were explicitly deferred in the interview transcript or align with future enhancement plans.
+
+  ### Incomplete Integrations
+
+  No blocking integration gaps identified.
+
+  ### Missing Infrastructure
+
+  MI1 (hook health check) is the only infrastructure gap worth addressing in a future cycle.
+cycle: 2
+reviewer: gap-analyst
+content_hash: b71c2c81fe46a4160c16a871159a617d91bbdf6baf565c7888ceb2a469951254
+token_count: 542
+file_path: .ideate/cycles/002/gap-analysis.yaml

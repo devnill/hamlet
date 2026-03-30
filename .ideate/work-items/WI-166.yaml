@@ -1,13 +1,13 @@
 id: WI-166
 type: work_item
-title: "Add async:true to plugin hooks.json"
-status: pending
+title: Add async:true to plugin hooks.json
+status: done
 complexity: low
 scope: []
 depends: []
 blocks: []
 criteria:
-  - "All four hook entries (PreToolUse, PostToolUse, Notification, Stop) in hooks/hooks.json have \"async\": true"
+  - 'All four hook entries (PreToolUse, PostToolUse, Notification, Stop) in hooks/hooks.json have "async": true'
   - Hook command paths still reference ${CLAUDE_PLUGIN_ROOT}/hooks/pre_tool_use.py etc. unchanged
   - "timeout: 5 remains on all entries"
   - JSON is valid
@@ -15,10 +15,10 @@ module: null
 domain: null
 notes: |
   # WI-166 Notes: Add async:true to plugin hooks.json
-  
+
   ## File to modify
   `hooks/hooks.json`
-  
+
   ## What to change
   Add `"async": true` to each of the four hook command objects. The current structure is:
   ```json
@@ -28,7 +28,7 @@ notes: |
     "timeout": 5
   }
   ```
-  
+
   After change:
   ```json
   {
@@ -38,13 +38,14 @@ notes: |
     "async": true
   }
   ```
-  
+
   Apply to all four hooks: PreToolUse, PostToolUse, Notification, Stop.
-  
+
   ## Why async
   The Python scripts already have a 1-second HTTP timeout internally and exit cleanly. Making hooks async means Claude Code does not wait for the hook to complete before proceeding, eliminating any latency impact on tool calls. This matches the behavior of the now-removed inline hooks in settings.json which were also async.
 cycle_created: 1
 cycle_modified: null
-content_hash: b40f329a7e9e50536c6a19da2085a830cd6cad6c5590b7ff6a3c60e1bc3bc4ab
-token_count: 365
+content_hash: 02881310d06a052a1fb23941991c8e41412003344e82aa3783a36ceede72812a
+token_count: 367
 file_path: .ideate/work-items/WI-166.yaml
+resolution: hooks.json has 15 entries, async:true on non-blocking hooks only

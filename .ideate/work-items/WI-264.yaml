@@ -1,7 +1,7 @@
 id: WI-264
 type: work_item
 title: Add min_village_distance to Settings
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -19,13 +19,13 @@ module: null
 domain: null
 notes: |
   # WI-264: Add min_village_distance to Settings
-  
+
   ## Implementation Notes
-  
+
   ### Settings changes (settings.py)
-  
+
   Add `min_village_distance: int = 15` field to the `Settings` dataclass after `zombie_threshold_seconds`.
-  
+
   Add validation in `_validate()`:
   ```python
   if isinstance(self.min_village_distance, bool) or not isinstance(self.min_village_distance, int):
@@ -33,33 +33,34 @@ notes: |
   if self.min_village_distance <= 0:
       raise ValueError(f"min_village_distance must be > 0, got: {self.min_village_distance!r}")
   ```
-  
+
   Update the docstring example to include the new field.
-  
+
   ### WorldStateManager changes (manager.py)
-  
+
   Currently `MIN_VILLAGE_DISTANCE = 15` is a class constant at line 52.
-  
+
   Change `__init__` to accept the configurable value. The daemon passes `Settings` through `build_components` in `app_factory.py`. Check how `terrain_config` is passed — follow the same pattern.
-  
+
   Look at `app_factory.py:build_components()` to see how `WorldStateManager` is constructed. The `terrain_config` parameter is already passed there. Add `min_village_distance` from settings in the same place.
-  
+
   Replace the class constant with an instance attribute:
   ```python
   def __init__(self, persistence, terrain_config=None, min_village_distance=15):
       ...
       self._min_village_distance = min_village_distance
   ```
-  
+
   Update `_find_village_position()` (line ~253) and `_create_village()` (line ~1111) to use `self._min_village_distance` instead of `self.MIN_VILLAGE_DISTANCE`.
-  
+
   ### Scope boundary
-  
+
   Do NOT modify app_factory.py in this work item — that wiring is handled by WI-266 (config reload) which depends on this item.
-  
+
   Actually, the wiring in app_factory.py is needed for the setting to take effect. Include minimal wiring: pass `settings.min_village_distance` to `WorldStateManager()` in `build_components()`.
 cycle_created: 1
 cycle_modified: null
-content_hash: "6948e0488909dadc06d390b8ad8f754a8577b78818c3209dc3950fd676b0c0f3"
-token_count: 690
+content_hash: 1eddcffd42b5bd546579853343a7cf9213fce23929f1976d123f872beaac79d6
+token_count: 697
 file_path: .ideate/work-items/WI-264.yaml
+resolution: min_village_distance in Settings and used in WorldStateManager

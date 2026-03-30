@@ -1,0 +1,32 @@
+id: WI-298
+type: work_item
+title: Add VillageMenu overlay with village list and jump functionality
+status: done
+complexity: medium
+scope:
+  - op: create
+    path: src/hamlet/tui/village_menu.py
+  - op: modify
+    path: src/hamlet/world_state/manager.py
+  - op: create
+    path: tests/test_village_menu.py
+depends: []
+blocks: []
+criteria:
+  - VillageMenu widget exists in tui/village_menu.py
+  - "Displays all villages: name, project name, agent count, structure count"
+  - Keybinding 'v' toggles VillageMenu visibility
+  - Arrow keys or j/k navigate selection within menu
+  - Enter jumps to selected village center (sets ViewportManager.center)
+  - Escape or 'v' closes the menu
+  - Menu is modal overlay with higher z-index than cursor
+  - Current village highlighted in list
+  - WorldStateManager.get_all_villages() returns list of all villages
+domain: visualization
+notes: "# WI-298: Add VillageMenu overlay with village list and jump functionality"
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: bf03ea57a4040c43dded3c734887714d173ec1ef45fce28c6dffe0ddfe21ebbf
+token_count: 252
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-298.yaml

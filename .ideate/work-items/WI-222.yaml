@@ -1,7 +1,7 @@
 id: WI-222
 type: work_item
 title: "stop_reason behavioral differentiation: tool -> ZOMBIE, others -> despawn"
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -19,19 +19,19 @@ module: null
 domain: null
 notes: |
   # WI-222 Implementation Notes
-  
+
   ## Context
-  
+
   In `src/hamlet/inference/engine.py`, `_handle_stop` currently calls `despawn_agent` for all
   stop reasons in {"tool", "stop", "end_turn"}.
-  
+
   Change: for stop_reason=="tool" (mid-tool interruption), transition agents to ZOMBIE instead
   of despawning — they may resume. For clean stops, despawn immediately.
-  
+
   ## Changes to `src/hamlet/inference/engine.py`
-  
+
   In `_handle_stop`, split the behavior on stop_reason:
-  
+
   ```python
   if event.stop_reason == "tool":
       # Flush pending tools (existing code)
@@ -56,11 +56,11 @@ notes: |
                   logger.exception("_handle_stop: failed to despawn agent %s", agent_id)
   # stop_reason==None: update last_seen only (existing behavior, no change)
   ```
-  
+
   ## Tests
-  
+
   Mock `self._world_state` with AsyncMock. Set up sessions and agents in `self._state`.
-  
+
   Test cases:
   1. stop_reason="tool": assert update_agent called with state=AgentState.ZOMBIE, despawn_agent NOT called
   2. stop_reason="stop": assert despawn_agent called, update_agent(state=ZOMBIE) NOT called
@@ -68,6 +68,7 @@ notes: |
   4. stop_reason=None: assert neither called
 cycle_created: 1
 cycle_modified: null
-content_hash: "75730a008f03975144ad9cbeca070512814fb68d35f3d98042e497872da47f35"
-token_count: 759
+content_hash: 865346be3672b9b1a26f5897270f82e27cd26f92ed749e5e685b3510599f2620
+token_count: 764
 file_path: .ideate/work-items/WI-222.yaml
+resolution: "stop_reason behavioral differentiation: tool -> ZOMBIE, others -> despawn"

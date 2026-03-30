@@ -1,7 +1,7 @@
 id: WI-161
 type: work_item
 title: Create initial village structures on village founding
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -16,18 +16,18 @@ module: null
 domain: null
 notes: |
   # WI-161: Create initial village structures on village founding
-  
+
   ## Context
   `add_work_units()` in `manager.py:511-521` finds the nearest structure of the given type and silently returns when none exists. Nothing proactively creates initial structures (LIBRARY, WORKSHOP, FORGE) when a village is founded.
-  
+
   On a fresh world, villages have zero structures, so every work unit from every tool call is dropped. Structure-building mechanic (GP-8) is permanently broken on a new world.
-  
+
   ## Fix
-  
+
   ### src/hamlet/world_state/manager.py — get_or_create_village (or equivalent founding method)
-  
+
   When a NEW village is created (not loaded from persistence), seed it with initial structures:
-  
+
   ```python
   # After creating the village record, create initial structures
   initial_structure_types = [StructureType.LIBRARY, StructureType.WORKSHOP, StructureType.FORGE]
@@ -37,9 +37,9 @@ notes: |
       position = Position(x=village.center.x + offset_x, y=village.center.y + 1)
       self._create_structure(village_id=village.id, structure_type=structure_type, position=position)
   ```
-  
+
   The `_create_structure` (or equivalent) method already exists and is called from `expansion.py:106`.
-  
+
   ## Notes
   - Read manager.py to understand how villages are created and what `_create_structure` (or `create_structure`) looks like
   - Read expansion.py to see how `create_structure` is called — replicate that pattern
@@ -48,6 +48,7 @@ notes: |
   - Initial structures should have stage=0, material="wood" (earliest stage)
 cycle_created: 1
 cycle_modified: null
-content_hash: f2d51d958b34e92cc1dcc886cb4d19c7625aceebe6f0be991d73c8ed468e21fa
-token_count: 667
+content_hash: 360eb3e514ddcdea1eb2f8674ca8d05ca1c4e01b4d6cebe2dcb449d9029c47d2
+token_count: 669
 file_path: .ideate/work-items/WI-161.yaml
+resolution: _seed_initial_structures called for new villages

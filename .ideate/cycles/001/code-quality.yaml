@@ -1,0 +1,53 @@
+id: code-quality
+type: cycle_summary
+content: |
+  # Code Quality Review — Cycle 001
+
+  ## Verdict: Fail
+
+  One test failure and multiple unmet acceptance criteria indicate issues that need attention.
+
+  ## Critical Findings
+
+  ### C1: Test failure - terrain validation breaks test
+  - **File**: `tests/test_e2e_persistence_roundtrip.py:375-379`
+  - **Issue**: The test `test_checkpoint_ensures_durability` attempts to create a `WORKSHOP` at `Position(10, 10)`, but the world state manager now validates terrain before allowing structure creation. If position (10, 10) has water terrain, the test fails.
+  - **Impact**: Test suite fails, blocking CI/CD pipelines.
+  - **Suggested fix**: Mock `_terrain_grid` to return passable terrain, or use a position guaranteed to be passable.
+
+  ## Significant Findings
+
+  ### S1: Missing test for stale handle behavior (WI-285)
+  - **File**: `tests/test_kitty_sprites.py`
+  - **Issue**: WI-285 acceptance criteria states "Tests verify stale handle behavior". Implementation correctly returns empty string on stale handle, but no test verifies this.
+  - **Impact**: Regression protection incomplete.
+  - **Suggested fix**: Add test that creates handle, calls cleanup(), then calls get_upload_sequence() to verify empty string return.
+
+  ### S2: Missing test for PostToolUseFailure active_tools decrement (WI-288)
+  - **File**: `tests/test_inference_engine.py`
+  - **Issue**: WI-288 acceptance criteria requires tests verifying PostToolUseFailure processing. Only last_seen update is tested, not active_tools decrement.
+  - **Impact**: Core failure handling logic untested.
+  - **Suggested fix**: Add dedicated test for pending tool eviction and active_tools decrement.
+
+  ## Minor Findings
+
+  ### M1: PreToolUse and PostToolUse hooks do not use cwd field
+  - **File**: `hooks/pre_tool_use.py:29-30`, `hooks/post_tool_use.py:33-34`
+  - **Issue**: Hooks that receive cwd field should call `os.chdir(cwd)` before finding config. These hooks follow older pattern.
+  - **Suggested fix**: Consider updating to v0.4.0+ pattern if cwd handling is needed for multi-project scenarios.
+
+  ### M2: No test coverage for StopFailure error field as string (WI-287)
+  - **File**: `tests/test_hooks.py:417-442`
+  - **Issue**: WI-287 acceptance criteria states "Tests verify both string and dict error formats". Only dict format is tested.
+  - **Suggested fix**: Add test for string format case.
+
+  ## Unmet Acceptance Criteria
+
+  - WI-285: "Tests verify stale handle behavior" — No test exists
+  - WI-287: "Tests verify both string and dict error formats" — Only dict tested
+  - WI-288: "Tests verify PostToolUseFailure processing" — Only last_seen tested
+cycle: 1
+reviewer: code-reviewer
+content_hash: b8e4983ff9f2af6ce01480678ce2c01673c8f71f2a33b0e54826dbca7681a917
+token_count: 677
+file_path: .ideate/cycles/001/code-quality.yaml

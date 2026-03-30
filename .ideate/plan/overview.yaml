@@ -1,42 +1,72 @@
 id: overview
 type: overview
-title: "Change Plan — refine-21: Fix StatusBar dead code, validation schema, and Kitty test gaps"
-content: |
-  # Change Plan — refine-21: Fix StatusBar dead code, validation schema, and Kitty test gaps
-  
-  ## What is changing and why
-  
-  Two live bugs and two test coverage gaps from cycle 017.
-  
-  ### Bug 1: StatusBar never updates (WI-287)
-  `HamletApp._update_state()` (tui/app.py:178) is dead code — nothing calls it. This method is responsible for pushing agent_count, structure_count, village_name, viewport_pos, and current_activity to the StatusBar widget, and events to the EventLog widget. The status bar permanently shows zeros despite the daemon having data and WorldView rendering correctly (WorldView has its own refresh loop via `_update_animation_frame`).
-  
-  ### Bug 2: PostToolUseFailure events rejected (WI-288)
-  `EVENT_SCHEMA` in validation.py declares the `error` field as `["object", "null"]`, but the PostToolUseFailure hook sends `error` as a string. The daemon returns HTTP 400 for every PostToolUseFailure event.
-  
-  ### Cycle 017 G1: Agent symbol not tested (WI-289)
-  The Kitty integration test `test_render_frame_produces_terrain_symbols` only checks terrain symbols. No test asserts that agent `@` appears in render output.
-  
-  ### Cycle 017 G2: Empty state not tested (WI-290)
-  No integration test covers the Kitty pipeline with empty agents/structures/villages (fresh daemon installation).
-  
-  ## Scope Boundary
-  
-  **Changing:**
-  - `src/hamlet/tui/app.py` — wire `_update_state()` into `_refresh_remote_state()`
-  - `src/hamlet/mcp_server/validation.py` — accept string type for error field
-  - `tests/test_kitty_integration.py` — add agent symbol and empty-state tests
-  - `tests/fixtures/daemon_state_empty.json` — new empty-state fixture
-  
-  **Not changing:** Daemon, hooks, Kitty viewer, Textual WorldView, terrain, persistence, simulation, CLI, architecture.
-  
-  ## Work Items
-  
-  | ID | Title |
-  |----|-------|
-  | WI-287 | Wire _update_state into refresh loop |
-  | WI-288 | Fix validation schema error field type |
-  | WI-289 | Add agent symbol assertion to Kitty integration test |
-  | WI-290 | Add empty-state Kitty integration test |
-content_hash: a0159f3beffd0c7d44a28a9015f343cbdf17cc0392d36bb4ed767fd6c89973d8
-token_count: 549
+content: |-
+  ## Change Plan — Viewport Cursor with Info Display
+
+  **Trigger**: New feature request — user wants visual feedback about what's under the viewport center and ability to navigate between villages.
+
+  **Scope**: ASCII/Textual backend only. No changes to Kitty backend, world simulation, or persistence.
+
+  ### What's Changing
+
+  1. **Cursor visibility at viewport center** — A cursor character appears at viewport center after movement keys, fades after 3 seconds of inactivity.
+
+  2. **Cursor summary in status bar** — Shows information about the item at viewport center (agent type/activity, structure type/tier, village name, or terrain type).
+
+  3. **Village menu overlay** — Press 'v' to list all villages with counts, select to jump viewport to that village.
+
+  ### Scope Boundary
+
+  **In scope:**
+  - New modules: `tui/cursor.py`, `tui/cursor_overlay.py`, `tui/village_menu.py`
+  - Modifications: `tui/app.py`, `tui/status_bar.py`, `world_state/manager.py`
+  - New tests: `test_cursor.py`, `test_cursor_overlay.py`, `test_village_menu.py`
+  - Integration tests in `test_tui_app.py`
+
+  **Not in scope:**
+  - Kitty graphical backend changes
+  - World simulation changes
+  - Persistence/database changes
+  - Hook system changes
+
+  ### Work Items
+
+  | ID | Title | Complexity | Dependencies |
+  |----|-------|------------|--------------|
+  | WI-295 | Add CursorState to track visibility and selection | small | none |
+  | WI-296 | Implement CursorOverlay widget | small | WI-295 |
+  | WI-297 | Display cursor summary in StatusBar | medium | WI-295 |
+  | WI-298 | Add VillageMenu overlay with jump functionality | medium | none |
+  | WI-299 | Wire cursor to movement keys and integrate | small | WI-295, WI-296, WI-297, WI-298 |
+
+  ### Dependency Graph
+
+  ```
+  WI-295 (CursorState)
+     |
+     +---> WI-296 (CursorOverlay)
+     |
+     +---> WI-297 (StatusBar summary)
+     
+  WI-298 (VillageMenu) [parallel with above]
+     
+  WI-295 + WI-296 + WI-297 + WI-298
+     |
+     +---> WI-299 (Integration)
+  ```
+
+  ### Expected Impact
+
+  - **User experience**: Clearer understanding of what's at viewport center; easier navigation between villages
+  - **Code impact**: New overlay widgets following existing patterns (LegendOverlay, HelpOverlay); minor StatusBar extension
+  - **Performance**: Negligible — cursor visibility check is O(1), summary query uses existing viewport bounds
+
+  ### Guiding Principles Alignment
+
+  - **GP-1 (Visual Interest)**: Cursor adds visual feedback without cluttering the view
+  - **GP-7 (Graceful Degradation)**: Cursor fades away if not interacted with
+  - **GP-11 (Low-Friction Setup)**: No new configuration required
+cycle: null
+content_hash: ea28934fac12164db625db5b01aca3c1a3c7c3619cbba996620bafe28a607219
+token_count: 675
+file_path: .ideate/plan/overview.yaml

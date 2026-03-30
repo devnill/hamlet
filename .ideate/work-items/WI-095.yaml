@@ -1,7 +1,7 @@
 id: WI-095
 type: work_item
 title: Application Wiring and Orchestration
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -19,13 +19,13 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 095 - Application Wiring and Orchestration
-  
+
   ## Scope
-  
+
   Wire all components together in the main entry point.
-  
+
   ## Component Initialization Order
-  
+
   ```
   1. Config (Settings.load())
   2. PersistenceFacade (needs config.db_path)
@@ -35,11 +35,11 @@ notes: |
   6. MCPServer (needs event_processor)
   7. HamletApp (needs all of above)
   ```
-  
+
   ## Implementation
-  
+
   ### src/hamlet/__main__.py (revised)
-  
+
   ```python
   import asyncio
   import signal
@@ -51,39 +51,39 @@ notes: |
   from hamlet.mcp_server.server import MCPServer
   from hamlet.viewport.manager import ViewportManager
   from hamlet.tui.app import HamletApp
-  
+
   async def main_async():
       settings = Settings.load()
-  
+
       # Initialize persistence
       persistence = PersistenceFacade(db_path=settings.db_path)
       await persistence.start()
-  
+
       # Initialize world state
       world_state = WorldStateManager(persistence)
       await world_state.load_from_persistence(await persistence.load_state())
-  
+
       # Initialize event processing
       event_processor = EventProcessor()
-  
+
       # Initialize simulation
       simulation = SimulationEngine(world_state)
       await simulation.start()
-  
+
       # Initialize MCP server
       mcp_server = MCPServer(event_queue=event_processor.get_queue())
       await mcp_server.start()
-  
+
       # Wire event processor to world state
       event_processor.set_world_state(world_state)
       await event_processor.start()
-  
+
       # Create viewport
       viewport = ViewportManager(world_state)
-  
+
       # Run TUI
       app = HamletApp(world_state, viewport, event_processor)
-  
+
       try:
           await app.run_async()
       finally:
@@ -92,7 +92,7 @@ notes: |
           await mcp_server.stop()
           await simulation.stop()
           await persistence.stop()
-  
+
   def main():
       try:
           asyncio.run(main_async())
@@ -101,25 +101,25 @@ notes: |
       except Exception as e:
           print(f"Error: {e}")
           raise
-  
+
   if __name__ == "__main__":
       main()
   ```
-  
+
   ## Dependencies
-  
+
   - EventProcessor needs method to set_world_state (may not exist yet)
   - MCPServer needs event_queue parameter (may need to add)
   - All components need proper start/stop methods
-  
+
   ## Error Handling
-  
+
   - Component start failure → Log error, continue with degraded functionality (GP-7)
   - Shutdown failure → Log warning, don't hang
   - TUI crash → Clean up all components
-  
+
   ## Testing
-  
+
   ```python
   @pytest.mark.asyncio
   async def test_main_initializes_all_components():
@@ -129,6 +129,7 @@ notes: |
   ```
 cycle_created: 1
 cycle_modified: null
-content_hash: d41c023291ba656ca1a144eca5303be261450db48644cfd88545342184ba0a0f
-token_count: 981
+content_hash: 417c50c9c084cf428f3c64381546590669013e3e2d62b520071f376f3482af3c
+token_count: 1004
 file_path: .ideate/work-items/WI-095.yaml
+resolution: app_factory.py with ComponentBundle, build_components(), shutdown_components()

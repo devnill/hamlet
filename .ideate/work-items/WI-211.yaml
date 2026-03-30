@@ -1,7 +1,7 @@
 id: WI-211
 type: work_item
 title: Inference engine despawn logic and zombie TTL config
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -9,7 +9,7 @@ blocks: []
 criteria:
   - "`Settings` has `zombie_despawn_seconds: int = 300`"
   - "`InferenceState` has `zombie_since: dict[str, datetime]` field"
-  - "`_handle_stop()`: when stop_reason is authoritative (\"tool\", \"stop\", \"end_turn\"), calls `despawn_agent()` for all session agents instead of marking IDLE; cleans up `_state.last_seen` and `zombie_since` entries"
+  - '`_handle_stop()`: when stop_reason is authoritative ("tool", "stop", "end_turn"), calls `despawn_agent()` for all session agents instead of marking IDLE; cleans up `_state.last_seen` and `zombie_since` entries'
   - "`_update_zombie_states()`: when an agent transitions to ZOMBIE, records timestamp in `zombie_since`"
   - "`_update_zombie_states()`: agents in `zombie_since` longer than `zombie_despawn_seconds` are despawned via `despawn_agent()` and removed from `zombie_since` and `last_seen`"
   - On daemon startup, `zombie_since` is seeded for all loaded agents (from WI-208) using `agent.last_seen` as the zombie timestamp, so long-inactive agents despawn promptly
@@ -19,23 +19,23 @@ module: null
 domain: null
 notes: |
   # WI-211 Implementation Notes: Inference engine despawn logic + zombie TTL config
-  
+
   ## Context
-  
+
   Depends on WI-210 (`despawn_agent()` must exist on `WorldStateManager`).
   Depends on WI-208 (agents start as ZOMBIE on load — this work item seeds `zombie_since`
   from those loaded agents so they despawn promptly if inactive long enough).
-  
+
   ## Settings change
-  
+
   In `src/hamlet/config/settings.py`, add:
   ```python
   zombie_despawn_seconds: int = 300
   ```
   Follow the existing `Settings` dataclass pattern.
-  
+
   ## InferenceState change
-  
+
   In `src/hamlet/inference/types.py`, add `zombie_since` to `InferenceState`:
   ```python
   @dataclass
@@ -46,18 +46,18 @@ notes: |
       last_seen: dict[str, datetime] = field(default_factory=dict)
       zombie_since: dict[str, datetime] = field(default_factory=dict)  # NEW
   ```
-  
+
   ## AgentInferenceEngine changes
-  
+
   The engine is in `src/hamlet/inference/engine.py`. It already has
   `ZOMBIE_THRESHOLD_SECONDS = 300`. Add `DESPAWN_THRESHOLD_SECONDS` read from settings,
   or pass the setting into the constructor.
-  
+
   ### _handle_stop() — session end = immediate despawn
-  
+
   Current behavior: marks session agents IDLE when stop_reason is authoritative.
   New behavior: despawns session agents immediately.
-  
+
   ```python
   # Replace the IDLE block (around line 380-386):
   if session:
@@ -70,9 +70,9 @@ notes: |
           except Exception:
               logger.exception("_handle_stop: failed to despawn agent %s", agent_id)
   ```
-  
+
   ### _update_zombie_states() — record zombie_since + TTL despawn
-  
+
   After marking an agent ZOMBIE, record the transition time:
   ```python
   if self._check_zombie(agent_id):
@@ -80,7 +80,7 @@ notes: |
       if agent_id not in self._state.zombie_since:
           self._state.zombie_since[agent_id] = datetime.now(UTC)
   ```
-  
+
   Then add a despawn pass after the zombie-marking loop:
   ```python
   despawn_cutoff = datetime.now(UTC) - timedelta(seconds=self.DESPAWN_THRESHOLD_SECONDS)
@@ -93,15 +93,15 @@ notes: |
           except Exception:
               logger.exception("_update_zombie_states: failed to despawn agent %s", agent_id)
   ```
-  
+
   ### Startup seeding of zombie_since
-  
+
   When the daemon starts, WI-208 loads all agents as ZOMBIE. The inference engine's
   `zombie_since` is empty, so TTL despawn would never fire for them.
-  
+
   After `AgentInferenceEngine` starts (or in a `startup()` method), seed `zombie_since`
   from world state:
-  
+
   ```python
   async def startup(self) -> None:
       """Seed zombie_since from agents already in ZOMBIE state at startup."""
@@ -111,28 +111,29 @@ notes: |
               # Use last_seen from DB as the zombie start time
               self._state.zombie_since[agent.id] = agent.last_seen
   ```
-  
+
   Call this from `SimulationEngine.start()` or `app_factory.py` after components are built.
-  
+
   ### Resurrection
-  
+
   No special handling needed. If a despawned agent receives a new PreToolUse event,
   `get_or_create_agent()` on WorldStateManager creates a fresh agent entity. The inference
   engine treats it as a new agent.
-  
+
   ## Tests
-  
+
   In `tests/test_inference_engine.py`:
   - Session-end despawn: mock world_state.despawn_agent; fire Stop with authoritative
     stop_reason; assert despawn_agent called for all session agents
   - Zombie TTL: put agent in zombie_since with old timestamp; call tick(); assert despawn_agent called
   - Short-lived zombie: put agent in zombie_since with recent timestamp; assert NOT despawned
   - Resurrection: despawn agent; send new PreToolUse for same session; assert new agent created
-  
+
   In `tests/test_settings.py`:
   - Verify `zombie_despawn_seconds` defaults to 300
 cycle_created: 1
 cycle_modified: null
-content_hash: "6370908f375c57ae786eaebdfe135a3667722b1f3a9f1c2ca70c3e40d9ef286a"
-token_count: 1469
+content_hash: c0c8fdc96acdf8ab26d30835c33b14b9845de60febbf5b9308ad2e4691ec8f96
+token_count: 1489
 file_path: .ideate/work-items/WI-211.yaml
+resolution: Inference engine despawn logic and zombie TTL config implemented

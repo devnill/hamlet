@@ -1,13 +1,13 @@
 id: WI-203
 type: work_item
 title: Update README.md Quick Start section
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
 blocks: []
 criteria:
-  - "README.md Quick Start step 1 covers project initialization via /hamlet:init (in-Claude) or `hamlet init` CLI"
+  - README.md Quick Start step 1 covers project initialization via /hamlet:init (in-Claude) or `hamlet init` CLI
   - README.md Quick Start shows `hamlet daemon` as a separate step before opening the viewer
   - README.md Quick Start step for opening the viewer uses `hamlet` or `hamlet view`
   - README.md Quick Start is consistent with the flow described in QUICKSTART.md
@@ -15,66 +15,67 @@ module: null
 domain: null
 notes: |
   # WI-203: Update README.md Quick Start section
-  
+
   ## Context
-  
+
   The README.md Quick Start section (currently lines 20-31) is:
   ```markdown
   ## Quick Start
-  
+
   1. **Install hooks** (one-time setup):
      ```bash
      hamlet install
      ```
-  
+
   2. **Run Hamlet**:
      ```bash
      hamlet
      ```
-  
+
   3. **Use Claude Code normally** - your village will grow as you work!
   ```
-  
+
   This is missing:
   - Project initialization step (`/hamlet:init` or `hamlet init`)
   - The daemon as a separate step before the viewer
-  
+
   ## Target
-  
+
   Replace the Quick Start section with a flow consistent with QUICKSTART.md:
-  
+
   ```markdown
   ## Quick Start
-  
+
   1. **Initialize this project** (one-time per project):
      - In a Claude Code session: use the `/hamlet:init` skill
      - Or from the terminal: `hamlet init`
-  
+
   2. **Connect Claude Code** (one-time global setup):
      - Plugin users: hooks are registered automatically — skip this step
      - Others: `hamlet install`, then restart Claude Code
-  
+
   3. **Start the daemon**:
      ```bash
      hamlet daemon
      ```
-  
+
   4. **Open the viewer** (in a separate terminal):
      ```bash
      hamlet
      ```
-  
+
   5. **Use Claude Code normally** — your village grows as you work!
   ```
-  
+
   ## Key Points for Executor
-  
+
   - Only modify the Quick Start section (lines 20-31 approximately). Leave all other README sections unchanged.
   - Keep consistent with WI-202 (QUICKSTART.md) — use the same flow and terminology.
   - The plugin note for step 2 should be concise — one line or a parenthetical.
   - Do not expand the README Quick Start to match QUICKSTART.md's depth — README is intentionally brief, QUICKSTART has the detail.
 cycle_created: 1
 cycle_modified: null
-content_hash: "672b2d78dee4a985d59d20a1f97c044fb279d7434c265448606a5305f82423d0"
-token_count: 571
+content_hash: 751d44f4c1006f96e04cff33012a858bfb0e518e25ee33555a7d5036977cfbc7
+token_count: 574
 file_path: .ideate/work-items/WI-203.yaml
+resolution: README.md Quick Start section is current

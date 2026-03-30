@@ -1,0 +1,31 @@
+id: WI-297
+type: work_item
+title: Display cursor summary in StatusBar for item under viewport center
+status: done
+complexity: medium
+scope:
+  - op: modify
+    path: src/hamlet/tui/status_bar.py
+depends:
+  - WI-295
+blocks: []
+criteria:
+  - "StatusBar has new reactive property: cursor_summary (str)"
+  - When cursor visible, summary shows item at viewport center
+  - |-
+    Priority: Agent > Structure > Village > Terrain
+    Agent summary: type, current_activity, village name (e.g., 'coder, Read, foo')
+  - "Structure summary: type, tier, village name (e.g., 'House L3, foo')"
+  - "Village summary: village name, project name, agent count (e.g., 'foo (proj), 5 agents')"
+  - "Terrain summary: terrain type (e.g., 'plain', 'water')"
+  - Summary cleared when cursor hidden
+  - _query_cursor_summary() method in HamletApp queries WorldState
+  - StatusBar displays cursor_summary when non-empty
+domain: visualization
+notes: "# WI-297: Display cursor summary in StatusBar for item under viewport center"
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: ca20e0e61ea37df50b3f80381d358ebbb0bd5ebfc8e6ef1d3e4ccf3eb6171776
+token_count: 264
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-297.yaml

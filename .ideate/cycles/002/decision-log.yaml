@@ -1,0 +1,115 @@
+id: decision-log
+type: cycle_summary
+content: |-
+  ## Decision Log
+
+  ### Planning Phase
+
+  **When**: Planning — interview Q1
+  **Decision**: Execute a housekeeping cycle to address open questions and fix bugs found during investigation
+  **Rationale**: User reported hamlets not growing despite active work sessions; 23 open questions in visualization domain needed resolution
+  **Implications**: Cycle would focus on closing resolved questions and fixing critical bugs
+
+  **When**: Planning — interview Q2
+  **Decision**: Investigate all 23 open questions, close resolved/invalid ones, and fix Q-09 (color map consolidation), Q-12/Q-18 (SpriteManager crash)
+  **Rationale**: These were the highest-priority issues affecting visual correctness and stability
+  **Implications**: Work items WI-283 through WI-288 defined to address these issues
+
+  ### Execution Phase — Cycle 001
+
+  **When**: Execution — WI-283
+  **Decision**: Close 19 questions as resolved, mark Q-04 as deferred
+  **Rationale**: Questions addressed by existing code or obsolete design decisions
+  **Implications**: Q-12 and Q-18 were missed and remained open (gap identified in review)
+
+  **When**: Execution — WI-286
+  **Decision**: Change tool_name extraction from `hook_input['data']['tool_name']` to `hook_input.get('tool_name', '')`
+  **Rationale**: The actual hook input format has tool_name at top level, not nested under data
+  **Implications**: Work units now correctly accumulate; structures can be built
+
+  ### Review Phase — Cycle 001
+
+  **When**: Review — Cycle 001 code-quality review
+  **Decision**: Mark cycle as "Fail" due to unmet acceptance criteria
+  **Rationale**: WI-285 missing stale handle test; WI-287 only dict format tested; WI-288 only last_seen tested
+  **Implications**: Refinement cycle required to add missing test coverage
+
+  ### Execution Phase — Cycle 002
+
+  **When**: Execution — WI-289
+  **Decision**: Add stale handle test in test_kitty_sprites.py
+  **Rationale**: Gap identified in Cycle 001 review — core fix was untested
+  **Implications**: SpriteManager stale handle behavior now verified
+
+  **When**: Execution — WI-290
+  **Decision**: Add PostToolUseFailure counter decrement test
+  **Rationale**: Gap identified in Cycle 001 review — active_tools decrement was untested
+  **Implications**: PostToolUseFailure handling now fully tested
+
+  **When**: Execution — WI-291
+  **Decision**: Add StopFailure string format test
+  **Rationale**: Gap identified in Cycle 001 review — only dict format was tested
+  **Implications**: Both string and dict error formats now verified
+
+  **When**: Execution — WI-292
+  **Decision**: Close Q-12 and Q-18 with resolution referencing WI-285
+  **Rationale**: Both questions describe the stale handle bug fixed by WI-285
+  **Implications**: All questions from visualization domain now properly resolved or deferred
+
+  ---
+
+  ## Open Questions
+
+  ### OQ-01: Work Unit Accumulation Without Matching Structure
+  **Question**: Should work units be accumulated when an agent performs a tool that maps to a structure type not yet existing?
+  **Source**: Gap analysis EC1 (Cycle 002)
+  **Impact**: Work performed by agents is discarded if no matching structure exists, affecting GP-08
+  **Who answers**: Design review
+  **Consequence of inaction**: Users may observe hamlets not growing despite active agent work sessions
+
+  ### OQ-02: No Health Check for Hook Script Execution
+  **Question**: Should `hamlet doctor` verify hook script connectivity?
+  **Source**: Gap analysis MI1 (Cycle 002)
+  **Impact**: Users may not realize hooks are misconfigured
+  **Who answers**: Technical investigation per GP-11
+  **Consequence of inaction**: Silent failures during setup lead to user frustration
+
+  ### OQ-03: Viewport Persistence
+  **Question**: Should viewport center position persist across sessions?
+  **Source**: Q-04 (deferred)
+  **Impact**: Users lose viewport position when restarting
+  **Who answers**: Design review
+  **Consequence of inaction**: Minor UX friction
+
+  ### OQ-04: Legend Toggle Functionality
+  **Question**: Should the legend toggle in graphical viewer do something?
+  **Source**: Q-15 (open)
+  **Impact**: Legend toggle is a no-op
+  **Who answers**: Technical investigation
+  **Consequence of inaction**: Confusing non-functional UI element
+
+  ### OQ-05: Terrain Validation Test Failure
+  **Question**: How should e2e persistence test handle terrain validation?
+  **Source**: Code quality S1 (Cycle 002)
+  **Impact**: Test fails intermittently when hardcoded positions fall on impassable terrain
+  **Who answers**: Technical investigation
+  **Consequence of inaction**: CI instability
+
+  ### OQ-06: Terrain Smoothing Performance Test
+  **Question**: Should the 100ms threshold for terrain smoothing be increased?
+  **Source**: Code quality S2 (Cycle 002)
+  **Impact**: Test consistently fails (~113-120ms)
+  **Who answers**: Technical investigation
+  **Consequence of inaction**: Test fails on slower machines
+
+  ### OQ-07: Q-09 Status Inconsistency
+  **Question**: Why is Q-09 still open when WI-284 consolidated color maps?
+  **Source**: Gap analysis II1 (Cycle 002)
+  **Impact**: Potential confusion about whether color map consolidation is complete
+  **Who answers**: Technical investigation to verify TYPE_COLORS is single source
+  **Consequence of inaction**: Open question remains despite resolution
+cycle: 2
+reviewer: journal-keeper
+content_hash: b47860a8c8d555df71722aad2a7873b38ca54da5fd3f074bef414e30f76775e2
+token_count: 1349
+file_path: .ideate/cycles/002/decision-log.yaml

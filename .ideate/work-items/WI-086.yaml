@@ -1,7 +1,7 @@
 id: WI-086
 type: work_item
 title: TUI Widget Tests - StatusBar, EventLog, Legend
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -20,45 +20,45 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 086 - TUI Widget Tests
-  
+
   ## Scope
-  
+
   Test StatusBar, EventLog, and LegendOverlay widgets using Textual's testing patterns.
-  
+
   ## Testing Patterns
-  
+
   ### Textual Widget Tests
-  
+
   Use Textual's built-in testing:
-  
+
   ```python
   from textual.testing import TestApp
-  
+
   async def test_status_bar():
       class TestStatusApp(TestApp):
           def compose(self):
               yield StatusBar()
-  
+
       async with TestStatusApp().run_test() as pilot:
           status = pilot.app.query_one(StatusBar)
           status.agent_count = 5
           await pilot.pause()
           # Verify render output
   ```
-  
+
   Test reactive properties:
-  
+
   ```python
   def test_reactive_update():
       bar = StatusBar()
       bar.agent_count = 10
       assert bar.agent_count == 10
   ```
-  
+
   ### StatusBar Tests
-  
+
   Test render output contains expected text:
-  
+
   ```python
   async def test_render_shows_counts():
       # After mounting
@@ -66,31 +66,31 @@ notes: |
       assert "Agents: 5" in text
       assert "Structures: 3" in text
   ```
-  
+
   ### EventLog Tests
-  
+
   Test event list management:
-  
+
   ```python
   def test_event_limit():
       log = EventLog()
       log.events = [f"Event {i}" for i in range(150)]
       # Should only show last 100
   ```
-  
+
   ### LegendOverlay Tests
-  
+
   Test visibility toggle:
-  
+
   ```python
   def test_visibility():
       legend = LegendOverlay()
       legend.visible = True
       assert legend.display
   ```
-  
+
   ## Key Test Scenarios
-  
+
   1. **StatusBar render** - Shows agent/structure counts
   2. **StatusBar project name** - Displays correctly
   3. **StatusBar viewport pos** - Shows coordinates
@@ -100,6 +100,7 @@ notes: |
   7. **Legend visibility** - Toggle works
 cycle_created: 1
 cycle_modified: null
-content_hash: f751f70c10fae80f26f267475b4c3c34816189bc3cbfdc3c532e180d20e65e50
-token_count: 661
+content_hash: e1c35719420581134fc4ba95e7f27d72ab04e2e5392a38f442b115c8fd507915
+token_count: 678
 file_path: .ideate/work-items/WI-086.yaml
+resolution: tests/test_tui_status_bar.py, test_tui_event_log.py, test_tui_legend.py all exist

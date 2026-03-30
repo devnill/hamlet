@@ -1,7 +1,7 @@
 id: WI-155
 type: work_item
 title: Fix zombie frame formula in AnimationManager.get_frames()
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -15,17 +15,17 @@ module: null
 domain: null
 notes: |
   # WI-155: Fix zombie frame formula in AnimationManager.get_frames()
-  
+
   ## Context
   WI-138 added get_frames() to AnimationManager but applies the spin formula (ticks // TICKS_PER_SPIN_FRAME % 4) to ALL agents, including zombie agents. Zombie agents should use the pulse formula (ticks // TICKS_PER_PULSE_FRAME % 2).
-  
+
   ## Existing Code
   - `src/hamlet/simulation/animation.py` — AnimationManager, get_frames() method
   - `src/hamlet/simulation/animation.py` — TICKS_PER_SPIN_FRAME, TICKS_PER_PULSE_FRAME constants
-  
+
   ## Fix
   get_frames() needs to know which agents are zombies to apply the correct formula.
-  
+
   Option A: Add zombie_ids parameter:
   ```python
   def get_frames(self, zombie_ids: set[str] = None) -> dict[str, int]:
@@ -38,17 +38,18 @@ notes: |
               result[agent_id] = ticks // TICKS_PER_SPIN_FRAME % 4
       return result
   ```
-  
+
   Option B: Store agent state in AnimationManager and compute internally.
-  
+
   Option A is simpler — caller already knows zombie state from world_state.
-  
+
   ## Notes
   - Read animation.py to understand current get_frames() implementation
   - Check who calls get_frames() (serializers.py) and update callers to pass zombie_ids
   - Read world_state/types.py to understand AgentState.ZOMBIE enum value
 cycle_created: 1
 cycle_modified: null
-content_hash: "182adef5d51b4218a35532f5dfc39a99b47d143a4ca1bdecac0c22fe9d73fced"
-token_count: 504
+content_hash: c9a476c3c3a79ff7461ab282124b7c617b9f28bf8b7a812e97e3fe29da5eda6c
+token_count: 511
 file_path: .ideate/work-items/WI-155.yaml
+resolution: get_frames() accepts zombie_ids with correct pulse formula

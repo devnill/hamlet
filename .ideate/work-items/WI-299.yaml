@@ -1,0 +1,34 @@
+id: WI-299
+type: work_item
+title: Wire cursor visibility to movement keys and integrate all components
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/tui/app.py
+  - op: modify
+    path: tests/test_tui_app.py
+depends:
+  - WI-295
+  - WI-296
+  - WI-297
+  - WI-298
+blocks: []
+criteria:
+  - Movement keys (h/j/k/l, arrows, scroll actions) call cursor_state.reset_activity()
+  - Cursor shows for 3 seconds after movement, then hides
+  - "'v' key binding added to HamletApp.BINDINGS for VillageMenu"
+  - action_toggle_village_menu() toggles VillageMenu visibility
+  - action_scroll_* methods reset cursor activity timer
+  - 3-second timeout implemented via Textual set_interval or reactive watch
+  - "Integration test verifies cursor visibility cycle: movement -> visible -> 3s -> hidden"
+  - All existing keybindings unaffected (q, /, ?, f, arrows)
+  - tests/test_tui_app.py has tests for cursor visibility and village menu binding
+domain: visualization
+notes: "# WI-299: Wire cursor visibility to movement keys and integrate all components"
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 66c68ee20ace2b19d921ed2abb4cded45a96dbf56f4c5f407aec1913bc5af063
+token_count: 280
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-299.yaml

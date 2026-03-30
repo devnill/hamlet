@@ -1,7 +1,7 @@
 id: WI-113
 type: work_item
 title: Hook script rewrite — read stdin, find_config, send all required fields
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -22,23 +22,23 @@ module: null
 domain: null
 notes: |
   # WI-113: Hook script rewrite — read stdin, find_config, send all required fields
-  
+
   ## Context
-  
+
   All four hook scripts (hooks/pre_tool_use.py, hooks/post_tool_use.py, hooks/notification.py, hooks/stop.py) are broken in the same way:
-  
+
   1. **Never read stdin.** Claude Code delivers all hook data as JSON on stdin. The hooks ignore stdin entirely and attempt to read `CLAUDE_TOOL_NAME`, `CLAUDE_PROJECT_ID`, `CLAUDE_SESSION_ID`, `CLAUDE_AGENT_NAME`, etc. from environment variables. None of these are Claude Code variables. They are always empty/default. Result: every event arrives with `tool_name=None`, `project_id="unknown"`, agent type inference always returns GENERAL.
-  
+
   2. **Use fabricated environment variables for project identity.** `CLAUDE_PROJECT_ID` does not exist as a Claude Code variable. The architecture specifies using a `find_config()` function that traverses parent directories for `.hamlet/config.json`.
-  
+
   3. **Missing required fields.** PostToolUse never sends `duration_ms`. All hooks omit `project_name`. Without `duration_ms`, every tool call contributes exactly 1 work unit regardless of duration.
-  
+
   4. **Error log overwrites.** `log_file.write_text(...)` truncates the log on each error. Should append.
-  
+
   ## Claude Code Hook Input Schema
-  
+
   Claude Code delivers hook input as JSON on stdin. The structure is:
-  
+
   ```json
   // PreToolUse
   {
@@ -48,7 +48,7 @@ notes: |
     "tool_name": "Read",
     "tool_input": {"file_path": "/some/file.py"}
   }
-  
+
   // PostToolUse
   {
     "session_id": "uuid",
@@ -62,7 +62,7 @@ notes: |
       "is_error": false
     }
   }
-  
+
   // Notification
   {
     "session_id": "uuid",
@@ -70,7 +70,7 @@ notes: |
     "hook_event_name": "Notification",
     "message": "Notification text"
   }
-  
+
   // Stop
   {
     "session_id": "uuid",
@@ -79,18 +79,18 @@ notes: |
     "stop_hook_active": false
   }
   ```
-  
+
   Note: `duration_ms` is not in the PostToolUse stdin input. Compute elapsed time using a temp file written at PreToolUse time and read at PostToolUse time.
-  
+
   ## Implementation Notes
-  
+
   ### find_config() — required for all hooks
-  
+
   ```python
   import hashlib
   import json
   from pathlib import Path
-  
+
   def find_config():
       """Traverse from cwd up to root looking for .hamlet/config.json."""
       current = Path.cwd()
@@ -103,28 +103,28 @@ notes: |
               except Exception:
                   pass
       return _cwd_hash(), Path.cwd().name
-  
+
   def _cwd_hash():
       return hashlib.sha256(str(Path.cwd()).encode()).hexdigest()[:16]
   ```
-  
+
   ### duration_ms computation for PostToolUse
-  
+
   At PreToolUse: write a temp file with the current timestamp.
   At PostToolUse: read the temp file, compute elapsed ms, delete the file.
-  
+
   ```python
   import time
   from pathlib import Path
-  
+
   TIMING_DIR = Path.home() / ".hamlet" / "timing"
-  
+
   # In pre_tool_use.py:
   def record_start_time(session_id, tool_name):
       TIMING_DIR.mkdir(parents=True, exist_ok=True)
       key = f"{session_id}_{tool_name}"
       (TIMING_DIR / key).write_text(str(time.time()))
-  
+
   # In post_tool_use.py:
   def compute_duration(session_id, tool_name):
       key = f"{session_id}_{tool_name}"
@@ -138,13 +138,13 @@ notes: |
               pass
       return None
   ```
-  
+
   ### success field for PostToolUse
-  
+
   From `hook_input["tool_response"]`: success is `not hook_input["tool_response"].get("is_error", False)`.
-  
+
   ### Error log (all hooks)
-  
+
   Replace:
   ```python
   log_file.write_text(f"Error: {e}\n")
@@ -154,11 +154,11 @@ notes: |
   with open(log_file, "a") as f:
       f.write(f"Error: {e}\n")
   ```
-  
+
   ### HTTP payload structure
-  
+
   Keep the existing flat structure (params fields at top level, not nested under `data`). This is the implemented contract and architecture.md will be updated to match.
-  
+
   ```python
   params = {
       "session_id": hook_input.get("session_id", "unknown"),
@@ -179,22 +179,23 @@ notes: |
       "stop_reason": "stop" if not hook_input.get("stop_hook_active") else "tool",
   }
   ```
-  
+
   Remove `agent_name` field — it was sent via `CLAUDE_AGENT_NAME` which is not a real variable and is not consumed anywhere in the pipeline.
-  
+
   ### Existing structure to preserve
-  
+
   - The JSON-RPC 2.0 envelope (`{"jsonrpc": "2.0", "method": "hamlet/event", "params": {...}}`)
   - The HTTP POST to `http://localhost:8080/hamlet/event`
   - The 1-second timeout
   - The `sys.exit(0)` in `finally`
   - The `try/except Exception` wrapper
-  
+
   ## Verification
-  
+
   After this work item, run a Claude Code session with hooks active. Check `~/.hamlet/hooks.log` — it should be empty (no errors). Check the Hamlet TUI — agents should show types other than GENERAL, structures should accumulate work, and the status bar should show a human-readable project name.
 cycle_created: 1
 cycle_modified: null
-content_hash: bdc846f53ff7130d5315485a3f74f9d0e6450464781acfa02d47f3d5f345be16
-token_count: 1964
+content_hash: 812c9a95778e5e44769ebd43e7584e7368b2c6f2e677bdca25d61f576f84047d
+token_count: 1951
 file_path: .ideate/work-items/WI-113.yaml
+resolution: All hooks use json.load(sys.stdin), find_config() traverses to root with project_id guard

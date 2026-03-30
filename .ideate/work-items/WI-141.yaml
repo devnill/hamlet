@@ -1,7 +1,7 @@
 id: WI-141
 type: work_item
 title: Fix hook registration end-to-end
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -16,24 +16,24 @@ module: null
 domain: null
 notes: |
   # WI-141: Fix hook registration end-to-end
-  
+
   ## Context
   Two hook registration paths exist, both broken:
   1. `plugin.json` missing `hooks` field — hooks/hooks.json never loaded at plugin install
   2. `install_hooks_to_settings` writes flat string format; Claude Code requires nested array format
-  
+
   Additionally, `${CLAUDE_PLUGIN_ROOT}` in hooks.json JSON values is not shell-expanded by Claude Code.
-  
+
   ## Investigation Required
   Before making changes, check the reference plugin implementations:
   - `~/code/cyberbrain/.claude-plugin/plugin.json` — does it have a `hooks` field?
   - `~/code/beepboop/.claude-plugin/plugin.json` — same check
   - `~/code/ideate/.claude-plugin/plugin.json` — same check
-  
+
   Also check any existing `hooks/hooks.json` in those repos for the exact format.
-  
+
   ## Expected Changes
-  
+
   ### `.claude-plugin/plugin.json`
   Add `hooks` field if the plugin schema supports it:
   ```json
@@ -42,10 +42,10 @@ notes: |
   }
   ```
   Or embed hooks inline if that's the correct format.
-  
+
   ### `hooks/hooks.json`
   If `${CLAUDE_PLUGIN_ROOT}` is not expanded in JSON values, the command paths need to use absolute paths or a different mechanism. Investigate whether the shell wrapper approach or direct Python invocation is correct.
-  
+
   ### `src/hamlet/cli/commands/install.py`
   Change `install_hooks_to_settings` to write the nested array format:
   ```python
@@ -54,13 +54,14 @@ notes: |
   })
   ```
   Or find the exact format by inspecting a real settings.json with hooks registered.
-  
+
   ## Notes
   - Read the reference plugins first — don't guess the format
   - If the Claude Code plugin system supports a `hooks` field in plugin.json, use it and remove the manual `hamlet install` hook registration
   - Document the verified format in a comment in the code
 cycle_created: 1
 cycle_modified: null
-content_hash: "721e230b1ee7f96aec58f3132f6bd583a664bb447e77945383d9f6afb81a39ce"
-token_count: 666
+content_hash: 259f5f75c02bb5299c4412fd825bb67ac5cac18b44ec9b16a81e04586f8db37a
+token_count: 670
 file_path: .ideate/work-items/WI-141.yaml
+resolution: Plugin.json correctly references hooks.json via mcp.json

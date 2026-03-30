@@ -1,0 +1,28 @@
+id: WI-284
+type: work_item
+title: Consolidate color maps to single source of truth
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: src/hamlet/gui/symbol_config.py
+  - op: modify
+    path: src/hamlet/inference/types.py
+depends: []
+blocks: []
+criteria:
+  - gui/symbol_config.py imports TYPE_COLORS from inference/types.py
+  - AgentVisual.colors references TYPE_COLORS, not a manual copy
+  - No duplicate color definitions between modules
+  - Tests pass
+domain: visualization
+notes: |-
+  Q-09: The color dictionary in gui/symbol_config.py (AgentVisual.colors) duplicates TYPE_COLORS from inference/types.py. If TYPE_COLORS is updated, symbol_config.py could diverge silently.
+
+  Fix: Import TYPE_COLORS in symbol_config.py and use it directly. Remove the manual copy.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 0e8d0128ce27a67cf9887aca01f61d6c5e949ee20d41fd4fda0b4262e33c655c
+token_count: 209
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-284.yaml

@@ -169,6 +169,55 @@ class WorldStateManager:
                 if village and structure.id not in village.structure_ids:
                     village.structure_ids.append(structure.id)
 
+            # Fix villages with placeholder names by looking up the project name
+            # This migration handles existing villages created with "village", "test village", "Test village", etc.
+            placeholder_names = {"village", "test village", "Test village"}
+            for village in self._state.villages.values():
+                if village.name in placeholder_names or village.name.lower() in ("village", "test village"):
+                    project = self._state.projects.get(village.project_id)
+                    if project is not None:
+                        village.name = f"{project.name} village"
+                        try:
+                            await self._persistence.queue_write(
+                                "village", village.id, village
+                            )
+                        except Exception as exc:
+                            logger.debug("Could not queue village name fix: %s", exc)
+
+            # Migrate overlapping villages - reposition villages that share the same center
+            # Sort by structure count (descending) - larger villages stay near origin
+            villages_by_size = sorted(
+                self._state.villages.values(),
+                key=lambda v: len(getattr(v, "structure_ids", []) or []),
+                reverse=True,
+            )
+            positioned_centers: set[tuple[int, int]] = set()
+            for village in villages_by_size:
+                center_tuple = (village.center.x, village.center.y)
+                if center_tuple in positioned_centers:
+                    # This village overlaps another - reposition it
+                    new_center = self._find_village_position(
+                        list(self._state.villages.values()),
+                        set(),  # No occupied positions to avoid for village centers
+                    )
+                    village.center = new_center
+                    village.bounds = Bounds(
+                        new_center.x, new_center.y,
+                        new_center.x, new_center.y,
+                    )
+                    positioned_centers.add((new_center.x, new_center.y))
+                    try:
+                        await self._persistence.queue_write("village", village.id, village)
+                        logger.info(
+                            "Migrated overlapping village %s from (%d,%d) to (%d,%d)",
+                            village.id, center_tuple[0], center_tuple[1],
+                            new_center.x, new_center.y,
+                        )
+                    except Exception as exc:
+                        logger.debug("Could not queue village position fix: %s", exc)
+                else:
+                    positioned_centers.add(center_tuple)
+
             # Restore world metadata (viewport center, etc.)
             self._state.world_metadata = dict(data.metadata)
 
@@ -435,12 +484,25 @@ class WorldStateManager:
                     return village
             return None
 
-    def _expand_village_bounds(self, village: Village, position: Position) -> None:
-        """Expand the village bounds to include position. Caller must hold the lock."""
-        village.bounds.min_x = min(village.bounds.min_x, position.x)
-        village.bounds.min_y = min(village.bounds.min_y, position.y)
-        village.bounds.max_x = max(village.bounds.max_x, position.x)
-        village.bounds.max_y = max(village.bounds.max_y, position.y)
+    def _expand_village_bounds(self, village: Village, position: Position) -> bool:
+        """Expand the village bounds to include position. Caller must hold the lock.
+
+        Returns True if bounds changed, False otherwise.
+        """
+        changed = False
+        if position.x < village.bounds.min_x:
+            village.bounds.min_x = position.x
+            changed = True
+        if position.x > village.bounds.max_x:
+            village.bounds.max_x = position.x
+            changed = True
+        if position.y < village.bounds.min_y:
+            village.bounds.min_y = position.y
+            changed = True
+        if position.y > village.bounds.max_y:
+            village.bounds.max_y = position.y
+            changed = True
+        return changed
 
     # ------------------------------------------------------------------
     # Agent CRUD
@@ -522,10 +584,12 @@ class WorldStateManager:
             village_to_seed: Village | None = None
             if village is None:
                 village_id = str(uuid.uuid4())
+                # Use project name for village name, falling back to generic name
+                village_name = f"{project.name} village" if project else "village"
                 village = Village(
                     id=village_id,
                     project_id=project_id,
-                    name="village",
+                    name=village_name,
                     center=Position(0, 0),
                     bounds=Bounds(0, 0, 0, 0),
                 )
@@ -734,11 +798,48 @@ class WorldStateManager:
         if village is not None:
             if structure.id not in village.structure_ids:
                 village.structure_ids.append(structure.id)
-            self._expand_village_bounds(village, position)
+            bounds_changed = self._expand_village_bounds(village, position)
+            if bounds_changed:
+                try:
+                    await self._persistence.queue_write("village", village.id, village)
+                except Exception as exc:
+                    logger.debug("Could not queue village bounds update: %s", exc)
         try:
             await self._persistence.queue_write("structure", structure.id, structure)
         except Exception as exc:
             logger.debug("Could not queue structure write: %s", exc)
+
+        # GP-08: Apply pending work units if this structure type had accumulated work
+        # before the structure existed.
+        pending = self._state.pending_work_units.get(village_id, {})
+        pending_units = pending.pop(structure_type, None)
+        if pending_units and pending_units > 0:
+            logger.info(
+                "Applying %d pending work units to newly created %s in village %s",
+                pending_units,
+                structure_type.value,
+                village_id,
+            )
+            # Apply work units using the same stage advancement logic as add_work_units
+            current_stage = structure.stage
+            if current_stage < 3:
+                structure.work_units += pending_units
+                threshold = thresholds[current_stage]
+                if structure.work_units >= threshold:
+                    new_stage = current_stage + 1
+                    structure.stage = new_stage
+                    structure.work_units = 0
+                    structure.material = rules["materials"][new_stage]
+                    if new_stage < 3:
+                        structure.work_required = thresholds[new_stage]
+                    else:
+                        structure.work_required = 0
+            structure.updated_at = datetime.now(UTC)
+            try:
+                await self._persistence.queue_write("structure", structure.id, structure)
+            except Exception as exc:
+                logger.debug("Could not queue structure write after pending units: %s", exc)
+
         return structure
 
     MAX_SEED_RADIUS = 5
@@ -1008,10 +1109,21 @@ class WorldStateManager:
                     nearest_structure = s
 
             if nearest_structure is None:
-                logger.debug(
-                    "add_work_units: no structure of type %s found in village %s",
+                # GP-08 (Agent-Driven World Building): accumulate work units in pending pool
+                # when the target structure type doesn't exist yet. When a structure of this
+                # type is created, pending units will be applied automatically.
+                village_id = agent.village_id
+                if village_id not in self._state.pending_work_units:
+                    self._state.pending_work_units[village_id] = {}
+                pending = self._state.pending_work_units[village_id]
+                pending[structure_type] = pending.get(structure_type, 0) + units
+                logger.warning(
+                    "add_work_units: no structure of type %s in village %s — "
+                    "accumulated %d units in pending pool (total pending: %d)",
                     structure_type.value,
-                    agent.village_id,
+                    village_id,
+                    units,
+                    pending[structure_type],
                 )
                 try:
                     await self._persistence.queue_write("agent", agent.id, agent)

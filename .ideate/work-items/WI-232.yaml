@@ -1,7 +1,7 @@
 id: WI-232
 type: work_item
 title: TerrainType enum and TerrainConfig dataclass
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -16,18 +16,18 @@ module: null
 domain: null
 notes: |
   # WI-232: TerrainType enum and TerrainConfig dataclass
-  
+
   ## Summary
   Define the `TerrainType` enum with terrain properties and `TerrainConfig` dataclass for generation configuration.
-  
+
   ## Implementation
-  
+
   ### src/hamlet/world_state/terrain.py (NEW FILE)
-  
+
   ```python
   from dataclasses import dataclass
   from enum import Enum
-  
+
   class TerrainType(Enum):
       """Terrain types with inherent properties."""
       WATER = "water"
@@ -35,12 +35,12 @@ notes: |
       FOREST = "forest"
       MEADOW = "meadow"
       PLAIN = "plain"
-  
+
       @property
       def passable(self) -> bool:
           """True if agents/structures can occupy this terrain."""
           return self in (TerrainType.FOREST, TerrainType.MEADOW, TerrainType.PLAIN)
-  
+
       @property
       def symbol(self) -> str:
           """ASCII symbol for TUI rendering."""
@@ -52,7 +52,7 @@ notes: |
               TerrainType.PLAIN: ".",
           }
           return symbols[self]
-  
+
       @property
       def color(self) -> str:
           """Rich color name for TUI rendering."""
@@ -64,8 +64,8 @@ notes: |
               TerrainType.PLAIN: "white",
           }
           return colors[self]
-  
-  
+
+
   @dataclass
   class TerrainConfig:
       """Configuration for terrain generation."""
@@ -78,16 +78,16 @@ notes: |
       water_threshold: float = -0.3
       mountain_threshold: float = 0.7
   ```
-  
+
   ### src/hamlet/world_state/__init__.py
-  
+
   Add exports:
   ```python
   from .terrain import TerrainType, TerrainConfig
   ```
-  
+
   ## Acceptance Criteria
-  
+
   - `TerrainType` enum has exactly 5 members: WATER, MOUNTAIN, FOREST, MEADOW, PLAIN
   - `TerrainType.passable` returns `True` for FOREST, MEADOW, PLAIN; `False` for WATER, MOUNTAIN
   - `TerrainType.symbol` returns correct ASCII character for each type
@@ -97,6 +97,7 @@ notes: |
   - A test verifies `TerrainType.FOREST.passable == True`
 cycle_created: 1
 cycle_modified: null
-content_hash: d04080758b48af85d33a085f66e80c645471200ed4c7c75c9ce13a08054a2ba4
-token_count: 817
+content_hash: 7e2209f9d355712eb52b8d77936a3d07c98721d70336b0bdb669eba5dc535f72
+token_count: 823
 file_path: .ideate/work-items/WI-232.yaml
+resolution: TerrainType enum with 5 members, TerrainConfig, TerrainGenerator classes exist

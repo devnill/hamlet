@@ -151,7 +151,12 @@ class SpriteManager:
         -------
         str
             One or more concatenated APC escape sequences.
+            Returns an empty string if the handle is stale (image data
+            was cleared by a prior ``cleanup()`` call).
         """
+        if handle.image_id not in self._png_data:
+            # Stale handle - cleanup() was called after this handle was created
+            return ""
         data = self._png_data[handle.image_id]
         self._uploaded_ids.add(handle.image_id)
         return encode_image_upload(data, handle.image_id, handle.width, handle.height)

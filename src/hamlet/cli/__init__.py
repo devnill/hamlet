@@ -27,7 +27,7 @@ For more information, visit: https://github.com/dan/hamlet
     parser.add_argument(
         "--version",
         action="version",
-        version="%(prog)s 0.7.1"
+        version="%(prog)s 0.7.2"
     )
     parser.add_argument(
         "--map-viewer",

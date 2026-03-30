@@ -35,12 +35,11 @@ def main():
         project_id, project_name = find_config()
 
         session_id = hook_input.get("session_id", "")
-        data = hook_input.get("data", {})
-        tool_name = data.get("tool_name", "")
-        tool_input = data.get("tool_input")
-        tool_output = data.get("tool_output")
-        success = data.get("success", True)
-        duration_ms = data.get("duration_ms") or compute_duration(session_id, tool_name)
+        tool_name = hook_input.get("tool_name", "")
+        tool_input = hook_input.get("tool_input")
+        tool_output = hook_input.get("tool_output")
+        success = hook_input.get("success", True)
+        duration_ms = hook_input.get("duration_ms") or compute_duration(session_id, tool_name)
 
         params = {
             "hook_type": "PostToolUse",

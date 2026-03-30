@@ -1,0 +1,31 @@
+id: F-293-001
+type: finding
+content: |-
+  ## Verdict: Pass
+
+  The implementation correctly handles work units for non-existent structure types by accumulating them in a pending pool, logging appropriate warnings, and applying them when structures are created.
+
+  ## Critical Findings
+
+  None.
+
+  ## Significant Findings
+
+  None.
+
+  ## Minor Findings
+
+  ### M1: Pending work units are not persisted across daemon restarts
+  - **File**: `/Users/dan/code/hamlet/src/hamlet/world_state/state.py:47-50`
+  - **Issue**: The `pending_work_units` field stores work units in memory but is never persisted to the database. If the daemon crashes or restarts between when work units are accumulated and when a structure of that type is created, the pending units will be lost.
+  - **Impact**: Agents still receive credit for their work (`total_work_units` is persisted), but the pending pool that would accelerate structure construction is ephemeral. This is an acceptable data loss per GP-07.
+  - **Suggested fix**: Consider adding a comment documenting the ephemeral nature of pending units.
+
+  ## Unmet Acceptance Criteria
+
+  None. All acceptance criteria are satisfied.
+cycle: 3
+work_item: WI-293
+content_hash: b36348c7700f1c2e45556509dd91446ca3fa0e4d55fdbe429df1edfcff51086c
+token_count: 297
+file_path: .ideate/cycles/003/findings/F-293-001.yaml

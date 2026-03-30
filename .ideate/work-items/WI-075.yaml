@@ -1,7 +1,7 @@
 id: WI-075
 type: work_item
 title: Entity Save Operations
-status: pending
+status: obsolete
 complexity: low
 scope: []
 depends: []
@@ -21,10 +21,11 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 075
-  
+
   Each save method creates a WriteOperation with entity_type, entity_id, operation="upsert", and data dict. The actual SQL execution happens in the write loop. Methods are async but don't wait for write completion.
 cycle_created: 1
 cycle_modified: null
-content_hash: "80bdd47897801f76d5581a217ac2cdff9befe6b8ba3d7e06cbc7aae5e1c17a70"
-token_count: 295
+content_hash: fa9769b108bb5f6af6ef5aed081d23ef1ee08bc26a6ebbb05002ef183a7f08f4
+token_count: 310
 file_path: .ideate/work-items/WI-075.yaml
+resolution: saver.py deleted in WI-194; save operations handled by PersistenceFacade + WriteExecutor

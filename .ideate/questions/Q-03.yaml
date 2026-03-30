@@ -1,14 +1,14 @@
 id: Q-03
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: PLANNER agent type — add inference rule or mark reserved?
 cycle_created: 1
 cycle_modified: null
-content_hash: "0492d193ecb6de5d1021f425376b87c70f9fb14c39b6d6b63ea6580ffba05713"
-token_count: 74
+description: PLANNER agent type — add inference rule or mark reserved?
+domain: visualization
+impact: ""
+resolution: PLANNER agent type is intentionally reserved. It remains in the type system but is not used in current visualization rendering. Can be activated when planning visualization is needed.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 31b31af8a8ff8f0b6347efce22d39c43bd25a5e0ac417badb4604084cee4eb92
+token_count: 103
 file_path: .ideate/questions/Q-03.yaml

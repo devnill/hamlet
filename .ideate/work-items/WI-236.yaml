@@ -1,7 +1,7 @@
 id: WI-236
 type: work_item
 title: Terrain symbols and colors for TUI
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -17,16 +17,16 @@ module: null
 domain: null
 notes: |
   # WI-236: Terrain symbols and colors for TUI
-  
+
   ## Summary
   Add terrain display symbols and colors to `tui/symbols.py` for use in WorldView rendering.
-  
+
   ## Implementation
-  
+
   ### src/hamlet/tui/symbols.py
-  
+
   Add terrain symbols and colors:
-  
+
   ```python
   # Terrain symbols (background layer)
   TERRAIN_SYMBOLS = {
@@ -36,7 +36,7 @@ notes: |
       "meadow": '"',
       "plain": ".",
   }
-  
+
   TERRAIN_COLORS = {
       "water": "blue",
       "mountain": "grey85",
@@ -44,20 +44,20 @@ notes: |
       "meadow": "chartreuse",
       "plain": "white",
   }
-  
-  
+
+
   def get_terrain_symbol(terrain_type: str) -> str:
       """Return ASCII symbol for terrain type."""
       return TERRAIN_SYMBOLS.get(terrain_type, ".")
-  
-  
+
+
   def get_terrain_color(terrain_type: str) -> str:
       """Return Rich color name for terrain type."""
       return TERRAIN_COLORS.get(terrain_type, "white")
   ```
-  
+
   ## Acceptance Criteria
-  
+
   - `TERRAIN_SYMBOLS` dict has exactly 5 entries matching `TerrainType` values
   - `TERRAIN_COLORS` dict has exactly 5 entries with valid Rich color names
   - `get_terrain_symbol("water")` returns `"~"`
@@ -67,6 +67,7 @@ notes: |
   - Unknown terrain types return `"."` symbol and `"white"` color
 cycle_created: 1
 cycle_modified: null
-content_hash: "2985616c41f367f6b4563d7e2c0a6a24c39c2817f59ad168c250a68371672c9c"
-token_count: 511
+content_hash: bb722a8077a826aa096dbfbe4c9152b62f48096614aa081494df7b3d41d03916
+token_count: 496
 file_path: .ideate/work-items/WI-236.yaml
+resolution: symbol_config.py has TerrainVisual with symbols and colors

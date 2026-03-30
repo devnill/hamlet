@@ -1,14 +1,14 @@
 id: Q-07
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: PLANNER absent from LegendOverlay
 cycle_created: 1
 cycle_modified: null
-content_hash: "6d57d347565354102caeea4ca04acece797d0d62e2197b39592736f81ddf1e2f"
-token_count: 68
+description: PLANNER absent from LegendOverlay
+domain: visualization
+impact: ""
+resolution: PLANNER is now included in LegendOverlay. The legend displays all agent types defined in TYPE_COLORS including PLANNER.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 74401811646681b22bcb6c4acb5cdf427e3c9461538e8050c9c6bce4a1a454d0
+token_count: 81
 file_path: .ideate/questions/Q-07.yaml

@@ -1,0 +1,25 @@
+id: WI-292
+type: work_item
+title: Close Q-12 and Q-18 as resolved
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: .ideate/questions/Q-12.yaml
+  - op: modify
+    path: .ideate/questions/Q-18.yaml
+depends: []
+blocks: []
+criteria:
+  - Q-12 status changed to closed
+  - Q-12 resolution field references WI-285
+  - Q-18 status changed to closed
+  - Q-18 resolution field references WI-285
+domain: visualization
+notes: "# WI-292: Close Q-12 and Q-18 as resolved"
+resolution: null
+cycle_created: 2
+cycle_modified: null
+content_hash: 4233d29f1571b3a395d6f61fe8270691618454f3e40a066ca7b454ba344646b0
+token_count: 131
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-292.yaml

@@ -1,49 +1,50 @@
 id: WI-195
 type: work_item
 title: Functional gap — /hamlet/health endpoint test (Q-6)
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
 blocks: []
 criteria:
   - tests/test_mcp_server.py contains a test_health_endpoint test
-  - "The test verifies that GET /hamlet/health returns HTTP 200 with body {\"status\": \"ok\"}"
-  - "pytest tests/test_mcp_server.py::test_health_endpoint passes (or equivalent class method)"
+  - 'The test verifies that GET /hamlet/health returns HTTP 200 with body {"status": "ok"}'
+  - pytest tests/test_mcp_server.py::test_health_endpoint passes (or equivalent class method)
 module: null
 domain: null
 notes: |
   # WI-195: Functional gap — /hamlet/health endpoint test (Q-6)
-  
+
   ## Context
-  
+
   Q-6 identified that `install.py` validates the MCP server via GET `/hamlet/health` but the endpoint may not exist. The architect's analysis indicates the endpoint IS implemented in server.py (line 85: `app.router.add_get("/hamlet/health", self._handle_health)`). This work item confirms the implementation and adds the missing test.
-  
+
   ## Implementation
-  
+
   1. Read `src/hamlet/mcp_server/server.py` to verify the health endpoint exists and returns `{"status": "ok"}`.
-  
+
   2. If the endpoint does not exist, add it:
   ```python
   async def _handle_health(self, request: web.Request) -> web.Response:
       return web.json_response({"status": "ok"})
   ```
   And register: `app.router.add_get("/hamlet/health", self._handle_health)`
-  
+
   3. Read `tests/test_mcp_server.py` to understand the existing test pattern.
-  
+
   4. Add `test_health_endpoint`:
      - Simplest approach: call `server._handle_health(MagicMock())` and assert the response status is 200 and the body parses to `{"status": "ok"}`.
      - Alternative: use `aiohttp.test_utils` if the existing tests use a live server approach.
      - Follow whatever pattern is already established in the test file.
-  
+
   5. Run `pytest tests/test_mcp_server.py` to confirm pass.
-  
+
   ## Note
-  
+
   If the health endpoint already exists AND a test already exists, this work item is complete after verification. Document the finding in the self-check.
 cycle_created: 1
 cycle_modified: null
-content_hash: "3d3de439daa2be2c9efdb1d3359271f1d7084112c963a86ada52f242acb22cba"
-token_count: 506
+content_hash: c3e844d7e13d865af601161c749788dac9b6fefe55c98486b9c30525a6c3d1a5
+token_count: 502
 file_path: .ideate/work-items/WI-195.yaml
+resolution: tests/test_mcp_server.py has test_health_endpoint

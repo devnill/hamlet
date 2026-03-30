@@ -1,7 +1,7 @@
 id: WI-147
 type: work_item
 title: Fix StructureUpdater dict unpacking bug
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -14,7 +14,7 @@ module: null
 domain: null
 notes: |
   # WI-147: Fix StructureUpdater dict unpacking bug
-  
+
   ## Context
   `src/hamlet/simulation/structure_updater.py` calls:
   ```python
@@ -22,7 +22,7 @@ notes: |
   ```
   But `update_structure` in manager.py expects `**fields` (keyword args), not a positional dict.
   The dict is treated as a single unknown field name and skipped, so structures never progress.
-  
+
   ## Fix
   Change the call to use keyword args:
   ```python
@@ -33,12 +33,13 @@ notes: |
       work_units=0,
   )
   ```
-  
+
   ## Notes
   - Read structure_updater.py and manager.py:update_structure before changing
   - Check all call sites of update_structure in the file (may be multiple)
 cycle_created: 1
 cycle_modified: null
-content_hash: d31bf213e70d8395b2e6a63a0b44263bcfc39567a00d59f034fe01c7f81cafa9
-token_count: 310
+content_hash: c77fe50ce8b8d1dbcc22b8ba868f99436e643401ee0ba1a44bbd1ea775a4e83e
+token_count: 313
 file_path: .ideate/work-items/WI-147.yaml
+resolution: StructureUpdater uses kwargs in structure_updater.py

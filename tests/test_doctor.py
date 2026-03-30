@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import sys
 from argparse import Namespace
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 
 def test_doctor_command_returns_zero():
@@ -101,3 +101,158 @@ def test_doctor_via_cli_returns_zero():
 
     result = main(["doctor"])
     assert result == 0
+
+
+# --- Hook connectivity check tests ---
+
+def test_doctor_check_hooks_flag_registered():
+    """doctor --check-hooks flag is registered in the parser."""
+    from hamlet.cli import create_parser
+
+    parser = create_parser()
+    args = parser.parse_args(["doctor", "--check-hooks"])
+    assert args.check_hooks is True
+
+
+def test_doctor_check_hooks_default_false():
+    """doctor command defaults check_hooks to False."""
+    from hamlet.cli import create_parser
+
+    parser = create_parser()
+    args = parser.parse_args(["doctor"])
+    assert args.check_hooks is False
+
+
+def test_doctor_check_hooks_success(capsys):
+    """doctor --check-hooks reports success when daemon is reachable."""
+    from hamlet.cli.commands.doctor import doctor_command
+
+    args = Namespace(check_hooks=True)
+
+    # Mock Settings to return port 8080
+    mock_settings = MagicMock()
+    mock_settings.mcp_port = 8080
+
+    # Mock urlopen to return successful response
+    mock_response = MagicMock()
+    mock_response.status = 200
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("hamlet.config.settings.Settings.load", return_value=mock_settings):
+        with patch("hamlet.cli.commands.doctor.urllib.request.urlopen", return_value=mock_response):
+            result = doctor_command(args)
+
+    captured = capsys.readouterr()
+    assert result == 0
+    assert "Hook connectivity check" in captured.out
+    assert "PASS" in captured.out
+    assert "Daemon is running on port 8080" in captured.out
+
+
+def test_doctor_check_hooks_daemon_not_running(capsys):
+    """doctor --check-hooks reports failure when daemon is not running."""
+    from hamlet.cli.commands.doctor import doctor_command
+    import urllib.error
+
+    args = Namespace(check_hooks=True)
+
+    mock_settings = MagicMock()
+    mock_settings.mcp_port = 8080
+
+    with patch("hamlet.config.settings.Settings.load", return_value=mock_settings):
+        with patch("hamlet.cli.commands.doctor.urllib.request.urlopen", side_effect=urllib.error.URLError("Connection refused")):
+            result = doctor_command(args)
+
+    captured = capsys.readouterr()
+    assert result == 0  # doctor always returns 0
+    assert "Hook connectivity check" in captured.out
+    assert "FAIL" in captured.out
+    assert "Daemon not running" in captured.out
+    assert "hamlet daemon" in captured.out  # actionable fix message
+
+
+def test_doctor_check_hooks_non_200_status(capsys):
+    """doctor --check-hooks reports failure when daemon returns non-200 status."""
+    from hamlet.cli.commands.doctor import doctor_command
+
+    args = Namespace(check_hooks=True)
+
+    mock_settings = MagicMock()
+    mock_settings.mcp_port = 9090
+
+    mock_response = MagicMock()
+    mock_response.status = 500
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("hamlet.config.settings.Settings.load", return_value=mock_settings):
+        with patch("hamlet.cli.commands.doctor.urllib.request.urlopen", return_value=mock_response):
+            result = doctor_command(args)
+
+    captured = capsys.readouterr()
+    assert result == 0
+    assert "FAIL" in captured.out
+    assert "Daemon returned status 500" in captured.out
+
+
+def test_doctor_check_hooks_fallback_port_on_settings_error(capsys):
+    """doctor --check-hooks uses default port 8080 if settings fail to load."""
+    from hamlet.cli.commands.doctor import doctor_command
+
+    args = Namespace(check_hooks=True)
+
+    mock_response = MagicMock()
+    mock_response.status = 200
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("hamlet.config.settings.Settings.load", side_effect=Exception("Config error")):
+        with patch("hamlet.cli.commands.doctor.urllib.request.urlopen", return_value=mock_response) as mock_urlopen:
+            result = doctor_command(args)
+
+    captured = capsys.readouterr()
+    # Verify it used port 8080 (the fallback)
+    mock_urlopen.assert_called_once()
+    assert "http://localhost:8080/hamlet/health" in mock_urlopen.call_args[0][0].full_url
+    assert result == 0
+    assert "PASS" in captured.out
+
+
+def test_doctor_no_check_hooks_skips_connectivity_test(capsys):
+    """doctor without --check-hooks does not run connectivity check."""
+    from hamlet.cli.commands.doctor import doctor_command
+
+    args = Namespace(check_hooks=False)
+
+    with patch("hamlet.cli.commands.doctor._check_hook_connectivity") as mock_check:
+        result = doctor_command(args)
+
+    # Should not call the connectivity check
+    mock_check.assert_not_called()
+    captured = capsys.readouterr()
+    assert "Hook connectivity check" not in captured.out
+
+
+def test_check_hook_connectivity_returns_tuple():
+    """_check_hook_connectivity returns (bool, str) tuple."""
+    from hamlet.cli.commands.doctor import _check_hook_connectivity
+
+    mock_settings = MagicMock()
+    mock_settings.mcp_port = 8080
+
+    mock_response = MagicMock()
+    mock_response.status = 200
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("hamlet.config.settings.Settings.load", return_value=mock_settings):
+        with patch("hamlet.cli.commands.doctor.urllib.request.urlopen", return_value=mock_response):
+            result = _check_hook_connectivity()
+
+    assert isinstance(result, tuple)
+    assert len(result) == 2
+    assert isinstance(result[0], bool)
+    assert isinstance(result[1], str)
+    assert result[0] is True
+    assert "8080" in result[1]

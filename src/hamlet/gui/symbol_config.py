@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from hamlet.world_state.types import AgentType, StructureType
+from hamlet.inference.types import TYPE_COLORS
 
 
 @dataclass(frozen=True)
@@ -102,15 +103,7 @@ def default_config() -> SymbolConfig:
     """Return a SymbolConfig with default values matching symbols.py hardcoded values."""
     agent = AgentVisual(
         symbol="@",
-        colors={
-            AgentType.RESEARCHER: "cyan",
-            AgentType.CODER: "yellow",
-            AgentType.EXECUTOR: "orange1",
-            AgentType.PLANNER: "dark_green",
-            AgentType.ARCHITECT: "magenta",
-            AgentType.TESTER: "blue",
-            AgentType.GENERAL: "white",
-        },
+        colors=TYPE_COLORS.copy(),
         zombie_color="green",
     )
 

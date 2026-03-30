@@ -1,7 +1,7 @@
 id: WI-276
 type: work_item
 title: Kitty graphics protocol layer
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -21,54 +21,55 @@ module: null
 domain: null
 notes: |
   # WI-276: Kitty graphics protocol layer
-  
+
   ## Context
   The Kitty graphics protocol uses APC (Application Program Command) terminal escape sequences to transmit and display images. Pure Python — no C library needed.
-  
+
   ## Protocol Format
-  
+
   APC sequence: `\x1b_G<key>=<value>,<key>=<value>;<base64_payload>\x1b\\`
-  
+
   Key parameters:
   - `a` = action: `t` (transmit), `p` (display/put), `d` (delete)
   - `f` = format: `100` (PNG)
   - `i` = image ID (unsigned 32-bit)
   - `s`, `v` = width, height in pixels
   - `m` = more data: `1` for intermediate chunks, `0` for final
-  
+
   ## Chunking
   Images > 4096 bytes base64 must be split across multiple APC sequences. First chunk includes full header, subsequent chunks use `m=0` or `m=1` only.
-  
+
   ## Functions to implement
-  
+
   ```python
   def detect_kitty_support() -> bool:
       # Check KITTY_WINDOW_ID env var (Ghostty/kitty/WezTerm set this)
       # Do NOT use escape-sequence query (fragile in non-interactive contexts)
-  
+
   def encode_image_upload(image_data: bytes, image_id: int, width: int, height: int) -> str:
       # Base64 encode, chunk at 4096 bytes, generate APC sequences
-  
+
   def encode_image_display(image_id: int, x: int, y: int, z_index: int = 0) -> str:
       # a=p,i={id},p=1,X={x},Y={y},z={z_index}
-  
+
   def encode_image_delete(image_id: int) -> str:
       # a=d,d=i,i={id}
-  
+
   def encode_delete_all() -> str:
       # a=d,d=a
   ```
-  
+
   ## __init__.py
   ```python
   from hamlet.gui.kitty.protocol import detect_kitty_support
   KITTY_AVAILABLE: bool = detect_kitty_support()
   ```
-  
+
   ## Testing
   All tests use string comparison on escape sequence output. Mock `os.environ` for detection tests. No actual terminal interaction in tests.
 cycle_created: 1
 cycle_modified: null
-content_hash: fb4a055ccef6c7107bb20c36e1274b3eff4433814d18f1ea2ea4dd3926484d9a
-token_count: 667
+content_hash: bc9d3e8c18ca3817b353deb29a1aade71453eb50a3978886239cacc801269a62
+token_count: 684
 file_path: .ideate/work-items/WI-276.yaml
+resolution: gui/kitty/protocol.py has all encode functions, detect_kitty_support checks KITTY_WINDOW_ID

@@ -1,7 +1,7 @@
 id: WI-172
 type: work_item
 title: Add python3 availability guard to start.sh and fix pip advice
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -16,13 +16,13 @@ module: null
 domain: null
 notes: |
   # WI-172 Notes: Add python3 availability guard to start.sh
-  
+
   ## Addresses
   - Gap from Cycle 3 comprehensive review: `python3` not on PATH causes misleading "mcp package not found" error
-  
+
   ## File to modify
   `/Users/dan/code/hamlet/mcp/start.sh`
-  
+
   ## Current fallback (after WI-171)
   ```sh
   else
@@ -34,12 +34,12 @@ notes: |
       exec python3 "${SCRIPT_DIR}/server.py"
   fi
   ```
-  
+
   ## Problem
   When `python3` is not on PATH, `python3 -c "import mcp"` exits non-zero (shell error, not mcp error). The `if !` branch fires and emits "mcp package not found" — which is wrong. The real problem is that python3 is absent.
-  
+
   Also: `pip install mcp` may install into a different Python environment than the `python3` on PATH.
-  
+
   ## Desired behavior
   ```sh
   else
@@ -55,7 +55,7 @@ notes: |
       exec python3 "${SCRIPT_DIR}/server.py"
   fi
   ```
-  
+
   ## Constraints
   - Script must remain POSIX sh compatible (#!/bin/sh shebang)
   - `command -v python3` is POSIX-compatible (same pattern as the existing uv check on line 3)
@@ -63,6 +63,7 @@ notes: |
   - Exit 1 in both cases so Claude Code records the server as failed to launch with a clear reason
 cycle_created: 1
 cycle_modified: null
-content_hash: dc2d50b592175c6578c10f95d7836fb3b3fa0dac0251018d2b539a50b02bb278
-token_count: 665
+content_hash: b5e79be296f5c522668d5dfe5af17776d114bd88f25a245fbea28aeb52c3d2fb
+token_count: 669
 file_path: .ideate/work-items/WI-172.yaml
+resolution: start.sh has command -v python3 guard and mcp import check

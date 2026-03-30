@@ -1,14 +1,14 @@
 id: Q-19
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: encode_image_display hardcodes placement_id p=1
 cycle_created: 1
 cycle_modified: null
-content_hash: "0928f6c2a2cddb1ad39f340cd2ad6e477a7eacedbf2ef6aed9590d0f69c360da"
-token_count: 71
+description: encode_image_display hardcodes placement_id p=1
+domain: visualization
+impact: ""
+resolution: This is a minor visual bug with hardcoded placement_id. Low priority since it does not affect functionality. Documented for future refinement if needed.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 36d936ec2462713eb5517eaa0549a1272701d93fc1d68a020f75f726dd76bbd9
+token_count: 93
 file_path: .ideate/questions/Q-19.yaml

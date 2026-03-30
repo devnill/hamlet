@@ -1,7 +1,7 @@
 id: WI-151
 type: work_item
 title: Add POST /hamlet/event HTTP endpoint to daemon
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -9,21 +9,21 @@ blocks: []
 criteria:
   - MCPServer handles POST /hamlet/event with JSON body
   - Hook type field used to dispatch to event_queue
-  - "Hooks send HTTP POST to http://localhost:8080/hamlet/event with JSON body"
+  - Hooks send HTTP POST to http://localhost:8080/hamlet/event with JSON body
   - Hook scripts exit 0 when daemon not reachable (graceful degradation)
   - GET /hamlet/state and GET /hamlet/events still function
 module: null
 domain: null
 notes: |
   # WI-151: Add POST /hamlet/event HTTP endpoint to daemon
-  
+
   ## Context
   Hook scripts (hooks/pre_tool_use.py etc.) need to send events to the daemon via HTTP. The daemon currently only has GET /hamlet/state and GET /hamlet/events endpoints. There is no endpoint to receive incoming events from hooks.
-  
+
   The MCP server in mcp/server.py is a separate Claude Code plugin server (stdio transport) for hamlet_init tool — not for receiving hook events.
-  
+
   ## Changes
-  
+
   ### src/hamlet/mcp_server/server.py
   Add POST /hamlet/event route:
   ```python
@@ -37,12 +37,12 @@ notes: |
       return web.Response(status=200, text="ok")
   ```
   Register: `app.router.add_post("/hamlet/event", self._handle_event)`
-  
+
   ### hooks/pre_tool_use.py, post_tool_use.py, notification.py, stop.py
   Each hook should POST JSON to http://localhost:8080/hamlet/event:
   ```python
   import sys, json, urllib.request
-  
+
   def send_event(payload):
       try:
           data = json.dumps(payload).encode()
@@ -55,11 +55,11 @@ notes: |
           urllib.request.urlopen(req, timeout=2)
       except Exception:
           pass  # graceful degradation — daemon may not be running
-  
+
   hook_data = json.loads(sys.stdin.read())
   send_event({"hook_type": "PreToolUse", **hook_data})
   ```
-  
+
   ## Notes
   - Read each hook file to understand current structure before modifying
   - MCPServer may need event_queue param added or passed from daemon startup
@@ -67,6 +67,7 @@ notes: |
   - hooks exit 0 on all paths per GP-7
 cycle_created: 1
 cycle_modified: null
-content_hash: "2844674c064212da71e12bd37609ae2b21a170dff0eb7a137efd1c86314f346c"
-token_count: 645
+content_hash: 05dc671ab16bff061a091c7810350440598b44fba4870fcccc1cc4235d79d768
+token_count: 653
 file_path: .ideate/work-items/WI-151.yaml
+resolution: POST /hamlet/event endpoint exists with validation and queue handling

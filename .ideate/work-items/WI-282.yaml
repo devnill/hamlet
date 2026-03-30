@@ -1,7 +1,7 @@
 id: WI-282
 type: work_item
 title: Doctor command and architecture documentation updates
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -16,13 +16,13 @@ module: null
 domain: null
 notes: |
   # WI-282: Doctor command and architecture documentation updates
-  
+
   ## Context
   Update diagnostics for Kitty. Update architecture.md to document gui/ module (fixes Q-20).
-  
+
   ## doctor.py
   Print: Kitty protocol availability, KITTY_WINDOW_ID value, TERM, tmux detection with warning, recommended renderer. No notcurses references.
-  
+
   ## architecture.md
   Add GUI MODULE section to component map:
   ```
@@ -37,15 +37,16 @@ notes: |
     state_fetcher.py — HTTP state polling
     zoom.py — ZoomLevel, ZoomConfig
   ```
-  
+
   Replace all notcurses references with Kitty graphics protocol.
-  
+
   ## test_doctor.py
   - Assert "kitty" in output (case-insensitive)
   - Remove notcurses assertions
   - tmux warning test remains
 cycle_created: 1
 cycle_modified: null
-content_hash: "0af206fd6148f8afb14465cf107963e38abdb8f4f679bdc344af8ddbb26888d6"
-token_count: 430
+content_hash: 4cad27066f2aa1869570117505fa89de0e6009e685455dc53330069e1ccf99aa
+token_count: 439
 file_path: .ideate/work-items/WI-282.yaml
+resolution: doctor.py prints Kitty availability, KITTY_WINDOW_ID, TERM, tmux warning

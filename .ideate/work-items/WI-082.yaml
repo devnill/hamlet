@@ -1,7 +1,7 @@
 id: WI-082
 type: work_item
 title: Event Processing Tests - Processor, Router, SequenceGenerator
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -22,22 +22,22 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 082 - Event Processing Tests
-  
+
   ## Scope
-  
+
   Test EventProcessor main loop and routing, EventRouter handler management, SequenceGenerator, and InternalEvent validation.
-  
+
   ## Testing Patterns
-  
+
   ### EventProcessor Tests
-  
+
   Mock the dependencies:
-  
+
   ```python
   @pytest.fixture
   def processor():
       return EventProcessor()
-  
+
   @pytest.fixture
   def mock_handlers():
       return {
@@ -46,9 +46,9 @@ notes: |
           'persistence': AsyncMock(),
       }
   ```
-  
+
   Test validation:
-  
+
   ```python
   def test_validate_event():
       event = InternalEvent(
@@ -62,9 +62,9 @@ notes: |
       )
       # Should raise validation error
   ```
-  
+
   Test routing with asyncio.gather:
-  
+
   ```python
   async def test_route_event():
       with patch.object(processor, '_handlers', mock_handlers):
@@ -72,43 +72,43 @@ notes: |
           mock_handlers['world_state'].assert_called_once()
           mock_handlers['agent_inference'].assert_called_once()
   ```
-  
+
   Test consume loop:
-  
+
   ```python
   async def test_consume_loop():
       queue = asyncio.Queue()
       await queue.put(event)
-  
+
       # Run one iteration
       task = asyncio.create_task(processor._consume())
       await asyncio.sleep(0.1)
       task.cancel()
-  
+
       # Verify processed
       assert queue.empty()
   ```
-  
+
   ### EventRouter Tests
-  
+
   Test subscribe/unsubscribe:
-  
+
   ```python
   def test_subscribe():
       router = EventRouter()
       callback = Mock()
       router.subscribe(callback)
       assert callback in router._subscribers
-  
+
   def test_unsubscribe():
       router.unsubscribe(callback)
       assert callback not in router._subscribers
   ```
-  
+
   ### SequenceGenerator Tests
-  
+
   Test monotonic increments:
-  
+
   ```python
   async def test_sequence():
       gen = SequenceGenerator()
@@ -116,13 +116,13 @@ notes: |
       seq2 = await gen.next()
       assert seq2 == seq1 + 1
   ```
-  
+
   Test async safety with concurrent access.
-  
+
   ### InternalEvent Tests
-  
+
   Test validation in __post_init__:
-  
+
   ```python
   def test_invalid_event():
       with pytest.raises(ValueError):
@@ -133,20 +133,20 @@ notes: |
               hook_type=HookType.PreToolUse,
           )
   ```
-  
+
   ## GP-7 Error Handling
-  
+
   Verify errors in handlers don't crash the router:
-  
+
   ```python
   async def test_handler_error_logged():
       mock_handlers['world_state'].side_effect = Exception("boom")
       await processor.route_event(event)  # Should not raise
       # Verify error logged
   ```
-  
+
   ## Key Test Scenarios
-  
+
   1. **Event validation** - Required fields, valid hook types
   2. **Event routing** - All handlers called
   3. **Handler errors** - Logged, not raised
@@ -156,6 +156,7 @@ notes: |
   7. **InternalEvent creation** - Validation, defaults
 cycle_created: 1
 cycle_modified: null
-content_hash: b4cf87cb2de85f1a22cb81ff16c86345e85f656d253c2053ff318bcbc7467e1a
-token_count: 1045
+content_hash: f25521c296f934056270dc4ecdeb9fb73709eb80af7da7e4ef792a2e7bdb6ec4
+token_count: 1072
 file_path: .ideate/work-items/WI-082.yaml
+resolution: tests/test_event_processor.py, test_event_router.py, test_sequence_generator.py all exist

@@ -1,7 +1,7 @@
 id: WI-245
 type: work_item
 title: Lake Detection and Expansion
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -19,47 +19,47 @@ module: null
 domain: null
 notes: |
   # WI-245: Lake Detection and Expansion
-  
+
   ## Context
-  
+
   Water from noise may appear as scattered small ponds. Lake detection identifies connected water regions, and expansion grows small water bodies into proper lakes.
-  
+
   ## Implementation Notes
-  
+
   ### Location
   - `src/hamlet/world_state/terrain.py` — add `detect_lakes()` and `expand_lake()` functions
-  
+
   ### Flood-Fill Lake Detection
-  
+
   ```python
   def detect_lakes(
       grid: dict[Position, TerrainType],
       min_size: int = 5
   ) -> list[tuple[set[Position], int]]:
       """Find all connected water regions using flood-fill.
-  
+
       Returns list of (positions, size) tuples sorted by size descending.
       """
       visited: set[Position] = set()
       lakes: list[tuple[set[Position], int]] = []
-  
+
       for pos, terrain in grid.items():
           if pos in visited:
               continue
           if terrain != TerrainType.WATER:
               continue
-  
+
           # Flood-fill from this water cell
           lake = _flood_fill_water(grid, pos)
           visited.update(lake)
-  
+
           if len(lake) >= min_size:
               lakes.append((lake, len(lake)))
-  
+
       # Sort by size descending
       lakes.sort(key=lambda x: x[1], reverse=True)
       return lakes
-  
+
   def _flood_fill_water(
       grid: dict[Position, TerrainType],
       start: Position
@@ -67,24 +67,24 @@ notes: |
       """Flood-fill from start position to find connected water."""
       lake = set()
       stack = [start]
-  
+
       while stack:
           pos = stack.pop()
           if pos in lake:
               continue
           if pos not in grid or grid[pos] != TerrainType.WATER:
               continue
-  
+
           lake.add(pos)
           # Add 4-connected neighbors
           for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
               stack.append(Position(pos.x + dx, pos.y + dy))
-  
+
       return lake
   ```
-  
+
   ### Lake Expansion
-  
+
   ```python
   def expand_lake(
       grid: dict[Position, TerrainType],
@@ -94,21 +94,21 @@ notes: |
       """Expand a small lake to target size by growing from center."""
       if len(lake_positions) >= target_size:
           return lake_positions
-  
+
       # Find center of lake
       center_x = sum(p.x for p in lake_positions) // len(lake_positions)
       center_y = sum(p.y for p in lake_positions) // len(lake_positions)
       center = Position(center_x, center_y)
-  
+
       expanded = set(lake_positions)
       frontier = [center]
-  
+
       while len(expanded) < target_size and frontier:
           pos = frontier.pop(0)
-  
+
           for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
               neighbor = Position(pos.x + dx, pos.y + dy)
-  
+
               if neighbor in expanded:
                   continue
               if neighbor not in grid:
@@ -116,20 +116,20 @@ notes: |
               # Don't expand into mountains
               if grid[neighbor] == TerrainType.MOUNTAIN:
                   continue
-  
+
               expanded.add(neighbor)
               frontier.append(neighbor)
-  
+
               if len(expanded) >= target_size:
                   break
-  
+
       return expanded
   ```
-  
+
   ### Integration with Generation Pipeline
-  
+
   After CA smoothing, process lakes:
-  
+
   ```python
   # In main generation pipeline:
   lakes = detect_lakes(terrain_grid, min_size=self._config.min_lake_size)
@@ -140,15 +140,15 @@ notes: |
           for pos in expanded:
               terrain_grid[pos] = TerrainType.WATER
   ```
-  
+
   ### Config Parameters
-  
+
   Add to TerrainConfig:
   - `min_lake_size: int = 10` — minimum connected water cells for a "lake"
   - `lake_expansion_factor: float = 1.5` — how much to expand small lakes
-  
+
   ### Tests
-  
+
   - Test flood-fill correctly identifies connected water
   - Test that min_size threshold excludes small ponds
   - Test that expansion grows lakes to target size
@@ -156,6 +156,7 @@ notes: |
   - Test determinism (same grid → same lakes)
 cycle_created: 1
 cycle_modified: null
-content_hash: f78f297021c796f8b02c839539a543795af1228b99968c5f87a5381ac4ed4a73
-token_count: 1199
+content_hash: 0ee0db3a216fcd0bee7efd5e6f0382e4cb89714dda895cec3182c8baac4a46a6
+token_count: 1216
 file_path: .ideate/work-items/WI-245.yaml
+resolution: detect_lakes() and expand_lake() for lake processing implemented

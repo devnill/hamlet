@@ -1,7 +1,7 @@
 id: WI-252
 type: work_item
 title: Map Viewer Mode with Parameter Adjustment
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -19,6 +19,7 @@ domain: null
 notes: null
 cycle_created: 1
 cycle_modified: null
-content_hash: "9e3f67665d252d5ee0c7466738aa1b728de07021de5c41a15f1987ac7f8fe517"
-token_count: 176
+content_hash: 2d73c04346ded04823c5d0d3d27f74eb0e058c959b642fc448130def44396359
+token_count: 175
 file_path: .ideate/work-items/WI-252.yaml
+resolution: MapApp with parameter adjustment implemented

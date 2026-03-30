@@ -1,7 +1,7 @@
 id: WI-150
 type: work_item
 title: Wire simulation components in __main__.py
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -15,10 +15,10 @@ module: null
 domain: null
 notes: |
   # WI-150: Wire simulation components in __main__.py
-  
+
   ## Context
   `src/hamlet/__main__.py` creates SimulationEngine with only world_state; all other dependencies (agent_updater, structure_updater, expansion_manager, animation_manager, agent_inference) are None. The simulation tick loop runs but never updates agents or structures.
-  
+
   ## Existing Code
   - `src/hamlet/__main__.py` — creates SimulationEngine
   - `src/hamlet/cli/commands/daemon.py` — creates SimulationEngine for daemon mode
@@ -27,7 +27,7 @@ notes: |
   - `src/hamlet/simulation/structure_updater.py` — StructureUpdater
   - `src/hamlet/simulation/expansion.py` — ExpansionManager
   - `src/hamlet/simulation/animation.py` — AnimationManager
-  
+
   ## Changes
   In both __main__.py and daemon.py, instantiate and pass all updaters:
   ```python
@@ -35,7 +35,7 @@ notes: |
   from hamlet.simulation.structure_updater import StructureUpdater
   from hamlet.simulation.expansion import ExpansionManager
   from hamlet.simulation.animation import AnimationManager
-  
+
   animation_manager = AnimationManager()
   simulation = SimulationEngine(
       world_state=world_state,
@@ -45,13 +45,14 @@ notes: |
       animation_manager=animation_manager,
   )
   ```
-  
+
   ## Notes
   - Read SimulationEngine.__init__ to verify parameter names
   - animation_manager may already be wired for MCPServer (WI-138); reuse the same instance
   - Read files before modifying to avoid duplicating instantiation
 cycle_created: 1
 cycle_modified: null
-content_hash: "0a7a4d9e2915d0ce8d2d6b239618e1b85b54789d033bd7839427e125a87d3a94"
-token_count: 556
+content_hash: 8dfaac38007b614d5036e0a79b352d6a3b40c8defbecfe1c8a3bf7c110740829
+token_count: 561
 file_path: .ideate/work-items/WI-150.yaml
+resolution: All simulation components wired in app_factory.py

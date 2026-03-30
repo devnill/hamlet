@@ -1,7 +1,7 @@
 id: WI-176
 type: work_item
 title: Improve mcp import check in start.sh
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -15,13 +15,13 @@ module: null
 domain: null
 notes: |
   # WI-176 Notes: Improve mcp import check in start.sh
-  
+
   ## Context
   The current check `python3 -c "import mcp"` only verifies the top-level mcp namespace is importable. A broken install with just the namespace directory would pass. Changing to `from mcp.server import Server` verifies the specific class used by `mcp/server.py` is available.
-  
+
   ## File to modify
   `/Users/dan/code/hamlet/mcp/start.sh`
-  
+
   ## Current check (line 11)
   ```sh
   if ! python3 -c "import mcp" 2>/dev/null; then
@@ -29,7 +29,7 @@ notes: |
       exit 1
   fi
   ```
-  
+
   ## Desired check
   ```sh
   if ! python3 -c "from mcp.server import Server" 2>/dev/null; then
@@ -37,10 +37,11 @@ notes: |
       exit 1
   fi
   ```
-  
+
   Only the import expression changes. The diagnostic message and exit code are unchanged.
 cycle_created: 1
 cycle_modified: null
-content_hash: "1498e1906bb4780d630ca6bee39dd0a11e0190833bdde5e83c08451eb8583533"
-token_count: 408
+content_hash: 6a80136dd2f0751d6b71bbfb322fe9fafadf1ad31cf9db76d498b565db69811b
+token_count: 411
 file_path: .ideate/work-items/WI-176.yaml
+resolution: mcp/start.sh has python3 -c 'from mcp.server import Server' check

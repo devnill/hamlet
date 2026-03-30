@@ -1,7 +1,7 @@
 id: WI-189
 type: work_item
 title: Test coverage — hook script unit tests
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -18,23 +18,23 @@ module: null
 domain: null
 notes: |
   # WI-189: Test coverage — hook script unit tests
-  
+
   ## Context
-  
+
   The 15 hook scripts in `hooks/` have no unit tests. They are standalone scripts (not part of the package) that read JSON from stdin, change directory to cwd, call `find_server_url()` and `find_config()`, and POST a JSON-RPC payload via `urllib.request.urlopen`. They end with `sys.exit(0)` in a `finally` block.
-  
+
   ## Test structure
-  
+
   Create `tests/test_hooks.py`. Use `importlib.util.spec_from_file_location` to load each hook module by absolute path.
-  
+
   ### Loading hook modules
-  
+
   ```python
   import importlib.util
   import os
-  
+
   HOOKS_DIR = os.path.join(os.path.dirname(__file__), "..", "hooks")
-  
+
   def load_hook(name):
       path = os.path.join(HOOKS_DIR, f"{name}.py")
       spec = importlib.util.spec_from_file_location(name, path)
@@ -42,11 +42,11 @@ notes: |
       spec.loader.exec_module(mod)
       return mod
   ```
-  
+
   Call `load_hook("session_start")` etc. inside each test to get the module fresh.
-  
+
   ### Mocking pattern
-  
+
   Each test should:
   1. `monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(payload)))`
   2. `monkeypatch.setattr("urllib.request.urlopen", mock_urlopen)`
@@ -58,11 +58,11 @@ notes: |
   8. `body = json.loads(captured_request.data.decode())`
   9. Assert `body["method"] == "hamlet/event"`
   10. Assert `body["params"]["hook_type"] == "ExpectedHookType"`
-  
+
   ### Stdin payloads
-  
+
   Minimum required: `{"session_id": "test-session", "cwd": "/tmp"}`. Per hook, add relevant fields:
-  
+
   - `pre_tool_use`: `{"tool_name": "Read", "tool_input": {"path": "/tmp/x"}}`
   - `post_tool_use`: `{"tool_name": "Write", "success": true}`
   - `notification`: `{"message": "test notification"}`
@@ -78,16 +78,17 @@ notes: |
   - `pre_compact`: `{}`
   - `post_compact`: `{}`
   - `stop_failure`: `{"error": {"type": "internal", "reason": "crash"}}`
-  
+
   ### Pre_tool_use timing file
-  
+
   `pre_tool_use.py` may write a timing file to `~/.hamlet/`. Patch `Path.home()` via monkeypatch or use `tmp_path` as the home directory to avoid filesystem side effects.
-  
+
   ### Patching location
-  
+
   The hooks do `sys.path.insert(0, ...)` and `from hamlet_hook_utils import find_server_url, find_config, _log_error`. After `load_hook()`, patch the module's own references: `monkeypatch.setattr(module, "find_server_url", ...)` and `monkeypatch.setattr(module, "find_config", ...)`. Also patch `module.os.chdir` if `os` is imported directly in the hook.
 cycle_created: 1
 cycle_modified: null
-content_hash: "9b30f6da7f4a0ad27c785b5cac4fa14f1acce612a32f5726340ac2f08222db70"
-token_count: 1141
+content_hash: 8c1abe553b9dd28e54b6bd9de4a63881c403e36d458b67dab26d258d25261581
+token_count: 1117
 file_path: .ideate/work-items/WI-189.yaml
+resolution: tests/test_hooks.py has 15 test classes for all hook types

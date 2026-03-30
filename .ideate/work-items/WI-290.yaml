@@ -1,0 +1,24 @@
+id: WI-290
+type: work_item
+title: Add PostToolUseFailure counter decrement test
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: tests/test_inference_engine.py
+depends: []
+blocks: []
+criteria:
+  - Test creates session with active_tools=1
+  - Test adds PendingTool entry
+  - Test processes PostToolUseFailure event
+  - Test asserts active_tools decremented
+  - Test asserts pending tool evicted
+domain: testing
+notes: "# WI-290: Add PostToolUseFailure counter decrement test"
+resolution: null
+cycle_created: 2
+cycle_modified: null
+content_hash: cd376d4153667f400ba83521078bc17278e42d891ca103413691f249877e7882
+token_count: 136
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-290.yaml

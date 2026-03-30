@@ -1,7 +1,7 @@
 id: WI-281
 type: work_item
 title: Kitty viewer app, state fetching, and legend overlay
-status: pending
+status: done
 complexity: high
 scope: []
 depends: []
@@ -21,41 +21,42 @@ module: null
 domain: null
 notes: |
   # WI-281: Kitty viewer app, state fetching, and legend overlay
-  
+
   ## Context
   Main viewer application. Fixes Q-11 (terrain endpoint) and Q-15 (legend overlay).
-  
+
   ## State fetching (simplified)
   No subprocess isolation needed. Use `urllib.request` directly:
   - `/hamlet/health` — health check before taking terminal
   - `/hamlet/state` — agents, structures, villages
   - `/hamlet/events` — event log entries
   - `/hamlet/terrain/bounds/{min_x}/{min_y}/{max_x}/{max_y}` — **fixes Q-11**
-  
+
   ## Terminal management
   - Enter: `\x1b[?1049h` (alt screen), `\x1b[?25l` (hide cursor)
   - Exit: `\x1b[?25h` (show cursor), `\x1b[?1049l` (leave alt screen)
   - Raw mode via `tty.setraw()`, restore via `termios.tcsetattr()`
-  
+
   ## Input handling
   Non-blocking stdin read via `select.select([sys.stdin], [], [], 0)`.
   Arrow keys arrive as `\x1b[A/B/C/D` — read 3 bytes when first is `\x1b`.
-  
+
   Keys: q=quit, hjkl/arrows=pan, f=follow, +/-=zoom, /=legend
-  
+
   ## Legend overlay (Q-15 fix)
   Centered bordered box (~40x20) showing:
   - Key bindings
   - Agent symbol (@)
   - Structure symbols from SymbolConfig
   - Terrain symbols from SymbolConfig
-  
+
   Rendered after main frame, overwriting center area.
-  
+
   ## Render loop
   30 FPS, state fetch every ~1 second. Frame: fetch if needed → render → process input → sleep remainder.
 cycle_created: 1
 cycle_modified: null
-content_hash: "9b70125b5c4b93cfc4ffa5db9662f41aab77d26c6b7ac0d6539b7ddb6851a4fd"
-token_count: 579
+content_hash: 65a53b55e5c16d5462fe23bf0e41b80f1b97bea2897b4374e80373e6781c920b
+token_count: 594
 file_path: .ideate/work-items/WI-281.yaml
+resolution: KittyApp with health check, 30 FPS loop, input handling, StateFetcher, legend overlay

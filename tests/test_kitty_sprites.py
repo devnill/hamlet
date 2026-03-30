@@ -228,3 +228,22 @@ def test_cleanup_clears_caches(tmp_path: Path):
     assert len(mgr._cache) == 0
     assert len(mgr._png_data) == 0
     assert len(mgr._uploaded_ids) == 0
+
+
+# --- stale handle handling (WI-285) ---
+
+
+def test_stale_handle_returns_empty_string(tmp_path: Path):
+    """WI-285: get_upload_sequence returns empty string on stale handle after cleanup."""
+    (tmp_path / "test.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+    mgr = SpriteManager(assets_dir=tmp_path)
+    handle = mgr.load_sprite("test.png", 16)
+    assert handle is not None
+
+    # Clear the caches, making the handle stale
+    with patch("hamlet.gui.kitty.sprites.encode_delete_all", return_value=""):
+        mgr.cleanup()
+
+    # Stale handle should return empty string, not raise KeyError
+    result = mgr.get_upload_sequence(handle)
+    assert result == ""

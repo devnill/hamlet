@@ -1,14 +1,14 @@
 id: Q-01
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: Animation Timing Constants
 cycle_created: 1
 cycle_modified: null
-content_hash: d7f393a472b4413473301aea08d7a4cb921f7420aeb1b1c87258352ccee7e542
-token_count: 66
+description: Animation Timing Constants
+domain: visualization
+impact: ""
+resolution: Animation timing constants are now defined in the animation system and work correctly for all agent types.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 4b4129507dbe023c4d7952affd421fd93a4a12fcf7d682635a06ef9b3bfb726a
+token_count: 76
 file_path: .ideate/questions/Q-01.yaml

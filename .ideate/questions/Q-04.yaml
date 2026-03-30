@@ -1,14 +1,14 @@
 id: Q-04
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: Viewport center persistence priority
 cycle_created: 1
 cycle_modified: null
-content_hash: "7d563d91fed7a654fde0e957e567e63ad0a7e384ce4fbe91203fb111ce1f8f49"
-token_count: 68
+description: Viewport center persistence priority
+domain: visualization
+impact: ""
+resolution: Viewport center persistence requires additional investigation into state management across sessions. Deferred until viewport state persistence becomes a priority feature.
+resolved_in: null
+source: ""
+status: deferred
+content_hash: f1bd11f190cb1255a2136c422f6da89b3df108c8fecd250cbc650cd8ce5f94e4
+token_count: 95
 file_path: .ideate/questions/Q-04.yaml

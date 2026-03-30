@@ -1,7 +1,7 @@
 id: WI-256
 type: work_item
 title: Forest Clustering Near Features
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -17,6 +17,7 @@ domain: null
 notes: null
 cycle_created: 1
 cycle_modified: null
-content_hash: aeca4f69763908974b53d6894b8d069409a15c6296611c7147aaac456380252e
-token_count: 149
+content_hash: 85cf0697cae3d848ffd72fee98b82445bd9244d984cd3a7ff27fa21699cfd3e3
+token_count: 147
 file_path: .ideate/work-items/WI-256.yaml
+resolution: Forest clustering near features implemented

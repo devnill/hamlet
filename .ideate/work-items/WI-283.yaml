@@ -1,0 +1,75 @@
+id: WI-283
+type: work_item
+title: Close resolved open questions
+status: done
+complexity: small
+scope:
+  - op: modify
+    path: .ideate/questions/Q-01.yaml
+  - op: modify
+    path: .ideate/questions/Q-02.yaml
+  - op: modify
+    path: .ideate/questions/Q-03.yaml
+  - op: modify
+    path: .ideate/questions/Q-04.yaml
+  - op: modify
+    path: .ideate/questions/Q-05.yaml
+  - op: modify
+    path: .ideate/questions/Q-06.yaml
+  - op: modify
+    path: .ideate/questions/Q-07.yaml
+  - op: modify
+    path: .ideate/questions/Q-08.yaml
+  - op: modify
+    path: .ideate/questions/Q-10.yaml
+  - op: modify
+    path: .ideate/questions/Q-11.yaml
+  - op: modify
+    path: .ideate/questions/Q-13.yaml
+  - op: modify
+    path: .ideate/questions/Q-14.yaml
+  - op: modify
+    path: .ideate/questions/Q-16.yaml
+  - op: modify
+    path: .ideate/questions/Q-17.yaml
+  - op: modify
+    path: .ideate/questions/Q-19.yaml
+  - op: modify
+    path: .ideate/questions/Q-20.yaml
+  - op: modify
+    path: .ideate/questions/Q-21.yaml
+  - op: modify
+    path: .ideate/questions/Q-22.yaml
+  - op: modify
+    path: .ideate/questions/Q-23.yaml
+depends: []
+blocks: []
+criteria:
+  - Q-01 closed (animation timing constants resolved)
+  - Q-02 closed (structure type mapping resolved)
+  - Q-03 closed (PLANNER intentionally reserved)
+  - Q-05 closed (EXECUTOR present via TYPE_COLORS)
+  - Q-06 closed (colors consistent)
+  - Q-07 closed (PLANNER in LegendOverlay)
+  - Q-08 closed (file never existed)
+  - Q-10 closed (ROAD symbol uses fallback)
+  - Q-11 closed (Kitty terrain endpoint fixed)
+  - Q-13 closed (notcurses obsolete)
+  - Q-14 closed (no PNGs intentional)
+  - Q-16 closed (upload pipeline wired)
+  - Q-17 closed (field doesn't exist)
+  - Q-19 closed (visual bug, low priority)
+  - Q-20 closed (duplicate of Q-14)
+  - Q-21 closed (test exists)
+  - Q-22 closed (test exists)
+  - Q-23 closed (minor asymmetry documented)
+  - Q-04 marked deferred (viewport persistence)
+  - All question files updated with resolution status
+domain: visualization
+notes: "Update each question file in .ideate/questions/ to add a `resolution` field with the resolution status and rationale. Questions resolved by existing code should have `status: closed`. Q-04 should have `status: deferred`."
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 870ddd9ebb3d41adae69ce0511d61e6c5a2905101c2b52a864283921b9790c98
+token_count: 575
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-283.yaml

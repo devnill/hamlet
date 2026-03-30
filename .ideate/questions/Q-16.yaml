@@ -1,14 +1,14 @@
 id: Q-16
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: Sprite upload pipeline not wired — sprites never display
 cycle_created: 1
 cycle_modified: null
-content_hash: "7d2f93210884f971c1c7d0ccab8ab8c6ddd7472db1e811a3e53cd61d4464b224"
-token_count: 73
+description: Sprite upload pipeline not wired — sprites never display
+domain: visualization
+impact: ""
+resolution: Sprite upload pipeline is now wired correctly. Sprites are uploaded and displayed properly through the Kitty graphics protocol integration.
+resolved_in: null
+source: ""
+status: closed
+content_hash: 0d50c35e84c9c8d58c96c7bb800d9d5e1993cc16c16fe6d6ebfc0cab87c9a784
+token_count: 92
 file_path: .ideate/questions/Q-16.yaml

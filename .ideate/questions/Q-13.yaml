@@ -1,14 +1,14 @@
 id: Q-13
 type: domain_question
-domain: visualization
-status: open
-impact: ""
-source: ""
-resolution: null
-resolved_in: null
-description: destroy_plane return value not checked in notcurses bindings
 cycle_created: 1
 cycle_modified: null
-content_hash: "7f021fb839ab1029c713518c652b01f6e4e3d81d7af3476bc57b0650d0f8bf7a"
-token_count: 74
+description: destroy_plane return value not checked in notcurses bindings
+domain: visualization
+impact: ""
+resolution: Notcurses bindings are now obsolete. The project has pivoted to Kitty graphics protocol, making this question no longer relevant.
+resolved_in: null
+source: ""
+status: closed
+content_hash: aa368fb237a28a61fad42f7d0575465fdc991b4a01c9d92cd297a33d721054a6
+token_count: 90
 file_path: .ideate/questions/Q-13.yaml

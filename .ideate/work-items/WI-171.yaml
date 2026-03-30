@@ -1,28 +1,28 @@
 id: WI-171
 type: work_item
 title: Add uv/mcp diagnostic to start.sh python3 fallback
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
 blocks: []
 criteria:
   - When uv is not on PATH and python3 is used as fallback, start.sh checks whether the mcp package is importable before exec-ing server.py
-  - "If mcp is not importable, start.sh writes a clear diagnostic message to stderr (e.g., \"hamlet: mcp package not found. Install uv or run: pip install mcp\") and exits 1"
+  - 'If mcp is not importable, start.sh writes a clear diagnostic message to stderr (e.g., "hamlet: mcp package not found. Install uv or run: pip install mcp") and exits 1'
   - If mcp is importable, start.sh proceeds with exec python3 server.py as before
   - The uv path is unchanged
-  - "The script remains POSIX sh compatible (#!/bin/sh shebang, no bash-specific syntax)"
+  - The script remains POSIX sh compatible (#!/bin/sh shebang, no bash-specific syntax)
 module: null
 domain: null
 notes: |
   # WI-171 Notes: Add diagnostic for missing mcp package in start.sh
-  
+
   ## Addresses
   - Gap SG1: MCP server silently fails when uv absent and mcp not pre-installed
-  
+
   ## File to modify
   `/Users/dan/code/hamlet/mcp/start.sh`
-  
+
   ## Current fallback
   ```sh
   else
@@ -30,10 +30,10 @@ notes: |
       exec python3 "${SCRIPT_DIR}/server.py"
   fi
   ```
-  
+
   ## Desired behavior
   Before executing server.py, check if mcp is importable. If not, emit a diagnostic to stderr and exit 1.
-  
+
   ```sh
   else
       # python3 fallback: requires mcp package pre-installed
@@ -44,7 +44,7 @@ notes: |
       exec python3 "${SCRIPT_DIR}/server.py"
   fi
   ```
-  
+
   ## Constraints
   - Script must remain POSIX sh compatible (#!/bin/sh is the current shebang)
   - `python3 -c "import mcp"` is POSIX-compatible
@@ -52,6 +52,7 @@ notes: |
   - Exit 1 causes Claude Code to record the MCP server as failed to launch — better than silent ModuleNotFoundError
 cycle_created: 1
 cycle_modified: null
-content_hash: "734f26b8d6efa32e4c2b3a24a452ccecf0470c9c8cfc18d0719988f0d6d5467a"
-token_count: 496
+content_hash: 003a71851ea21abc45e47380a412fd16ab90f0f17adfbec0b3bda7777e845c29
+token_count: 501
 file_path: .ideate/work-items/WI-171.yaml
+resolution: start.sh has python3 availability check and mcp import check

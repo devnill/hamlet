@@ -1,7 +1,7 @@
 id: WI-261
 type: work_item
 title: Refactor Bounds Calculation
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -13,40 +13,41 @@ module: null
 domain: null
 notes: |
   # WI-261: Refactor Bounds Calculation
-  
+
   ## Objective
   Remove duplicate bounds calculation logic by using shared utility.
-  
+
   ## Finding Addressed
   S4: Bounds calculation duplicated between map_viewer.py and coordinates.py.
-  
+
   ## File Scope
   - `src/hamlet/tui/map_viewer.py` — get_visible_bounds method
   - `src/hamlet/viewport/coordinates.py` — get_visible_bounds function
-  
+
   ## Implementation Notes
   The `get_visible_bounds` logic exists in both:
   1. `map_viewer.py:66-87` — calculates bounds for map viewer
   2. `coordinates.py:108-132` — shared utility function
-  
+
   Refactor MapViewer to use the shared utility:
-  
+
   ```python
   from hamlet.viewport.coordinates import get_visible_bounds, BoundingBox, Size
-  
+
   def get_visible_bounds(self) -> "BoundingBox":
       viewport_size = Size(self._viewport_width, self._viewport_height)
       center = Position(self.center_x, self.center_y)
       return get_visible_bounds(center, viewport_size, self.zoom)
   ```
-  
+
   Note: MapViewer currently has zoom support that coordinates.py may need to account for. Verify both implementations produce equivalent results after refactoring.
-  
+
   ## Acceptance Criteria
   - MapViewer.get_visible_bounds() calls shared utility from coordinates.py
   - No duplicate bounds calculation logic in map_viewer.py
 cycle_created: 1
 cycle_modified: null
-content_hash: "2072c8a57bf101b81d1611760cf8abf241ac8cad2939ca59b1f84cb5aeb44acb"
-token_count: 417
+content_hash: 1184c3a7349ecdc3cd40a09b1357f9977730ab9af39d211d47c6f183e4fea88d
+token_count: 419
 file_path: .ideate/work-items/WI-261.yaml
+resolution: get_visible_bounds imported and used in map_viewer.py

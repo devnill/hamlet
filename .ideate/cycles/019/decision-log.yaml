@@ -1,0 +1,69 @@
+id: decision-log
+type: cycle_summary
+content: |
+  # Decision Log — Cycle 19
+
+  ## Planning Phase
+
+  ### D1: Village menu as async overlay
+  - **When**: Planning — interview-refine-23 Q5/Q6
+  - **Decision**: Village menu shows immediately with loading state, populates asynchronously
+  - **Rationale**: Prevents blocking the main UI thread; provides immediate visual feedback
+  - **Implications**: VillageMenu widget needs loading state; `_populate_village_menu` runs via `asyncio.create_task`
+
+  ### D2: Kitty backend not in scope for village menu
+  - **When**: Planning — interview-refine-23 Q3
+  - **Decision**: Village menu feature is ASCII/Textual backend only
+  - **Rationale**: Kitty graphical backend does not have overlay infrastructure; feature prioritizes TUI experience
+  - **Implications**: Acceptance criterion "Both ASCII/Textual and Kitty backends work without flicker" is ambiguous; Kitty simply lacks the feature
+
+  ### D3: Cursor summary format
+  - **When**: Planning — interview-refine-23 Q2/Q5
+  - **Decision**: Status bar shows primary item plus context (e.g., "House L3, Village: foo")
+  - **Rationale**: Provides meaningful information without cluttering the view
+  - **Implications**: StatusBar extension required; VillageMenu displays village name from Village.name attribute
+
+  ### D4: Village name format as "{project_name} village"
+  - **When**: Planning — derived from GP-05 (Persistent World, Project-Based Villages)
+  - **Decision**: Village names derive from project names with consistent format
+  - **Rationale**: Each project maps to a village; naming convention ensures clarity and consistency
+  - **Implications**: Existing villages with placeholder names need migration
+
+  ## Execution Phase
+
+  ### D5: Async population via create_task
+  - **When**: Execution — WI-300 implementation
+  - **Decision**: Use `asyncio.create_task` for village menu population instead of `await`
+  - **Rationale**: Prevents blocking await on main UI thread during menu open
+  - **Implications**: Menu shows loading state immediately; data arrives after menu is visible
+
+  ### D6: Sorting by structures, agents, name
+  - **When**: Execution — WI-300 implementation
+  - **Decision**: Villages sorted by structure count (descending), then agent count (descending), then name alphabetically
+  - **Rationale**: Provides logical ordering; most active villages appear first
+  - **Implications**: Sorting logic in `village_menu.py:70-78`
+
+  ### D7: Placeholder village name migration
+  - **When**: Execution — WI-301 implementation
+  - **Decision**: Existing villages with placeholder names ("village", "test village") updated on load
+  - **Rationale**: Historical data should match new naming convention
+  - **Implications**: Migration in `manager.py:172-184` runs during `load_from_persistence`
+
+  ## Review Phase
+
+  ### D8: Test failure requires fix
+  - **When**: Review — code-quality finding
+  - **Decision**: Significant finding (S1) — test_health_endpoint test must be updated to expect version field
+  - **Rationale**: Health endpoint returns `{"status": "ok", "version": "0.7.2"}` but test expects `{"status": "ok"}`
+  - **Implications**: Test suite has 1 failure blocking CI/CD validation
+
+  ### D9: Kitty village menu documented as out of scope
+  - **When**: Review — spec-adherence finding
+  - **Decision**: Ambiguous acceptance criterion noted but not blocking; Kitty backend lacks village menu by design
+  - **Rationale**: Plan overview specifies "ASCII/Textual backend only" for village menu scope
+  - **Implications**: Acceptance criterion marked as "Ambiguous" rather than "Unmet"
+cycle: 19
+reviewer: journal-keeper
+content_hash: e22bc26d34cdd63cce61701fc1cdbbd4426c2440d39699cf1224eb94b5ea6712
+token_count: 910
+file_path: .ideate/cycles/019/decision-log.yaml

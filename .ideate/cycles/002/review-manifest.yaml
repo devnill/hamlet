@@ -1,0 +1,32 @@
+id: review-manifest
+type: cycle_summary
+cycle: 2
+manifest:
+  - findings: 0/0/0
+    id: WI-289
+    scope:
+      - tests/test_kitty_sprites.py
+    title: Add stale handle test for SpriteManager
+    verdict: Pass
+  - findings: 0/0/0
+    id: WI-290
+    scope:
+      - tests/test_inference_engine.py
+    title: Add PostToolUseFailure counter decrement test
+    verdict: Pass
+  - findings: 0/0/0
+    id: WI-291
+    scope:
+      - tests/test_hooks.py
+    title: Add StopFailure string format test
+    verdict: Pass
+  - findings: 0/0/0
+    id: WI-292
+    scope:
+      - .ideate/questions/Q-12.yaml
+      - .ideate/questions/Q-18.yaml
+    title: Close Q-12 and Q-18 as resolved
+    verdict: Pass
+content_hash: 85165fc5cbedc292f2daae1a48334083bc99961cc0807beb0984ed3d0d6c276c
+token_count: 171
+file_path: .ideate/cycles/002/review-manifest.yaml

@@ -1,7 +1,7 @@
 id: WI-223
 type: work_item
 title: Event pipeline parametrized test coverage
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -17,16 +17,16 @@ module: null
 domain: null
 notes: |
   # WI-223 Implementation Notes
-  
+
   ## Context
-  
+
   Test coverage gaps from Q-15. Need parametrized coverage over all 15 HookType values for
   EventProcessor.process_event and branch tests for specific handle_event branches.
-  
+
   ## tests/test_event_processor.py
-  
+
   ### Parametrized HookType test
-  
+
   ```python
   @pytest.mark.parametrize("hook_type_str", [ht.value for ht in HookType])
   async def test_process_event_all_hook_types(hook_type_str):
@@ -40,34 +40,35 @@ notes: |
       assert event.hook_type == HookType(hook_type_str)
       assert event.session_id == "sess-1"
   ```
-  
+
   ## tests/test_world_state_manager.py
-  
+
   ### SessionStart branch test
-  
+
   Call handle_event with HookType.SessionStart, project_id="p1", session_id="s1".
   Verify project and session exist in state.
-  
+
   ### SessionEnd branch test
-  
+
   Pre-populate an agent with session_id="s1" and state=ACTIVE.
   Call handle_event with HookType.SessionEnd, session_id="s1".
   Verify agent state is IDLE.
-  
+
   ### SubagentStart branch test
-  
+
   Pre-populate a session. Call handle_event with HookType.SubagentStart, session_id="s1".
   Verify an agent was created in the session.
-  
+
   ### TaskCompleted branch test
-  
+
   Pre-populate a session with an agent that has a valid village_id.
   Call handle_event with HookType.TaskCompleted.
   Verify add_work_units was called (structure work_units increased).
-  
+
   Do NOT add @pytest.mark.asyncio decorators (asyncio_mode = "auto").
 cycle_created: 1
 cycle_modified: null
-content_hash: "3c5e524829cb673ce3814e26461f47a444224c9dc41832a61df347cad3754e0c"
-token_count: 607
+content_hash: bbd67f5830a10644fcce229e5f6e1faef70b97ae73711166663f7320d4e0152c
+token_count: 606
 file_path: .ideate/work-items/WI-223.yaml
+resolution: Event pipeline parametrized test coverage exists

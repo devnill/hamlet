@@ -1,7 +1,7 @@
 id: WI-157
 type: work_item
 title: Fix LegendOverlay visible reactive and toggle mechanism
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -15,22 +15,22 @@ module: null
 domain: null
 notes: |
   # WI-157: Fix LegendOverlay visible reactive and toggle mechanism
-  
+
   ## Context
   WI-142 fixed HelpOverlay by removing its `visible: reactive[bool]` (which shadows DOMNode.visible) and using `overlay.display` instead. The same bug exists in LegendOverlay:
   - `src/hamlet/tui/legend.py` still has `visible: reactive[bool] = reactive(False)`
   - `action_toggle_legend` in app.py still uses `overlay.visible = not overlay.visible` instead of `overlay.display = not overlay.display`
-  
+
   ## Changes
-  
+
   ### src/hamlet/tui/legend.py
   Remove:
   - `visible: reactive[bool] = reactive(False)`
   - `watch_visible()` method (if present)
-  
+
   Add/keep:
   - `DEFAULT_CSS = "LegendOverlay { display: none; }"` (ensures hidden on startup)
-  
+
   ### src/hamlet/tui/app.py
   Change action_toggle_legend:
   ```python
@@ -41,17 +41,18 @@ notes: |
       except Exception as exc:
           logger.debug("toggle_legend: %s", exc)
   ```
-  
+
   ### tests/test_tui_legend.py
   Update tests that check `overlay.visible` to check `overlay.display` instead.
   Remove tests that exercise the visible reactive if they exist.
-  
+
   ## Notes
   - Read legend.py and app.py before modifying — verify actual current state
   - Follow the exact same pattern as WI-142's fix to help_overlay.py
   - Read test_tui_legend.py to understand what needs updating
 cycle_created: 1
 cycle_modified: null
-content_hash: "69d475bf93b1f69c2c1039c598294bab2deba7ca8ce2555bda69ba52c1c5e199"
-token_count: 503
+content_hash: 1c1de16e7b81eaeeea740dee9757d6e3ab4fb955fa6a1474a3b4aff743d65a1e
+token_count: 509
 file_path: .ideate/work-items/WI-157.yaml
+resolution: LegendOverlay uses display:none CSS, no visible:reactive

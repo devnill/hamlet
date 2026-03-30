@@ -1,7 +1,7 @@
 id: WI-239
 type: work_item
 title: RemoteWorldState terrain methods
-status: pending
+status: done
 complexity: medium
 scope: []
 depends: []
@@ -15,33 +15,33 @@ module: null
 domain: null
 notes: |
   # WI-239: RemoteWorldState terrain methods
-  
+
   ## Summary
   Add terrain query methods to `RemoteWorldState` for the TUI viewer. The viewer needs terrain data but connects to the daemon via HTTP.
-  
+
   ## Implementation
-  
+
   ### src/hamlet/tui/remote_world_state.py
-  
+
   Add terrain methods:
-  
+
   ```python
   async def get_terrain_at(self, x: int, y: int) -> "TerrainType":
       """Return terrain type at position. RemoteWorldState fetches terrain from daemon."""
       data = await self._fetch_state(f"/terrain/{x}/{y}")
       terrain_str = data.get("terrain", "plain")
       return TerrainType(terrain_str)
-  
+
   async def is_passable(self, x: int, y: int) -> bool:
       """Check if position is passable."""
       data = await self._fetch_state(f"/terrain/{x}/{y}")
       return data.get("passable", True)
   ```
-  
+
   ### src/hamlet/mcp_server/server.py (or appropriate HTTP endpoint)
-  
+
   Add terrain endpoint to HTTP API:
-  
+
   ```python
   # In MCPServer routes
   async def handle_terrain_request(self, request: web.Request) -> web.Response:
@@ -52,21 +52,21 @@ notes: |
           "terrain": terrain.value,
           "passable": terrain.passable,
       })
-  
+
   # Add route: app.router.add_get("/terrain/{x}/{y}", handle_terrain_request)
   ```
-  
+
   ### src/hamlet/tui/app.py
-  
+
   Update `RemoteWorldState` instantiation to include terrain:
-  
+
   ```python
   # The TUI already has a RemoteWorldState instance
   # WorldView will call get_terrain_at on it
   ```
-  
+
   ## Acceptance Criteria
-  
+
   - `RemoteWorldState.get_terrain_at(x, y)` returns `TerrainType` fetched from daemon
   - `RemoteWorldState.is_passable(x, y)` returns boolean fetched from daemon
   - HTTP endpoint `/terrain/{x}/{y}` returns JSON with `terrain` and `passable` fields
@@ -75,6 +75,7 @@ notes: |
   - A test verifies daemon endpoint returns correct terrain data
 cycle_created: 1
 cycle_modified: null
-content_hash: "0736de14f65f3b1431529320e78d777e7c39b9c05957d0e92420c07bdb189467"
-token_count: 668
+content_hash: c8b563f07f2712d55efe3b979ebe7c2388a9ead3878d9659ca5589bd6d476c99
+token_count: 673
 file_path: .ideate/work-items/WI-239.yaml
+resolution: RemoteWorldState has get_terrain_at, is_passable methods, HTTP endpoint exists

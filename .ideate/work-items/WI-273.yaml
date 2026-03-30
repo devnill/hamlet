@@ -1,7 +1,7 @@
 id: WI-273
 type: work_item
 title: Notcurses viewer app and entry point
-status: pending
+status: obsolete
 complexity: high
 scope: []
 depends: []
@@ -17,33 +17,34 @@ module: null
 domain: null
 notes: |
   # WI-273: Notcurses viewer app and entry point
-  
+
   ## Implementation Notes
-  
+
   ### NotcursesApp
   - Constructor takes remote_state + viewport (same as HamletApp pattern)
   - `async run()`: init notcurses, create renderer + sprite manager, enter 30fps loop
   - Each frame: poll input (non-blocking), refresh remote state, update viewport, render, sleep(1/30)
   - Cleanup in finally: renderer.cleanup(), sprite_mgr.cleanup(), bindings.stop()
-  
+
   ### Input handling
   Non-blocking via `get_nonblocking()`. Key mappings:
   - q=quit, h/left=scroll_left, l/right=scroll_right, k/up=scroll_up, j/down=scroll_down
   - f=follow (toggle, same logic as HamletApp — find most recent active agent)
   - /=legend toggle, +/==zoom_in, -=zoom_out
-  
+
   ### CLI wiring (cli/__init__.py)
   - Add `--renderer` to view subparser: choices=["auto", "textual", "notcurses"]
   - Modify `_view_command`: call resolve_renderer, dispatch to NotcursesApp or HamletApp
   - Also modify bare `hamlet` (no subcommand) to respect renderer setting
-  
+
   ### __main__.py
   Add `_run_viewer_notcurses(base_url)` mirroring `_run_viewer` but using NotcursesApp. Still uses RemoteStateProvider + RemoteWorldState for data.
-  
+
   ### Tests
   Mock bindings entirely. Test input dispatch: create app with mock state/viewport, call _handle_input with mock NcInput, verify scroll/follow/zoom calls.
 cycle_created: 1
 cycle_modified: null
-content_hash: "6d91b3a9bb3305646f7511df750ab1123511189116bfc2507270b6fc30e093eb"
-token_count: 512
+content_hash: d0f914a518934e93e87a1d5bb3b5ab0a0d089b9fdb866d8aa74e53cbff426fcc
+token_count: 520
 file_path: .ideate/work-items/WI-273.yaml
+resolution: Notcurses backend removed - project uses Kitty graphics protocol

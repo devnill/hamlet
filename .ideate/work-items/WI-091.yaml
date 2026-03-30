@@ -1,7 +1,7 @@
 id: WI-091
 type: work_item
 title: Hook Scripts - Notification and Stop
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -18,30 +18,30 @@ module: null
 domain: null
 notes: |
   # Implementation Notes: 091 - Hook Scripts - Notification and Stop
-  
+
   ## Scope
-  
+
   Complete the hook script suite with Notification and Stop handlers.
-  
+
   ## Implementation
-  
+
   ### notification.py
-  
+
   Similar structure to pre_tool_use.py but:
   - `hook_type`: "Notification"
   - Extracts `notification_type` and `message` from env
   - Used for non-tool events (errors, completions, etc.)
-  
+
   ### stop.py
-  
+
   - `hook_type`: "Stop"
   - Signals session end
   - Allows server to mark agents idle/zombie faster
-  
+
   ## Shared Code
-  
+
   Consider extracting common function to reduce duplication:
-  
+
   ```python
   def send_event(hook_type: str, extra_fields: dict = None) -> None:
       """Send event to Hamlet server. Never raises."""
@@ -60,26 +60,27 @@ notes: |
       except Exception:
           pass
   ```
-  
+
   But since scripts must be single-file and dependency-free, duplication is acceptable.
-  
+
   ## Testing
-  
+
   ```bash
   # Test notification
   $ CLAUDE_SESSION_ID=test python hooks/notification.py
-  
+
   # Test stop
   $ CLAUDE_SESSION_ID=test python hooks/stop.py
   ```
-  
+
   ## Acceptance Criteria Checklist
-  
+
   - [ ] All 4 hook scripts exist (pre, post, notification, stop)
   - [ ] All scripts follow same error handling pattern
   - [ ] All scripts are executable
 cycle_created: 1
 cycle_modified: null
-content_hash: "7adb27f84f4326d9566dd39b858fc90556f0823dbb3402cc654affbab738e8dd"
-token_count: 590
+content_hash: 3f7fae84640a72607c60774edd8b576e055f961f24285254198e2b1530716545
+token_count: 595
 file_path: .ideate/work-items/WI-091.yaml
+resolution: hooks/notification.py and stop.py exist with same pattern as other hooks

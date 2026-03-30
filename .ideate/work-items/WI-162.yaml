@@ -1,7 +1,7 @@
 id: WI-162
 type: work_item
 title: Move TOOL_TO_STRUCTURE map to world_state/rules.py
-status: pending
+status: done
 complexity: low
 scope: []
 depends: []
@@ -15,12 +15,12 @@ module: null
 domain: null
 notes: |
   # WI-162: Move TOOL_TO_STRUCTURE map to world_state/rules.py
-  
+
   ## Context
   WI-108 consolidated STRUCTURE_RULES to world_state/rules.py as the single source of truth. However, TOOL_TO_STRUCTURE (mapping tool names to StructureType) remained as a local dict in inference/engine.py:28-35. Both code-quality and spec-adherence reviewers independently flagged this as an incomplete consolidation.
-  
+
   ## Changes
-  
+
   ### src/hamlet/world_state/rules.py
   Add TOOL_TO_STRUCTURE dict (copy from engine.py, using the same StructureType values):
   ```python
@@ -33,22 +33,23 @@ notes: |
       "Bash": StructureType.FORGE,
   }
   ```
-  
+
   Add to `__all__` alongside `STRUCTURE_RULES`.
-  
+
   ### src/hamlet/inference/engine.py
   Remove the local TOOL_TO_STRUCTURE dict (lines ~28-35).
   Add import:
   ```python
   from hamlet.world_state.rules import TOOL_TO_STRUCTURE
   ```
-  
+
   ## Notes
   - Read rules.py and engine.py before modifying
   - Verify the exact keys in the current TOOL_TO_STRUCTURE in engine.py — the dict above is the expected content but confirm
   - Verify that only engine.py uses TOOL_TO_STRUCTURE (not other files that might need the import updated)
 cycle_created: 1
 cycle_modified: null
-content_hash: "5306d6fb08e762e7e7fa2e6bd08d633c0a56f5f7935115a2ad31ae2a900b04d6"
-token_count: 492
+content_hash: 1ec4c4b61139b2d6390a65121cb053ac1a8cc2c7f496e2e21fe1d10907f5296b
+token_count: 494
 file_path: .ideate/work-items/WI-162.yaml
+resolution: TOOL_TO_STRUCTURE defined in world_state/rules.py

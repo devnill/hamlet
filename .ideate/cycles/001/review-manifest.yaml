@@ -1,0 +1,34 @@
+id: review-manifest
+type: cycle_summary
+content: |
+  # Review Manifest — Cycle 001
+
+  ## Work Items Completed This Cycle
+
+  | ID | Title | Status |
+  |----|-------|--------|
+  | WI-283 | Close resolved open questions | done |
+  | WI-284 | Consolidate color maps to single source of truth | done |
+  | WI-285 | Add SpriteManager stale handle guard | done |
+  | WI-286 | Fix hook scripts tool_name extraction | done |
+  | WI-287 | Fix StopFailure hook error handling | done |
+  | WI-288 | Add PostToolUseFailure handling in inference engine | done |
+
+  ## Review Scope
+
+  Full review (cycle 1) — all source files in scope.
+
+  ## Files Changed
+
+  - hooks/pre_tool_use.py
+  - hooks/post_tool_use.py
+  - hooks/stop_failure.py
+  - src/hamlet/gui/symbol_config.py
+  - src/hamlet/gui/kitty/sprites.py
+  - src/hamlet/inference/engine.py
+  - tests/test_hooks.py
+  - .ideate/questions/Q-*.yaml (19 files)
+cycle: 1
+content_hash: 4359bc511b769c31ca71ad16f9e898b28abc0a319f601e1304a56e786564a3a4
+token_count: 225
+file_path: .ideate/cycles/001/review-manifest.yaml

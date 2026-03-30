@@ -1,0 +1,31 @@
+id: WI-286
+type: work_item
+title: Fix hook scripts tool_name extraction
+status: done
+complexity: medium
+scope:
+  - op: modify
+    path: hooks/pre_tool_use.py
+  - op: modify
+    path: hooks/post_tool_use.py
+depends: []
+blocks: []
+criteria:
+  - pre_tool_use.py extracts tool_name from top-level hook_input
+  - post_tool_use.py extracts tool_name from top-level hook_input
+  - tool_name is correctly passed to daemon in params
+  - Work units begin accumulating after fix
+  - Integration test verifies tool_name in event payload
+domain: architecture
+notes: |-
+  CRITICAL BUG: Hook scripts extract tool_name from hook_input['data']['tool_name'] but the actual format has tool_name at top-level: hook_input['tool_name'].
+
+  This causes all tool_name values to be empty strings, which breaks TOOL_TO_STRUCTURE mapping, preventing work units from being assigned to structures.
+
+  Fix: Change data.get('tool_name', '') to hook_input.get('tool_name', '') in both scripts.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: fb02bee672cd367f6c9145e9c44068d99fae0eee55a88ea502f9243cc8aab2f3
+token_count: 255
+file_path: /Users/dan/code/hamlet/.ideate/work-items/WI-286.yaml

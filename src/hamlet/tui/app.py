@@ -82,6 +82,25 @@ except ImportError:
         """Placeholder HelpOverlay."""
 
 
+try:
+    from hamlet.tui.village_menu import VillageMenu  # type: ignore[import]
+except ImportError:
+    class VillageMenu(_Widget):  # type: ignore[no-redef,misc]
+        """Placeholder VillageMenu — implemented in work item 298."""
+
+
+try:
+    from hamlet.tui.cursor import CursorState  # type: ignore[import]
+    from hamlet.tui.cursor_overlay import CursorOverlay  # type: ignore[import]
+except ImportError:
+    # Stub for when cursor module doesn't exist yet
+    class CursorState:  # type: ignore[no-redef,misc]
+        """Placeholder CursorState."""
+        pass
+    class CursorOverlay(_Widget):  # type: ignore[no-redef,misc]
+        """Placeholder CursorOverlay — implemented in work item 296."""
+
+
 # ---------------------------------------------------------------------------
 # HamletApp
 # ---------------------------------------------------------------------------
@@ -93,9 +112,37 @@ class HamletApp(App):
 
     CSS = """
     Screen {
-        layout: grid;
-        grid-rows: 1fr 20fr 5fr;
-        grid-columns: 1fr;
+        layout: vertical;
+    }
+
+    WorldView {
+        height: 1fr;
+    }
+
+    StatusBar {
+        height: auto;
+    }
+
+    EventLog {
+        height: 5;
+    }
+
+    VillageMenu {
+        layer: overlay;
+        background: $panel;
+        border: solid $primary;
+    }
+
+    LegendOverlay {
+        layer: overlay;
+    }
+
+    HelpOverlay {
+        layer: overlay;
+    }
+
+    CursorOverlay {
+        layer: overlay;
     }
     """
 
@@ -112,6 +159,8 @@ class HamletApp(App):
         Binding("/", "toggle_legend", "Legend", show=True),
         Binding("?", "toggle_help", "Help", show=True),
         Binding("f", "toggle_follow", "Follow", show=True),
+        Binding("v", "toggle_village_menu", "Villages", show=True),
+        Binding("enter", "village_jump", "Jump", show=False),
     ]
 
     def __init__(
@@ -126,6 +175,7 @@ class HamletApp(App):
         self._viewport = viewport
         self._event_processor = event_processor
         self._remote_provider = remote_provider
+        self._cursor_state = CursorState()
 
     def compose(self) -> ComposeResult:
         """Yield the main widgets and the legend overlay."""
@@ -135,6 +185,8 @@ class HamletApp(App):
         yield EventLog()
         yield LegendOverlay()
         yield HelpOverlay()
+        yield VillageMenu()
+        yield CursorOverlay(self._cursor_state)
 
     def on_mount(self) -> None:
         """Set up a 30 FPS refresh interval and a 10 Hz state polling interval after the app mounts."""
@@ -208,6 +260,9 @@ class HamletApp(App):
                     status_bar.current_activity = most_recent.current_activity or ""
                 else:
                     status_bar.current_activity = ""
+                # Update cursor summary if cursor is visible
+                cursor_summary = await self._query_cursor_summary(viewport_state.center)
+                status_bar.cursor_summary = cursor_summary
             except Exception as exc:
                 logger.debug("_update_state: StatusBar update failed: %s", exc)
 
@@ -222,24 +277,131 @@ class HamletApp(App):
         except Exception as exc:
             logger.debug("_update_state: failed: %s", exc)
 
+    async def _query_cursor_summary(self, center: "Position") -> str:  # type: ignore[name-defined]
+        """Query WorldState for entities at viewport center and return a summary string.
+
+        Priority: Agent > Structure > Village > Terrain.
+        Returns empty string if cursor is not visible.
+
+        Args:
+            center: Viewport center position to query.
+
+        Returns:
+            Summary string for display in StatusBar, or empty string.
+        """
+        # Check if cursor is visible
+        if not self._cursor_state.is_visible():
+            return ""
+
+        x, y = center.x, center.y
+
+        # Priority 1: Agent at position
+        # Query agents in a 1x1 bounds centered at the viewport center
+        from hamlet.viewport.coordinates import BoundingBox
+        single_cell_bounds = BoundingBox(
+            min_x=x, min_y=y, max_x=x, max_y=y
+        )
+        agents_at_pos = await self._world_state.get_agents_in_view(single_cell_bounds)
+        if agents_at_pos:
+            agent = agents_at_pos[0]
+            # Get village name for this agent
+            village_name = ""
+            if agent.village_id:
+                village = await self._world_state.get_village(agent.village_id)
+                if village:
+                    village_name = village.name
+            agent_type = agent.inferred_type.value
+            activity = agent.current_activity or ""
+            if village_name:
+                return f"{agent_type}, {activity}, {village_name}" if activity else f"{agent_type}, {village_name}"
+            return f"{agent_type}, {activity}" if activity else agent_type
+
+        # Priority 2: Structure at position
+        structures_at_pos = await self._world_state.get_structures_in_view(single_cell_bounds)
+        if structures_at_pos:
+            structure = structures_at_pos[0]
+            # Get village name for this structure
+            village_name = ""
+            if structure.village_id:
+                village = await self._world_state.get_village(structure.village_id)
+                if village:
+                    village_name = village.name
+            structure_type = structure.type.value.title()  # e.g., "House"
+            tier = structure.stage + 1  # stage is 0-indexed, tier is 1-indexed
+            if village_name:
+                return f"{structure_type} L{tier}, {village_name}"
+            return f"{structure_type} L{tier}"
+
+        # Priority 3: Village (check if position is within village bounds)
+        villages = await self._world_state.get_all_villages()
+        for village in villages:
+            if (village.bounds.min_x <= x <= village.bounds.max_x and
+                village.bounds.min_y <= y <= village.bounds.max_y):
+                # Position is within this village's bounds
+                project_name = ""
+                if village.project_id:
+                    project = self._world_state._state.projects.get(village.project_id)
+                    if project:
+                        project_name = project.name
+                agent_count = len(village.agent_ids)
+                if project_name:
+                    return f"{village.name} ({project_name}), {agent_count} agents"
+                return f"{village.name}, {agent_count} agents"
+
+        # Priority 4: Terrain
+        terrain = await self._world_state.get_terrain_at(x, y)
+        return terrain.value  # e.g., "plain", "water"
+
     # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
 
     def action_scroll_left(self) -> None:
-        """Scroll the viewport left by one cell."""
+        """Scroll the viewport left by one cell (unless village menu is visible)."""
+        self._cursor_state.reset_activity()
+        try:
+            menu = self.query_one(VillageMenu)
+            if menu.display:
+                return  # Village menu is visible, don't scroll
+        except Exception:
+            pass
         self._viewport.scroll(-1, 0)
 
     def action_scroll_right(self) -> None:
-        """Scroll the viewport right by one cell."""
+        """Scroll the viewport right by one cell (unless village menu is visible)."""
+        self._cursor_state.reset_activity()
+        try:
+            menu = self.query_one(VillageMenu)
+            if menu.display:
+                return  # Village menu is visible, don't scroll
+        except Exception:
+            pass
         self._viewport.scroll(1, 0)
 
     def action_scroll_up(self) -> None:
-        """Scroll the viewport up by one cell."""
+        """Scroll the viewport up by one cell (or navigate village menu if visible)."""
+        self._cursor_state.reset_activity()
+        try:
+            menu = self.query_one(VillageMenu)
+            if menu.display:
+                menu.move_selection(-1)
+                menu.refresh()
+                return
+        except Exception:
+            pass
         self._viewport.scroll(0, -1)
 
     def action_scroll_down(self) -> None:
-        """Scroll the viewport down by one cell."""
+        """Scroll the viewport down by one cell (or navigate village menu if visible)."""
+        self._cursor_state.reset_activity()
+        try:
+            menu = self.query_one(VillageMenu)
+            if menu.display:
+                menu.move_selection(1)
+                menu.refresh()
+                return
+        except Exception:
+            pass
         self._viewport.scroll(0, 1)
 
     def action_toggle_legend(self) -> None:
@@ -257,6 +419,69 @@ class HamletApp(App):
             overlay.display = not overlay.display
         except Exception as exc:
             logger.debug("toggle_help: %s", exc)
+
+    async def action_toggle_village_menu(self) -> None:
+        """Toggle the village menu overlay visibility and refresh village list."""
+        import asyncio
+
+        try:
+            menu = self.query_one(VillageMenu)
+            if menu.display:
+                # Menu is visible, close it
+                menu.display = False
+            else:
+                # Menu is hidden, show it immediately with loading state
+                logger.debug("village_menu: showing menu with loading state")
+                menu.set_loading(True)
+                menu.display = True
+                menu.refresh()
+                logger.debug("village_menu: spawning async task to populate")
+                # Spawn async task to populate villages (non-blocking)
+                asyncio.create_task(self._populate_village_menu(menu))
+        except Exception as exc:
+            logger.error("toggle_village_menu error: %s", exc)
+
+    async def _populate_village_menu(self, menu: "VillageMenu") -> None:  # type: ignore[name-defined]
+        """Fetch village data and populate the menu asynchronously.
+
+        Args:
+            menu: The VillageMenu widget to populate.
+        """
+        try:
+            logger.debug("village_menu: fetching villages from world state")
+            villages = await self._world_state.get_all_villages()
+            logger.debug("village_menu: fetched %d villages", len(villages))
+            # Find current village (nearest to viewport center)
+            viewport_state = self._viewport.get_viewport_state()
+            current_village = await self._world_state.get_nearest_village_to(
+                viewport_state.center.x, viewport_state.center.y
+            )
+            current_village_id = current_village.id if current_village else None
+            menu.set_villages(villages, current_village_id)
+            menu.refresh()
+            logger.debug("village_menu: populated menu successfully")
+        except Exception as exc:
+            logger.debug("_populate_village_menu: %s", exc)
+            # On error, show empty menu (not loading)
+            menu.set_villages([], None)
+            menu.refresh()
+
+    async def action_village_jump(self) -> None:
+        """Jump to the selected village center (Enter key in village menu)."""
+        try:
+            menu = self.query_one(VillageMenu)
+            if not menu.display:
+                return  # Menu not visible, nothing to do
+            village = menu.get_selected_village()
+            if village is not None:
+                center = getattr(village, "center", None)
+                if center is not None:
+                    from hamlet.viewport.coordinates import Position
+                    self._viewport.set_center(Position(center.x, center.y))
+                    # Close the menu after jumping
+                    menu.display = False
+        except Exception as exc:
+            logger.debug("village_jump: %s", exc)
 
     async def action_toggle_follow(self) -> None:
         """Toggle follow mode: follow most recently active agent, or revert to free mode."""
