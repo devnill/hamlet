@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 import aiohttp.web
 
+from hamlet import __version__
+
 if TYPE_CHECKING:
     from hamlet.protocols import WorldStateProtocol
 from mcp.server import Server
@@ -166,7 +168,7 @@ class MCPServer:
 
         Always returns HTTP 200 with {"status": "ok"} per GP-7 (graceful degradation).
         """
-        return aiohttp.web.json_response({"status": "ok"})
+        return aiohttp.web.json_response({"status": "ok", "version": __version__})
 
     async def _handle_terrain(self, request: aiohttp.web.Request) -> aiohttp.web.Response:
         """Handle GET /hamlet/terrain/{x}/{y} — return terrain type and passability.
