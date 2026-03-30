@@ -5,4 +5,4 @@ It receives hook events via MCP and renders a persistent world where agents cons
 structures that evolve over time.
 """
 
-__version__ = "0.5.0"
+__version__ = "0.7.1"

@@ -27,7 +27,7 @@ For more information, visit: https://github.com/dan/hamlet
     parser.add_argument(
         "--version",
         action="version",
-        version="%(prog)s 0.5.1"
+        version="%(prog)s 0.7.1"
     )
     parser.add_argument(
         "--map-viewer",
@@ -159,8 +159,13 @@ For more information, visit: https://github.com/dan/hamlet
     # Doctor command
     doctor_parser = subparsers.add_parser(
         "doctor",
-        help="Diagnose renderer configuration",
-        description="Print terminal type, tmux detection, and recommended renderer."
+        help="Diagnose renderer and hook configuration",
+        description="Print terminal type, tmux detection, and recommended renderer. Use --check-hooks to verify hook script connectivity to the daemon."
+    )
+    doctor_parser.add_argument(
+        "--check-hooks",
+        action="store_true",
+        help="Test connectivity between hook scripts and the daemon by hitting /hamlet/health"
     )
     doctor_parser.set_defaults(func=_doctor_command)
 

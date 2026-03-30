@@ -15,6 +15,7 @@ from hamlet.tui.app import HamletApp
 from hamlet.tui.status_bar import StatusBar
 from hamlet.tui.event_log import EventLog
 from hamlet.tui.legend import LegendOverlay
+from hamlet.tui.help_overlay import HelpOverlay
 from hamlet.tui.world_view import WorldView
 from hamlet.viewport.coordinates import BoundingBox, Position
 from hamlet.viewport.state import ViewportState
@@ -190,6 +191,36 @@ class TestHamletApp:
             assert legend.display is initial_display
 
     @pytest.mark.asyncio
+    async def test_action_toggle_help_toggles_visibility(
+        self, mock_world_state: Mock, mock_viewport: Mock
+    ) -> None:
+        """Action toggle_help toggles HelpOverlay visibility."""
+
+        class TestHamletApp(HamletApp):
+            def __init__(self) -> None:
+                super().__init__(mock_world_state, mock_viewport)
+
+        async with TestHamletApp().run_test() as pilot:
+            help_overlay = pilot.app.query_one(HelpOverlay)
+
+            # Initially hidden (display: none in CSS)
+            initial_display = help_overlay.display
+            assert initial_display is False
+
+            # Press ? to toggle help
+            await pilot.press("?")
+            await pilot.pause()
+
+            # Display should have toggled
+            assert help_overlay.display is not initial_display
+
+            # Press ? again to toggle back
+            await pilot.press("?")
+            await pilot.pause()
+
+            assert help_overlay.display is initial_display
+
+    @pytest.mark.asyncio
     async def test_update_state_updates_status_bar(
         self, mock_world_state: Mock, mock_viewport: Mock
     ) -> None:
@@ -295,4 +326,5 @@ class TestHamletApp:
             assert "j" in binding_keys  # scroll_down
             assert "k" in binding_keys  # scroll_up
             assert "/" in binding_keys  # toggle_legend
+            assert "?" in binding_keys  # toggle_help
             assert "f" in binding_keys  # toggle_follow
