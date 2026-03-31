@@ -1,10 +1,82 @@
 """Doctor command — diagnose renderer and hook configuration."""
 from __future__ import annotations
 
+import glob
 import os
+import re
 import urllib.error
 import urllib.request
 from argparse import Namespace
+from pathlib import Path
+
+_VERSION_RE = re.compile(r"""^HOOK_VERSION\s*=\s*['"]([^'"]+)['"]""")
+
+
+def _extract_hook_version(path: Path) -> str | None:
+    """Extract HOOK_VERSION from a hamlet_hook_utils.py file."""
+    for line in path.read_text().splitlines():
+        m = _VERSION_RE.match(line)
+        if m:
+            return m.group(1)
+    return None
+
+
+def _find_hook_utils() -> Path | None:
+    """Locate installed hamlet_hook_utils.py — plugin cache or package hooks dir."""
+    # Try marketplace plugin cache first (sort by mtime for correct ordering)
+    cache_pattern = os.path.expanduser(
+        "~/.claude/plugins/cache/marketplace/hamlet/*/hooks/hamlet_hook_utils.py"
+    )
+    matches = glob.glob(cache_pattern)
+    if matches:
+        return Path(sorted(matches, key=os.path.getmtime)[-1])
+
+    # Fallback: package's own hooks directory (hamlet install path)
+    try:
+        from hamlet.cli.commands.install import get_hooks_dir
+        hooks_dir = get_hooks_dir()
+        candidate = hooks_dir / "hamlet_hook_utils.py"
+        if candidate.exists():
+            return candidate
+    except Exception:
+        pass
+
+    return None
+
+
+def _check_hook_version() -> tuple[bool, str]:
+    """Check if installed hooks match the current package version.
+
+    Returns:
+        Tuple of (success, message).
+    """
+    try:
+        from hamlet import __version__ as package_version
+    except ImportError:
+        return False, "Could not determine package version"
+
+    hook_utils_path = _find_hook_utils()
+    if hook_utils_path is None:
+        return False, "No installed hooks found in plugin cache or package hooks directory"
+
+    try:
+        hook_version = _extract_hook_version(hook_utils_path)
+
+        if hook_version is None:
+            return False, (
+                f"Installed hooks at {hook_utils_path.parent} have no HOOK_VERSION. "
+                "Update the plugin to get versioned hooks."
+            )
+
+        if hook_version == package_version:
+            return True, f"Hook version {hook_version} matches package version"
+
+        return False, (
+            f"Hook version {hook_version} != package version {package_version}. "
+            "Hooks are stale."
+        )
+    except Exception as e:
+        return False, f"Could not read installed hooks: {e}"
 
 
 def _check_hook_connectivity() -> tuple[bool, str]:
@@ -73,7 +145,7 @@ def doctor_command(args: Namespace) -> int:
         recommended = f"unknown ({exc})"
     print(f"Recommended renderer: {recommended}")
 
-    # --- Hook connectivity check ---
+    # --- Hook checks ---
     if getattr(args, "check_hooks", False):
         print()
         print("Hook connectivity check")
@@ -88,5 +160,17 @@ def doctor_command(args: Namespace) -> int:
             print("  1. Start the daemon: hamlet daemon")
             print("  2. Or check if the port is correct in ~/.hamlet/config.json")
             print("  3. Verify no firewall is blocking localhost connections")
+
+        print()
+        print("Hook version check")
+        print("-" * 40)
+        success, message = _check_hook_version()
+        if success:
+            print(f"PASS: {message}")
+        else:
+            print(f"FAIL: {message}")
+            print("To fix:")
+            print("  1. Update the hamlet plugin in Claude Code (Extensions > Marketplace)")
+            print("  2. Or reinstall hooks: pipx install --force hamlet && hamlet install")
 
     return 0

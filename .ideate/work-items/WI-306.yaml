@@ -1,0 +1,27 @@
+id: WI-306
+type: work_item
+title: Add version sync test between plugin.json and __init__.py
+status: done
+complexity: low
+scope:
+  - path: tests/test_version_sync.py
+    op: create
+depends:
+  - WI-305
+blocks: []
+criteria:
+  - A pytest test exists that reads .claude-plugin/plugin.json and src/hamlet/__init__.py
+  - Test asserts the version strings are equal
+  - Test fails if versions diverge
+  - pytest collection discovers and runs the test
+domain: architecture
+phase: null
+notes: |-
+  Create `tests/test_version_sync.py`. The test reads `plugin.json` using `json.load` and imports `hamlet.__version__` (or reads `__init__.py` directly). Asserts equality.
+
+  Use `pathlib.Path(__file__).parent.parent` to locate repo root. Keep it simple — no fixtures needed.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 093d7b5c842944a642dfc7942a0b6f33ece7e98c3547585e35b145a8d107933e
+token_count: 205

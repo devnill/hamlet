@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Shared utilities for Hamlet hook scripts."""
+# Parsed by `hamlet doctor --check-hooks` to detect stale hooks (not imported at runtime)
+HOOK_VERSION = "0.7.3"
+
 import hashlib
 import json
 import os

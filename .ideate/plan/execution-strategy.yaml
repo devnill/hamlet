@@ -1,44 +1,26 @@
 id: execution-strategy
 type: execution_strategy
-title: "Execution Strategy — refine-21: Fix StatusBar, validation schema, Kitty test gaps"
-content: |
-  # Execution Strategy — refine-21: Fix StatusBar, validation schema, Kitty test gaps
-  
-  ## Mode
-  Batched parallel — all four items are independent with no shared file scope.
-  
-  ## Work items
-  
-  | ID | Title | Complexity | Key files |
-  |----|-------|------------|-----------|
-  | WI-287 | Wire _update_state into refresh loop | low | src/hamlet/tui/app.py |
-  | WI-288 | Fix validation schema error field type | low | src/hamlet/mcp_server/validation.py |
-  | WI-289 | Add agent symbol assertion to Kitty integration test | low | tests/test_kitty_integration.py |
-  | WI-290 | Add empty-state Kitty integration test | low | tests/test_kitty_integration.py, tests/fixtures/daemon_state_empty.json |
-  
-  ## Dependency graph
-  ```
-  287 ─┐
-  288 ─┤  (all independent)
-  289 ─┤
-  290 ─┘
-  ```
-  
-  Note: WI-289 and WI-290 both modify `tests/test_kitty_integration.py`. Execute them sequentially (289 then 290) to avoid merge conflicts, or use a single agent for both.
-  
-  ## Parallelism
-  - Group A (parallel): WI-287, WI-288
-  - Group B (sequential): WI-289 → WI-290
-  
-  ## Agent configuration
-  - Model: sonnet for all items (low complexity, well-scoped fixes)
-  - Worktree: not needed (small changes, no conflict risk within groups)
-  
-  ## Review cadence
-  - Review after all four items complete (single cycle review)
-  
-  ## Testing
-  - All items: pytest must pass with no regressions
-  - WI-287: Manual verification recommended — run `hamlet` viewer against live daemon, confirm status bar updates
-content_hash: cc4129cb1e5b0c932408dc8d428f712e8b54193dff15e718f87430901c874aed
-token_count: 407
+title: "Execution Strategy — refine-24: Fix stale hooks and version drift"
+mode: sequential
+parallelism: 1
+review_cadence: after all items complete
+groups:
+  - name: Version bump
+    items:
+      - WI-305
+    notes: Must complete first — WI-306 depends on it
+  - name: Validation
+    items:
+      - WI-306
+      - WI-307
+    notes: WI-306 depends on WI-305. WI-307 is independent but grouped here for review efficiency. Can run in parallel after WI-305 completes.
+dependency_graph:
+  WI-305: []
+  WI-306:
+    - WI-305
+  WI-307: []
+agent_config:
+  model: sonnet
+  worktree: false
+content_hash: b169ca0caa5e052b355b79dc9b375db206a4bccb683ad8bb7b9c391f48b890b0
+token_count: 156

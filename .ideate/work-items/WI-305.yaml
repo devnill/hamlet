@@ -1,0 +1,25 @@
+id: WI-305
+type: work_item
+title: Bump plugin.json version to match package version
+status: done
+complexity: low
+scope:
+  - path: .claude-plugin/plugin.json
+    op: modify
+depends: []
+blocks:
+  - WI-306
+criteria:
+  - plugin.json version field equals the version string in src/hamlet/__init__.py (currently 0.7.2)
+  - No other fields in plugin.json are changed
+domain: architecture
+phase: null
+notes: |-
+  Single-line change: update `"version": "0.5.0"` to `"version": "0.7.2"` in `.claude-plugin/plugin.json`. This triggers the marketplace to publish the update, which delivers the already-fixed hooks to users.
+
+  Verify by reading both files and confirming the version strings match.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: b52aae613b6bbd8c945bc5d342ba946b50ef39a1d322d02e3659d8c2996e7aed
+token_count: 186

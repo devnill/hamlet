@@ -1,42 +1,13 @@
 id: J-034-007
 type: journal_entry
-phase: review
-date: 2026-03-29
+phase: execute
+date: 2026-03-30
 cycle_created: 34
-title: cycle-complete
-content: >-
-  ## [review] 2026-03-29 — Cycle 19 completed
-
-
-  **Work items completed**: 2 (WI-300, WI-301)
-
-
-  **Review verdict**: Pass (after test fix)
-
-
-  **Findings summary**:
-
-  - Critical: 0
-
-  - Significant: 0
-
-  - Minor: 2 (broad exception clauses acceptable, Kitty backend scope
-  documented)
-
-
-  **Convergence**: Achieved
-
-
-  **Test fix**: Updated `test_health_endpoint` to expect version field in health
-  response
-
-
-  **Key decisions**:
-
-  - Village menu shows loading state immediately, populates asynchronously
-
-  - Kitty backend lacks village menu by design (TUI-only feature)
-
-  - Village names derive from project names with migration for existing data
-
-  - Test suite uses flexible assertion for health endpoint version field
+title: work-item-complete
+content: '## [execute] 2026-03-30 — Work item 307: Embed hook version and add
+  staleness check to hamlet doctor\nStatus: complete\nAdded HOOK_VERSION =
+  "0.7.2" to hooks/hamlet_hook_utils.py. Added _check_hook_version() to
+  doctor.py that searches the marketplace plugin cache for installed hooks,
+  reads HOOK_VERSION, and compares against the package version. Reports
+  PASS/FAIL under --check-hooks flag. Verified it correctly detects the stale
+  0.5.0 installed hooks.'

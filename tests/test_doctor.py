@@ -256,3 +256,102 @@ def test_check_hook_connectivity_returns_tuple():
     assert isinstance(result[1], str)
     assert result[0] is True
     assert "8080" in result[1]
+
+
+# --- Hook version check tests ---
+
+def test_check_hook_version_matching(tmp_path):
+    """_check_hook_version returns PASS when versions match."""
+    from hamlet.cli.commands.doctor import _check_hook_version
+
+    hook_utils = tmp_path / "hamlet_hook_utils.py"
+    hook_utils.write_text('HOOK_VERSION = "0.7.2"\n')
+
+    with patch("hamlet.cli.commands.doctor._find_hook_utils", return_value=hook_utils):
+        with patch("hamlet.__version__", "0.7.2"):
+            success, message = _check_hook_version()
+
+    assert success is True
+    assert "matches" in message
+
+
+def test_check_hook_version_stale(tmp_path):
+    """_check_hook_version returns FAIL when versions differ."""
+    from hamlet.cli.commands.doctor import _check_hook_version
+
+    hook_utils = tmp_path / "hamlet_hook_utils.py"
+    hook_utils.write_text('HOOK_VERSION = "0.5.0"\n')
+
+    with patch("hamlet.cli.commands.doctor._find_hook_utils", return_value=hook_utils):
+        with patch("hamlet.__version__", "0.7.2"):
+            success, message = _check_hook_version()
+
+    assert success is False
+    assert "0.5.0" in message
+    assert "stale" in message.lower()
+
+
+def test_check_hook_version_no_hooks_found():
+    """_check_hook_version returns FAIL when no hooks are installed."""
+    from hamlet.cli.commands.doctor import _check_hook_version
+
+    with patch("hamlet.cli.commands.doctor._find_hook_utils", return_value=None):
+        success, message = _check_hook_version()
+
+    assert success is False
+    assert "No installed hooks" in message
+
+
+def test_check_hook_version_no_version_marker(tmp_path):
+    """_check_hook_version returns FAIL when hooks lack HOOK_VERSION."""
+    from hamlet.cli.commands.doctor import _check_hook_version
+
+    hook_utils = tmp_path / "hamlet_hook_utils.py"
+    hook_utils.write_text('"""Old hook utils without version."""\n')
+
+    with patch("hamlet.cli.commands.doctor._find_hook_utils", return_value=hook_utils):
+        with patch("hamlet.__version__", "0.7.2"):
+            success, message = _check_hook_version()
+
+    assert success is False
+    assert "no HOOK_VERSION" in message
+
+
+def test_check_hook_version_single_quotes(tmp_path):
+    """_check_hook_version handles single-quoted HOOK_VERSION."""
+    from hamlet.cli.commands.doctor import _check_hook_version
+
+    hook_utils = tmp_path / "hamlet_hook_utils.py"
+    hook_utils.write_text("HOOK_VERSION = '0.7.2'\n")
+
+    with patch("hamlet.cli.commands.doctor._find_hook_utils", return_value=hook_utils):
+        with patch("hamlet.__version__", "0.7.2"):
+            success, message = _check_hook_version()
+
+    assert success is True
+    assert "matches" in message
+
+
+def test_check_hook_version_shown_in_doctor_output(capsys):
+    """doctor --check-hooks includes hook version check output."""
+    from hamlet.cli.commands.doctor import doctor_command
+
+    args = Namespace(check_hooks=True)
+
+    mock_settings = MagicMock()
+    mock_settings.mcp_port = 8080
+
+    mock_response = MagicMock()
+    mock_response.status = 200
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_response.__exit__ = MagicMock(return_value=False)
+
+    with patch("hamlet.config.settings.Settings.load", return_value=mock_settings):
+        with patch("hamlet.cli.commands.doctor.urllib.request.urlopen", return_value=mock_response):
+            with patch("hamlet.cli.commands.doctor._check_hook_version", return_value=(False, "Hooks are stale.")):
+                doctor_command(args)
+
+    captured = capsys.readouterr()
+    assert "Hook version check" in captured.out
+    assert "FAIL" in captured.out
+    assert "To fix:" in captured.out

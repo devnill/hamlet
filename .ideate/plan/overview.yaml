@@ -1,72 +1,19 @@
 id: overview
 type: overview
-content: |-
-  ## Change Plan — Viewport Cursor with Info Display
-
-  **Trigger**: New feature request — user wants visual feedback about what's under the viewport center and ability to navigate between villages.
-
-  **Scope**: ASCII/Textual backend only. No changes to Kitty backend, world simulation, or persistence.
-
-  ### What's Changing
-
-  1. **Cursor visibility at viewport center** — A cursor character appears at viewport center after movement keys, fades after 3 seconds of inactivity.
-
-  2. **Cursor summary in status bar** — Shows information about the item at viewport center (agent type/activity, structure type/tier, village name, or terrain type).
-
-  3. **Village menu overlay** — Press 'v' to list all villages with counts, select to jump viewport to that village.
-
-  ### Scope Boundary
-
-  **In scope:**
-  - New modules: `tui/cursor.py`, `tui/cursor_overlay.py`, `tui/village_menu.py`
-  - Modifications: `tui/app.py`, `tui/status_bar.py`, `world_state/manager.py`
-  - New tests: `test_cursor.py`, `test_cursor_overlay.py`, `test_village_menu.py`
-  - Integration tests in `test_tui_app.py`
-
-  **Not in scope:**
-  - Kitty graphical backend changes
-  - World simulation changes
-  - Persistence/database changes
-  - Hook system changes
-
-  ### Work Items
-
-  | ID | Title | Complexity | Dependencies |
-  |----|-------|------------|--------------|
-  | WI-295 | Add CursorState to track visibility and selection | small | none |
-  | WI-296 | Implement CursorOverlay widget | small | WI-295 |
-  | WI-297 | Display cursor summary in StatusBar | medium | WI-295 |
-  | WI-298 | Add VillageMenu overlay with jump functionality | medium | none |
-  | WI-299 | Wire cursor to movement keys and integrate | small | WI-295, WI-296, WI-297, WI-298 |
-
-  ### Dependency Graph
-
-  ```
-  WI-295 (CursorState)
-     |
-     +---> WI-296 (CursorOverlay)
-     |
-     +---> WI-297 (StatusBar summary)
-     
-  WI-298 (VillageMenu) [parallel with above]
-     
-  WI-295 + WI-296 + WI-297 + WI-298
-     |
-     +---> WI-299 (Integration)
-  ```
-
-  ### Expected Impact
-
-  - **User experience**: Clearer understanding of what's at viewport center; easier navigation between villages
-  - **Code impact**: New overlay widgets following existing patterns (LegendOverlay, HelpOverlay); minor StatusBar extension
-  - **Performance**: Negligible — cursor visibility check is O(1), summary query uses existing viewport bounds
-
-  ### Guiding Principles Alignment
-
-  - **GP-1 (Visual Interest)**: Cursor adds visual feedback without cluttering the view
-  - **GP-7 (Graceful Degradation)**: Cursor fades away if not interacted with
-  - **GP-11 (Low-Friction Setup)**: No new configuration required
-cycle: null
-content_hash: ea28934fac12164db625db5b01aca3c1a3c7c3619cbba996620bafe28a607219
-token_count: 675
-file_path: .ideate/plan/overview.yaml
+title: "Refinement: Fix stale marketplace hooks and prevent version drift"
+summary: The marketplace plugin (v0.5.0) ships hooks that read tool_name from a nested data object, but Claude Code now sends it at the top level. This silently breaks tool-name capture for ALL projects, causing villages to appear empty (0 structures despite thousands of events). The local source already has the correct hook code. This refinement bumps the plugin version to trigger a marketplace update, adds a test to prevent future version drift between plugin.json and __init__.py, and adds hook staleness detection to hamlet doctor.
+trigger: "User observed ideate project listed as 'test village' with minimal visual activity despite being the most active project (~7K events). Root cause: installed hooks from marketplace cache don't match local source."
+scope_boundary:
+  changing:
+    - Bump .claude-plugin/plugin.json version to match __init__.py (0.7.2)
+    - Add pytest test enforcing plugin.json == __init__.py version
+    - Embed __version__ in hooks/hamlet_hook_utils.py matching package version
+    - Add hook version staleness check to hamlet doctor
+  not_changing:
+    - Hook script logic (already correct in local source)
+    - Marketplace publishing flow
+    - Hook registration mechanism (hooks.json)
+    - Architecture, guiding principles, constraints
+expected_impact: After marketplace publishes the updated plugin, all users get working hooks that correctly capture tool names. Future version drift is caught by CI. Users can run hamlet doctor to detect stale hooks after updates.
+content_hash: 8d2c1cfce98c804f92be57b460775d64145bb21c09c26664b6f0df080a322075
+token_count: 402

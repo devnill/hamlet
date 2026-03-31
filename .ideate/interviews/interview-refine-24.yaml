@@ -1,0 +1,18 @@
+id: interview-refine-24
+type: interview
+format: refine
+entries:
+  - question: What changes are you looking to make?
+    answer: User wanted to understand why ideate shows as 'test village' in hamlet. Investigation revealed the village IS receiving events (most active project, ~7K events) but has 0 structures because installed marketplace hooks (v0.5.0) read tool_name from a nested data object while Claude Code now sends it at the top level. Local source has the fix but hasn't been published.
+    domain: architecture
+  - question: Is the plugin version supposed to track the package version?
+    answer: Yes, plugin.json should match __init__.py. They got out of sync — 0.5.0 vs 0.7.2.
+    domain: architecture
+  - question: For 'ensure hooks are properly installed' — what mechanism?
+    answer: We should ensure hooks aren't stale after updates. hamlet doctor should detect version mismatches between installed hooks and the current package.
+    domain: architecture
+  - question: "Scope confirmation: bump plugin version, add version sync test, add hook staleness check to doctor. No changes to hook logic, marketplace flow, or architecture."
+    answer: Confirmed.
+    domain: null
+content_hash: 6308c0fe1e810650aba88c35fd6c88d39ea4376571522c8171b35b647fa77925
+token_count: 297

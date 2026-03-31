@@ -1,0 +1,38 @@
+id: WI-307
+type: work_item
+title: Embed hook version and add staleness check to hamlet doctor
+status: done
+complexity: small
+scope:
+  - path: hooks/hamlet_hook_utils.py
+    op: modify
+  - path: src/hamlet/cli/commands/doctor.py
+    op: modify
+depends: []
+blocks: []
+criteria:
+  - hooks/hamlet_hook_utils.py contains a HOOK_VERSION variable set to the current package version (0.7.2)
+  - hamlet doctor --check-hooks reports hook version and whether it matches the package version
+  - When hook version is stale, doctor prints a clear diagnostic with fix instructions
+  - When hook version matches, doctor prints PASS
+domain: architecture
+phase: null
+notes: |-
+  Two changes:
+
+  1. In `hooks/hamlet_hook_utils.py`, add `HOOK_VERSION = "0.7.2"` near the top. This gets published with the hooks and serves as a version tag for staleness detection.
+
+  2. In `src/hamlet/cli/commands/doctor.py`, add a hook staleness check inside the `--check-hooks` branch. The check should:
+     - Find the installed hooks directory by checking known plugin cache paths (`~/.claude/plugins/cache/marketplace/hamlet/*/hooks/`) and/or the hooks registered in Claude Code settings
+     - Import or read `HOOK_VERSION` from the installed `hamlet_hook_utils.py`
+     - Compare against `hamlet.__version__`
+     - Print PASS if matching, FAIL with instructions if stale
+
+  Keep the detection best-effort — if the installed hooks can't be found, print a warning rather than failing.
+
+  Note: HOOK_VERSION must be updated alongside __init__.py on version bumps. The test from WI-306 only covers plugin.json; consider whether to extend it or add a separate assertion. Use judgment — if it's a one-liner addition to the existing test, do it there.
+resolution: null
+cycle_created: null
+cycle_modified: null
+content_hash: 8a842e173032ec58a25bd48190d5270ab7952a55dfd0839c8e3a390706690dc2
+token_count: 443
